@@ -28,5 +28,6 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 26,
     fontWeight: '800',
+    textAlign: 'center',
   },
 });

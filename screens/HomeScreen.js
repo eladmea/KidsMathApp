@@ -42,6 +42,13 @@ export default function HomeScreen({ navigation }) {
           onPress={() => navigation.navigate('Quiz', { difficulty })}
           style={styles.startButton}
         />
+
+        <BigButton
+          label="🦁 🐸 2-Player Memory Game"
+          color={colors.purple}
+          onPress={() => navigation.navigate('Memory')}
+          style={styles.memoryButton}
+        />
       </View>
     </SafeAreaView>
   );
@@ -84,5 +91,10 @@ const styles = StyleSheet.create({
   },
   startButton: {
     minWidth: 220,
+  },
+  memoryButton: {
+    marginTop: 16,
+    minWidth: 220,
+    maxWidth: '90%',
   },
 });
