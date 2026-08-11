@@ -1,7 +1,7 @@
 import { Pressable, Text, StyleSheet } from 'react-native';
 import { colors, shadow } from '../utils/theme';
 
-export default function MemoryCard({ value, status, onPress, disabled }) {
+export default function MemoryCard({ value, status, size, onPress, disabled }) {
   const isFaceUp = status === 'flipped' || status === 'matched';
   const isMatched = status === 'matched';
 
@@ -11,13 +11,14 @@ export default function MemoryCard({ value, status, onPress, disabled }) {
       disabled={disabled || isFaceUp}
       style={({ pressed }) => [
         styles.card,
+        { width: size, height: size },
         isFaceUp ? styles.cardFaceUp : styles.cardFaceDown,
         isMatched && styles.cardMatched,
         pressed && !isFaceUp && !disabled && styles.cardPressed,
         shadow,
       ]}
     >
-      <Text style={isFaceUp ? styles.valueText : styles.backText}>
+      <Text style={[isFaceUp ? styles.valueText : styles.backText, { fontSize: size * 0.4 }]}>
         {isFaceUp ? value : '?'}
       </Text>
     </Pressable>
@@ -26,9 +27,6 @@ export default function MemoryCard({ value, status, onPress, disabled }) {
 
 const styles = StyleSheet.create({
   card: {
-    width: '22%',
-    aspectRatio: 1,
-    margin: '1.5%',
     borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
@@ -50,12 +48,10 @@ const styles = StyleSheet.create({
     opacity: 0.8,
   },
   backText: {
-    fontSize: 30,
     fontWeight: '900',
     color: colors.white,
   },
   valueText: {
-    fontSize: 30,
     fontWeight: '900',
     color: colors.textDark,
   },

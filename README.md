@@ -16,9 +16,11 @@ A colorful Expo React Native math practice app for kids ages 5-9.
 Two players (🦁 Player 1 and 🐸 Player 2) take turns flipping two cards from a 4x4 grid of numbers 1-8 (each number appears twice). The current player's turn is always shown with their color and animal icon so it's obvious whose go it is.
 
 - **Natural match** (both cards show the same number): the pair is cleared, the player scores a point, and they go again.
-- **Mismatch** (e.g. 2 and 5): the player is offered a trade — spend bonus chips equal to the difference (3 chips, in this example) to bump the lower number up to the higher one, turning them into a matching pair. If they take the trade, they score the pair and go again.
-- **The twist**: whatever chips are spent to force a match are handed straight to the *other* player. Forcing a match like 2→5 uses up the board's other "2" and "5" cards' natural partners, so it leaves an orphaned pair elsewhere with the same 3-point gap — the chips transferred are exactly enough for the other player to close that gap later. Chips aren't consumed by the game, they just move between players.
-- Each player starts with 🪙 10 bonus chips. If a player can't afford (or declines) the trade, the cards flip back over and the turn passes to the other player.
+- **Mismatch** (e.g. 2 and 5): if the player has enough chips to attempt it, they're asked to *calculate* the gap themselves — "how many chips does it take to turn 2 into 5?" — and pick the answer from 4 choices. This is the math practice: no cost is shown up front, they have to work out `5 - 2` on their own.
+  - **Guess correctly**: they pay that many chips, the pair is cleared and scored, those chips are handed to the *other* player, and the correct player goes again.
+  - **Guess wrong**: they still lose that many chips (gone for good, not given to anyone), the pair flips back face-down and stays in play, and the turn passes to the other player. Wrong math has a real cost.
+- **The twist**: forcing a match like 2→5 uses up the board's other "2" and "5" cards' natural partners, leaving an orphaned pair elsewhere with the same 3-chip gap. The chips the first player paid land in the other player's pile — exactly enough for them to close that same gap later, if they calculate it correctly too.
+- Each player starts with 🪙 10 bonus chips. If a player doesn't have enough chips to even attempt the gap, the cards just flip back and the turn passes — no guess is offered.
 - The game ends when all cards are matched; whoever found the most pairs wins.
 
 ## Project structure
@@ -40,7 +42,7 @@ components/
   MemoryCard.js
   PlayerBanner.js
   PlayerStatsRow.js
-  ChipOfferModal.js
+  ChipGuessModal.js
   MemoryResultsModal.js
 utils/
   questionGenerator.js    Random question generation per difficulty
