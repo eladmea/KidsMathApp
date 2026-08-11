@@ -120,8 +120,8 @@ export default function MemoryGameScreen({ navigation }) {
           ...prev,
           [currentPlayer]: Math.max(0, prev[currentPlayer] - cost),
         }));
-        setCurrentPlayer((prev) => otherPlayer(prev));
       }
+      setCurrentPlayer((prev) => otherPlayer(prev));
       setPendingMismatch(null);
       setSelectedGuess(null);
       setFlippedCards([]);

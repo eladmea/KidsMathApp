@@ -17,7 +17,7 @@ Two players (🦁 Player 1 and 🐸 Player 2) take turns flipping two cards from
 
 - **Natural match** (both cards show the same number): the pair is cleared, the player scores a point, and they go again.
 - **Mismatch** (e.g. 2 and 5): if the player has enough chips to attempt it, they're asked to *calculate* the gap themselves — "how many chips does it take to turn 2 into 5?" — and pick the answer from 4 choices. This is the math practice: no cost is shown up front, they have to work out `5 - 2` on their own.
-  - **Guess correctly**: they pay that many chips, the pair is cleared and scored, those chips are handed to the *other* player, and the correct player goes again.
+  - **Guess correctly**: they pay that many chips, the pair is cleared and scored, and those chips are handed to the *other* player — but the turn still passes to the other player (using chips costs you your extra turn, unlike a natural match).
   - **Guess wrong**: they still lose that many chips (gone for good, not given to anyone), the pair flips back face-down and stays in play, and the turn passes to the other player. Wrong math has a real cost.
 - **The twist**: forcing a match like 2→5 uses up the board's other "2" and "5" cards' natural partners, leaving an orphaned pair elsewhere with the same 3-chip gap. The chips the first player paid land in the other player's pile — exactly enough for them to close that same gap later, if they calculate it correctly too.
 - Each player starts with 🪙 10 bonus chips. If a player doesn't have enough chips to even attempt the gap, the cards just flip back and the turn passes — no guess is offered.
