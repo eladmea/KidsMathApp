@@ -1,10 +1,5 @@
-export const PAIR_COUNT = 8;
-export const STARTING_CHIPS = 10;
-const MAX_COST = PAIR_COUNT - 1;
-
-function randInt(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
+export const PAIR_COUNT = 12;
+export const STARTING_CHIPS = PAIR_COUNT;
 
 function shuffle(array) {
   const copy = [...array];
@@ -33,16 +28,4 @@ export function otherPlayer(player) {
 
 export function chipCostToMatch(valueA, valueB) {
   return Math.abs(valueA - valueB);
-}
-
-export function buildChipCostChoices(cost) {
-  const choices = new Set([cost]);
-  while (choices.size < 4) {
-    const offset = randInt(-3, 3) || 1;
-    const candidate = cost + offset;
-    if (candidate >= 1 && candidate <= MAX_COST && !choices.has(candidate)) {
-      choices.add(candidate);
-    }
-  }
-  return shuffle(Array.from(choices));
 }

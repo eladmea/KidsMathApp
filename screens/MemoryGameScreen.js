@@ -5,13 +5,7 @@ import PlayerBanner from '../components/PlayerBanner';
 import PlayerStatsRow from '../components/PlayerStatsRow';
 import ChipGuessModal from '../components/ChipGuessModal';
 import MemoryResultsModal from '../components/MemoryResultsModal';
-import {
-  createDeck,
-  otherPlayer,
-  chipCostToMatch,
-  buildChipCostChoices,
-  STARTING_CHIPS,
-} from '../utils/memoryGame';
+import { createDeck, otherPlayer, chipCostToMatch, STARTING_CHIPS } from '../utils/memoryGame';
 import { colors } from '../utils/theme';
 
 const PEEK_DELAY_MS = 700;
@@ -74,7 +68,6 @@ export default function MemoryGameScreen({ navigation }) {
             cost,
             chipsAvailable: chips[currentPlayer],
             opponent: otherPlayer(currentPlayer),
-            choices: buildChipCostChoices(cost),
           });
         }
       }, PEEK_DELAY_MS);
@@ -129,7 +122,7 @@ export default function MemoryGameScreen({ navigation }) {
     }, GUESS_FEEDBACK_DELAY_MS);
   }
 
-  function handleAcknowledgeCantAfford() {
+  function handleSkip() {
     const { lowId, highId } = pendingMismatch;
     setDeck((prev) =>
       prev.map((c) => (c.id === lowId || c.id === highId ? { ...c, status: 'hidden' } : c))
@@ -186,7 +179,7 @@ export default function MemoryGameScreen({ navigation }) {
         activePlayer={currentPlayer}
         selectedGuess={selectedGuess}
         onSelectGuess={handleSelectGuess}
-        onAcknowledgeCantAfford={handleAcknowledgeCantAfford}
+        onSkip={handleSkip}
       />
 
       <MemoryResultsModal

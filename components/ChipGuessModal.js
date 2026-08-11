@@ -1,7 +1,33 @@
-import { Modal, View, Text, StyleSheet } from 'react-native';
-import AnswerButton from './AnswerButton';
+import { Modal, View, Text, Pressable, ScrollView, StyleSheet } from 'react-native';
 import BigButton from './BigButton';
 import { playerColors, colors, shadow } from '../utils/theme';
+
+const NUMBER_STATE_STYLES = {
+  default: { backgroundColor: colors.white, borderColor: colors.primary, textColor: colors.textDark },
+  correct: { backgroundColor: colors.green, borderColor: colors.greenDark, textColor: colors.white },
+  wrong: { backgroundColor: colors.red, borderColor: colors.redDark, textColor: colors.white },
+  disabled: { backgroundColor: colors.white, borderColor: colors.gray, textColor: colors.gray },
+};
+
+function NumberChip({ value, state, disabled, onPress }) {
+  const style = NUMBER_STATE_STYLES[state] || NUMBER_STATE_STYLES.default;
+  return (
+    <Pressable
+      onPress={onPress}
+      disabled={disabled}
+      style={({ pressed }) => [
+        styles.numberChip,
+        {
+          backgroundColor: style.backgroundColor,
+          borderColor: style.borderColor,
+          opacity: pressed && !disabled ? 0.85 : 1,
+        },
+      ]}
+    >
+      <Text style={[styles.numberChipText, { color: style.textColor }]}>{value}</Text>
+    </Pressable>
+  );
+}
 
 export default function ChipGuessModal({
   visible,
@@ -9,7 +35,7 @@ export default function ChipGuessModal({
   activePlayer,
   selectedGuess,
   onSelectGuess,
-  onAcknowledgeCantAfford,
+  onSkip,
 }) {
   if (!mismatch) return null;
 
@@ -18,6 +44,7 @@ export default function ChipGuessModal({
   const canAttempt = mismatch.chipsAvailable >= mismatch.cost;
   const hasAnswered = selectedGuess !== null;
   const isCorrect = selectedGuess === mismatch.cost;
+  const numberOptions = Array.from({ length: mismatch.chipsAvailable }, (_, i) => i + 1);
 
   function getChoiceState(choice) {
     if (!hasAnswered) return 'default';
@@ -41,9 +68,15 @@ export default function ChipGuessModal({
                 into {mismatch.highValue}?
               </Text>
 
-              <View style={styles.choices}>
-                {mismatch.choices.map((choice) => (
-                  <AnswerButton
+              {!hasAnswered && (
+                <BigButton label="⏭ Skip" color={colors.gray} onPress={onSkip} style={styles.skipButton} />
+              )}
+
+              <Text style={styles.orLabel}>{hasAnswered ? 'Your guess:' : 'or pick a number of chips'}</Text>
+
+              <ScrollView style={styles.numberScroll} contentContainerStyle={styles.numberGrid}>
+                {numberOptions.map((choice) => (
+                  <NumberChip
                     key={choice}
                     value={choice}
                     state={getChoiceState(choice)}
@@ -51,7 +84,7 @@ export default function ChipGuessModal({
                     onPress={() => onSelectGuess(choice)}
                   />
                 ))}
-              </View>
+              </ScrollView>
 
               {hasAnswered && (
                 <Text style={[styles.feedback, { color: isCorrect ? colors.greenDark : colors.redDark }]}>
@@ -66,7 +99,7 @@ export default function ChipGuessModal({
               <Text style={styles.detail}>
                 You'd need at least 🪙 {mismatch.cost} chips, but only have {mismatch.chipsAvailable}.
               </Text>
-              <BigButton label="Okay" color={player.main} onPress={onAcknowledgeCantAfford} style={styles.okButton} />
+              <BigButton label="⏭ Skip" color={player.main} onPress={onSkip} style={styles.okButton} />
             </>
           )}
         </View>
@@ -104,17 +137,45 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 14,
   },
-  choices: {
+  skipButton: {
+    width: '100%',
+    paddingVertical: 14,
+    marginBottom: 14,
+  },
+  orLabel: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: colors.gray,
+    marginBottom: 10,
+  },
+  numberScroll: {
+    maxHeight: 220,
+    width: '100%',
+  },
+  numberGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    width: '100%',
+    justifyContent: 'center',
+    gap: 10,
+    paddingBottom: 4,
+  },
+  numberChip: {
+    width: 52,
+    height: 52,
+    borderRadius: 16,
+    borderWidth: 3,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  numberChipText: {
+    fontSize: 20,
+    fontWeight: '800',
   },
   feedback: {
     fontSize: 15,
     fontWeight: '700',
     textAlign: 'center',
-    marginTop: 6,
+    marginTop: 10,
   },
   okButton: {
     width: '60%',

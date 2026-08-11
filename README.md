@@ -13,14 +13,15 @@ A colorful Expo React Native math practice app for kids ages 5-9.
 
 ## Memory Game rules
 
-Two players (🦁 Player 1 and 🐸 Player 2) take turns flipping two cards from a 4x4 grid of numbers 1-8 (each number appears twice). The current player's turn is always shown with their color and animal icon so it's obvious whose go it is.
+Two players (🦁 Player 1 and 🐸 Player 2) take turns flipping two cards from a 6x4 grid of numbers 1-12 (each number appears twice — 24 cards, 12 pairs). The current player's turn is always shown with their color and animal icon so it's obvious whose go it is.
 
 - **Natural match** (both cards show the same number): the pair is cleared, the player scores a point, and they go again.
-- **Mismatch** (e.g. 2 and 5): if the player has enough chips to attempt it, they're asked to *calculate* the gap themselves — "how many chips does it take to turn 2 into 5?" — and pick the answer from 4 choices. This is the math practice: no cost is shown up front, they have to work out `5 - 2` on their own.
+- **Mismatch** (e.g. 2 and 5): if the player has enough chips to attempt it, they're asked to *calculate* the gap themselves — "how many chips does it take to turn 2 into 5?" — with no cost shown up front. They pick their answer from every number between 1 and however many chips they currently have (so the real answer is always among the options), or tap **⏭ Skip** to walk away without risking any chips.
   - **Guess correctly**: they pay that many chips, the pair is cleared and scored, and those chips are handed to the *other* player — but the turn still passes to the other player (using chips costs you your extra turn, unlike a natural match).
   - **Guess wrong**: they still lose that many chips (gone for good, not given to anyone), the pair flips back face-down and stays in play, and the turn passes to the other player. Wrong math has a real cost.
+  - **Skip**: no chips are risked, the pair flips back face-down, and the turn passes.
 - **The twist**: forcing a match like 2→5 uses up the board's other "2" and "5" cards' natural partners, leaving an orphaned pair elsewhere with the same 3-chip gap. The chips the first player paid land in the other player's pile — exactly enough for them to close that same gap later, if they calculate it correctly too.
-- Each player starts with 🪙 10 bonus chips. If a player doesn't have enough chips to even attempt the gap, the cards just flip back and the turn passes — no guess is offered.
+- Each player starts with 🪙 chips equal to the number of pairs on the board (12, by default) — bigger boards mean a bigger bonus-chip pool. If a player doesn't have enough chips to even attempt the gap, the cards just flip back and the turn passes — no guess is offered.
 - The game ends when all cards are matched; whoever found the most pairs wins.
 
 ## Project structure
