@@ -641,7 +641,7 @@ All earlier walkthroughs (Phases 4–6, round 1) were re-run and pass. Real iOS 
 - **Found by screenshot review:** "2, 3, 5, 8, ?" could also be read as "add the two before" (13 instead of 12). That rule now shows five numbers (2, 3, 5, 8, 12), and the new test guards against such ambiguity.
 - **Verification:** every pattern level was opened in the browser for ages 4, 6, 8 and 10 and showed the expected choices (2, 3, 3, 3, 3, 4, 3, 4), with no page errors. All earlier walkthroughs pass.
 
-### Phase 5b, round 6: writing games for ages 3–4 (2026-10-16, commit `WRITING`)
+### Phase 5b, round 6: writing games for ages 3–4 (2026-10-16, commit `3c4790c`)
 
 **Feedback:** ages 3–4 need more fun games for writing digits. The idea came from the owner: make a pizza (dough, sauce, cheese) and choose the topping and the number.
 
