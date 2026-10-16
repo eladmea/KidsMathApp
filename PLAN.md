@@ -99,7 +99,8 @@ The variants also get a **solo mode against an AI buddy** and a post-game reflec
 | Dress for Weather | Science | 3–6 | ✅ 3 |
 | Push & Roll | Science | 5–8 | ✅ 3 |
 | Robo Path (coding) | Logic | 4–10 | ✅ 3 |
-| Freeze Zoo (go/no-go) | EF | 3–8 | ✅ 3 |
+| Bunny Pop (whack-a-mole go/no-go: boop only the bunny) | EF | 3–4 | ✅ 5b |
+| Freeze Zoo (go/no-go with a rule switch) | EF | 5–8 | ✅ 3 (moved from 3–4 in 5b) |
 | Feelings Friends | SEL | 5–8 | ✅ 4 |
 
 ### C. Mini-games (60–90 s breaks)
@@ -572,6 +573,28 @@ Goal: the most natural voice possible on web, iOS and Android, free, with no API
 - on an iPhone user agent, nothing was spoken until the first tap, then the greeting was replayed.
 
 All earlier walkthroughs (Phases 4–6, round 1) were re-run and pass. Real iOS and Android devices still need a check by hand: the silent switch, ducking and voice lists can't be emulated here.
+
+### Phase 5b, round 3: always 4 answer choices (2026-10-16)
+
+- **Feedback:** Quick Look sometimes showed only 3 answers instead of 4.
+- **Cause:** answer choices were numbers within 2 of the answer, limited to the 1–5 range. For an answer of 1 or 5 that leaves only 3 numbers.
+- **Change:** `buildChoices` widens the window on the open side near an edge. An answer of 1 now offers 1–4 and an answer of 5 offers 2–5, so there are always 4 choices when the range allows.
+- **Tests:** 260 unit tests, including a check that every numeric multiple-choice question has 4 distinct choices. Bigger Number keeps its deliberate 2 choices.
+- **Verification:** 30 Quick Look questions in the browser all showed 4 choices.
+- **Also fixed:** a test sweep found that *What Comes Next?* counting down to 0 (3, 2, 1 → ?) showed 3 choices, because most of its "typical slip" wrong answers were negative. It now tops up with nearby numbers.
+
+### Phase 5b, round 4: Bunny Pop replaces Freeze Zoo for ages 3–4 (2026-10-16)
+
+- **Feedback:** Freeze Zoo is too complex for 3–4-year-olds. Use whack-a-mole instead, with one target that stays the same among other animals they shouldn't tap.
+- **Change:** **Bunny Pop** (`screens/BunnyPopScreen.js`, `utils/bunnyPop.js`) is the 3–4 Puzzle Peak game.
+  - Animals pop out of 6 big holes, one at a time, for 1.9 s each.
+  - The rule never changes: boop the bunny 🐰, leave the frog, pig, cat, dog and the others alone. A "Find 🐰" chip stays on screen.
+  - About 6 in 10 pops are bunnies, never more than 3 other animals in a row, and never the same hole twice in a row.
+  - Booping another animal gets a gentle spoken "That's the frog. Only boop the bunny!"
+  - 16 pops a round, reported to Results like other game skills.
+- **Freeze Zoo** (with its "tap only the owl" rule switch, which suits cognitive flexibility at 5–6) moved to the 5–6 band rather than being removed.
+- **Fix found while testing:** holes respond to `onPress`. `onPressIn` didn't fire for quick taps in react-native-web.
+- **Tests:** 263 unit tests, covering pop rules, scoring and the band move. A browser round scored 15/16 with one deliberate wrong boop, with no page errors.
 
 ---
 

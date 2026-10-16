@@ -111,3 +111,92 @@ describe('Number Tracing', () => {
     expect(getSkill('math-write-6-9').prereqs).toEqual(['math-write-1-5']);
   });
 });
+
+describe('answer choices', () => {
+  const { buildChoices, GENERATORS } = require('../curriculum/generators');
+
+  it('always offers 4 Quick Look choices, even for 1 and 5', () => {
+    for (let i = 0; i < 500; i++) {
+      const q = generateQuestion('quick-look-5');
+      expect(q.choices).toHaveLength(4);
+      expect(new Set(q.choices).size).toBe(4);
+      expect(q.choices).toContain(q.answer);
+    }
+  });
+
+  it('widens the window at the edges and stays in range', () => {
+    for (let answer = 1; answer <= 5; answer++) {
+      for (let i = 0; i < 50; i++) {
+        const choices = buildChoices(answer, { min: 1, max: 5, spread: 2 });
+        expect(choices).toHaveLength(4);
+        expect(choices).toContain(answer);
+        choices.forEach((c) => {
+          expect(c).toBeGreaterThanOrEqual(1);
+          expect(c).toBeLessThanOrEqual(5);
+        });
+      }
+    }
+    expect(buildChoices(0, { min: 0 }).sort((a, b) => a - b)[0]).toBe(0);
+    expect(buildChoices(2, { min: 1, max: 3 })).toHaveLength(3);
+  });
+
+  it('gives What Comes Next? 4 choices even when counting down to 0', () => {
+    let sawZero = false;
+    for (let i = 0; i < 3000; i++) {
+      const q = generateQuestion('next-number');
+      if (q.answer === 0) sawZero = true;
+      expect(q.choices).toHaveLength(4);
+      expect(new Set(q.choices).size).toBe(4);
+      q.choices.forEach((c) => expect(c).toBeGreaterThanOrEqual(0));
+    }
+    expect(sawZero).toBe(true);
+  });
+
+  it('gives every numeric multiple-choice question 4 distinct choices', () => {
+    // Bigger Number is a deliberate either/or between two numbers.
+    Object.keys(GENERATORS).filter((id) => id !== 'bigger-number').forEach((id) => {
+      for (let i = 0; i < 40; i++) {
+        const q = generateQuestion(id);
+        if (q.type !== 'choice' || !q.choices.every((c) => typeof c === 'number')) return;
+        expect(new Set(q.choices).size).toBe(q.choices.length);
+        expect(q.choices).toContain(q.answer);
+        expect(q.choices.length).toBe(4);
+      }
+    });
+  });
+});
+
+describe('Bunny Pop', () => {
+  const { HOLES, POPS, TARGET, OTHERS, isCorrectResponse, isTarget, makePops } = require('../utils/bunnyPop');
+
+  it('pops mostly bunnies, never the same hole twice in a row, and never 4 others in a row', () => {
+    for (let round = 0; round < 200; round++) {
+      const pops = makePops();
+      expect(pops).toHaveLength(POPS);
+      pops.forEach((pop, i) => {
+        expect(pop.hole).toBeGreaterThanOrEqual(0);
+        expect(pop.hole).toBeLessThan(HOLES);
+        expect([TARGET, ...OTHERS]).toContain(pop.animal);
+        if (i > 0) expect(pop.hole).not.toBe(pops[i - 1].hole);
+        if (i >= 3) expect(pops.slice(i - 3, i + 1).some(isTarget)).toBe(true);
+      });
+    }
+    const all = Array.from({ length: 100 }, () => makePops()).flat();
+    const share = all.filter(isTarget).length / all.length;
+    expect(share).toBeGreaterThan(0.5);
+    expect(share).toBeLessThan(0.8);
+  });
+
+  it('scores boops and leaving others alone', () => {
+    expect(OTHERS).not.toContain(TARGET);
+    expect(isCorrectResponse({ animal: TARGET }, true)).toBe(true);
+    expect(isCorrectResponse({ animal: TARGET }, false)).toBe(false);
+    expect(isCorrectResponse({ animal: '🐸' }, false)).toBe(true);
+    expect(isCorrectResponse({ animal: '🐸' }, true)).toBe(false);
+  });
+
+  it('is the 3-4 logic game, with Freeze Zoo moved to 5-6', () => {
+    expect(getSkill('logic-bunny-pop')).toMatchObject({ band: 'sprouts', screen: 'BunnyPop' });
+    expect(getSkill('logic-freeze-zoo').band).toBe('explorers');
+  });
+});

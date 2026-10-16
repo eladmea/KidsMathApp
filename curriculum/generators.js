@@ -16,19 +16,18 @@ import { SEL_GENERATORS } from './selGenerators';
 
 export { randInt, shuffle };
 
-// Numeric distractors near the answer, clamped to [min, max].
+// Numeric distractors near the answer, clamped to [min, max]. Near an edge
+// the window widens on the other side, so there are always `count` choices
+// when the range allows (answer 1 in 1-5 offers 1, 2, 3, 4, not just 1-3).
 export function buildChoices(answer, { min = 0, max = Infinity, spread = 5, count = CHOICES_PER_QUESTION } = {}) {
-  const low = Math.max(min, answer - spread);
-  const high = Math.min(max, answer + spread);
-  const target = Math.min(count, high - low + 1);
-  const choices = new Set([answer]);
-  while (choices.size < target) {
-    const candidate = answer + (randInt(-spread, spread) || 1);
-    if (candidate >= min && candidate <= max) {
-      choices.add(candidate);
-    }
-  }
-  return shuffle(Array.from(choices));
+  let reach = spread;
+  const windowSize = () => Math.min(max, answer + reach) - Math.max(min, answer - reach) + 1;
+  while (windowSize() < count && (answer - reach > min || answer + reach < max)) reach += 1;
+  const low = Math.max(min, answer - reach);
+  const high = Math.min(max, answer + reach);
+  const others = [];
+  for (let value = low; value <= high; value++) if (value !== answer) others.push(value);
+  return shuffle([answer, ...shuffle(others).slice(0, count - 1)]);
 }
 
 const OBJECTS = [
@@ -110,7 +109,12 @@ function numberSequence(steps, max) {
     const answer = first + 3 * delta;
     // Typical slips: skipping a step, repeating the last number, off by one.
     const slips = [answer + delta, numbers[2], answer + 1, answer - 1, answer + 2, answer - 2];
-    const distractors = [...new Set(slips)].filter((c) => c >= 0 && c !== answer).slice(0, CHOICES_PER_QUESTION - 1);
+    let distractors = [...new Set(slips)].filter((c) => c >= 0 && c !== answer).slice(0, CHOICES_PER_QUESTION - 1);
+    // Counting down to 0 rules out most slips; fill up with nearby numbers.
+    if (distractors.length < CHOICES_PER_QUESTION - 1) {
+      const nearby = buildChoices(answer, { min: 0, spread: 2 }).filter((c) => c !== answer && !distractors.includes(c));
+      distractors = [...distractors, ...nearby].slice(0, CHOICES_PER_QUESTION - 1);
+    }
     return {
       prompt: 'What comes next?',
       speech: `${numbers.join(', ')}. What comes next?`,
