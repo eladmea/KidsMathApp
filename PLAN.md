@@ -4,7 +4,7 @@ This document describes where MathPlay is heading, why it is designed this way (
 
 - **Plan written:** 2026-10-15
 - **Language:** English (all content, narration and phonics)
-- **Last updated:** 2026-10-16 (Phase 5b round 2: free text-to-speech audit and speech engine)
+- **Last updated:** 2026-10-16 (Phase 5b round 5: pattern games rebuilt along the patterning trajectory)
 
 ---
 
@@ -62,7 +62,7 @@ The evidence for SEL games and EF games is weaker than for the board-game, phoni
 | Math | Subitize 1–5, count to 10, more/less, shapes, AB patterns | Count to 100, +/− within 10, number line 0–20 | Fluency within 20, place value, +/− within 100, time, money, arrays | ×/÷ within 100, fractions, area/perimeter, multi-step problems |
 | Literacy | Rhymes, first sounds, letter names | Letter sounds, CVC blending, sight words | Digraphs, spelling patterns, sentences, story order | Prefixes/suffixes, vocabulary, grammar, comprehension |
 | Science & world | Animals & homes, colors, sizes, weather | Plant needs, push/pull, seasons | Life cycles, materials, maps | Ecosystems, energy, geography, human body |
-| Logic / EF | Sorting, matching, Freeze game | Sequencing, robot paths | Coding loops, logic grids | Multi-step puzzles, strategy |
+| Logic / EF | Sorting, matching, Bunny Pop, AB patterns (fill the gap) | Sequencing, robot paths, Freeze Zoo, longer patterns, same pattern in new things | Coding loops, the repeating unit, growing patterns | Multi-step puzzles, logic grids, pattern position and number rules |
 | SEL | Name feelings | Feelings ↔ situations, calm breathing | Fairness, turn-taking | Perspective-taking, negotiation |
 
 ---
@@ -596,6 +596,47 @@ All earlier walkthroughs (Phases 4–6, round 1) were re-run and pass. Real iOS 
 - **Fix found while testing:** holes respond to `onPress`. `onPressIn` didn't fire for quick taps in react-native-web.
 - **Tests:** 263 unit tests, covering pop rules, scoring and the band move. A browser round scored 15/16 with one deliberate wrong boop, with no page errors.
 
+### Phase 5b, round 5: patterns by age (2026-10-16, commit `2b8cd6e`)
+
+**Feedback:** the pattern game is too advanced for a 3-year-old. Research patterns by age and adapt the game for every age.
+
+**Research:**
+
+| Age | What children can do | Source |
+|---|---|---|
+| 3–4 | Simple **AB** patterns first. **Filling in a missing item** (completing) is the earliest and easiest task; extending ("what comes next") is harder | Vanderbilt patterning research; mixed-methods study of 3–5-year-olds; early patterning assessment (completion easiest, unit hardest) |
+| 4 | About 75% can copy (duplicate) a repeating pattern, about 50% can extend one, under a third can abstract | Rittle-Johnson, Fyfe, McLean & McEldoon, *Emerging understanding of patterning in four-year-olds* |
+| 4–5 | Repeating patterns with cores like AAB and ABC | California Preschool/TK Learning Foundations ("Patterner", 4–5) |
+| 5–6 | **Abstraction**: make the same pattern with new things (🔴🔴🔵 → 🐶🐶🐱) | Clements & Sarama construct map: duplicate → extend → abstract → unit |
+| 6–7 | **Pattern unit**: say which part repeats (the hardest repeating-pattern skill). **Growing patterns** begin in Grade 1 | Same construct map; Virginia Grade 1 standard (growing and repeating patterns) |
+| 8–10 | **Functional thinking**: link position to item ("the 10th shape"), find number rules | Warren (2005), Grades 3–4 growing-pattern studies; Moss |
+
+**Before:** ages 3–4 had *extend* tasks with AB, AAB and ABB cores and 3 choices, the harder task at an age where the research starts with filling a gap in AB. Ages 5–6 had one harder pattern skill, and there was nothing from 7 up.
+
+**Now:** eight skills, one per step of the trajectory:
+
+| Band | Skill | Task |
+|---|---|---|
+| 3–4 | **Pattern Play** | AB only (🔴🔵🔴🔵), 3–4 full repeats, **one gap**, usually in the middle; 2 choices; every item named aloud ("red, blue, red, something…") |
+| 3–4 | **More Patterns** (after Pattern Play) | AB / AAB / ABB, what comes next or what's missing; 3 choices |
+| 5–6 | **Tricky Patterns** (after More Patterns) | ABC, AABB, ABB, AAB, ABBC |
+| 5–6 | **Same Pattern, New Look** | Abstraction: which row of new things follows the same pattern? Every row is 6 long, so length is no clue |
+| 7–8 | **Which Part Repeats?** | The pattern unit: the smallest part that repeats from the start, against a shorter and a longer part |
+| 7–8 | **Growing Patterns** | Stacks that grow by the same amount (1, 3, 5 → ?) |
+| 9–10 | **Pattern Detective** | Numbered pattern tiles: "What is number 20?" |
+| 9–10 | **Number Rules** | ×2, growing steps (+1, +2, +3…), up 3 / down 1, square numbers, big constant steps |
+
+- Patterns are now shown as big tiles in one row (tiles shrink so a pattern never wraps onto two lines). The "?" tile fills with the answer after answering. Pattern rows can be answer buttons.
+- **Tests:** 286 unit tests. New tests cover the ladder order, AB-only for ages 3–4, a 10-tile cap so rows fit, and these checks over hundreds of generated questions:
+  - exactly one choice completes each pattern;
+  - exactly one row has the same structure;
+  - the unit answer is the true smallest unit;
+  - growing steps are constant;
+  - the position answer is right;
+  - no other common rule (constant step, doubling, add-the-two-before) gives a different answer that is among the choices.
+- **Found by screenshot review:** "2, 3, 5, 8, ?" could also be read as "add the two before" (13 instead of 12). That rule now shows five numbers (2, 3, 5, 8, 12), and the new test guards against such ambiguity.
+- **Verification:** every pattern level was opened in the browser for ages 4, 6, 8 and 10 and showed the expected choices (2, 3, 3, 3, 3, 4, 3, 4), with no page errors. All earlier walkthroughs pass.
+
 ---
 
 ## 9. Sources
@@ -610,3 +651,9 @@ All earlier walkthroughs (Phases 4–6, round 1) were re-run and pass. Real iOS 
 - CCSS K–2 progression (counting & cardinality, operations): https://www.rcsdk12.org/cms/lib/NY01001156/Centricity/Domain/61/ccss_progression_cc_oa_k2_2001_05_08.pdf
 - CASEL framework: https://casel.org/casel-gateway-preschool-thru-high-school-sel
 - NGSS kindergarten: https://educ.state.ak.us/standards/science/Kindergarten%20Science.pdf
+- Patterning in four-year-olds (Rittle-Johnson et al.), project page: https://news.vanderbilt.edu/2015/03/18/common-core-math-should-include-pattern-abstraction/
+- Patterning construct map (duplicate, extend, abstract, unit), Miller et al.: https://cdn.vanderbilt.edu/vu-sub/wp-content/uploads/sites/280/2023/08/04180531/ATPT_4b_Miller_etal_APS2013_poster.pdf
+- Preschool patterning tutoring study: https://news.vanderbilt.edu/2021/07/20/vanderbilt-led-tutoring-program-promotes-patterning-skills-in-preschool-students
+- Patterning strategies in 3- to 5-year-olds: https://testmoodle.ndna.org.uk/pluginfile.php/145811/mod_resource/content/7/Patterning%20strategies%20in%20early%20childhood%20%20a%20mixed%20methods%20study%20examining%203-%20to%205-year-old%20children%20s%20patterning%20competencies.pdf
+- Repeating and growing patterns, functional thinking (Warren, PME29): https://www.maths.tcd.ie/EMIS/proceedings/PME29/PME29RRPapers/PME29Vol4Warren.pdf
+- Virginia Grade 1 growing and repeating patterns: https://doe.virginia.gov/home/showpublisheddocument/16590/638037078616070000

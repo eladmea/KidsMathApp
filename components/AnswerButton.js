@@ -22,6 +22,7 @@ export default function AnswerButton({ value, onPress, state = 'default', disabl
       style={({ pressed }) => [
         styles.button,
         variant === 'picture' && styles.buttonPicture,
+        variant === 'pattern' && styles.buttonPattern,
         {
           backgroundColor: style.backgroundColor,
           borderColor: style.borderColor,
@@ -37,6 +38,7 @@ export default function AnswerButton({ value, onPress, state = 'default', disabl
           isLong && styles.labelLong,
           variant === 'picture' && styles.labelPicture,
           variant === 'letter' && styles.labelLetter,
+          variant === 'pattern' && styles.labelPattern,
           { color: style.textColor },
         ]}
       >
@@ -80,5 +82,14 @@ const styles = StyleSheet.create({
   },
   labelLetter: {
     fontSize: 40,
+  },
+  // A whole pattern row as an answer (e.g. 🐶🐶🐱🐶🐶🐱).
+  buttonPattern: {
+    width: '100%',
+    paddingVertical: 14,
+  },
+  labelPattern: {
+    fontSize: 30,
+    letterSpacing: 4,
   },
 });

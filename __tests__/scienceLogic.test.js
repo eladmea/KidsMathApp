@@ -52,19 +52,6 @@ describe('science questions', () => {
 });
 
 describe('logic questions', () => {
-  it('patterns: the answer continues the repeating unit', () => {
-    for (let i = 0; i < RUNS; i++) {
-      ['patterns-easy', 'patterns-hard'].forEach((id) => {
-        const q = generateQuestion(id);
-        const seq = q.prompt.replace(' ?', '').split(' ');
-        // Find the shortest period that fits the shown sequence, then extend it.
-        const period = [1, 2, 3, 4].find((p) => seq.every((s, j) => j < p || s === seq[j - p]));
-        expect(q.answer).toBe(seq[seq.length - period]);
-        expect(q.choices).toContain(q.answer);
-      });
-    }
-  });
-
   it('logic grids always have exactly one solution and need deduction', () => {
     for (let i = 0; i < 100; i++) {
       const { truth, clues, ask } = makeLogicGrid(3);
