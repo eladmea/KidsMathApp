@@ -8,7 +8,7 @@ import { useNarrator } from '../utils/useNarrator';
 import { profileBand } from '../utils/profiles';
 import { SUBJECTS } from '../curriculum/subjects';
 import { LEARNING_GAMES } from '../curriculum/games';
-import { skillsFor, isPlayable } from '../curriculum/skills';
+import { skillsFor, isPlayable, skillRoute } from '../curriculum/skills';
 import { getDueReviews, getRecord, isMastered, recommendNextSkill, toDayKey } from '../utils/progress';
 import { colors, shadow } from '../utils/theme';
 
@@ -41,7 +41,7 @@ export default function WorldMapScreen({ navigation }) {
   const dueReviews = getDueReviews(progress, toDayKey());
 
   function startSkill(skill) {
-    navigation.navigate('Quiz', { skillIds: [skill.id], mode: 'practice' });
+    navigation.navigate(...skillRoute(skill));
   }
 
   // Turning narration on re-runs the focus effect below, which greets aloud.
@@ -128,7 +128,7 @@ export default function WorldMapScreen({ navigation }) {
         {LEARNING_GAMES.map((game) => (
           <Pressable
             key={game.id}
-            onPress={() => navigation.navigate('GameSetup', { gameId: game.id })}
+            onPress={() => (game.direct ? navigation.navigate(game.route) : navigation.navigate('GameSetup', { gameId: game.id }))}
             style={({ pressed }) => [styles.gameCard, shadow, { opacity: pressed ? 0.85 : 1 }]}
           >
             <Text style={styles.gameEmoji}>{game.emoji}</Text>

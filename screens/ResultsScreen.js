@@ -6,7 +6,7 @@ import BigButton from '../components/BigButton';
 import { useProfiles } from '../context/ProfileContext';
 import { useNarrator } from '../utils/useNarrator';
 import { calculateStars } from '../utils/scoring';
-import { getSkill } from '../curriculum/skills';
+import { getSkill, skillRoute } from '../curriculum/skills';
 import { colors } from '../utils/theme';
 
 const MESSAGES = {
@@ -79,7 +79,11 @@ export default function ResultsScreen({ route, navigation }) {
           <BigButton
             label="Play Again"
             color={colors.green}
-            onPress={() => navigation.replace('Quiz', { skillIds, mode })}
+            onPress={() =>
+              mode === 'review'
+                ? navigation.replace('Quiz', { skillIds, mode })
+                : navigation.replace(...skillRoute(getSkill(skillIds[0])))
+            }
             style={styles.button}
           />
           <BigButton

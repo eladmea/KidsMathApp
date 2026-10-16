@@ -7,7 +7,7 @@ import { useNarrator } from '../utils/useNarrator';
 import { profileBand } from '../utils/profiles';
 import { getSubject } from '../curriculum/subjects';
 import { AGE_BANDS } from '../curriculum/ageBands';
-import { getSkill, isPlayable, skillsFor } from '../curriculum/skills';
+import { getSkill, isPlayable, skillRoute, skillsFor } from '../curriculum/skills';
 import { getRecord, isUnlocked, missingPrereqs, recommendNextSkill, skillStars } from '../utils/progress';
 import { colors, shadow } from '../utils/theme';
 
@@ -30,7 +30,7 @@ export default function SkillListScreen({ route, navigation }) {
   function handlePress(skill) {
     const status = statusOf(skill);
     if (status === 'ready') {
-      navigation.navigate('Quiz', { skillIds: [skill.id], mode: 'practice' });
+      navigation.navigate(...skillRoute(skill));
     } else if (status === 'locked') {
       const needed = missingPrereqs(skill, progress).map((id) => getSkill(id).title);
       say(`First, play ${needed.join(' and ')}.`, { force: true });

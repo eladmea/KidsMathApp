@@ -3,6 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const PROFILES_KEY = '@mathplay_profiles';
 const ACTIVE_PROFILE_KEY = '@mathplay_active_profile';
 const PROGRESS_KEY_PREFIX = '@mathplay_progress_';
+const GARDEN_KEY_PREFIX = '@mathplay_garden_';
 
 async function readJson(key, fallback) {
   try {
@@ -45,9 +46,17 @@ export function saveProgress(profileId, progress) {
   return writeJson(PROGRESS_KEY_PREFIX + profileId, progress);
 }
 
+export function loadGarden(profileId) {
+  return readJson(GARDEN_KEY_PREFIX + profileId, null);
+}
+
+export function saveGarden(profileId, garden) {
+  return writeJson(GARDEN_KEY_PREFIX + profileId, garden);
+}
+
 export async function deleteProgress(profileId) {
   try {
-    await AsyncStorage.removeItem(PROGRESS_KEY_PREFIX + profileId);
+    await AsyncStorage.multiRemove([PROGRESS_KEY_PREFIX + profileId, GARDEN_KEY_PREFIX + profileId]);
   } catch (e) {
     // ignore
   }

@@ -11,12 +11,15 @@ A colorful Expo React Native learning-games app for kids ages 3-10, built around
 - **Mastery + spaced review** — a round is passed at ≥ 80%. A skill is **mastered** after passing on **2 different days**. Passed skills return in Daily Review on a Leitner schedule (1, 2, 4, 8, 16 days), interleaving several skills in one round.
 - **Generic quiz engine** — one generator per skill (`curriculum/generators.js`) with optional pictures (count the apples, add two groups, fade out the "taken away" ones), 2-4 big answer buttons, green/red feedback with sounds.
 - **Word Woods (reading)** — Rhyme Time, Sound Snack (feed the monster the right first sound), Letter Sounds, Sight Words, Word Builder (letter tiles that play their sounds and blend back into the word), digraph and vowel-team words, Story Strip (put panels in order), Compound Words and Word Parts. Listening tasks are always read aloud.
+- **Nature Bay (science)** — Dress for Weather, Where Do I Live?, What Plants Need, Push or Pull?, Push & Roll (hold to push harder and roll farther), Life Cycles, Solid/Liquid/Gas, Food Chains and My Amazing Body.
+- **Puzzle Peak (logic)** — Freeze Zoo (tap / freeze self-control game with a rule switch), patterns, Robo Path and Robot Loops (program a robot with arrow and repeat blocks) and Logic Grids.
+- **Garden Days** — grow a plant over real days by reading its daily clue (water, sunlight or soil); it grows one stage per day until it blooms.
 - **Quick Look & Number Line Drop** — subitizing (dots flash, then hide) and number-line estimation (tap where 37 goes on 0-100) skills.
 - **Memory Chips** — the number-matching memory game with the bonus-chip twist (see below), now in 6 variants (Dot, Letter, Classic, Plus & Minus, Times & Divide, Fraction Chips), played solo against an AI 🤖 Buddy or with a friend.
 - **Number Path Race** — a linear 1-10 / 1-20 number board game: spin, then tap and hear each square you hop through.
 - **Fun Break** — Bubble Pop, Chip Toss and Dance Tap mini-games. Every 2 learning rounds earn a 🎟️ ticket; each mini-game costs one.
 
-Number Island, Word Woods and the games are playable now; the other islands show their planned games as "coming soon".
+Number Island, Word Woods, Nature Bay, Puzzle Peak and the games are playable now; Feelings Garden shows its planned games as "coming soon".
 
 See [PLAN.md](PLAN.md) for the full roadmap, the research behind it, and the implementation log.
 
@@ -41,13 +44,16 @@ Two players (🦁 Player 1 and 🐸 Player 2) take turns flipping two cards from
 App.js                    Providers + navigation stack
 app.config.js             Sets the web base path for the GitHub Pages build
 .github/workflows/        Test + deploy to GitHub Pages
+scripts/prepare-pages.js  Manifest, Home Screen icons, 404 page for Pages
 context/
   ProfileContext.js       Profiles, active player, progress (AsyncStorage-backed)
 curriculum/
   ageBands.js             Age bands (3-4, 5-6, 7-8, 9-10)
   subjects.js             Subject islands
   skills.js               Skill map with prerequisites
-  generators.js           Question generator per skill (math)
+  generators.js           Question generator per skill (math) + registry
+  scienceGenerators.js    Nature Bay questions
+  logicGenerators.js      Puzzle Peak questions (patterns, logic grids)
   literacyGenerators.js   Question generators for Word Woods
   phonics.js              Word banks, letter sounds, stories
   random.js               Shared random helpers
@@ -64,6 +70,8 @@ screens/
   PathRaceScreen.js       Number Path Race
   MiniGamesScreen.js      Fun Break hub (tickets)
   BubblePopScreen.js / ChipTossScreen.js / DanceTapScreen.js
+  FreezeZooScreen.js / RoboPathScreen.js / PushRollScreen.js   Game-screen skills
+  GardenScreen.js         Garden Days
 components/               Buttons, cards, QuestionVisual, DotPattern, NumberLineInput,
                           WordBuilderInput, StoryStripInput, memory-game pieces
 utils/
@@ -79,8 +87,10 @@ utils/
   pathRace.js             Number Path Race rules
   funTickets.js           Fun Break ticket rules
   players.js              Player names/icons (child, Buddy, friend)
+  roboPath.js / freezeZoo.js / pushRoll.js / garden.js   Rules for the Phase 3 games
+  skillRounds.js          Game-screen skills report results like the quiz
   scoring.js / theme.js / constants.js
-__tests__/                Jest tests for generators, skill map, progress, sessions, memory game, buddy, path race, tickets, literacy
+__tests__/                Jest tests for generators, skill map, progress, sessions, memory game, buddy, path race, tickets, literacy, science, logic, Phase 3 games
 assets/sounds/            correct.wav / wrong.wav
 ```
 
@@ -92,7 +102,9 @@ Publishing is automatic (`.github/workflows/deploy-pages.yml`):
 - every pull request runs the tests and checks the web build;
 - every push to `main` (e.g. merging a PR) rebuilds and redeploys the site within a few minutes.
 
-One-time setup: in the GitHub repo go to **Settings → Pages** and set **Source** to **GitHub Actions**.
+The deploy also runs `scripts/prepare-pages.js`, which adds a web app manifest and Home Screen icon (`assets/web/`), so "Add to Home Screen" opens the game full screen with its own icon.
+
+One-time setup (already done for this repo): make the repository public (or use a paid plan), set **Settings → Pages → Source** to **GitHub Actions**, and make `main` the default branch.
 
 ## Running the app
 

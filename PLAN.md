@@ -4,7 +4,7 @@ This document describes where MathPlay is heading, why it is designed this way (
 
 - **Plan written:** 2026-10-15
 - **Language:** English (all content, narration and phonics)
-- **Last updated:** 2026-10-16 (Phase 2 implemented)
+- **Last updated:** 2026-10-16 (Phase 3 implemented; GitHub Pages deploy added)
 
 ---
 
@@ -16,8 +16,8 @@ This document describes where MathPlay is heading, why it is designed this way (
 | **Phase 0** | Foundation: profiles, age bands, narration, skill map, mastery + spaced review, world map, generic quiz engine, tests | ✅ Done | **2026-10-16** (commit `f4e97ed`) |
 | **Phase 1** | Math track + Memory Chips variants, solo AI buddy, Number Path Race, Quick Look, Number Line Drop, first mini-games | ✅ Done | **2026-10-16** (commit `c4e1e07`) |
 | **Phase 2** | Literacy: Sound Snack, Word Builder, Story Strip, Letter Chips, letter-sound playback | ✅ Done | **2026-10-16** (commit `c5c6411`) |
-| Phase 3 | Science, Logic & Executive Function: Garden Days, Dress for Weather, Push & Roll, Robo Path, Freeze Zoo | ⏳ Next | — |
-| Phase 4 | Social-emotional learning & polish: Feelings Friends, Balloon Breath, sticker book, parent dashboard + time limits | 🔜 Planned | — |
+| **Phase 3** | Science, Logic & Executive Function: Garden Days, Dress for Weather, Push & Roll, Robo Path, Freeze Zoo | ✅ Done | **2026-10-16** (see log for commit) |
+| Phase 4 | Social-emotional learning & polish: Feelings Friends, Balloon Breath, sticker book, parent dashboard + time limits | ⏳ Next | — |
 | Phase 5 | Play-testing with 2–3 kids per age band, difficulty tuning | 🔜 Planned | — |
 
 ---
@@ -90,11 +90,11 @@ The variants also get a **solo mode against an AI buddy** and a post-game reflec
 | Sound Snack (first sounds) | Literacy | 3–6 | ✅ 2 |
 | Word Builder (phonics tiles) | Literacy | 5–8 | ✅ 2 |
 | Story Strip (sequencing) | Literacy | 4–9 | ✅ 2 |
-| Garden Days (plant needs over real days) | Science | 4–8 | 3 |
-| Dress for Weather | Science | 3–6 | 3 |
-| Push & Roll | Science | 5–8 | 3 |
-| Robo Path (coding) | Logic | 4–10 | 3 |
-| Freeze Zoo (go/no-go) | EF | 3–8 | 3 |
+| Garden Days (plant needs over real days) | Science | 4–8 | ✅ 3 |
+| Dress for Weather | Science | 3–6 | ✅ 3 |
+| Push & Roll | Science | 5–8 | ✅ 3 |
+| Robo Path (coding) | Logic | 4–10 | ✅ 3 |
+| Freeze Zoo (go/no-go) | EF | 3–8 | ✅ 3 |
 | Feelings Friends | SEL | 3–8 | 4 |
 
 ### C. Mini-games (60–90 s breaks)
@@ -238,9 +238,52 @@ Rewards are cosmetic stickers shown *after* the thinking, never shops or pressur
 - **Real voice recordings are not included.** This build environment has no voice or TTS engine, and isolated phonemes need a human voice to sound right. The playback path is ready: drop audio files into `assets/phonemes/` and register them in `PHONEME_RECORDINGS`. Until then, the tuned TTS spellings are used.
 - Emoji in the word banks are limited to Unicode 13 or older so they render on older devices.
 
-### Phase 3: next
+### Publishing: GitHub Pages (added 2026-10-16, commit `faf3f7c`)
 
-Science, Logic and Executive Function: Garden Days, Dress for Weather, Push & Roll, Robo Path and Freeze Zoo.
+- `.github/workflows/deploy-pages.yml` runs on GitHub Actions.
+  - Every pull request runs the unit tests and checks that the web build still compiles.
+  - Every push to `main` also deploys to **https://eladmea.github.io/KidsMathApp/**.
+- `app.config.js` sets the web base path (`/KidsMathApp`) only for that build, so local `npx expo start` is unchanged.
+- One-time repo setup done by the owner: the repository is public, **Settings → Pages → Source = GitHub Actions**, and the default branch is `main`.
+- The first deploy attempts failed at the final publish step while those settings were being changed. Build and tests passed every time.
+
+### Phase 3: Science, logic and executive function (implemented 2026-10-16)
+
+**Delivered:** Nature Bay and Puzzle Peak are playable in every age band.
+
+| Band | Nature Bay (science) | Puzzle Peak (logic / EF) |
+|---|---|---|
+| 3–4 | **Dress for Weather**: sunny, rainy or snowy, pick what to take. **Where Do I Live?**: match animals to ocean, desert, ice or forest | **Freeze Zoo** (game): tap animals but freeze for the 🦉, then the rule switches to "tap only the owl". **What Comes Next?**: AB / AAB / ABB patterns |
+| 5–6 | **What Plants Need**: water, sunlight, soil or air vs. silly options. **Push or Pull?** **Push & Roll** (game, unlocked by Push or Pull): hold to push, a harder push rolls farther; stop on the 🎯 (K-PS2-1) | **Robo Path** (game): program a robot with arrow blocks to reach the 🍪. **Tricky Patterns**: ABC / AABB / ABAC |
+| 7–8 | **Life Cycles**: put 4 stages in order (hen, butterfly, frog, apple tree, human). **Solid, Liquid, Gas** | **Robot Loops** (game): bigger grid, repeat blocks (➡️×3) and a block limit |
+| 9–10 | **Food Chains**: order sun → plant → plant-eater → predator. **My Amazing Body**: heart, lungs, brain and more | **Logic Grids**: three friends, three pets, clues → who owns what. Every puzzle is checked to have exactly one answer and to need every clue |
+
+- **Garden Days** (learning game for all ages): give the plant what today's clue says it needs (water, sunlight or fresh soil). It grows one stage per real day, from 🌰 to 🌻.
+  - A wrong choice makes it droop and explains why; the plant never dies.
+  - After it blooms, plant a new seed. This builds in spaced return visits.
+- **Game-screen skills**: a skill can now be played on its own screen (`screen` in the skill map) instead of the quiz. Freeze Zoo, Robo Path, Robot Loops and Push & Roll report results through the normal Results screen, so mastery, unlocks and Fun Break tickets all work. They are left out of Daily Review, which mixes quiz questions only.
+- **Home Screen support** for the web version (`scripts/prepare-pages.js`, run by the deploy): a web app manifest, a new web-only icon (`assets/web/`) and a theme colour. "Add to Home Screen" now opens the game full screen with its own icon. The script also writes `404.html` and `.nojekyll`.
+- **Tests**: 185 unit tests. New tests check that:
+  - every Robo Path and loop puzzle is solvable within its block limit;
+  - Freeze Zoo scores taps and freezes correctly in both rule phases;
+  - Push & Roll judges pushes correctly and Garden Days grows only once per day;
+  - every science question has exactly one right answer and every logic grid has a unique solution.
+
+**Verification:**
+- Browser walkthrough against a build served exactly as GitHub Pages serves it (under `/KidsMathApp/`), all checks passing with no page errors or failed requests:
+  - Dress for Weather 10/10, Freeze Zoo 24/24 including the rule switch, Robo Path 6/6.
+  - Push or Pull unlocking Push & Roll, then 8/8 on target.
+  - Garden Days growing on day 1, resting, then growing on day 2.
+  - Robot Loops 6/6 within block limits, Life Cycles 10/10, Logic Grids 10/10.
+- The manifest and icons load. The Phase 0–2 walkthroughs were re-run as regression checks.
+
+**Notes:**
+- The native app icon (`assets/icon.png`) is still Expo's template placeholder. Only the web Home Screen icon was replaced.
+- Not yet covered: in-round adaptive difficulty, parent dashboard and session limits (Phase 4).
+
+### Phase 4: next
+
+Social-emotional learning and polish: Feelings Friends, Balloon Breath, the sticker book, and a parent dashboard with time limits.
 
 ---
 

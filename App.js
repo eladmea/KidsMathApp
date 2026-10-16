@@ -16,6 +16,10 @@ import MiniGamesScreen from './screens/MiniGamesScreen';
 import BubblePopScreen from './screens/BubblePopScreen';
 import ChipTossScreen from './screens/ChipTossScreen';
 import DanceTapScreen from './screens/DanceTapScreen';
+import FreezeZooScreen from './screens/FreezeZooScreen';
+import RoboPathScreen from './screens/RoboPathScreen';
+import PushRollScreen from './screens/PushRollScreen';
+import GardenScreen from './screens/GardenScreen';
 import { colors } from './utils/theme';
 
 const Stack = createNativeStackNavigator();
@@ -46,6 +50,10 @@ export default function App() {
             <Stack.Screen name="BubblePop" component={BubblePopScreen} />
             <Stack.Screen name="ChipToss" component={ChipTossScreen} />
             <Stack.Screen name="DanceTap" component={DanceTapScreen} />
+            <Stack.Screen name="FreezeZoo" component={FreezeZooScreen} />
+            <Stack.Screen name="RoboPath" component={RoboPathScreen} />
+            <Stack.Screen name="PushRoll" component={PushRollScreen} />
+            <Stack.Screen name="Garden" component={GardenScreen} />
           </Stack.Navigator>
         </NavigationContainer>
       </ProfileProvider>
