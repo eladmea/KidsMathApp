@@ -34,13 +34,20 @@ export const SKILLS = [
   { id: 'math-div-12', subject: 'math', band: 'masters', title: 'Big Division', emoji: '🪐', generator: 'div-12', prereqs: ['math-div-10', 'math-mult-12'] },
   { id: 'math-number-line-1000', subject: 'math', band: 'masters', title: 'Number Line Drop: 1000', emoji: '🪂', generator: 'number-line-1000', prereqs: ['math-number-line-100'] },
 
-  // ---- Word Woods (Phase 2) ----
-  { id: 'lit-rhymes', subject: 'literacy', band: 'sprouts', title: 'Rhyme Time', emoji: '🎵', generator: null, prereqs: [] },
-  { id: 'lit-first-sound', subject: 'literacy', band: 'sprouts', title: 'Sound Snack', emoji: '👄', generator: null, prereqs: ['lit-rhymes'] },
-  { id: 'lit-letter-sounds', subject: 'literacy', band: 'explorers', title: 'Letter Sounds', emoji: '🔤', generator: null, prereqs: ['lit-first-sound'] },
-  { id: 'lit-word-builder', subject: 'literacy', band: 'explorers', title: 'Word Builder', emoji: '🧱', generator: null, prereqs: ['lit-letter-sounds'] },
-  { id: 'lit-story-strip', subject: 'literacy', band: 'builders', title: 'Story Strip', emoji: '📖', generator: null, prereqs: [] },
-  { id: 'lit-word-parts', subject: 'literacy', band: 'masters', title: 'Word Parts', emoji: '🔍', generator: null, prereqs: [] },
+  // ---- Word Woods ----
+  // Order follows the National Reading Panel progression: hear sounds first
+  // (rhyme, first sound), then link sounds to letters, then blend into words,
+  // then read sentences and word parts.
+  { id: 'lit-rhymes', subject: 'literacy', band: 'sprouts', title: 'Rhyme Time', emoji: '🎵', generator: 'rhymes', prereqs: [] },
+  { id: 'lit-first-sound', subject: 'literacy', band: 'sprouts', title: 'Sound Snack', emoji: '👾', generator: 'sound-snack', prereqs: [] },
+  { id: 'lit-letter-sounds', subject: 'literacy', band: 'explorers', title: 'Letter Sounds', emoji: '🔤', generator: 'letter-sounds', prereqs: ['lit-first-sound'] },
+  { id: 'lit-sight-words', subject: 'literacy', band: 'explorers', title: 'Sight Words', emoji: '👀', generator: 'sight-words', prereqs: [] },
+  { id: 'lit-word-builder', subject: 'literacy', band: 'explorers', title: 'Word Builder', emoji: '🧱', generator: 'word-builder', prereqs: ['lit-letter-sounds'] },
+  { id: 'lit-digraphs', subject: 'literacy', band: 'builders', title: 'sh ch th wh', emoji: '🚢', generator: 'digraph-starts', prereqs: [] },
+  { id: 'lit-digraph-builder', subject: 'literacy', band: 'builders', title: 'Word Builder: Teams', emoji: '🧩', generator: 'digraph-builder', prereqs: ['lit-digraphs'] },
+  { id: 'lit-story-strip', subject: 'literacy', band: 'builders', title: 'Story Strip', emoji: '📖', generator: 'story-strip', prereqs: [] },
+  { id: 'lit-compound-words', subject: 'literacy', band: 'masters', title: 'Compound Words', emoji: '🌻', generator: 'compound-words', prereqs: [] },
+  { id: 'lit-word-parts', subject: 'literacy', band: 'masters', title: 'Word Parts', emoji: '🔍', generator: 'word-parts', prereqs: ['lit-compound-words'] },
 
   // ---- Nature Bay (Phase 3) ----
   { id: 'sci-weather', subject: 'science', band: 'sprouts', title: 'Dress for Weather', emoji: '☔', generator: null, prereqs: [] },

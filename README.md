@@ -10,12 +10,13 @@ A colorful Expo React Native learning-games app for kids ages 3-10, built around
 - **Skill map** (`curriculum/skills.js`) — ordered skills per subject and band with prerequisites, from *Count to 5* and *Find the Shape* up to *Big Division*. Skills unlock when their same-band prerequisites are passed; kids can peek at other bands.
 - **Mastery + spaced review** — a round is passed at ≥ 80%. A skill is **mastered** after passing on **2 different days**. Passed skills return in Daily Review on a Leitner schedule (1, 2, 4, 8, 16 days), interleaving several skills in one round.
 - **Generic quiz engine** — one generator per skill (`curriculum/generators.js`) with optional pictures (count the apples, add two groups, fade out the "taken away" ones), 2-4 big answer buttons, green/red feedback with sounds.
+- **Word Woods (reading)** — Rhyme Time, Sound Snack (feed the monster the right first sound), Letter Sounds, Sight Words, Word Builder (letter tiles that play their sounds and blend back into the word), digraph and vowel-team words, Story Strip (put panels in order), Compound Words and Word Parts. Listening tasks are always read aloud.
 - **Quick Look & Number Line Drop** — subitizing (dots flash, then hide) and number-line estimation (tap where 37 goes on 0-100) skills.
-- **Memory Chips** — the number-matching memory game with the bonus-chip twist (see below), now in 5 variants (Dot, Classic, Plus & Minus, Times & Divide, Fraction Chips), played solo against an AI 🤖 Buddy or with a friend.
+- **Memory Chips** — the number-matching memory game with the bonus-chip twist (see below), now in 6 variants (Dot, Letter, Classic, Plus & Minus, Times & Divide, Fraction Chips), played solo against an AI 🤖 Buddy or with a friend.
 - **Number Path Race** — a linear 1-10 / 1-20 number board game: spin, then tap and hear each square you hop through.
 - **Fun Break** — Bubble Pop, Chip Toss and Dance Tap mini-games. Every 2 learning rounds earn a 🎟️ ticket; each mini-game costs one.
 
-Number Island and the games are playable now; the other islands show their planned games as "coming soon".
+Number Island, Word Woods and the games are playable now; the other islands show their planned games as "coming soon".
 
 See [PLAN.md](PLAN.md) for the full roadmap, the research behind it, and the implementation log.
 
@@ -31,7 +32,7 @@ Two players (🦁 Player 1 and 🐸 Player 2) take turns flipping two cards from
 - **The twist**: forcing a match like 2→5 uses up the board's other "2" and "5" cards' natural partners, leaving an orphaned pair elsewhere with the same 3-chip gap. The chips the first player paid land in the other player's pile — exactly enough for them to close that same gap later, if they calculate it correctly too.
 - Each player starts with 🪙 chips equal to the number of pairs on the board (12, by default) — bigger boards mean a bigger bonus-chip pool. If a player doesn't have enough chips to even attempt the gap, the cards just flip back and the turn passes — no guess is offered.
 - The game ends when all cards are matched, or when no natural pair is left and nobody has enough chips to close any remaining gap; whoever found the most pairs wins.
-- **Variants** — every card has a hidden value and a face. Dot Chips pairs dots with numerals (6 pairs, chips counted out by tapping), Plus & Minus / Times & Divide Chips pair a fact with its answer (so you work out each card before the gap), and Fraction Chips pair equivalent fractions (each chip is 1/8).
+- **Variants** — every card has a hidden value and a face. Dot Chips pairs dots with numerals (6 pairs, chips counted out by tapping), Letter Chips pairs letters a-f with pictures that start with them (the gap is counted in alphabet steps), Plus & Minus / Times & Divide Chips pair a fact with its answer (so you work out each card before the gap), and Fraction Chips pair equivalent fractions (each chip is 1/8).
 - **Solo mode** — play against 🤖 Buddy, who remembers only some cards and sometimes gets the gap wrong; Buddy gets sharper for older age bands.
 
 ## Project structure
@@ -44,7 +45,10 @@ curriculum/
   ageBands.js             Age bands (3-4, 5-6, 7-8, 9-10)
   subjects.js             Subject islands
   skills.js               Skill map with prerequisites
-  generators.js           Question generator per skill
+  generators.js           Question generator per skill (math)
+  literacyGenerators.js   Question generators for Word Woods
+  phonics.js              Word banks, letter sounds, stories
+  random.js               Shared random helpers
   games.js                Learning games + mini-games catalogue
 screens/
   ProfilesScreen.js       Who's playing?
@@ -58,13 +62,15 @@ screens/
   PathRaceScreen.js       Number Path Race
   MiniGamesScreen.js      Fun Break hub (tickets)
   BubblePopScreen.js / ChipTossScreen.js / DanceTapScreen.js
-components/               Buttons, cards, QuestionVisual, DotPattern, NumberLineInput, memory-game pieces
+components/               Buttons, cards, QuestionVisual, DotPattern, NumberLineInput,
+                          WordBuilderInput, StoryStripInput, memory-game pieces
 utils/
   progress.js             Pure mastery / spaced-review / unlock logic
   session.js              Builds (interleaved) rounds, tallies per skill
   profiles.js             Profile helpers
   storage.js              AsyncStorage persistence
   useNarrator.js          Text-to-speech hook (expo-speech)
+  phonemeAudio.js         Letter sounds: bundled recordings, else tuned TTS
   useSoundEffects.js      Sound effect playback hook
   memoryGame.js           Memory Chips variants, decks, chip-gap math, stalemate check
   memoryBuddy.js          Solo-mode AI buddy
@@ -72,7 +78,7 @@ utils/
   funTickets.js           Fun Break ticket rules
   players.js              Player names/icons (child, Buddy, friend)
   scoring.js / theme.js / constants.js
-__tests__/                Jest tests for generators, skill map, progress, sessions, memory game, buddy, path race, tickets
+__tests__/                Jest tests for generators, skill map, progress, sessions, memory game, buddy, path race, tickets, literacy
 assets/sounds/            correct.wav / wrong.wav
 ```
 
@@ -90,6 +96,10 @@ npm test
 ```
 
 Scan the QR code with the **Expo Go** app on your phone (Android/iOS) to run it, or press `a` / `i` in the terminal for an emulator/simulator.
+
+## Adding recorded letter sounds
+
+Isolated letter sounds are hard for text-to-speech, so Word Builder tiles use tuned spellings ("mmm", "buh") by default. To use real recordings, add audio files to `assets/phonemes/` and register them in `PHONEME_RECORDINGS` in `utils/phonemeAudio.js`, e.g. `m: require('../assets/phonemes/m.mp3')`. Registered sounds play instead of the TTS fallback.
 
 ## Note on sound playback
 

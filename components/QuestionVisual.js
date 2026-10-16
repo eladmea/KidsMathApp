@@ -43,9 +43,46 @@ function EmojiGroup({ emoji, count, fadedFrom = count, size }) {
   );
 }
 
-// Pictures that let pre-readers count instead of reading numbers.
-export default function QuestionVisual({ visual }) {
+// The Sound Snack monster: hungry, then yum (right) or yuck (wrong).
+function SnackMonster({ sound, result }) {
+  const face = result === 'correct' ? '😋' : result === 'wrong' ? '🤢' : '👾';
+  const words = result === 'correct' ? 'Yum!' : result === 'wrong' ? 'Yuck!' : `${sound}!`;
+  return (
+    <View style={styles.monsterRow}>
+      <Text style={styles.monster}>{face}</Text>
+      <View style={styles.bubble}>
+        <Text style={styles.bubbleText}>{words}</Text>
+      </View>
+    </View>
+  );
+}
+
+// Pictures that let pre-readers count, listen and look instead of reading.
+// `result` is 'correct' | 'wrong' | null once the child has answered.
+export default function QuestionVisual({ visual, result = null }) {
   if (!visual) return null;
+
+  if (visual.type === 'picture') {
+    return (
+      <View style={[styles.box, styles.pictureBox]}>
+        <Text style={styles.picture}>{visual.emoji}</Text>
+        {visual.caption ? <Text style={styles.caption}>{visual.caption}</Text> : null}
+      </View>
+    );
+  }
+
+  if (visual.type === 'listen') {
+    return (
+      <View style={[styles.box, styles.pictureBox]}>
+        <Text style={styles.picture}>👂</Text>
+        <Text style={styles.caption}>Listen!</Text>
+      </View>
+    );
+  }
+
+  if (visual.type === 'snackMonster') {
+    return <SnackMonster sound={visual.sound} result={result} />;
+  }
 
   if (visual.type === 'dots') {
     return <FlashDots count={visual.count} layout={visual.layout} flashMs={visual.flashMs} />;
@@ -110,6 +147,40 @@ const styles = StyleSheet.create({
     borderStyle: 'dashed',
     borderColor: colors.gray,
     borderRadius: 12,
+  },
+  pictureBox: {
+    paddingHorizontal: 28,
+  },
+  picture: {
+    fontSize: 84,
+  },
+  caption: {
+    fontSize: 22,
+    fontWeight: '800',
+    color: colors.textDark,
+    marginTop: 2,
+  },
+  monsterRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 12,
+    gap: 10,
+  },
+  monster: {
+    fontSize: 96,
+  },
+  bubble: {
+    backgroundColor: colors.white,
+    borderRadius: 20,
+    borderWidth: 3,
+    borderColor: colors.purple,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+  },
+  bubbleText: {
+    fontSize: 26,
+    fontWeight: '900',
+    color: colors.purple,
   },
   hidden: {
     alignItems: 'center',

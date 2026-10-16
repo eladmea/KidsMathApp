@@ -8,7 +8,7 @@ const STATE_STYLES = {
   disabled: { backgroundColor: colors.white, borderColor: colors.gray, textColor: colors.gray },
 };
 
-export default function AnswerButton({ value, onPress, state = 'default', disabled = false }) {
+export default function AnswerButton({ value, onPress, state = 'default', disabled = false, variant = 'default' }) {
   const style = STATE_STYLES[state] || STATE_STYLES.default;
   const icon = state === 'correct' ? ' ✓' : state === 'wrong' ? ' ✗' : '';
   // Long labels (e.g. a row of emoji in "Which has more?") get a smaller font.
@@ -20,6 +20,7 @@ export default function AnswerButton({ value, onPress, state = 'default', disabl
       disabled={disabled}
       style={({ pressed }) => [
         styles.button,
+        variant === 'picture' && styles.buttonPicture,
         {
           backgroundColor: style.backgroundColor,
           borderColor: style.borderColor,
@@ -28,7 +29,15 @@ export default function AnswerButton({ value, onPress, state = 'default', disabl
         shadow,
       ]}
     >
-      <Text style={[styles.label, isLong && styles.labelLong, { color: style.textColor }]}>
+      <Text
+        style={[
+          styles.label,
+          isLong && styles.labelLong,
+          variant === 'picture' && styles.labelPicture,
+          variant === 'letter' && styles.labelLetter,
+          { color: style.textColor },
+        ]}
+      >
         {value}
         {icon}
       </Text>
@@ -54,5 +63,15 @@ const styles = StyleSheet.create({
   },
   labelLong: {
     fontSize: 20,
+  },
+  buttonPicture: {
+    width: '30%',
+    paddingVertical: 14,
+  },
+  labelPicture: {
+    fontSize: 46,
+  },
+  labelLetter: {
+    fontSize: 40,
   },
 });

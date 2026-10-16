@@ -12,6 +12,7 @@ const NUMBER_STATE_STYLES = {
 };
 
 const MINI_CARD = 74;
+const ALPHABET_HELPER = ['a', 'b', 'c', 'd', 'e', 'f'];
 
 function NumberChip({ value, state, disabled, onPress }) {
   const style = NUMBER_STATE_STYLES[state] || NUMBER_STATE_STYLES.default;
@@ -153,6 +154,15 @@ export default function ChipGuessModal({
                 {mismatch.highFace.label}?
               </Text>
               {variant.unitNote && <Text style={styles.unitNote}>{variant.unitNote}</Text>}
+              {variant.helper === 'alphabet' && (
+                <View style={styles.alphabet}>
+                  {ALPHABET_HELPER.map((letter) => (
+                    <Text key={letter} style={styles.alphabetLetter}>
+                      {letter}
+                    </Text>
+                  ))}
+                </View>
+              )}
 
               {isBuddyTurn && !hasAnswered && <Text style={styles.thinking}>{player.icon} is thinking…</Text>}
 
@@ -249,6 +259,21 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: colors.purple,
     marginBottom: 8,
+  },
+  alphabet: {
+    flexDirection: 'row',
+    gap: 6,
+    marginBottom: 10,
+  },
+  alphabetLetter: {
+    fontSize: 22,
+    fontWeight: '900',
+    color: colors.primary,
+    backgroundColor: '#DCE6FF',
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    overflow: 'hidden',
   },
   thinking: {
     fontSize: 16,

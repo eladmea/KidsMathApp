@@ -17,6 +17,17 @@ describe.each(Object.keys(GENERATORS))('generator %s', (generatorId) => {
         expect(q.tolerance).toBeLessThanOrEqual((q.max - q.min) / 10);
         continue;
       }
+      if (q.type === 'build') {
+        expect(q.parts.join('')).toBe(q.answer);
+        const tileTexts = q.tiles.map((t) => t.text);
+        q.parts.forEach((part) => expect(tileTexts).toContain(part));
+        expect(new Set(q.tiles.map((t) => t.id)).size).toBe(q.tiles.length);
+        continue;
+      }
+      if (q.type === 'order') {
+        expect([...q.items.map((i) => i.id)].sort()).toEqual([...q.answer].sort());
+        continue;
+      }
       expect(q.type).toBe('choice');
       expect(q.choices).toContain(q.answer);
       expect(new Set(q.choices).size).toBe(q.choices.length);

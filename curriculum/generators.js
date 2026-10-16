@@ -8,23 +8,10 @@
 // Number-line questions also carry { min, max, tolerance }; a tap within
 // `tolerance` of the answer counts as correct.
 import { CHOICES_PER_QUESTION } from '../utils/constants';
+import { pick, randInt, shuffle } from './random';
+import { LITERACY_GENERATORS } from './literacyGenerators';
 
-export function randInt(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-export function shuffle(array) {
-  const copy = [...array];
-  for (let i = copy.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [copy[i], copy[j]] = [copy[j], copy[i]];
-  }
-  return copy;
-}
-
-function pick(array) {
-  return array[Math.floor(Math.random() * array.length)];
-}
+export { randInt, shuffle };
 
 // Numeric distractors near the answer, clamped to [min, max].
 export function buildChoices(answer, { min = 0, max = Infinity, spread = 5, count = CHOICES_PER_QUESTION } = {}) {
@@ -250,6 +237,7 @@ export const GENERATORS = {
   'div-10': division(1, 10),
   'mult-12': multiplication(range(5, 12), range(5, 12)),
   'div-12': division(5, 12),
+  ...LITERACY_GENERATORS,
 };
 
 export function generateQuestion(generatorId) {

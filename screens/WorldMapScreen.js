@@ -33,7 +33,11 @@ export default function WorldMapScreen({ navigation }) {
 
   const band = profileBand(activeProfile);
   const bandSkills = skillsFor({ band: band.id });
-  const nextSkill = recommendNextSkill(bandSkills, progress);
+  // One "next" suggestion per subject, so reading and math both move forward.
+  const nextSkills = SUBJECTS.map((subject) => ({
+    subject,
+    skill: recommendNextSkill(bandSkills.filter((skill) => skill.subject === subject.id), progress),
+  })).filter(({ skill }) => skill);
   const dueReviews = getDueReviews(progress, toDayKey());
 
   function startSkill(skill) {
@@ -70,14 +74,15 @@ export default function WorldMapScreen({ navigation }) {
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
-        {nextSkill && (
+        {nextSkills.map(({ subject, skill }, index) => (
           <BigButton
-            label={`▶  ${nextSkill.emoji} ${nextSkill.title}`}
-            color={band.color}
-            onPress={() => startSkill(nextSkill)}
-            style={styles.wideButton}
+            key={skill.id}
+            label={`▶  ${skill.emoji} ${skill.title}`}
+            color={subject.color}
+            onPress={() => startSkill(skill)}
+            style={[styles.wideButton, index > 0 && styles.reviewButton]}
           />
-        )}
+        ))}
 
         {dueReviews.length > 0 && (
           <BigButton

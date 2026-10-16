@@ -17,6 +17,17 @@ export const VARIANTS = {
     guessStyle: 'chips',
     unitNote: null,
   },
+  letters: {
+    id: 'letters',
+    title: 'Letter Chips',
+    emoji: '🔤',
+    description: 'Match letters to pictures',
+    pairCount: 6,
+    // The gap is counted in alphabet steps (b -> e is 3 steps).
+    guessStyle: 'chips',
+    unitNote: 'Each chip is one step along the alphabet.',
+    helper: 'alphabet',
+  },
   classic: {
     id: 'classic',
     title: 'Classic Chips',
@@ -123,6 +134,23 @@ function timesDivideFace(value) {
   return textFace(`${value * divisor}÷${divisor}`, `${value * divisor} divided by ${divisor}`);
 }
 
+// Letter Chips: value = alphabet position (a = 1). One card shows the letter,
+// its partner a picture that starts with that letter's sound.
+export const LETTER_PICTURES = {
+  1: ['a', [['🍎', 'apple'], ['🐜', 'ant']]],
+  2: ['b', [['🐻', 'bear'], ['🍌', 'banana'], ['🐝', 'bee']]],
+  3: ['c', [['🐱', 'cat'], ['🚗', 'car'], ['🐮', 'cow']]],
+  4: ['d', [['🐶', 'dog'], ['🦆', 'duck'], ['🥁', 'drum']]],
+  5: ['e', [['🥚', 'egg'], ['🐘', 'elephant']]],
+  6: ['f', [['🐟', 'fish'], ['🦊', 'fox'], ['🐸', 'frog']]],
+};
+
+function letterFaces(value) {
+  const [letter, pictures] = LETTER_PICTURES[value];
+  const [emoji, word] = pictures[randInt(0, pictures.length - 1)];
+  return [textFace(letter, `the letter ${letter}`), { kind: 'text', label: emoji, speech: word, picture: true }];
+}
+
 // Fraction values are counted in eighths: 1 = 1/8 ... 8 = 8/8.
 const FRACTION_FACES = {
   1: [['1/8', '1 eighth'], ['2/16', '2 sixteenths']],
@@ -145,6 +173,8 @@ export function pairFaces(variantId, value) {
       return [timesDivideFace(value), numberFace(value)];
     case 'fractions':
       return FRACTION_FACES[value].map(([label, speech]) => textFace(label, speech));
+    case 'letters':
+      return letterFaces(value);
     default:
       return [numberFace(value), numberFace(value)];
   }

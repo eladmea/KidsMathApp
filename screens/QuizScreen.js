@@ -1,11 +1,15 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { View, Text, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ProgressBar from '../components/ProgressBar';
 import ScoreCounter from '../components/ScoreCounter';
 import AnswerButton from '../components/AnswerButton';
 import QuestionVisual from '../components/QuestionVisual';
 import NumberLineInput from '../components/NumberLineInput';
+import WordBuilderInput from '../components/WordBuilderInput';
+import StoryStripInput from '../components/StoryStripInput';
+import { playPhoneme } from '../utils/phonemeAudio';
+import { soundSpeech } from '../curriculum/phonics';
 import { useProfiles } from '../context/ProfileContext';
 import { useSoundEffects } from '../utils/useSoundEffects';
 import { useNarrator } from '../utils/useNarrator';
@@ -14,14 +18,20 @@ import { getSkill } from '../curriculum/skills';
 import { colors, shadow } from '../utils/theme';
 
 const ADVANCE_DELAY_MS = 900;
-// Number-line feedback needs longer to look at.
-const NUMBER_LINE_DELAY_MS = 1800;
+// Number lines, built words and stories need longer to look at.
+const REVIEW_DELAY_MS = { numberLine: 1800, build: 2200, order: 2600 };
 
 function isCorrectAnswer(question, choice) {
-  if (question.type === 'numberLine') {
-    return Math.abs(choice - question.answer) <= question.tolerance;
+  switch (question.type) {
+    case 'numberLine':
+      return Math.abs(choice - question.answer) <= question.tolerance;
+    case 'build':
+      return choice.join('') === question.answer;
+    case 'order':
+      return choice.join(',') === question.answer.join(',');
+    default:
+      return choice === question.answer;
   }
-  return choice === question.answer;
 }
 
 // Generic skill-driven round: works for a single skill (practice) or several
@@ -37,6 +47,7 @@ export default function QuizScreen({ route, navigation }) {
   const { playCorrect, playWrong } = useSoundEffects();
   const { say, stop } = useNarrator(activeProfile?.narration);
   const timeoutRef = useRef(null);
+  const blendTimerRef = useRef(null);
 
   const currentQuestion = questions[questionIndex];
   const isAnswerLocked = selectedChoice !== null;
@@ -46,11 +57,14 @@ export default function QuizScreen({ route, navigation }) {
   useEffect(() => {
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      if (blendTimerRef.current) clearTimeout(blendTimerRef.current);
     };
   }, []);
 
   useEffect(() => {
-    if (currentQuestion) say(currentQuestion.speech);
+    // Listening tasks (rhymes, sounds, spelling) are read aloud even when
+    // narration is off — they can't be done without hearing the word.
+    if (currentQuestion) say(currentQuestion.speech, { force: Boolean(currentQuestion.speakAlways) });
   }, [currentQuestion, say]);
 
   if (!currentQuestion) {
@@ -78,6 +92,11 @@ export default function QuizScreen({ route, navigation }) {
     } else {
       playWrong();
     }
+    if (currentQuestion.type === 'build') {
+      // Blend the sounds back into the word: "kuh, aah, tuh… cat!"
+      const sounds = currentQuestion.parts.map(soundSpeech).join(', ');
+      blendTimerRef.current = setTimeout(() => say(`${sounds}… ${currentQuestion.word}!`, { force: true }), 400);
+    }
 
     timeoutRef.current = setTimeout(() => {
       const nextIndex = questionIndex + 1;
@@ -93,7 +112,7 @@ export default function QuizScreen({ route, navigation }) {
         setQuestionIndex(nextIndex);
         setSelectedChoice(null);
       }
-    }, currentQuestion.type === 'numberLine' ? NUMBER_LINE_DELAY_MS : ADVANCE_DELAY_MS);
+    }, REVIEW_DELAY_MS[currentQuestion.type] ?? ADVANCE_DELAY_MS);
   }
 
   function getButtonState(choice) {
@@ -104,6 +123,62 @@ export default function QuizScreen({ route, navigation }) {
   }
 
   const isLongPrompt = currentQuestion.prompt.length > 12;
+  const isCorrect = isAnswerLocked && isCorrectAnswer(currentQuestion, selectedChoice);
+
+  function renderAnswerArea() {
+    switch (currentQuestion.type) {
+      case 'numberLine':
+        return (
+          <NumberLineInput
+            key={currentQuestion.id}
+            min={currentQuestion.min}
+            max={currentQuestion.max}
+            guess={selectedChoice}
+            answer={currentQuestion.answer}
+            isCorrect={isCorrect}
+            disabled={isAnswerLocked}
+            onGuess={handleChoicePress}
+          />
+        );
+      case 'build':
+        return (
+          <WordBuilderInput
+            key={currentQuestion.id}
+            question={currentQuestion}
+            submitted={isAnswerLocked}
+            isCorrect={isCorrect}
+            onSubmit={handleChoicePress}
+            onTileSound={(tile) => playPhoneme(tile, (text) => say(text, { force: true }))}
+          />
+        );
+      case 'order':
+        return (
+          <StoryStripInput
+            key={currentQuestion.id}
+            question={currentQuestion}
+            submitted={isAnswerLocked}
+            isCorrect={isCorrect}
+            onSubmit={handleChoicePress}
+            onReadCaption={(caption) => say(caption)}
+          />
+        );
+      default:
+        return (
+          <View style={styles.choicesGrid}>
+            {currentQuestion.choices.map((choice) => (
+              <AnswerButton
+                key={String(choice)}
+                value={choice}
+                variant={currentQuestion.choiceStyle}
+                state={getButtonState(choice)}
+                disabled={isAnswerLocked}
+                onPress={() => handleChoicePress(choice)}
+              />
+            ))}
+          </View>
+        );
+    }
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -127,35 +202,18 @@ export default function QuizScreen({ route, navigation }) {
         <ProgressBar current={questionIndex + 1} total={questions.length} />
         <ScoreCounter score={score} />
 
-        <View style={styles.questionBox}>
-          <Text style={[styles.questionText, isLongPrompt && styles.questionTextLong]}>{currentQuestion.prompt}</Text>
-          <QuestionVisual key={currentQuestion.id} visual={currentQuestion.visual} />
-        </View>
-
-        {currentQuestion.type === 'numberLine' ? (
-          <NumberLineInput
-            key={currentQuestion.id}
-            min={currentQuestion.min}
-            max={currentQuestion.max}
-            guess={selectedChoice}
-            answer={currentQuestion.answer}
-            isCorrect={isAnswerLocked && isCorrectAnswer(currentQuestion, selectedChoice)}
-            disabled={isAnswerLocked}
-            onGuess={handleChoicePress}
-          />
-        ) : (
-          <View style={styles.choicesGrid}>
-            {currentQuestion.choices.map((choice) => (
-              <AnswerButton
-                key={String(choice)}
-                value={choice}
-                state={getButtonState(choice)}
-                disabled={isAnswerLocked}
-                onPress={() => handleChoicePress(choice)}
-              />
-            ))}
+        <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
+          <View style={styles.questionBox}>
+            <Text style={[styles.questionText, isLongPrompt && styles.questionTextLong]}>{currentQuestion.prompt}</Text>
+            <QuestionVisual
+              key={currentQuestion.id}
+              visual={currentQuestion.visual}
+              result={isAnswerLocked ? (isCorrect ? 'correct' : 'wrong') : null}
+            />
           </View>
-        )}
+
+          {renderAnswerArea()}
+        </ScrollView>
       </View>
     </SafeAreaView>
   );
@@ -206,8 +264,15 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: colors.textDark,
   },
+  scroll: {
+    width: '100%',
+  },
+  scrollContent: {
+    alignItems: 'center',
+    paddingBottom: 24,
+  },
   questionBox: {
-    marginVertical: 22,
+    marginVertical: 18,
     alignItems: 'center',
     width: '100%',
   },

@@ -7,10 +7,11 @@ export const LEARNING_GAMES = [
     id: 'memory-chips',
     title: 'Memory Chips',
     emoji: '🪙',
-    description: 'Find pairs. Pay chips to fix a mismatch, if your math is right!',
+    description: 'Find pairs. Pay chips to fix a mismatch, if you can work out the gap!',
     route: 'Memory',
     options: [
       { id: 'dots', label: 'Dot Chips', emoji: '🎲', note: 'Dots ↔ numbers', bands: ['sprouts', 'explorers'] },
+      { id: 'letters', label: 'Letter Chips', emoji: '🔤', note: 'b ↔ 🐻 bear', bands: ['explorers'] },
       { id: 'classic', label: 'Classic Chips', emoji: '🔢', note: 'Numbers 1-12', bands: ['explorers', 'builders'] },
       { id: 'plusMinus', label: 'Plus & Minus Chips', emoji: '➕', note: '3 + 4 ↔ 7', bands: ['builders'] },
       { id: 'timesDivide', label: 'Times & Divide Chips', emoji: '✖️', note: '3 × 4 ↔ 12', bands: ['masters'] },

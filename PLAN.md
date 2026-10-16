@@ -4,7 +4,7 @@ This document describes where MathPlay is heading, why it is designed this way (
 
 - **Plan written:** 2026-10-15
 - **Language:** English (all content, narration and phonics)
-- **Last updated:** 2026-10-16 (Phase 1 implemented)
+- **Last updated:** 2026-10-16 (Phase 2 implemented)
 
 ---
 
@@ -15,8 +15,8 @@ This document describes where MathPlay is heading, why it is designed this way (
 | Pre-plan | MathPlay quiz (Easy/Medium/Hard), 2-player Memory Game with chip-gap twist | ✅ Done | 2026-08-05 → 2026-08-11 |
 | **Phase 0** | Foundation: profiles, age bands, narration, skill map, mastery + spaced review, world map, generic quiz engine, tests | ✅ Done | **2026-10-16** (commit `f4e97ed`) |
 | **Phase 1** | Math track + Memory Chips variants, solo AI buddy, Number Path Race, Quick Look, Number Line Drop, first mini-games | ✅ Done | **2026-10-16** (commit `c4e1e07`) |
-| Phase 2 | Literacy: Sound Snack, Word Builder, Story Strip, Letter Chips, recorded letter sounds | ⏳ Next | — |
-| Phase 3 | Science, Logic & Executive Function: Garden Days, Dress for Weather, Push & Roll, Robo Path, Freeze Zoo | 🔜 Planned | — |
+| **Phase 2** | Literacy: Sound Snack, Word Builder, Story Strip, Letter Chips, letter-sound playback | ✅ Done | **2026-10-16** (see log for commit) |
+| Phase 3 | Science, Logic & Executive Function: Garden Days, Dress for Weather, Push & Roll, Robo Path, Freeze Zoo | ⏳ Next | — |
 | Phase 4 | Social-emotional learning & polish: Feelings Friends, Balloon Breath, sticker book, parent dashboard + time limits | 🔜 Planned | — |
 | Phase 5 | Play-testing with 2–3 kids per age band, difficulty tuning | 🔜 Planned | — |
 
@@ -75,7 +75,7 @@ All variants share the chip-gap engine: on a mismatch, the player calculates the
 | Classic Chips | 5–7 | Number ↔ same number | Original rules | ✅ Pre-plan |
 | Fact Chips (Plus & Minus / Times & Divide) | 7–10 | `3+4` ↔ `7`, `3×4` ↔ `12` | Work out each card, then the gap | ✅ 1 |
 | Fraction Chips | 9–10 | `1/2` ↔ `4/8` | Gap counted in eighths | ✅ 1 |
-| Letter Chips | 4–6 | Letter ↔ picture | "Alphabet steps" between letters | 2 |
+| Letter Chips | 4–6 | Letter ↔ picture | "Alphabet steps" between letters | ✅ 2 |
 
 The variants also get a **solo mode against an AI buddy** and a post-game reflection on the chip trade.
 
@@ -87,9 +87,9 @@ The variants also get a **solo mode against an AI buddy** and a post-game reflec
 | Quick Look (subitizing flash) | Math | 3–6 | ✅ 1 |
 | Number Line Drop | Math | 5–10 | ✅ 1 |
 | Lemonade Stand (money) | Math | 7–10 | Later |
-| Sound Snack (first sounds) | Literacy | 3–6 | 2 |
-| Word Builder (phonics tiles) | Literacy | 5–8 | 2 |
-| Story Strip (sequencing) | Literacy | 4–9 | 2 |
+| Sound Snack (first sounds) | Literacy | 3–6 | ✅ 2 |
+| Word Builder (phonics tiles) | Literacy | 5–8 | ✅ 2 |
+| Story Strip (sequencing) | Literacy | 4–9 | ✅ 2 |
 | Garden Days (plant needs over real days) | Science | 4–8 | 3 |
 | Dress for Weather | Science | 3–6 | 3 |
 | Push & Roll | Science | 5–8 | 3 |
@@ -199,9 +199,48 @@ Rewards are cosmetic stickers shown *after* the thinking, never shops or pressur
 - In Dot Chips the chip question also shows the numerals in text. Pre-readers rely on the picture cards and narration.
 - Not yet covered: in-round adaptive difficulty, parent dashboard and session limits (Phase 4).
 
-### Phase 2: next
+### Phase 2: Literacy (implemented 2026-10-16)
 
-Literacy: Sound Snack, Word Builder, Story Strip, Letter Chips, and recorded letter sounds.
+**Delivered:** Word Woods is playable, with 10 skills in National Reading Panel order. Children hear sounds first, then link sounds to letters, then blend sounds into words, then read sentences and word parts.
+
+| Band | Skill | How it plays |
+|---|---|---|
+| 3–4 | **Rhyme Time** | "What rhymes with cat?" Three pictures, all named aloud |
+| 3–4 | **Sound Snack** | Feed the 👾 monster the picture that starts with a sound (s, m, t, p, f, n first). It says "Yum!" 😋 or "Yuck!" 🤢 |
+| 5–6 | **Letter Sounds** | "Which letter says sss?" or "What letter does snake start with?" |
+| 5–6 | **Sight Words** | Hear a Dolch sight word, tap it among four |
+| 5–6 | **Word Builder** | Picture plus spoken word. Tap letter tiles into slots, each tile plays its sound, then the sounds blend back: "sss, uh, nnn… sun!" |
+| 7–8 | **sh ch th wh** | Which digraph does the picture start with? |
+| 7–8 | **Word Builder: Teams** | Build words with digraph and vowel-team tiles (`sh·i·p`, `m·oo·n`, `r·ai·n`) |
+| 7–8 | **Story Strip** | Tap 4 captioned panels in order (egg → chick → hen, bedtime routine, weather…). Tapping a panel takes it back |
+| 9–10 | **Compound Words** | Which split makes "rainbow"? (`rain + bow`) |
+| 9–10 | **Word Parts** | What does "unhappy", "reread" or "fearless" mean? |
+
+- **Letter Chips** (Memory Chips, ages 5–6): letters a–f are paired with pictures that start with them (b ↔ 🐻). The gap is counted in alphabet steps, with an a–f strip shown as a helper.
+- **Listening tasks are always read aloud.** Rhymes, sounds, sight words and spelling can't be done without hearing the word, so they speak even when a profile's narration is off.
+- **Letter-sound playback** (`utils/phonemeAudio.js`). Bundled recordings are played when registered. Otherwise text-to-speech uses tuned spellings ("mmm", "buh", "shh") from `curriculum/phonics.js`.
+- The **map** now suggests the next skill **per subject**. Previously literacy would only have been suggested after every math skill was passed.
+- **New question types** in the quiz engine: `build` (letter tiles) and `order` (story panels), plus picture, letter and word answer styles. The quiz area now scrolls for taller questions.
+- **Tests**: 151 unit tests. Literacy tests check that:
+  - every picture starts with its sound and every rhyme family really rhymes;
+  - tiles spell their word and each question has exactly one right answer;
+  - every Letter Chips picture starts with its letter.
+
+**Verification:**
+- Browser walkthrough on the web build, all checks passing with no page errors:
+  - Rhyme Time, Sound Snack (Yum/Yuck), Letter Sounds unlocking Word Builder, a full Word Builder round including the blend, and Sight Words.
+  - A Letter Chips gap question with the helper.
+  - Story Strip with an undo.
+  - Listening narration staying on for an 8-year-old with narration off.
+- The Phase 0 and Phase 1 walkthroughs were re-run as regression checks.
+
+**Notes:**
+- **Real voice recordings are not included.** This build environment has no voice or TTS engine, and isolated phonemes need a human voice to sound right. The playback path is ready: drop audio files into `assets/phonemes/` and register them in `PHONEME_RECORDINGS`. Until then, the tuned TTS spellings are used.
+- Emoji in the word banks are limited to Unicode 13 or older so they render on older devices.
+
+### Phase 3: next
+
+Science, Logic and Executive Function: Garden Days, Dress for Weather, Push & Roll, Robo Path and Freeze Zoo.
 
 ---
 
