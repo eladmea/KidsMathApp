@@ -4,7 +4,7 @@ This document describes where MathPlay is heading, why it is designed this way (
 
 - **Plan written:** 2026-10-15
 - **Language:** English (all content, narration and phonics)
-- **Last updated:** 2026-10-16 (Phase 6: Today's Adventure guided session and Play together coach mode)
+- **Last updated:** 2026-10-16 (first Phase 5b feedback: natural voice, gentler Quick Look, island progress, Number Tracing)
 
 ---
 
@@ -19,7 +19,7 @@ This document describes where MathPlay is heading, why it is designed this way (
 | **Phase 3** | Science, Logic & Executive Function: Garden Days, Dress for Weather, Push & Roll, Robo Path, Freeze Zoo | ✅ Done | **2026-10-16** (commit `5636426`) |
 | **Phase 4** | Social-emotional learning & polish: Feelings Garden, Feelings Friends, Balloon Breath, sticker book, parent dashboard + soft time limits | ✅ Done | **2026-10-16** (commit `217d84c`) |
 | **Phase 5a** | Play-test tools: adaptive difficulty, play-test log and report, CSV export, play-test guide | ✅ Done | **2026-10-16** (commit `1eeeae8`) |
-| Phase 5b | Play-tests with 2–3 children per age band, then difficulty tuning from the results | ⏳ Next (needs real sessions) | — |
+| Phase 5b | Play-tests with 2–3 children per age band, then difficulty tuning from the results | 🔄 In progress: first feedback round done | Round 1 **2026-10-16** (commit `FIXES1`) |
 | **Phase 6** | Guided daily session (section 6) and a "play together" mode | ✅ Done | **2026-10-16** (commit `84b8f06`) |
 | Phase 7 | Curriculum gaps against section 4, in two parts (7a math, 7b literacy, science and logic) | 🔜 Planned, after 5b | — |
 | Phase 8 | Polish and release: remaining mini-games, voice recordings, app icon, accessibility, store builds | 🔜 Planned | — |
@@ -88,6 +88,7 @@ The variants also get a **solo mode against an AI buddy** and a post-game reflec
 | Game | Subject | Ages | Phase |
 |---|---|---|---|
 | Number Path Race (linear board game) | Math | 3–7 | ✅ 1 |
+| Number Tracing (write 0–9 with a finger) | Math | 3–5 | ✅ 5b |
 | Quick Look (subitizing flash) | Math | 3–6 | ✅ 1 |
 | Number Line Drop | Math | 5–10 | ✅ 1 |
 | Lemonade Stand (money) | Math | 7–10 | 7a |
@@ -493,6 +494,39 @@ The play-tests themselves need real children, so this part of Phase 5 builds wha
 - Coach mode covers quiz rounds. Memory Chips and Number Path Race already have their own 2-player modes; the other game screens don't show talk prompts yet.
 - A break step counts as done even if the child leaves it early: breaks are optional by design.
 - Step times are rough estimates (`STEP_MINUTES`). Phase 5b play-tests should check them.
+
+### Phase 5b, round 1: first play-test feedback (2026-10-16, commit `FIXES1`)
+
+| Feedback | Cause | Change |
+|---|---|---|
+| "The voice is very robotic" | The device's default text-to-speech voice was used, at a raised pitch (1.1) | `utils/voices.js` ranks the device's English voices: "Natural"/"Neural" (Edge, Windows) > "Enhanced"/"Premium" (Apple) > Google voices (Chrome, Android). Novelty and old robotic voices (Fred, Zarvox, eSpeak…) are skipped. The best voice is used automatically at normal pitch, and the first sentence waits briefly for the voice list. Parent dashboard → 🗣️ Read-aloud voice lists the top voices with a preview, saved per device |
+| 3–4-year-olds can't count the hidden dots that fast | Quick Look flashed for 1.5 s, and the adaptive "level up" jumped to the 5–6 band's 10-dot ten frame | Quick Look (3–4) stays at 1–5 dots and 1–5 answer buttons, and shows the dots for 2.5 s. Adaptive step-ups never go past the child's own age band. Ten frames up to 10 still come in the 5–6 band |
+| Island cards stuck on "0 out of 5"; hard to keep track | Cards counted only *mastered* skills, and mastery needs passes on 2 different days | Cards show "✅ passed / total" with a progress bar (light = passed, dark = mastered) and "🏅 N mastered". The island list shows the same count and a ⭐/⭐⭐/⭐⭐⭐ legend. Islands moved up the map, right under the adventure button |
+| Ages 3–4 need fun digit-writing practice for 0–9 | — | **Number Tracing** (`screens/TraceDigitsScreen.js`, `utils/tracing.js`). Two Number Island skills for ages 3–4: *Write 1 to 5*, then *Write 6 to 9 and 0* |
+
+How Number Tracing plays:
+- A pencil ✏️ shows each digit first. The child then traces it with a finger from the green dot, stroke by stroke, in the usual handwriting order (4 and 5 have two strokes).
+- Dots light up as the finger passes them. Starting away from the green dot, or stopping early, gets a gentle hint.
+- Each finished digit comes alive ("3! 🐟🐟🐟").
+- A digit scores a point if it took at most one restart. Rounds report to Results like any game skill, so mastery, unlocks, stickers and Today's Adventure all work.
+
+**Tests:** 244 unit tests. New tests check that:
+- Quick Look stays within 1–5, and level-ups stay in the child's age band;
+- voices are ranked as described above;
+- every digit's strokes trace cleanly, while wrong starts, half strokes and skipping to the end don't count.
+
+**Verification:** browser walkthrough of the Pages build with stand-in device voices. All checks passed with no page errors:
+- the natural voice was picked automatically;
+- 2 passed skills showed on the island card;
+- Quick Look offered only 1–5 and hid the dots after 2.5 s;
+- a full *Write 1 to 5* round finished 5/5, including the two-stroke 4 and 5, and unlocked *Write 6 to 9 and 0*;
+- choosing a voice in the dashboard previewed it and saved it.
+
+The Phase 4–6 walkthroughs were re-run and pass.
+
+**Notes:**
+- Voices come from the device, so quality depends on what it has. On iPhone/iPad, better voices can be downloaded in Settings → Accessibility → Spoken Content → Voices.
+- A truly human voice everywhere would need a cloud text-to-speech service, which means an API key, an internet connection and a cost per use, or pre-recorded audio for the fixed phrases. Neither is set up.
 
 ---
 

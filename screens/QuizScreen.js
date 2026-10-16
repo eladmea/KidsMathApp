@@ -12,6 +12,7 @@ import ExampleCard, { exampleSpeech } from '../components/ExampleCard';
 import { playPhoneme } from '../utils/phonemeAudio';
 import { soundSpeech } from '../curriculum/phonics';
 import { useProfiles } from '../context/ProfileContext';
+import { profileBand } from '../utils/profiles';
 import { useSoundEffects } from '../utils/useSoundEffects';
 import { useNarrator } from '../utils/useNarrator';
 import { buildSession, replaceRemaining, tallyBySkill } from '../utils/session';
@@ -66,7 +67,8 @@ export default function QuizScreen({ route, navigation }) {
   const [level, setLevel] = useState(0);
   const [levelNote, setLevelNote] = useState(null);
   const streakRef = useRef(0);
-  const skill = isAdaptive ? skillForLevel(baseSkill, level) : baseSkill;
+  const bandId = activeProfile ? profileBand(activeProfile).id : null;
+  const skill = isAdaptive ? skillForLevel(baseSkill, level, bandId) : baseSkill;
   const howTo = skill?.generator ? HOW_TO[skill.generator] : null;
   const makeExample = (exampleSkill = skill) =>
     exampleSkill?.generator ? { ...generateQuestion(exampleSkill.generator), id: 'example' } : null;
@@ -164,7 +166,7 @@ export default function QuizScreen({ route, navigation }) {
     setResults(nextResults);
     answeredRef.current = nextResults.length;
 
-    const adapted = isAdaptive ? adapt({ level, streak: streakRef.current }, isCorrect, baseSkill) : null;
+    const adapted = isAdaptive ? adapt({ level, streak: streakRef.current }, isCorrect, baseSkill, bandId) : null;
     if (adapted) streakRef.current = adapted.streak;
     const now = Date.now();
     const events = [
@@ -182,7 +184,7 @@ export default function QuizScreen({ route, navigation }) {
         coach: isCoaching,
       },
     ];
-    const nextSkill = adapted?.change ? skillForLevel(baseSkill, adapted.level) : null;
+    const nextSkill = adapted?.change ? skillForLevel(baseSkill, adapted.level, bandId) : null;
     if (adapted?.change) {
       events.push({ type: 'level', at: now, day: toDayKey(), skillId: baseSkill.id, change: adapted.change, toSkillId: nextSkill.id });
     }

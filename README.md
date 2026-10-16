@@ -5,7 +5,7 @@ A colorful Expo React Native learning-games app for kids ages 3-10, built around
 ## Features
 
 - **Player profiles** — "Who's playing?" picker; each child has a name, age (3-10) and animal buddy. Age sets their band: 🌱 Sprouts 3-4, 🧭 Explorers 5-6, 🧱 Builders 7-8, 🏆 Masters 9-10. Progress is saved per child.
-- **Read-aloud narration** — prompts are spoken with `expo-speech` (on by default for ages 3-6, toggle 🔊/🔇 on the map). A 🔊 button in every round repeats the question.
+- **Read-aloud narration** — prompts are spoken with `expo-speech` in the most natural English voice the device has (grown-ups can pick another in the parent dashboard) (on by default for ages 3-6, toggle 🔊/🔇 on the map). A 🔊 button in every round repeats the question.
 - **World map** — subject "islands" (Number Island, Word Woods, Nature Bay, Puzzle Peak, Feelings Garden), a big "▶ next skill" button, and a ⭐ Daily Review button when skills are due.
 - **Skill map** (`curriculum/skills.js`) — ordered skills per subject and band with prerequisites, from *Count to 5* and *Find the Shape* up to *Big Division*. Skills unlock when their same-band prerequisites are passed; kids can peek at other bands.
 - **Mastery + spaced review** — a round is passed at ≥ 80%. A skill is **mastered** after passing on **2 different days**. Passed skills return in Daily Review on a Leitner schedule (1, 2, 4, 8, 16 days), interleaving several skills in one round.
@@ -15,6 +15,7 @@ A colorful Expo React Native learning-games app for kids ages 3-10, built around
 - **Nature Bay (science)** — Dress for Weather, Where Do I Live?, What Plants Need, Push or Pull?, Push & Roll (hold to push harder and roll farther), Life Cycles, Solid/Liquid/Gas, Food Chains and My Amazing Body.
 - **Puzzle Peak (logic)** — Freeze Zoo (tap / freeze self-control game with a rule switch), patterns, Robo Path and Robot Loops (program a robot with arrow and repeat blocks) and Logic Grids.
 - **Garden Days** — grow a plant over real days by reading its daily clue (water, sunlight or soil); it grows one stage per day until it blooms.
+- **Number Tracing** — ages 3-4 trace the digits with a finger from a green dot, stroke by stroke, after a pencil shows how (*Write 1 to 5*, then *Write 6 to 9 and 0*).
 - **Quick Look & Number Line Drop** — subitizing (dots flash, then hide) and number-line estimation (tap where 37 goes on 0-100) skills.
 - **Memory Chips** — the number-matching memory game with the bonus-chip twist (see below), now in 6 variants (Dot, Letter, Classic, Plus & Minus, Times & Divide, Fraction Chips), played solo against an AI 🤖 Buddy or with a friend.
 - **Number Path Race** — a linear 1-10 / 1-20 number board game: spin, then tap and hear each square you hop through.
@@ -90,6 +91,7 @@ screens/
   ParentDashboardScreen.js  Grown-up check, play time, limits, progress
   TimeUpScreen.js         Gentle goodbye when today's time is used up
   AdventureScreen.js      Today's Adventure path and finale
+  TraceDigitsScreen.js    Number Tracing (write 0-9 with a finger)
 components/               Buttons, cards, QuestionVisual, DotPattern, NumberLineInput,
                           WordBuilderInput, StoryStripInput, ParentGate, PlaytestReport, memory-game pieces
 utils/
@@ -112,6 +114,8 @@ utils/
   parentGate.js           Grown-up check
   adaptive.js             In-round step down / step up between neighbouring skills
   adventure.js            Today's Adventure planner (steps, rotation, fitting the time left)
+  voices.js               Ranks device voices to pick the most natural one
+  tracing.js              Number Tracing strokes and tracing rules
   playLog.js              Play-test events, per-skill report and flags, CSV
   exportFile.js           Download (web) or share (phones) a text file
   skillRounds.js          Game-screen skills report results like the quiz

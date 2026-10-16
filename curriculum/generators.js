@@ -201,16 +201,17 @@ function division(min, max) {
 }
 
 // Subitizing: dots flash briefly so children "see" the amount without counting.
-function quickLook(min, max, layout, flashMs) {
+// `choiceMax` caps the answer buttons (3-4 year olds only ever see 1-5).
+function quickLook(min, max, layout, flashMs, { choiceMax = max + 1, speech = 'Quick! How many dots did you see?' } = {}) {
   return () => {
     const count = randInt(min, max);
     return {
       prompt: 'Quick look!',
-      speech: 'Quick! How many dots did you see?',
+      speech,
       visual: { type: 'dots', count, layout, flashMs },
       answer: count,
       explain: `There were ${count} dots.`,
-      choices: buildChoices(count, { min: 1, max: max + 1, spread: 2 }),
+      choices: buildChoices(count, { min: 1, max: choiceMax, spread: 2 }),
     };
   };
 }
@@ -243,7 +244,8 @@ export const GENERATORS = {
   'count-10': countObjects(3, 10),
   shapes: findShape,
   'more-less': whichHasMore(8),
-  'quick-look-5': quickLook(1, 5, 'dice', 1500),
+  // Ages 3-4: up to 5 dots, shown longer. Ten frames up to 10 come in 5-6.
+  'quick-look-5': quickLook(1, 5, 'dice', 2500, { choiceMax: 5, speech: 'Look! How many dots?' }),
   'quick-look-10': quickLook(3, 10, 'tenFrame', 2000),
   'number-line-10': numberLine(10, 1),
   'number-line-100': numberLine(100, 8),

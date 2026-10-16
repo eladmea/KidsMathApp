@@ -11,6 +11,8 @@ const PLAY_TIME_KEY = '@mathplay_play_time';
 const PLAY_LOG_KEY_PREFIX = '@mathplay_play_log_';
 // Today's Adventure per profile (see utils/adventure.js).
 const ADVENTURE_KEY_PREFIX = '@mathplay_adventure_';
+// The read-aloud voice chosen on this device (null = pick the best automatically).
+const VOICE_KEY = '@mathplay_voice';
 
 async function readJson(key, fallback) {
   try {
@@ -95,6 +97,14 @@ export function loadAdventure(profileId) {
 
 export function saveAdventure(profileId, adventure) {
   return writeJson(ADVENTURE_KEY_PREFIX + profileId, adventure);
+}
+
+export function loadVoiceChoice() {
+  return readJson(VOICE_KEY, null);
+}
+
+export function saveVoiceChoice(voiceId) {
+  return writeJson(VOICE_KEY, voiceId);
 }
 
 export async function deleteProgress(profileId) {
