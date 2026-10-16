@@ -12,6 +12,9 @@ export const SKILLS = [
   { id: 'math-count-10', subject: 'math', band: 'sprouts', title: 'Count to 10', emoji: '🔟', generator: 'count-10', prereqs: ['math-count-5'] },
   { id: 'math-more-less', subject: 'math', band: 'sprouts', title: 'Which Has More?', emoji: '⚖️', generator: 'more-less', prereqs: ['math-count-5'] },
   { id: 'math-quick-look-5', subject: 'math', band: 'sprouts', title: 'Quick Look', emoji: '👀', generator: 'quick-look-5', prereqs: ['math-count-5'] },
+  // Number Tracing: write the digits with a finger (`traceLevel` picks them).
+  { id: 'math-write-1-5', subject: 'math', band: 'sprouts', title: 'Write 1 to 5', emoji: '✏️', screen: 'TraceDigits', traceLevel: 'small', prereqs: [] },
+  { id: 'math-write-6-9', subject: 'math', band: 'sprouts', title: 'Write 6 to 9 and 0', emoji: '🖍️', screen: 'TraceDigits', traceLevel: 'big', prereqs: ['math-write-1-5'] },
 
   // ---- Number Island: Explorers (5-6) ----
   { id: 'math-next-number', subject: 'math', band: 'explorers', title: 'What Comes Next?', emoji: '➡️', generator: 'next-number', prereqs: ['math-count-10'] },
@@ -87,7 +90,7 @@ export function getSkill(skillId) {
 }
 
 // Game screens that play a skill (they receive { skillId }).
-export const SKILL_SCREENS = ['FreezeZoo', 'RoboPath', 'PushRoll', 'FeelingsFriends'];
+export const SKILL_SCREENS = ['FreezeZoo', 'RoboPath', 'PushRoll', 'FeelingsFriends', 'TraceDigits'];
 
 export function isPlayable(skill) {
   return Boolean(skill && (skill.generator || skill.screen));

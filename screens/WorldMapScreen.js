@@ -9,7 +9,7 @@ import { profileBand } from '../utils/profiles';
 import { SUBJECTS } from '../curriculum/subjects';
 import { LEARNING_GAMES } from '../curriculum/games';
 import { skillsFor, isPlayable, skillRoute } from '../curriculum/skills';
-import { getDueReviews, getRecord, isMastered, recommendNextSkill, toDayKey } from '../utils/progress';
+import { getDueReviews, getRecord, hasPassed, isMastered, recommendNextSkill, toDayKey } from '../utils/progress';
 import { WARN_MINUTES } from '../utils/playTime';
 import { isFinished } from '../utils/adventure';
 import { colors, shadow } from '../utils/theme';
@@ -114,6 +114,54 @@ export default function WorldMapScreen({ navigation }) {
           </Text>
         </Pressable>
 
+        <Text style={styles.sectionLabel}>🗺️ Islands</Text>
+        <View style={styles.islandGrid}>
+          {SUBJECTS.map((subject) => {
+            const skills = bandSkills.filter((skill) => skill.subject === subject.id);
+            const playable = skills.filter(isPlayable);
+            // Passed once counts as progress straight away; mastered needs a
+            // pass on a second day.
+            const passed = playable.filter((skill) => hasPassed(getRecord(progress, skill.id))).length;
+            const mastered = playable.filter((skill) => isMastered(getRecord(progress, skill.id))).length;
+            const isOpen = playable.length > 0;
+            return (
+              <Pressable
+                key={subject.id}
+                onPress={() => {
+                  say(subject.label);
+                  navigation.navigate('SkillList', { subjectId: subject.id });
+                }}
+                style={({ pressed }) => [
+                  styles.island,
+                  shadow,
+                  { backgroundColor: subject.light, borderColor: subject.color, opacity: pressed ? 0.85 : 1 },
+                ]}
+              >
+                <Text style={styles.islandEmoji}>{subject.emoji}</Text>
+                <Text style={[styles.islandTitle, { color: subject.color }]}>{subject.label}</Text>
+                {isOpen ? (
+                  <>
+                    <Text style={styles.islandNote} accessibilityLabel={`${passed} of ${playable.length} passed`}>
+                      ✅ {passed} / {playable.length} passed
+                    </Text>
+                    <View style={styles.islandTrack}>
+                      <View
+                        style={[styles.islandFill, { width: `${(passed / playable.length) * 100}%`, backgroundColor: subject.color, opacity: 0.4 }]}
+                      />
+                      <View
+                        style={[styles.islandFill, { width: `${(mastered / playable.length) * 100}%`, backgroundColor: subject.color }]}
+                      />
+                    </View>
+                    {mastered > 0 && <Text style={styles.islandMastered}>🏅 {mastered} mastered</Text>}
+                  </>
+                ) : (
+                  <Text style={styles.islandNote}>🚧 Coming soon</Text>
+                )}
+              </Pressable>
+            );
+          })}
+        </View>
+
         <Text style={styles.sectionLabel}>▶ Or pick a skill</Text>
         {nextSkills.map(({ subject, skill }, index) => (
           <BigButton
@@ -134,36 +182,6 @@ export default function WorldMapScreen({ navigation }) {
             style={[styles.wideButton, styles.reviewButton]}
           />
         )}
-
-        <Text style={styles.sectionLabel}>🗺️ Islands</Text>
-        <View style={styles.islandGrid}>
-          {SUBJECTS.map((subject) => {
-            const skills = bandSkills.filter((skill) => skill.subject === subject.id);
-            const playable = skills.filter(isPlayable);
-            const mastered = playable.filter((skill) => isMastered(getRecord(progress, skill.id))).length;
-            const isOpen = playable.length > 0;
-            return (
-              <Pressable
-                key={subject.id}
-                onPress={() => {
-                  say(subject.label);
-                  navigation.navigate('SkillList', { subjectId: subject.id });
-                }}
-                style={({ pressed }) => [
-                  styles.island,
-                  shadow,
-                  { backgroundColor: subject.light, borderColor: subject.color, opacity: pressed ? 0.85 : 1 },
-                ]}
-              >
-                <Text style={styles.islandEmoji}>{subject.emoji}</Text>
-                <Text style={[styles.islandTitle, { color: subject.color }]}>{subject.label}</Text>
-                <Text style={styles.islandNote}>
-                  {isOpen ? `⭐ ${mastered} / ${playable.length}` : '🚧 Coming soon'}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </View>
 
         <Text style={styles.sectionLabel}>🎲 Games</Text>
         {LEARNING_GAMES.map((game) => (
@@ -354,6 +372,27 @@ const styles = StyleSheet.create({
     fontWeight: '900',
     marginTop: 4,
     textAlign: 'center',
+  },
+  islandTrack: {
+    width: '80%',
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: colors.white,
+    overflow: 'hidden',
+    marginTop: 6,
+  },
+  islandFill: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    bottom: 0,
+    borderRadius: 4,
+  },
+  islandMastered: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: colors.textDark,
+    marginTop: 4,
   },
   islandNote: {
     fontSize: 14,

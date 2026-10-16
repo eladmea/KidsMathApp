@@ -3,6 +3,7 @@ import { View, Text, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ParentGate from '../components/ParentGate';
 import PlaytestReport from '../components/PlaytestReport';
+import VoicePicker from '../components/VoicePicker';
 import { useProfiles } from '../context/ProfileContext';
 import { appendPlayLog, clearPlayLog, loadPlayLog, loadProgress } from '../utils/storage';
 import { toCsv } from '../utils/playLog';
@@ -212,6 +213,10 @@ export default function ParentDashboardScreen({ navigation }) {
         <Text style={styles.intro}>
           Short daily sessions work best (AAP: about 1 hour of quality media a day for ages 2–5, ideally together).
         </Text>
+        <View style={[styles.card, styles.voiceCard, shadow]}>
+          <Text style={styles.voiceTitle}>🗣️ Read-aloud voice (this device)</Text>
+          <VoicePicker />
+        </View>
         {profiles.length === 0 && <Text style={styles.intro}>No players yet.</Text>}
         {profiles.length > 0 && (
           <Pressable onPress={exportAll} style={[styles.smallButton, styles.exportButton, shadow]} accessibilityLabel="Export play-test data">
@@ -280,6 +285,15 @@ const styles = StyleSheet.create({
     borderWidth: 3,
     padding: 16,
     marginBottom: 16,
+  },
+  voiceCard: {
+    borderColor: '#D9D3E8',
+  },
+  voiceTitle: {
+    fontSize: 17,
+    fontWeight: '900',
+    color: colors.textDark,
+    marginBottom: 8,
   },
   cardHeader: {
     flexDirection: 'row',

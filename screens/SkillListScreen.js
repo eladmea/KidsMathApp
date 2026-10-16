@@ -21,6 +21,7 @@ export default function SkillListScreen({ route, navigation }) {
 
   const skills = skillsFor({ subject: subjectId, band: bandId });
   const recommended = recommendNextSkill(skills, progress);
+  const passedCount = skills.filter((skill) => isPlayable(skill) && skillStars(getRecord(progress, skill.id)) >= 2).length;
 
   function statusOf(skill) {
     if (!isPlayable(skill)) return 'soon';
@@ -69,6 +70,13 @@ export default function SkillListScreen({ route, navigation }) {
         })}
       </View>
 
+      <View style={styles.legendRow}>
+        <Text style={styles.legendCount}>
+          ✅ {passedCount} / {skills.filter(isPlayable).length} passed
+        </Text>
+        <Text style={styles.legend}>⭐ tried · ⭐⭐ passed · ⭐⭐⭐ mastered (2 days)</Text>
+      </View>
+
       <ScrollView contentContainerStyle={styles.list}>
         {skills.map((skill) => (
           <SkillCard
@@ -87,6 +95,22 @@ export default function SkillListScreen({ route, navigation }) {
 }
 
 const styles = StyleSheet.create({
+  legendRow: {
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingBottom: 6,
+  },
+  legendCount: {
+    fontSize: 16,
+    fontWeight: '900',
+    color: colors.textDark,
+  },
+  legend: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: colors.gray,
+    marginTop: 2,
+  },
   container: {
     flex: 1,
     backgroundColor: colors.background,
