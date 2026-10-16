@@ -153,3 +153,38 @@ describe('answer choices', () => {
     });
   });
 });
+
+describe('Bunny Pop', () => {
+  const { HOLES, POPS, TARGET, OTHERS, isCorrectResponse, isTarget, makePops } = require('../utils/bunnyPop');
+
+  it('pops mostly bunnies, never the same hole twice in a row, and never 4 others in a row', () => {
+    for (let round = 0; round < 200; round++) {
+      const pops = makePops();
+      expect(pops).toHaveLength(POPS);
+      pops.forEach((pop, i) => {
+        expect(pop.hole).toBeGreaterThanOrEqual(0);
+        expect(pop.hole).toBeLessThan(HOLES);
+        expect([TARGET, ...OTHERS]).toContain(pop.animal);
+        if (i > 0) expect(pop.hole).not.toBe(pops[i - 1].hole);
+        if (i >= 3) expect(pops.slice(i - 3, i + 1).some(isTarget)).toBe(true);
+      });
+    }
+    const all = Array.from({ length: 100 }, () => makePops()).flat();
+    const share = all.filter(isTarget).length / all.length;
+    expect(share).toBeGreaterThan(0.5);
+    expect(share).toBeLessThan(0.8);
+  });
+
+  it('scores boops and leaving others alone', () => {
+    expect(OTHERS).not.toContain(TARGET);
+    expect(isCorrectResponse({ animal: TARGET }, true)).toBe(true);
+    expect(isCorrectResponse({ animal: TARGET }, false)).toBe(false);
+    expect(isCorrectResponse({ animal: '🐸' }, false)).toBe(true);
+    expect(isCorrectResponse({ animal: '🐸' }, true)).toBe(false);
+  });
+
+  it('is the 3-4 logic game, with Freeze Zoo moved to 5-6', () => {
+    expect(getSkill('logic-bunny-pop')).toMatchObject({ band: 'sprouts', screen: 'BunnyPop' });
+    expect(getSkill('logic-freeze-zoo').band).toBe('explorers');
+  });
+});

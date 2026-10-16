@@ -27,6 +27,7 @@ import ParentDashboardScreen from './screens/ParentDashboardScreen';
 import TimeUpScreen from './screens/TimeUpScreen';
 import AdventureScreen from './screens/AdventureScreen';
 import TraceDigitsScreen from './screens/TraceDigitsScreen';
+import BunnyPopScreen from './screens/BunnyPopScreen';
 import { colors } from './utils/theme';
 
 const Stack = createNativeStackNavigator();
@@ -82,6 +83,7 @@ function AppNavigator() {
         <Stack.Screen name="TimeUp" component={TimeUpScreen} />
         <Stack.Screen name="Adventure" component={AdventureScreen} />
         <Stack.Screen name="TraceDigits" component={TraceDigitsScreen} />
+        <Stack.Screen name="BunnyPop" component={BunnyPopScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

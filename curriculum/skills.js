@@ -67,8 +67,10 @@ export const SKILLS = [
   { id: 'sci-body', subject: 'science', band: 'masters', title: 'My Amazing Body', emoji: '🫀', generator: 'human-body', prereqs: [] },
 
   // ---- Puzzle Peak (logic, coding and executive function) ----
-  { id: 'logic-freeze-zoo', subject: 'logic', band: 'sprouts', title: 'Freeze Zoo', emoji: '🦒', screen: 'FreezeZoo', prereqs: [] },
+  // Bunny Pop: one fixed rule for ages 3-4. Freeze Zoo's rule switch is in 5-6.
+  { id: 'logic-bunny-pop', subject: 'logic', band: 'sprouts', title: 'Bunny Pop', emoji: '🐰', screen: 'BunnyPop', prereqs: [] },
   { id: 'logic-patterns', subject: 'logic', band: 'sprouts', title: 'Pattern Play', emoji: '🔁', generator: 'patterns-easy', prereqs: [] },
+  { id: 'logic-freeze-zoo', subject: 'logic', band: 'explorers', title: 'Freeze Zoo', emoji: '🦒', screen: 'FreezeZoo', prereqs: [] },
   { id: 'logic-robo-path', subject: 'logic', band: 'explorers', title: 'Robo Path', emoji: '🤖', screen: 'RoboPath', prereqs: [] },
   { id: 'logic-patterns-hard', subject: 'logic', band: 'explorers', title: 'Tricky Patterns', emoji: '🧩', generator: 'patterns-hard', prereqs: [] },
   { id: 'logic-loops', subject: 'logic', band: 'builders', title: 'Robot Loops', emoji: '🔂', screen: 'RoboPath', prereqs: [] },
@@ -90,7 +92,7 @@ export function getSkill(skillId) {
 }
 
 // Game screens that play a skill (they receive { skillId }).
-export const SKILL_SCREENS = ['FreezeZoo', 'RoboPath', 'PushRoll', 'FeelingsFriends', 'TraceDigits'];
+export const SKILL_SCREENS = ['BunnyPop', 'FreezeZoo', 'RoboPath', 'PushRoll', 'FeelingsFriends', 'TraceDigits'];
 
 export function isPlayable(skill) {
   return Boolean(skill && (skill.generator || skill.screen));

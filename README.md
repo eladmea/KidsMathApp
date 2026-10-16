@@ -13,7 +13,7 @@ A colorful Expo React Native learning-games app for kids ages 3-10, built around
 - **Generic quiz engine** — one generator per skill (`curriculum/generators.js`) with optional pictures (count the apples, add two groups, fade out the "taken away" ones), 2-4 big answer buttons, green/red feedback with sounds.
 - **Word Woods (reading)** — Rhyme Time, Sound Snack (feed the monster the right first sound), Letter Sounds, Sight Words, Word Builder (letter tiles that play their sounds and blend back into the word), digraph and vowel-team words, Story Strip (put panels in order), Compound Words and Word Parts. Listening tasks are always read aloud.
 - **Nature Bay (science)** — Dress for Weather, Where Do I Live?, What Plants Need, Push or Pull?, Push & Roll (hold to push harder and roll farther), Life Cycles, Solid/Liquid/Gas, Food Chains and My Amazing Body.
-- **Puzzle Peak (logic)** — Freeze Zoo (tap / freeze self-control game with a rule switch), patterns, Robo Path and Robot Loops (program a robot with arrow and repeat blocks) and Logic Grids.
+- **Puzzle Peak (logic)** — Bunny Pop (ages 3-4: whack-a-mole, boop only the bunny), Freeze Zoo (ages 5-6: tap / freeze with a rule switch), patterns, Robo Path and Robot Loops (program a robot with arrow and repeat blocks) and Logic Grids.
 - **Garden Days** — grow a plant over real days by reading its daily clue (water, sunlight or soil); it grows one stage per day until it blooms.
 - **Number Tracing** — ages 3-4 trace the digits with a finger from a green dot, stroke by stroke, after a pencil shows how (*Write 1 to 5*, then *Write 6 to 9 and 0*).
 - **Quick Look & Number Line Drop** — subitizing (dots flash, then hide) and number-line estimation (tap where 37 goes on 0-100) skills.
@@ -83,7 +83,7 @@ screens/
   PathRaceScreen.js       Number Path Race
   MiniGamesScreen.js      Fun Break hub (tickets)
   BubblePopScreen.js / ChipTossScreen.js / DanceTapScreen.js
-  FreezeZooScreen.js / RoboPathScreen.js / PushRollScreen.js   Game-screen skills
+  BunnyPopScreen.js / FreezeZooScreen.js / RoboPathScreen.js / PushRollScreen.js   Game-screen skills
   GardenScreen.js         Garden Days
   FeelingsFriendsScreen.js  Feelings Friends (game-screen skill)
   BalloonBreathScreen.js  Balloon Breath calm-down (free mini-game)

@@ -45,8 +45,8 @@ Add notes as you go in **Parent dashboard → child → 🧪 Play-test report �
 
 ### Per-band focus
 
-- **Sprouts (3–4):** Can they play without reading? Are the tap targets big enough? Do Feelings Faces, Sound Snack and Freeze Zoo make sense from speech alone? Do they understand "tap each square" in Number Path Race?
-- **Explorers (5–6):** Does Word Builder's sound blending click? Is Robo Path's arrow programming clear without help? Does Feelings Friends' "what could help" feel natural?
+- **Sprouts (3–4):** Can they play without reading? Are the tap targets big enough? Do Feelings Faces, Sound Snack and Bunny Pop make sense from speech alone? Can they trace digits in Number Tracing? Do they understand "tap each square" in Number Path Race?
+- **Explorers (5–6):** Does Word Builder's sound blending click? Is Robo Path's arrow programming clear without help? Is Freeze Zoo's rule switch fair at this age? Does Feelings Friends' "what could help" feel natural?
 - **Builders (7–8):** Are the Plus & Minus Chips gaps too slow to work out? Is Story Strip ordering obvious? Are the Fair Play choices too obvious?
 - **Masters (9–10):** Are Times & Divide and Fraction Chips challenging but fair? Do Logic Grids need paper? Are In Their Shoes answers too easy for this age?
 
