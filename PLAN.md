@@ -4,7 +4,7 @@ This document describes where MathPlay is heading, why it is designed this way (
 
 - **Plan written:** 2026-10-15
 - **Language:** English (all content, narration and phonics)
-- **Last updated:** 2026-10-16 (first Phase 5b feedback: natural voice, gentler Quick Look, island progress, Number Tracing)
+- **Last updated:** 2026-10-16 (Phase 5b round 2: free text-to-speech audit and speech engine)
 
 ---
 
@@ -527,6 +527,51 @@ The Phase 4–6 walkthroughs were re-run and pass.
 **Notes:**
 - Voices come from the device, so quality depends on what it has. On iPhone/iPad, better voices can be downloaded in Settings → Accessibility → Spoken Content → Voices.
 - A truly human voice everywhere would need a cloud text-to-speech service, which means an API key, an internet connection and a cost per use, or pre-recorded audio for the fixed phrases. Neither is set up.
+
+### Phase 5b, round 2: free text-to-speech audit (2026-10-16, commit `TTS2`)
+
+Goal: the most natural voice possible on web, iOS and Android, free, with no API keys.
+
+**Findings and changes:**
+
+| Area | Before | Now |
+|---|---|---|
+| Voice choice | Natural/Enhanced/Google voices preferred | Also Apple *Premium* voices (above Enhanced), Android Google TTS voice ids (`en-us-x-…`), and Apple "Eloquence" voices skipped. Online voices (Edge "Online (Natural)", Chrome Google, Android `-network`) sink below on-device voices when the device is offline. A saved voice that doesn't exist on this device or browser is ignored |
+| Failures | A failing voice said nothing | If a voice fails (e.g. an online voice loses its connection), the rest of the text is re-spoken once with the best on-device voice, which is then used for the session. Repeated failure is reported in the status |
+| Long text | One utterance (Chrome cuts off around 15 s) | Split into sentences (long ones at commas) and queued |
+| Late voice lists | One 2.5 s wait | Up to 3 more looks, 4 s apart (Chrome on Android lists voices late) |
+| iOS Safari | Speech requested before a tap was silently blocked | The first tap anywhere unlocks speech and replays what was waiting |
+| Native iOS | Muted by the silent switch | Audio mode plays in silent mode, ducks other apps' audio and stops in the background (`expo-audio` `setAudioModeAsync`) |
+| Background | Speech could continue | Stops when the app or browser tab goes to the background |
+| Architecture | Speech logic inside the `useNarrator` hook | `utils/speechEngine.js` (one engine: init, voices, queue, retries, mobile rules, status, cleanup) + `utils/voices.js` (pure ranking, fallback, sentence splitting). `useNarrator()` is a thin hook; `useSpeechStatus()` exposes `{ ready, speaking, error, voiceName, isOnlineVoice, choice }`. The parent dashboard's voice picker shows which voice is in use, marks online voices, and explains how to install better ones on iOS and Android |
+
+**Not adopted: `edge-tts-universal` / `node-edge-tts`.**
+- They stream Microsoft Edge's neural voices through Edge's *Read Aloud* endpoint. That endpoint is undocumented and isn't licensed for other apps. Microsoft has changed its tokens before, which broke these packages, and can block it at any time.
+- `edge-tts-universal` is AGPL-3.0, which is a poor fit for an app shipped to app stores. `node-edge-tts` needs a Node server, and this app has none (it is a static GitHub Pages site plus Expo).
+- The same Microsoft neural voices are already available, free and licensed, to anyone using Edge or Windows. The new ranking picks them automatically there ("Microsoft … Online (Natural)").
+
+**A free, licensed option for later:** open-source neural TTS such as Piper or Kokoro.
+- It could pre-record the fixed phrases (how-to lines, praise, letter sounds) as static audio at build time, with no server, key or cost.
+- Each voice model's license must be checked before use. In-browser versions of these models are 60–300 MB, too large for a children's web app.
+
+**Tests:** 257 unit tests. The engine is tested with a mocked `expo-speech`:
+- best voice on start;
+- ignoring a saved voice the device doesn't have;
+- the sentence queue at natural pitch;
+- waiting for the voice before the first sentence;
+- falling back to an on-device voice when a voice fails;
+- ignoring stale callbacks;
+- stopping in the background;
+- subscriber updates;
+- a device with no voices.
+
+**Verification:** browser checks with stand-in voices, no page errors:
+- the greeting was split into sentences and used the natural online voice;
+- when that voice failed, it fell back to "Samantha (Enhanced)" and kept using it;
+- hiding the tab stopped speech;
+- on an iPhone user agent, nothing was spoken until the first tap, then the greeting was replayed.
+
+All earlier walkthroughs (Phases 4–6, round 1) were re-run and pass. Real iOS and Android devices still need a check by hand: the silent switch, ducking and voice lists can't be emulated here.
 
 ---
 

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
-import { chooseVoice, getVoiceChoice, listVoices, loadVoice, speakNow } from '../utils/useNarrator';
-import { pickBestVoice } from '../utils/voices';
+import { chooseVoice, listVoices, speakNow, useSpeechStatus } from '../utils/useNarrator';
+import { isOnlineVoice, pickBestVoice } from '../utils/voices';
 import { colors } from '../utils/theme';
 
 const SAMPLE = "Hi! Let's count together: one, two, three. Great job!";
@@ -10,15 +10,13 @@ const MAX_VOICES = 8;
 // "Read-aloud voice" for this device: automatic (the best voice found) or a
 // grown-up's pick, each with a ▶ preview.
 export default function VoicePicker() {
+  const status = useSpeechStatus();
   const [voices, setVoices] = useState(null);
-  const [choice, setChoice] = useState(getVoiceChoice());
 
   useEffect(() => {
     let isActive = true;
-    Promise.all([loadVoice(), listVoices()]).then(([, found]) => {
-      if (!isActive) return;
-      setVoices(found);
-      setChoice(getVoiceChoice());
+    listVoices().then((found) => {
+      if (isActive) setVoices(found);
     });
     return () => {
       isActive = false;
@@ -26,7 +24,6 @@ export default function VoicePicker() {
   }, []);
 
   async function pick(id) {
-    setChoice(id);
     await chooseVoice(id);
     speakNow(SAMPLE);
   }
@@ -39,26 +36,32 @@ export default function VoicePicker() {
 
   return (
     <View>
-      <Pressable onPress={() => pick(null)} style={[styles.row, choice === null && styles.rowOn]} accessibilityLabel="Automatic voice">
+      <Pressable onPress={() => pick(null)} style={[styles.row, status.choice === null && styles.rowOn]} accessibilityLabel="Automatic voice">
         <Text style={styles.name}>✨ Automatic{best ? ` (${best.name})` : ''}</Text>
-        <Text style={styles.mark}>{choice === null ? '✓' : '▶'}</Text>
+        <Text style={styles.mark}>{status.choice === null ? '✓' : '▶'}</Text>
       </Pressable>
       {voices.slice(0, MAX_VOICES).map((voice) => (
         <Pressable
           key={voice.identifier}
           onPress={() => pick(voice.identifier)}
-          style={[styles.row, choice === voice.identifier && styles.rowOn]}
+          style={[styles.row, status.choice === voice.identifier && styles.rowOn]}
           accessibilityLabel={`Voice ${voice.name}`}
         >
           <Text style={styles.name} numberOfLines={1}>
-            {voice.name} <Text style={styles.lang}>{voice.language}</Text>
+            {voice.name} <Text style={styles.lang}>{voice.language}{isOnlineVoice(voice) ? ' · online' : ''}</Text>
           </Text>
-          <Text style={styles.mark}>{choice === voice.identifier ? '✓' : '▶'}</Text>
+          <Text style={styles.mark}>{status.choice === voice.identifier ? '✓' : '▶'}</Text>
         </Pressable>
       ))}
+      <Text style={styles.status}>
+        {status.speaking ? '🔊 Speaking…' : status.voiceName ? `Now using: ${status.voiceName}` : 'Using the device default voice'}
+        {status.error === 'speak' ? ' · the last sentence could not be spoken' : ''}
+      </Text>
       <Text style={styles.note}>
-        Tap a voice to hear it. Voices come from this device: "Natural", "Enhanced" and Google voices sound the most
-        human. On iPhone/iPad you can download better voices in Settings → Accessibility → Spoken Content → Voices.
+        Tap a voice to hear it. Voices come from this device and are free: "Natural", "Premium", "Enhanced" and
+        Google voices sound the most human. Online voices need internet; without it an on-device voice is used. On
+        iPhone/iPad, download better voices in Settings → Accessibility → Spoken Content → Voices. On Android, in
+        Settings → Text-to-speech → Google → Install voice data.
       </Text>
     </View>
   );
@@ -96,6 +99,12 @@ const styles = StyleSheet.create({
     fontWeight: '900',
     color: colors.primary,
     marginLeft: 8,
+  },
+  status: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: colors.textDark,
+    marginTop: 2,
   },
   note: {
     fontSize: 12,

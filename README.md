@@ -99,7 +99,6 @@ utils/
   session.js              Builds (interleaved) rounds, tallies per skill
   profiles.js             Profile helpers
   storage.js              AsyncStorage persistence
-  useNarrator.js          Text-to-speech hook (expo-speech)
   phonemeAudio.js         Letter sounds: bundled recordings, else tuned TTS
   useSoundEffects.js      Sound effect playback hook
   memoryGame.js           Memory Chips variants, decks, chip-gap math, stalemate check
@@ -114,7 +113,9 @@ utils/
   parentGate.js           Grown-up check
   adaptive.js             In-round step down / step up between neighbouring skills
   adventure.js            Today's Adventure planner (steps, rotation, fitting the time left)
-  voices.js               Ranks device voices to pick the most natural one
+  speechEngine.js         One speech engine: voices, sentence queue, fallbacks, iOS unlock, background stop, status
+  voices.js               Ranks device voices (natural / premium / enhanced first), fallback voice, sentence splitting
+  useNarrator.js          useNarrator() to speak from a screen, useSpeechStatus() for the current voice and state
   tracing.js              Number Tracing strokes and tracing rules
   playLog.js              Play-test events, per-skill report and flags, CSV
   exportFile.js           Download (web) or share (phones) a text file
