@@ -1,30 +1,37 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, SafeAreaView } from 'react-native';
+import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import ProgressBar from '../components/ProgressBar';
 import ScoreCounter from '../components/ScoreCounter';
 import AnswerButton from '../components/AnswerButton';
-import { generateQuestion } from '../utils/questionGenerator';
+import QuestionVisual from '../components/QuestionVisual';
+import { useProfiles } from '../context/ProfileContext';
 import { useSoundEffects } from '../utils/useSoundEffects';
-import { colors } from '../utils/theme';
-import { QUESTIONS_PER_QUIZ } from '../utils/constants';
+import { useNarrator } from '../utils/useNarrator';
+import { buildSession, tallyBySkill } from '../utils/session';
+import { getSkill } from '../curriculum/skills';
+import { colors, shadow } from '../utils/theme';
 
 const ADVANCE_DELAY_MS = 900;
 
+// Generic skill-driven round: works for a single skill (practice) or several
+// interleaved skills (review).
 export default function QuizScreen({ route, navigation }) {
-  const { difficulty } = route.params;
-  const questions = useMemo(
-    () => Array.from({ length: QUESTIONS_PER_QUIZ }, () => generateQuestion(difficulty)),
-    [difficulty]
-  );
+  const { skillIds, mode = 'practice' } = route.params;
+  const { activeProfile } = useProfiles();
+  const questions = useMemo(() => buildSession(skillIds), [skillIds]);
 
   const [questionIndex, setQuestionIndex] = useState(0);
-  const [score, setScore] = useState(0);
+  const [results, setResults] = useState([]);
   const [selectedChoice, setSelectedChoice] = useState(null);
-  const [isAnswerLocked, setIsAnswerLocked] = useState(false);
   const { playCorrect, playWrong } = useSoundEffects();
+  const { say, stop } = useNarrator(activeProfile?.narration);
   const timeoutRef = useRef(null);
 
   const currentQuestion = questions[questionIndex];
+  const isAnswerLocked = selectedChoice !== null;
+  const score = results.filter(Boolean).length;
+  const title = mode === 'review' ? '⭐ Daily Review' : `${getSkill(skillIds[0])?.emoji ?? ''} ${getSkill(skillIds[0])?.title ?? ''}`;
 
   useEffect(() => {
     return () => {
@@ -32,15 +39,31 @@ export default function QuizScreen({ route, navigation }) {
     };
   }, []);
 
+  useEffect(() => {
+    if (currentQuestion) say(currentQuestion.speech);
+  }, [currentQuestion, say]);
+
+  if (!currentQuestion) {
+    return (
+      <SafeAreaView style={[styles.container, styles.center]}>
+        <Text style={styles.emptyText}>This game isn't ready yet.</Text>
+        <Pressable onPress={() => navigation.goBack()} style={styles.exitLink}>
+          <Text style={styles.exitLinkText}>← Back</Text>
+        </Pressable>
+      </SafeAreaView>
+    );
+  }
+
   function handleChoicePress(choice) {
     if (isAnswerLocked) return;
 
     const isCorrect = choice === currentQuestion.answer;
+    const nextResults = [...results, isCorrect];
     setSelectedChoice(choice);
-    setIsAnswerLocked(true);
+    setResults(nextResults);
+    stop();
 
     if (isCorrect) {
-      setScore((prev) => prev + 1);
       playCorrect();
     } else {
       playWrong();
@@ -48,16 +71,17 @@ export default function QuizScreen({ route, navigation }) {
 
     timeoutRef.current = setTimeout(() => {
       const nextIndex = questionIndex + 1;
-      if (nextIndex >= QUESTIONS_PER_QUIZ) {
+      if (nextIndex >= questions.length) {
         navigation.replace('Results', {
-          score: score + (isCorrect ? 1 : 0),
-          total: QUESTIONS_PER_QUIZ,
-          difficulty,
+          skillIds,
+          mode,
+          score: nextResults.filter(Boolean).length,
+          total: questions.length,
+          tallies: tallyBySkill(questions, nextResults),
         });
       } else {
         setQuestionIndex(nextIndex);
         setSelectedChoice(null);
-        setIsAnswerLocked(false);
       }
     }, ADVANCE_DELAY_MS);
   }
@@ -69,20 +93,39 @@ export default function QuizScreen({ route, navigation }) {
     return 'disabled';
   }
 
+  const isLongPrompt = currentQuestion.prompt.length > 12;
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
-        <ProgressBar current={questionIndex + 1} total={QUESTIONS_PER_QUIZ} />
+        <View style={styles.topRow}>
+          <Pressable onPress={() => navigation.goBack()} style={[styles.roundButton, shadow]} accessibilityLabel="Quit">
+            <Text style={styles.roundButtonText}>✕</Text>
+          </Pressable>
+          <Text style={styles.title} numberOfLines={1}>
+            {title}
+          </Text>
+          <Pressable
+            onPress={() => say(currentQuestion.speech, { force: true })}
+            style={[styles.roundButton, shadow]}
+            accessibilityLabel="Say it again"
+          >
+            <Text style={styles.roundButtonText}>🔊</Text>
+          </Pressable>
+        </View>
+
+        <ProgressBar current={questionIndex + 1} total={questions.length} />
         <ScoreCounter score={score} />
 
         <View style={styles.questionBox}>
-          <Text style={styles.questionText}>{currentQuestion.text} = ?</Text>
+          <Text style={[styles.questionText, isLongPrompt && styles.questionTextLong]}>{currentQuestion.prompt}</Text>
+          <QuestionVisual visual={currentQuestion.visual} />
         </View>
 
         <View style={styles.choicesGrid}>
           {currentQuestion.choices.map((choice) => (
             <AnswerButton
-              key={choice}
+              key={String(choice)}
               value={choice}
               state={getButtonState(choice)}
               disabled={isAnswerLocked}
@@ -100,24 +143,78 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
+  center: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   content: {
     flex: 1,
     paddingHorizontal: 20,
-    paddingTop: 16,
+    paddingTop: 8,
     alignItems: 'center',
+    width: '100%',
+    maxWidth: 520,
+    alignSelf: 'center',
+  },
+  topRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+    marginBottom: 10,
+    gap: 10,
+  },
+  roundButton: {
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    backgroundColor: colors.white,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  roundButtonText: {
+    fontSize: 20,
+    fontWeight: '900',
+    color: colors.textDark,
+  },
+  title: {
+    flex: 1,
+    textAlign: 'center',
+    fontSize: 18,
+    fontWeight: '800',
+    color: colors.textDark,
   },
   questionBox: {
-    marginVertical: 28,
+    marginVertical: 22,
+    alignItems: 'center',
+    width: '100%',
   },
   questionText: {
     fontSize: 52,
     fontWeight: '900',
     color: colors.textDark,
+    textAlign: 'center',
+  },
+  questionTextLong: {
+    fontSize: 32,
   },
   choicesGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
     width: '100%',
+  },
+  emptyText: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: colors.textDark,
+  },
+  exitLink: {
+    marginTop: 16,
+    padding: 10,
+  },
+  exitLinkText: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: colors.primary,
   },
 });

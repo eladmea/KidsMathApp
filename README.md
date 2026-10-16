@@ -1,15 +1,18 @@
 # MathPlay 🧮
 
-A colorful Expo React Native math practice app for kids ages 5-9.
+A colorful Expo React Native learning-games app for kids ages 3-10, built around a research-based skill map (learning trajectories, spaced review, read-aloud prompts for pre-readers).
 
 ## Features
 
-- **Home screen** — app title, Easy/Medium/Hard difficulty selector, big Start button, and a saved high score for the selected difficulty.
-- **Quiz screen** — one question at a time (addition/subtraction on Easy, multiplication/division on Medium/Hard), 4 big multiple-choice buttons, a "Question X of 10" progress bar, and a running score counter.
-- **Results screen** — 1-3 stars based on score, with Play Again and Back to Home buttons.
-- Correct answers flash green with a checkmark and a happy chime; wrong answers flash red with an X and a gentle try-again tone.
-- High scores are saved per difficulty with `AsyncStorage` and persist between sessions.
-- **2-Player Memory Game** — a number-matching memory game with a "bonus chip" twist (see below).
+- **Player profiles** — "Who's playing?" picker; each child has a name, age (3-10) and animal buddy. Age sets their band: 🌱 Sprouts 3-4, 🧭 Explorers 5-6, 🧱 Builders 7-8, 🏆 Masters 9-10. Progress is saved per child.
+- **Read-aloud narration** — prompts are spoken with `expo-speech` (on by default for ages 3-6, toggle 🔊/🔇 on the map). A 🔊 button in every round repeats the question.
+- **World map** — subject "islands" (Number Island, Word Woods, Nature Bay, Puzzle Peak, Feelings Garden), a big "▶ next skill" button, and a ⭐ Daily Review button when skills are due.
+- **Skill map** (`curriculum/skills.js`) — ordered skills per subject and band with prerequisites, from *Count to 5* and *Find the Shape* up to *Big Division*. Skills unlock when their same-band prerequisites are passed; kids can peek at other bands.
+- **Mastery + spaced review** — a round is passed at ≥ 80%. A skill is **mastered** after passing on **2 different days**. Passed skills return in Daily Review on a Leitner schedule (1, 2, 4, 8, 16 days), interleaving several skills in one round.
+- **Generic quiz engine** — one generator per skill (`curriculum/generators.js`) with optional pictures (count the apples, add two groups, fade out the "taken away" ones), 2-4 big answer buttons, green/red feedback with sounds.
+- **Memory Chips** — the 2-player number-matching memory game with the bonus-chip twist (see below).
+
+Number Island is playable now; the other islands show their planned games as "coming soon".
 
 ## Memory Game rules
 
@@ -27,31 +30,33 @@ Two players (🦁 Player 1 and 🐸 Player 2) take turns flipping two cards from
 ## Project structure
 
 ```
-App.js                    Navigation container + stack
+App.js                    Providers + navigation stack
+context/
+  ProfileContext.js       Profiles, active player, progress (AsyncStorage-backed)
+curriculum/
+  ageBands.js             Age bands (3-4, 5-6, 7-8, 9-10)
+  subjects.js             Subject islands
+  skills.js               Skill map with prerequisites
+  generators.js           Question generator per skill
 screens/
-  HomeScreen.js
-  QuizScreen.js
-  ResultsScreen.js
+  ProfilesScreen.js       Who's playing?
+  CreateProfileScreen.js  New player
+  WorldMapScreen.js       Home: islands, next skill, daily review
+  SkillListScreen.js      Skills of one island, by band
+  QuizScreen.js           Generic skill-driven round
+  ResultsScreen.js        Stars, mastered/unlocked celebration
   MemoryGameScreen.js
-components/
-  BigButton.js
-  DifficultySelector.js
-  AnswerButton.js
-  ProgressBar.js
-  ScoreCounter.js
-  StarRating.js
-  MemoryCard.js
-  PlayerBanner.js
-  PlayerStatsRow.js
-  ChipGuessModal.js
-  MemoryResultsModal.js
+components/               Buttons, cards, QuestionVisual, memory-game pieces
 utils/
-  questionGenerator.js    Random question generation per difficulty
-  scoring.js              Star rating calculation
-  storage.js              AsyncStorage high-score persistence
-  useSoundEffects.js       Sound effect playback hook
+  progress.js             Pure mastery / spaced-review / unlock logic
+  session.js              Builds (interleaved) rounds, tallies per skill
+  profiles.js             Profile helpers
+  storage.js              AsyncStorage persistence
+  useNarrator.js          Text-to-speech hook (expo-speech)
+  useSoundEffects.js      Sound effect playback hook
   memoryGame.js           Memory game deck generation + chip-cost math
-  theme.js / constants.js
+  scoring.js / theme.js / constants.js
+__tests__/                Jest tests for generators, skill map, progress, sessions, memory game
 assets/sounds/            correct.wav / wrong.wav
 ```
 
@@ -60,6 +65,12 @@ assets/sounds/            correct.wav / wrong.wav
 ```bash
 npm install
 npx expo start
+```
+
+Run the tests with:
+
+```bash
+npm test
 ```
 
 Scan the QR code with the **Expo Go** app on your phone (Android/iOS) to run it, or press `a` / `i` in the terminal for an emulator/simulator.

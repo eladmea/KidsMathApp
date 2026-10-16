@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { View, StyleSheet, SafeAreaView, Pressable, Text, ScrollView, useWindowDimensions } from 'react-native';
+import { View, StyleSheet, Pressable, Text, ScrollView, useWindowDimensions } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import MemoryCard from '../components/MemoryCard';
 import PlayerBanner from '../components/PlayerBanner';
 import PlayerStatsRow from '../components/PlayerStatsRow';

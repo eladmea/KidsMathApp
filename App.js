@@ -1,7 +1,12 @@
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import HomeScreen from './screens/HomeScreen';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { ProfileProvider } from './context/ProfileContext';
+import ProfilesScreen from './screens/ProfilesScreen';
+import CreateProfileScreen from './screens/CreateProfileScreen';
+import WorldMapScreen from './screens/WorldMapScreen';
+import SkillListScreen from './screens/SkillListScreen';
 import QuizScreen from './screens/QuizScreen';
 import ResultsScreen from './screens/ResultsScreen';
 import MemoryGameScreen from './screens/MemoryGameScreen';
@@ -11,19 +16,27 @@ const Stack = createNativeStackNavigator();
 
 export default function App() {
   return (
-    <NavigationContainer>
-      <StatusBar style="dark" />
-      <Stack.Navigator
-        screenOptions={{
-          headerShown: false,
-          contentStyle: { backgroundColor: colors.background },
-        }}
-      >
-        <Stack.Screen name="Home" component={HomeScreen} />
-        <Stack.Screen name="Quiz" component={QuizScreen} />
-        <Stack.Screen name="Results" component={ResultsScreen} />
-        <Stack.Screen name="Memory" component={MemoryGameScreen} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <SafeAreaProvider>
+      <ProfileProvider>
+        <NavigationContainer>
+          <StatusBar style="dark" />
+          <Stack.Navigator
+            initialRouteName="Profiles"
+            screenOptions={{
+              headerShown: false,
+              contentStyle: { backgroundColor: colors.background },
+            }}
+          >
+            <Stack.Screen name="Profiles" component={ProfilesScreen} />
+            <Stack.Screen name="CreateProfile" component={CreateProfileScreen} />
+            <Stack.Screen name="WorldMap" component={WorldMapScreen} />
+            <Stack.Screen name="SkillList" component={SkillListScreen} />
+            <Stack.Screen name="Quiz" component={QuizScreen} />
+            <Stack.Screen name="Results" component={ResultsScreen} />
+            <Stack.Screen name="Memory" component={MemoryGameScreen} />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </ProfileProvider>
+    </SafeAreaProvider>
   );
 }

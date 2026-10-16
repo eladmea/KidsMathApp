@@ -1,10 +1,13 @@
-import { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, SafeAreaView } from 'react-native';
+import { useState, useEffect, useRef } from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import StarRating from '../components/StarRating';
 import BigButton from '../components/BigButton';
-import { saveHighScoreIfBetter } from '../utils/storage';
+import { useProfiles } from '../context/ProfileContext';
+import { useNarrator } from '../utils/useNarrator';
 import { calculateStars } from '../utils/scoring';
-import { colors, difficultyColors } from '../utils/theme';
+import { getSkill } from '../curriculum/skills';
+import { colors } from '../utils/theme';
 
 const MESSAGES = {
   3: 'Amazing job! 🎉',
@@ -12,14 +15,29 @@ const MESSAGES = {
   1: 'Nice try! Keep practicing! 💪',
 };
 
+const SPOKEN = {
+  3: 'Amazing job!',
+  2: 'Great work!',
+  1: 'Nice try! Keep practicing!',
+};
+
 export default function ResultsScreen({ route, navigation }) {
-  const { score, total, difficulty } = route.params;
+  const { skillIds, mode, score, total, tallies } = route.params;
   const stars = calculateStars(score, total);
-  const [highScore, setHighScore] = useState(score);
+  const { activeProfile, recordSession } = useProfiles();
+  const { say } = useNarrator(activeProfile?.narration);
+  const [celebration, setCelebration] = useState({ newlyMastered: [], newlyUnlocked: [] });
+  const hasRecorded = useRef(false);
 
   useEffect(() => {
-    saveHighScoreIfBetter(difficulty, score).then(setHighScore);
-  }, [difficulty, score]);
+    if (hasRecorded.current) return;
+    hasRecorded.current = true;
+    recordSession(tallies).then((result) => {
+      setCelebration(result);
+      const mastered = result.newlyMastered.map((id) => getSkill(id).title);
+      say([SPOKEN[stars], mastered.length ? `You mastered ${mastered.join(' and ')}!` : ''].join(' '));
+    });
+  }, [recordSession, tallies, say, stars]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -27,19 +45,29 @@ export default function ResultsScreen({ route, navigation }) {
         <Text style={styles.title}>{MESSAGES[stars]}</Text>
         <StarRating stars={stars} />
         <Text style={styles.scoreText}>
-          You scored {score} out of {total}
+          You got {score} out of {total}
         </Text>
-        <Text style={styles.highScoreText}>🏆 Best score: {highScore} / {total}</Text>
+
+        {celebration.newlyMastered.map((id) => (
+          <Text key={id} style={styles.mastered}>
+            🏅 Mastered: {getSkill(id).title}
+          </Text>
+        ))}
+        {celebration.newlyUnlocked.map((id) => (
+          <Text key={id} style={styles.unlocked}>
+            🔓 New: {getSkill(id).emoji} {getSkill(id).title}
+          </Text>
+        ))}
 
         <View style={styles.buttons}>
           <BigButton
             label="Play Again"
-            color={difficultyColors[difficulty]}
-            onPress={() => navigation.replace('Quiz', { difficulty })}
+            color={colors.green}
+            onPress={() => navigation.replace('Quiz', { skillIds, mode })}
             style={styles.button}
           />
           <BigButton
-            label="Back to Home"
+            label="🗺️ Map"
             color={colors.primary}
             onPress={() => navigation.popToTop()}
             style={styles.button}
@@ -72,19 +100,28 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: colors.textDark,
     marginTop: 12,
+    marginBottom: 12,
   },
-  highScoreText: {
-    fontSize: 16,
-    color: colors.textDark,
-    marginTop: 8,
-    marginBottom: 32,
+  mastered: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: colors.greenDark,
+    marginTop: 4,
+  },
+  unlocked: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: colors.purple,
+    marginTop: 4,
   },
   buttons: {
     width: '100%',
     alignItems: 'center',
     gap: 16,
+    marginTop: 28,
   },
   button: {
     width: '80%',
+    maxWidth: 360,
   },
 });
