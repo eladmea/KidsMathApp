@@ -12,7 +12,7 @@ import { colors, shadow } from '../utils/theme';
 
 // Garden Days: one good deed per day helps the plant grow a stage.
 export default function GardenScreen({ navigation }) {
-  const { activeProfile } = useProfiles();
+  const { activeProfile, earnStickers } = useProfiles();
   const { say } = useNarrator(activeProfile?.narration);
   const { playCorrect, playWrong } = useSoundEffects();
   const [garden, setGarden] = useState(null);
@@ -31,10 +31,11 @@ export default function GardenScreen({ navigation }) {
     return [...all.slice(shift), ...all.slice(0, shift)];
   }, [today]);
 
+  const profileId = activeProfile?.id;
   useEffect(() => {
-    if (!activeProfile) return;
-    loadGarden(activeProfile.id).then((stored) => setGarden(stored || newGarden()));
-  }, [activeProfile]);
+    if (!profileId) return;
+    loadGarden(profileId).then((stored) => setGarden(stored || newGarden()));
+  }, [profileId]);
 
   useEffect(() => {
     if (!garden) return;
@@ -56,6 +57,8 @@ export default function GardenScreen({ navigation }) {
     } else if (result === 'bloomed') {
       text = `🌻 It bloomed! You have grown ${next.flowers} flower${next.flowers === 1 ? '' : 's'}!`;
       playCorrect();
+      const earned = await earnStickers([{ kind: 'bloomed', ref: next.flowers }]);
+      if (earned.length) text += ` You earned a sticker: ${earned[0].emoji}`;
     } else if (result === 'wrong') {
       text = `Hmm, not that. ${choiceInfo.reason} Read the clue again!`;
       playWrong();

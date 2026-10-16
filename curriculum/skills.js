@@ -71,11 +71,13 @@ export const SKILLS = [
   { id: 'logic-loops', subject: 'logic', band: 'builders', title: 'Robot Loops', emoji: '🔂', screen: 'RoboPath', prereqs: [] },
   { id: 'logic-grids', subject: 'logic', band: 'masters', title: 'Logic Grids', emoji: '🕵️', generator: 'logic-grids', prereqs: [] },
 
-  // ---- Feelings Garden (Phase 4) ----
-  { id: 'sel-faces', subject: 'sel', band: 'sprouts', title: 'Feelings Faces', emoji: '😊', generator: null, prereqs: [] },
-  { id: 'sel-situations', subject: 'sel', band: 'explorers', title: 'How Would You Feel?', emoji: '🤔', generator: null, prereqs: [] },
-  { id: 'sel-fair-play', subject: 'sel', band: 'builders', title: 'Fair Play', emoji: '🤝', generator: null, prereqs: [] },
-  { id: 'sel-perspective', subject: 'sel', band: 'masters', title: 'In Their Shoes', emoji: '👟', generator: null, prereqs: [] },
+  // ---- Feelings Garden (CASEL 5: name feelings -> feelings in situations,
+  // calming -> fairness and turn-taking -> perspective-taking) ----
+  { id: 'sel-faces', subject: 'sel', band: 'sprouts', title: 'Feelings Faces', emoji: '😊', generator: 'feelings-faces', prereqs: [] },
+  { id: 'sel-situations', subject: 'sel', band: 'explorers', title: 'How Would You Feel?', emoji: '🤔', generator: 'feelings-situations', prereqs: [] },
+  { id: 'sel-feelings-friends', subject: 'sel', band: 'explorers', title: 'Feelings Friends', emoji: '🐻', screen: 'FeelingsFriends', prereqs: ['sel-situations'] },
+  { id: 'sel-fair-play', subject: 'sel', band: 'builders', title: 'Fair Play', emoji: '🤝', generator: 'fair-play', prereqs: [] },
+  { id: 'sel-perspective', subject: 'sel', band: 'masters', title: 'In Their Shoes', emoji: '👟', generator: 'in-their-shoes', prereqs: [] },
 ];
 
 const SKILLS_BY_ID = Object.fromEntries(SKILLS.map((skill) => [skill.id, skill]));
@@ -85,7 +87,7 @@ export function getSkill(skillId) {
 }
 
 // Game screens that play a skill (they receive { skillId }).
-export const SKILL_SCREENS = ['FreezeZoo', 'RoboPath', 'PushRoll'];
+export const SKILL_SCREENS = ['FreezeZoo', 'RoboPath', 'PushRoll', 'FeelingsFriends'];
 
 export function isPlayable(skill) {
   return Boolean(skill && (skill.generator || skill.screen));

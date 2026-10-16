@@ -90,16 +90,18 @@ export function applyRound(record, { correct, total }, today) {
 }
 
 // tallies: { [skillId]: { correct, total } }
-// Returns the new progress plus which skills were newly mastered/unlocked so
+// Returns the new progress plus which skills were newly passed/mastered/unlocked so
 // the results screen can celebrate them.
 export function applySession(progress, tallies, today, bandId) {
   const next = { ...progress };
   const newlyMastered = [];
+  const newlyPassed = [];
   Object.entries(tallies).forEach(([skillId, tally]) => {
     if (!tally.total) return;
     const before = getRecord(progress, skillId);
     const after = applyRound(before, tally, today);
     next[skillId] = after;
+    if (!hasPassed(before) && hasPassed(after)) newlyPassed.push(skillId);
     if (!isMastered(before) && isMastered(after)) newlyMastered.push(skillId);
   });
 
@@ -107,7 +109,7 @@ export function applySession(progress, tallies, today, bandId) {
     ? unlockedSkillIds(bandId, next).filter((id) => !unlockedSkillIds(bandId, progress).includes(id))
     : [];
 
-  return { progress: next, newlyMastered, newlyUnlocked };
+  return { progress: next, newlyPassed, newlyMastered, newlyUnlocked };
 }
 
 // A skill unlocks once every prerequisite *in the same band* has been passed.

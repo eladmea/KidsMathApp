@@ -105,6 +105,9 @@ export default function ProfilesScreen({ navigation }) {
         >
           <Text style={styles.manageText}>{isManaging ? 'Done' : 'Grown-ups: manage players'}</Text>
         </Pressable>
+        <Pressable onPress={() => navigation.navigate('ParentDashboard')} style={styles.manageLink}>
+          <Text style={styles.manageText}>👪 Parent dashboard & time limits</Text>
+        </Pressable>
       </ScrollView>
     </SafeAreaView>
   );

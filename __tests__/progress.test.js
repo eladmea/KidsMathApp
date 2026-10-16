@@ -127,7 +127,8 @@ describe('recommendNextSkill', () => {
   });
 
   it('returns null when nothing is playable', () => {
-    expect(recommendNextSkill(skillsFor({ subject: 'sel' }), {})).toBeNull();
+    expect(recommendNextSkill([], {})).toBeNull();
+    expect(recommendNextSkill([{ id: 'soon', band: 'sprouts', prereqs: [], generator: null }], {})).toBeNull();
   });
 });
 

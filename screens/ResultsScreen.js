@@ -24,9 +24,14 @@ const SPOKEN = {
 export default function ResultsScreen({ route, navigation }) {
   const { skillIds, mode, score, total, tallies } = route.params;
   const stars = calculateStars(score, total);
-  const { activeProfile, recordSession } = useProfiles();
+  const { activeProfile, recordSession, isTimeUp } = useProfiles();
   const { say } = useNarrator(activeProfile?.narration);
-  const [celebration, setCelebration] = useState({ newlyMastered: [], newlyUnlocked: [], earnedTicket: false });
+  const [celebration, setCelebration] = useState({
+    newlyMastered: [],
+    newlyUnlocked: [],
+    earnedTicket: false,
+    earnedStickers: [],
+  });
   const hasRecorded = useRef(false);
 
   useEffect(() => {
@@ -39,6 +44,7 @@ export default function ResultsScreen({ route, navigation }) {
         [
           SPOKEN[stars],
           mastered.length ? `You mastered ${mastered.join(' and ')}!` : '',
+          result.earnedStickers.length ? 'You got a new sticker!' : '',
           result.earnedTicket ? 'You earned a Fun Break!' : '',
         ].join(' ')
       );
@@ -65,10 +71,24 @@ export default function ResultsScreen({ route, navigation }) {
           </Text>
         ))}
 
+        {celebration.earnedStickers.length > 0 && (
+          <Text style={styles.sticker}>
+            🌟 New sticker{celebration.earnedStickers.length > 1 ? 's' : ''}:{' '}
+            {celebration.earnedStickers.map((sticker) => sticker.emoji).join(' ')}
+          </Text>
+        )}
         {celebration.earnedTicket && <Text style={styles.ticket}>🎟️ You earned a Fun Break!</Text>}
 
         <View style={styles.buttons}>
-          {celebration.earnedTicket && (
+          {isTimeUp && (
+            <BigButton
+              label="👋 Time for a break"
+              color={colors.purple}
+              onPress={() => navigation.reset({ index: 0, routes: [{ name: 'TimeUp' }] })}
+              style={styles.button}
+            />
+          )}
+          {celebration.earnedTicket && !isTimeUp && (
             <BigButton
               label="🎈 Fun Break"
               color={colors.orange}
@@ -76,22 +96,21 @@ export default function ResultsScreen({ route, navigation }) {
               style={styles.button}
             />
           )}
-          <BigButton
-            label="Play Again"
-            color={colors.green}
-            onPress={() =>
-              mode === 'review'
-                ? navigation.replace('Quiz', { skillIds, mode })
-                : navigation.replace(...skillRoute(getSkill(skillIds[0])))
-            }
-            style={styles.button}
-          />
-          <BigButton
-            label="🗺️ Map"
-            color={colors.primary}
-            onPress={() => navigation.popToTop()}
-            style={styles.button}
-          />
+          {!isTimeUp && (
+            <BigButton
+              label="Play Again"
+              color={colors.green}
+              onPress={() =>
+                mode === 'review'
+                  ? navigation.replace('Quiz', { skillIds, mode })
+                  : navigation.replace(...skillRoute(getSkill(skillIds[0])))
+              }
+              style={styles.button}
+            />
+          )}
+          {!isTimeUp && (
+            <BigButton label="🗺️ Map" color={colors.primary} onPress={() => navigation.popToTop()} style={styles.button} />
+          )}
         </View>
       </View>
     </SafeAreaView>
@@ -133,6 +152,12 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: colors.purple,
     marginTop: 4,
+  },
+  sticker: {
+    fontSize: 18,
+    fontWeight: '900',
+    color: colors.purple,
+    marginTop: 8,
   },
   ticket: {
     fontSize: 18,

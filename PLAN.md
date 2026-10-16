@@ -4,7 +4,7 @@ This document describes where MathPlay is heading, why it is designed this way (
 
 - **Plan written:** 2026-10-15
 - **Language:** English (all content, narration and phonics)
-- **Last updated:** 2026-10-16 (feedback, worked examples and number sequences improved after play-testing)
+- **Last updated:** 2026-10-16 (Phase 4: social-emotional learning, sticker book, parent dashboard and time limits)
 
 ---
 
@@ -17,8 +17,8 @@ This document describes where MathPlay is heading, why it is designed this way (
 | **Phase 1** | Math track + Memory Chips variants, solo AI buddy, Number Path Race, Quick Look, Number Line Drop, first mini-games | ✅ Done | **2026-10-16** (commit `c4e1e07`) |
 | **Phase 2** | Literacy: Sound Snack, Word Builder, Story Strip, Letter Chips, letter-sound playback | ✅ Done | **2026-10-16** (commit `c5c6411`) |
 | **Phase 3** | Science, Logic & Executive Function: Garden Days, Dress for Weather, Push & Roll, Robo Path, Freeze Zoo | ✅ Done | **2026-10-16** (commit `5636426`) |
-| Phase 4 | Social-emotional learning & polish: Feelings Friends, Balloon Breath, sticker book, parent dashboard + time limits | ⏳ Next | — |
-| Phase 5 | Play-testing with 2–3 kids per age band, difficulty tuning | 🔜 Planned | — |
+| **Phase 4** | Social-emotional learning & polish: Feelings Garden, Feelings Friends, Balloon Breath, sticker book, parent dashboard + soft time limits | ✅ Done | **2026-10-16** (commit `217d84c`) |
+| Phase 5 | Play-testing with 2–3 kids per age band, difficulty tuning | ⏳ Next | — |
 
 ---
 
@@ -95,11 +95,11 @@ The variants also get a **solo mode against an AI buddy** and a post-game reflec
 | Push & Roll | Science | 5–8 | ✅ 3 |
 | Robo Path (coding) | Logic | 4–10 | ✅ 3 |
 | Freeze Zoo (go/no-go) | EF | 3–8 | ✅ 3 |
-| Feelings Friends | SEL | 3–8 | 4 |
+| Feelings Friends | SEL | 5–8 | ✅ 4 |
 
 ### C. Mini-games (60–90 s breaks)
 
-Bubble Pop ✅ · Chip Toss ✅ · Dance Tap ✅ · Color Me · Balloon Breath · Peekaboo Hide & Seek. New simple ideas: **Chip Bridge** (cooperative add/subtract to hit a target) and **Echo Monster** (growing memory sequence).
+Bubble Pop ✅ · Chip Toss ✅ · Dance Tap ✅ · Balloon Breath ✅ (free calm-down) · Color Me · Peekaboo Hide & Seek. New simple ideas: **Chip Bridge** (cooperative add/subtract to hit a target) and **Echo Monster** (growing memory sequence).
 
 ---
 
@@ -307,9 +307,60 @@ Changes made after the first play-test of the live site:
 
 - **Number Line Drop praise** (follow-up): a correct tap now says "Bullseye!" (exact) or rotating praise such as "Great job! 45 lives right there! 🎉" instead of "Close!". A miss says "Good try! … 45 lives here."
 
-### Phase 4: next
+### Phase 4: Social-emotional learning and polish (implemented 2026-10-16, commit `217d84c`)
 
-Social-emotional learning and polish: Feelings Friends, Balloon Breath, the sticker book, and a parent dashboard with time limits.
+**Delivered:** Feelings Garden is playable in every age band, following the CASEL 5 order in the curriculum spine.
+
+| Band | Skill | How it plays |
+|---|---|---|
+| 3–4 | **Feelings Faces** | "Which face looks sad?" Three faces (happy, sad, angry, scared, surprised, sleepy). Always read aloud |
+| 5–6 | **How Would You Feel?** | A short situation with a picture ("Your balloon floats away"). Tap the face that fits |
+| 5–6 | **Feelings Friends** (game, unlocked by How Would You Feel?) | A friend says what happened. Name their feeling, then pick what would help (a hug, slow breaths together, "You can play with us!") |
+| 7–8 | **Fair Play** | Sharing, taking turns, being a good sport, saying sorry |
+| 9–10 | **In Their Shoes** | Richer feeling words (proud, left out, nervous, relieved, embarrassed) and what to say or do |
+
+- Wrong answers are never ones that could fairly fit. Every situation lists the feelings that would also make sense, and those are never offered as wrong choices.
+- **Balloon Breath** (Fun Break, always free): hold the button to breathe in and fill the balloon, let go to breathe out. A breath counts once held 3 s or more; a quick one gets "try a slower breath". Five slow breaths end the game. It doesn't count as play time.
+- **Sticker book** (`utils/stickers.js`, `screens/StickerBookScreen.js`):
+  - A sticker for passing a skill the first time, a gold one for mastering it, and a flower when a Garden Days plant blooms. Each event earns its sticker once.
+  - Stickers appear on the Results screen *after* the round and fill pages of 12. Tapping one says how it was earned. There is no shop.
+- **Parent dashboard** (`screens/ParentDashboardScreen.js`), linked from "Who's playing?":
+  - A grown-up check first: type the answer to a times fact (6–9 × 6–9). A wrong answer gets a new question.
+  - For each child: minutes played today and over the last 7 days, the daily limit (off, 10–60 min), "➕ 10 more minutes today", progress per island for their band, skills still being practiced, sticker count and the read-aloud setting.
+- **Soft daily time limit** (`utils/playTime.js`):
+  - Defaults to 15 minutes for ages 3–5 and 20 for ages 6–10, from the AAP guidance.
+  - Play time is counted while a child is on a playing screen and the app is in the foreground. It is not counted on the player picker, the parent screens, the goodbye screen or Balloon Breath.
+  - A ⏰ note appears on the map in the last 5 minutes.
+  - When time runs out, the current round is allowed to finish. Its Results screen then offers "👋 Time for a break" instead of Play Again, and the map sends the child to a goodbye screen: today's stickers, Balloon Breath as a cool-down, "Switch player", and "Grown-ups: +10 min" behind the grown-up check.
+- **Tests**: 216 unit tests. New tests check that:
+  - every SEL question has exactly one right answer, and no feeling that would also fit is offered as wrong;
+  - every Feelings Friends turn has one helpful choice and wrong feelings that don't fit;
+  - Balloon Breath fills and judges breaths correctly, and is the only free mini-game;
+  - stickers are awarded once per event, with gold and flower stickers;
+  - play time adds up per day, the limit counts down, and bonus time lasts only for today;
+  - the grown-up check accepts only the right typed answer.
+
+**Verification:**
+- Browser walkthrough against a build served exactly as GitHub Pages serves it (under `/KidsMathApp/`), all checks passing with no page errors or failed requests:
+  - Feelings Faces 10/10, earning a sticker shown on Results and in the sticker book.
+  - How Would You Feel? 10/10, unlocking Feelings Friends, then Feelings Friends 7/8 with a gentle correction for an unhelpful choice.
+  - Balloon Breath: a quick breath not counted, five slow breaths finishing it, no ticket spent.
+  - Time limit: a child with 30 s left finished her round, play time reached 15 min, Results offered the goodbye, and reopening the app went straight to the goodbye screen. A wrong grown-up answer was refused; a right one added 10 minutes and returned to the map.
+  - No play time counted while on the player picker (32 s wait).
+  - Dashboard: both children listed, 15 of 25 minutes shown, limits changed and saved.
+  - A Garden Days bloom earned a 🌻 sticker.
+- Regression checks: a math quiz and Memory Chips setup open as before. The full Phase 0–3 walkthroughs were not re-run this time.
+
+**Notes:**
+- No skill is "coming soon" any more. Tests that used a Feelings Garden skill as the example of an unplayable one now use a made-up skill.
+- `applySession` now also returns `newlyPassed`, which the sticker book uses.
+- Play time is stored separately from profiles (`@mathplay_play_time`), so the 15-second play-time ticks never change the profile object that screens watch. Garden Days now reloads only when the player changes.
+- The limit is soft by design. A child can still finish a long game such as Memory Chips after time runs out; the goodbye comes when they return to the map.
+- The SEL evidence is weaker than for the math and reading games (see section 3). Treat these games as enrichment.
+
+### Phase 5: next
+
+Play-testing with 2–3 children per age band, then tuning difficulty, pacing and the default time limits.
 
 ---
 

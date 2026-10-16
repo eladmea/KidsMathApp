@@ -18,9 +18,13 @@ A colorful Expo React Native learning-games app for kids ages 3-10, built around
 - **Quick Look & Number Line Drop** — subitizing (dots flash, then hide) and number-line estimation (tap where 37 goes on 0-100) skills.
 - **Memory Chips** — the number-matching memory game with the bonus-chip twist (see below), now in 6 variants (Dot, Letter, Classic, Plus & Minus, Times & Divide, Fraction Chips), played solo against an AI 🤖 Buddy or with a friend.
 - **Number Path Race** — a linear 1-10 / 1-20 number board game: spin, then tap and hear each square you hop through.
-- **Fun Break** — Bubble Pop, Chip Toss and Dance Tap mini-games. Every 2 learning rounds earn a 🎟️ ticket; each mini-game costs one.
+- **Feelings Garden (social-emotional)** — Feelings Faces, How Would You Feel?, Feelings Friends (name a friend's feeling, then pick what would help), Fair Play and In Their Shoes.
+- **Fun Break** — Bubble Pop, Chip Toss and Dance Tap mini-games. Every 2 learning rounds earn a 🎟️ ticket; each mini-game costs one. **Balloon Breath** (hold to breathe in, let go to breathe out) is a calm-down and always free.
+- **Sticker book** — a sticker for passing a skill the first time, a gold one for mastering it, and a flower when a Garden Days plant blooms. Stickers come after the thinking; there is no shop.
+- **Parent dashboard** — behind a grown-up check (type the answer to a times fact): today's and this week's play time, a daily limit per child, "10 more minutes", progress per island, skills still being practiced, and the read-aloud setting.
+- **Soft daily time limit** — about 15 minutes for ages 3-5 and 20 for 6-10 by default (changeable or off). A ⏰ note appears in the last 5 minutes. When time is up the current round can finish, then a gentle goodbye screen offers Balloon Breath and "see you tomorrow".
 
-Number Island, Word Woods, Nature Bay, Puzzle Peak and the games are playable now; Feelings Garden shows its planned games as "coming soon".
+All five islands and the games are playable.
 
 See [PLAN.md](PLAN.md) for the full roadmap, the research behind it, and the implementation log.
 
@@ -47,7 +51,7 @@ app.config.js             Sets the web base path for the GitHub Pages build
 .github/workflows/        Test + deploy to GitHub Pages
 scripts/prepare-pages.js  Manifest, Home Screen icons, 404 page for Pages
 context/
-  ProfileContext.js       Profiles, active player, progress (AsyncStorage-backed)
+  ProfileContext.js       Profiles, active player, progress, stickers, play time (AsyncStorage-backed)
 curriculum/
   ageBands.js             Age bands (3-4, 5-6, 7-8, 9-10)
   subjects.js             Subject islands
@@ -56,6 +60,7 @@ curriculum/
   scienceGenerators.js    Nature Bay questions
   logicGenerators.js      Puzzle Peak questions (patterns, logic grids)
   literacyGenerators.js   Question generators for Word Woods
+  selGenerators.js        Feelings Garden questions
   phonics.js              Word banks, letter sounds, stories
   random.js               Shared random helpers
   games.js                Learning games + mini-games catalogue
@@ -73,8 +78,13 @@ screens/
   BubblePopScreen.js / ChipTossScreen.js / DanceTapScreen.js
   FreezeZooScreen.js / RoboPathScreen.js / PushRollScreen.js   Game-screen skills
   GardenScreen.js         Garden Days
+  FeelingsFriendsScreen.js  Feelings Friends (game-screen skill)
+  BalloonBreathScreen.js  Balloon Breath calm-down (free mini-game)
+  StickerBookScreen.js    Sticker book
+  ParentDashboardScreen.js  Grown-up check, play time, limits, progress
+  TimeUpScreen.js         Gentle goodbye when today's time is used up
 components/               Buttons, cards, QuestionVisual, DotPattern, NumberLineInput,
-                          WordBuilderInput, StoryStripInput, memory-game pieces
+                          WordBuilderInput, StoryStripInput, ParentGate, memory-game pieces
 utils/
   progress.js             Pure mastery / spaced-review / unlock logic
   session.js              Builds (interleaved) rounds, tallies per skill
@@ -89,9 +99,13 @@ utils/
   funTickets.js           Fun Break ticket rules
   players.js              Player names/icons (child, Buddy, friend)
   roboPath.js / freezeZoo.js / pushRoll.js / garden.js   Rules for the Phase 3 games
+  feelingsFriends.js / balloonBreath.js   Rules for the Phase 4 games
+  stickers.js             Sticker awarding and pages
+  playTime.js             Daily play time and the soft limit
+  parentGate.js           Grown-up check
   skillRounds.js          Game-screen skills report results like the quiz
   scoring.js / theme.js / constants.js
-__tests__/                Jest tests for generators, skill map, progress, sessions, memory game, buddy, path race, tickets, literacy, science, logic, Phase 3 games
+__tests__/                Jest tests for generators, skill map, progress, sessions, memory game, buddy, path race, tickets, literacy, science, logic, Phase 3 games, Phase 4 (SEL, stickers, play time)
 assets/sounds/            correct.wav / wrong.wav
 ```
 

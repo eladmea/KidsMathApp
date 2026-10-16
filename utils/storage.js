@@ -4,6 +4,8 @@ const PROFILES_KEY = '@mathplay_profiles';
 const ACTIVE_PROFILE_KEY = '@mathplay_active_profile';
 const PROGRESS_KEY_PREFIX = '@mathplay_progress_';
 const GARDEN_KEY_PREFIX = '@mathplay_garden_';
+// Play time for every profile: { [profileId]: { 'YYYY-MM-DD': seconds } }.
+const PLAY_TIME_KEY = '@mathplay_play_time';
 
 async function readJson(key, fallback) {
   try {
@@ -52,6 +54,14 @@ export function loadGarden(profileId) {
 
 export function saveGarden(profileId, garden) {
   return writeJson(GARDEN_KEY_PREFIX + profileId, garden);
+}
+
+export function loadPlayTime() {
+  return readJson(PLAY_TIME_KEY, {});
+}
+
+export function savePlayTime(playTime) {
+  return writeJson(PLAY_TIME_KEY, playTime);
 }
 
 export async function deleteProgress(profileId) {
