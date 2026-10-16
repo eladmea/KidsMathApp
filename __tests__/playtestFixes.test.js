@@ -111,3 +111,45 @@ describe('Number Tracing', () => {
     expect(getSkill('math-write-6-9').prereqs).toEqual(['math-write-1-5']);
   });
 });
+
+describe('answer choices', () => {
+  const { buildChoices, GENERATORS } = require('../curriculum/generators');
+
+  it('always offers 4 Quick Look choices, even for 1 and 5', () => {
+    for (let i = 0; i < 500; i++) {
+      const q = generateQuestion('quick-look-5');
+      expect(q.choices).toHaveLength(4);
+      expect(new Set(q.choices).size).toBe(4);
+      expect(q.choices).toContain(q.answer);
+    }
+  });
+
+  it('widens the window at the edges and stays in range', () => {
+    for (let answer = 1; answer <= 5; answer++) {
+      for (let i = 0; i < 50; i++) {
+        const choices = buildChoices(answer, { min: 1, max: 5, spread: 2 });
+        expect(choices).toHaveLength(4);
+        expect(choices).toContain(answer);
+        choices.forEach((c) => {
+          expect(c).toBeGreaterThanOrEqual(1);
+          expect(c).toBeLessThanOrEqual(5);
+        });
+      }
+    }
+    expect(buildChoices(0, { min: 0 }).sort((a, b) => a - b)[0]).toBe(0);
+    expect(buildChoices(2, { min: 1, max: 3 })).toHaveLength(3);
+  });
+
+  it('gives every numeric multiple-choice question 4 distinct choices', () => {
+    // Bigger Number is a deliberate either/or between two numbers.
+    Object.keys(GENERATORS).filter((id) => id !== 'bigger-number').forEach((id) => {
+      for (let i = 0; i < 40; i++) {
+        const q = generateQuestion(id);
+        if (q.type !== 'choice' || !q.choices.every((c) => typeof c === 'number')) return;
+        expect(new Set(q.choices).size).toBe(q.choices.length);
+        expect(q.choices).toContain(q.answer);
+        expect(q.choices.length).toBe(4);
+      }
+    });
+  });
+});

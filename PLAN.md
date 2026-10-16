@@ -573,6 +573,14 @@ Goal: the most natural voice possible on web, iOS and Android, free, with no API
 
 All earlier walkthroughs (Phases 4–6, round 1) were re-run and pass. Real iOS and Android devices still need a check by hand: the silent switch, ducking and voice lists can't be emulated here.
 
+### Phase 5b, round 3: always 4 answer choices (2026-10-16)
+
+- **Feedback:** Quick Look sometimes showed only 3 answers instead of 4.
+- **Cause:** answer choices were numbers within 2 of the answer, limited to the 1–5 range. For an answer of 1 or 5 that leaves only 3 numbers.
+- **Change:** `buildChoices` widens the window on the open side near an edge. An answer of 1 now offers 1–4 and an answer of 5 offers 2–5, so there are always 4 choices when the range allows.
+- **Tests:** 260 unit tests, including a check that every numeric multiple-choice question has 4 distinct choices. Bigger Number keeps its deliberate 2 choices.
+- **Verification:** 30 Quick Look questions in the browser all showed 4 choices.
+
 ---
 
 ## 9. Sources

@@ -128,7 +128,8 @@ describe('number line', () => {
 
 describe('buildChoices', () => {
   it('terminates and stays in range when the answer sits on a bound', () => {
-    expect(buildChoices(0, { min: 0, spread: 1 }).sort()).toEqual([0, 1]);
+    // At a bound the window widens on the open side to still give 4 choices.
+    expect(buildChoices(0, { min: 0, spread: 1 }).sort()).toEqual([0, 1, 2, 3]);
     const choices = buildChoices(1, { min: 1, max: 7, spread: 3 });
     expect(choices).toHaveLength(4);
     choices.forEach((c) => {
