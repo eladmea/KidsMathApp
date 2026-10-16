@@ -24,6 +24,8 @@ A colorful Expo React Native learning-games app for kids ages 3-10, built around
 - **Parent dashboard** — behind a grown-up check (type the answer to a times fact): today's and this week's play time, a daily limit per child, "10 more minutes", progress per island, skills still being practiced, and the read-aloud setting.
 - **Soft daily time limit** — about 15 minutes for ages 3-5 and 20 for 6-10 by default (changeable or off). A ⏰ note appears in the last 5 minutes. When time is up the current round can finish, then a gentle goodbye screen offers Balloon Breath and "see you tomorrow".
 
+- **Today's Adventure** — a guided daily session from the map: warm-up review, a new skill, mixed practice, a free mini-game, a second subject and a Balloon Breath cool-down. Subjects rotate by day, rounds are short, and it shrinks to fit the time left today.
+- **Play together** — a coach-mode toggle on the map. After each quiz answer a grown-up gets a "Talk about it" prompt, and the next question waits for them.
 - **Adaptive difficulty** — in practice rounds, 3 wrong answers in a row step down to the easier skill with a worked example; 5 right in a row step up.
 - **Play-test tools** — every answer is logged on the device (time, replays, level, quits). The parent dashboard's 🧪 Play-test report flags skills that look too hard, too easy, unclear or abandoned, keeps session notes, and exports CSV. See [PLAYTEST.md](PLAYTEST.md) for how to run a play-test.
 
@@ -64,6 +66,7 @@ curriculum/
   logicGenerators.js      Puzzle Peak questions (patterns, logic grids)
   literacyGenerators.js   Question generators for Word Woods
   selGenerators.js        Feelings Garden questions
+  talkPrompts.js          Play together prompts for grown-ups
   phonics.js              Word banks, letter sounds, stories
   random.js               Shared random helpers
   games.js                Learning games + mini-games catalogue
@@ -86,6 +89,7 @@ screens/
   StickerBookScreen.js    Sticker book
   ParentDashboardScreen.js  Grown-up check, play time, limits, progress
   TimeUpScreen.js         Gentle goodbye when today's time is used up
+  AdventureScreen.js      Today's Adventure path and finale
 components/               Buttons, cards, QuestionVisual, DotPattern, NumberLineInput,
                           WordBuilderInput, StoryStripInput, ParentGate, PlaytestReport, memory-game pieces
 utils/
@@ -107,11 +111,12 @@ utils/
   playTime.js             Daily play time and the soft limit
   parentGate.js           Grown-up check
   adaptive.js             In-round step down / step up between neighbouring skills
+  adventure.js            Today's Adventure planner (steps, rotation, fitting the time left)
   playLog.js              Play-test events, per-skill report and flags, CSV
   exportFile.js           Download (web) or share (phones) a text file
   skillRounds.js          Game-screen skills report results like the quiz
   scoring.js / theme.js / constants.js
-__tests__/                Jest tests for generators, skill map, progress, sessions, memory game, buddy, path race, tickets, literacy, science, logic, Phase 3 games, Phase 4 (SEL, stickers, play time), Phase 5 (adaptive, play-test log)
+__tests__/                Jest tests for generators, skill map, progress, sessions, memory game, buddy, path race, tickets, literacy, science, logic, Phase 3 games, Phase 4 (SEL, stickers, play time), Phase 5 (adaptive, play-test log), Phase 6 (adventure, coach prompts)
 assets/sounds/            correct.wav / wrong.wav
 ```
 

@@ -61,7 +61,7 @@ export default function FeelingsFriendsScreen({ route, navigation }) {
       if (step === 'feeling') {
         setStep('help');
       } else if (index + 1 >= turns.length) {
-        finishSkillRound(navigation, skillId, correctRef.current, total);
+        finishSkillRound(navigation, skillId, correctRef.current, total, route.params.adventureStep);
       } else {
         setIndex(index + 1);
         setStep('feeling');

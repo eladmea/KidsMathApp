@@ -84,7 +84,7 @@ export default function PushRollScreen({ route, navigation }) {
   function nextShot() {
     const next = shot + 1;
     if (next >= SHOTS) {
-      finishSkillRound(navigation, skillId, hitsRef.current, SHOTS);
+      finishSkillRound(navigation, skillId, hitsRef.current, SHOTS, route.params.adventureStep);
       return;
     }
     ballX.setValue(0);

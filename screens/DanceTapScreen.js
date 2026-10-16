@@ -21,7 +21,7 @@ const PADS = [
 ];
 
 // A pad glows on every beat; tap it before the next beat to keep dancing.
-export default function DanceTapScreen({ navigation }) {
+export default function DanceTapScreen({ route, navigation }) {
   const { activeProfile } = useProfiles();
   const { say } = useNarrator(activeProfile?.narration);
   const { playCorrect, playWrong } = useSoundEffects();
@@ -119,7 +119,7 @@ export default function DanceTapScreen({ navigation }) {
           emoji="🪩"
           headline={`You danced ${hits} of ${TOTAL_BEATS} beats!`}
           detail={`Best combo: 🔥 ${bestCombo}`}
-          onDone={() => navigation.popToTop()}
+          onDone={() => (route.params?.adventure ? navigation.goBack() : navigation.popToTop())}
         />
       )}
     </SafeAreaView>

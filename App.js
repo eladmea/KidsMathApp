@@ -25,6 +25,7 @@ import BalloonBreathScreen from './screens/BalloonBreathScreen';
 import StickerBookScreen from './screens/StickerBookScreen';
 import ParentDashboardScreen from './screens/ParentDashboardScreen';
 import TimeUpScreen from './screens/TimeUpScreen';
+import AdventureScreen from './screens/AdventureScreen';
 import { colors } from './utils/theme';
 
 const Stack = createNativeStackNavigator();
@@ -78,6 +79,7 @@ function AppNavigator() {
         <Stack.Screen name="StickerBook" component={StickerBookScreen} />
         <Stack.Screen name="ParentDashboard" component={ParentDashboardScreen} />
         <Stack.Screen name="TimeUp" component={TimeUpScreen} />
+        <Stack.Screen name="Adventure" component={AdventureScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

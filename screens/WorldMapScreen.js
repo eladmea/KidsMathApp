@@ -11,10 +11,11 @@ import { LEARNING_GAMES } from '../curriculum/games';
 import { skillsFor, isPlayable, skillRoute } from '../curriculum/skills';
 import { getDueReviews, getRecord, isMastered, recommendNextSkill, toDayKey } from '../utils/progress';
 import { WARN_MINUTES } from '../utils/playTime';
+import { isFinished } from '../utils/adventure';
 import { colors, shadow } from '../utils/theme';
 
 export default function WorldMapScreen({ navigation }) {
-  const { activeProfile, progress, updateProfile, timeLeft, isTimeUp } = useProfiles();
+  const { activeProfile, progress, updateProfile, timeLeft, isTimeUp, adventure, isCoaching, setIsCoaching } = useProfiles();
   const { say } = useNarrator(activeProfile?.narration);
   const name = activeProfile?.name;
 
@@ -88,6 +89,32 @@ export default function WorldMapScreen({ navigation }) {
             ⏰ {timeLeft} minute{timeLeft === 1 ? '' : 's'} left today
           </Text>
         )}
+        <BigButton
+          label={
+            isFinished(adventure)
+              ? "✓ Today's Adventure done!"
+              : adventure && adventure.done.length
+                ? `🗺️ Continue adventure (${adventure.done.length}/${adventure.steps.length})`
+                : "🗺️ Start today's adventure"
+          }
+          color={isFinished(adventure) ? colors.greenDark : colors.primaryDark}
+          onPress={() => navigation.navigate('Adventure')}
+          style={styles.wideButton}
+        />
+        <Pressable
+          onPress={() => {
+            setIsCoaching(!isCoaching);
+            if (!isCoaching) say('Playing together! Grown-ups get a question to talk about after each answer.');
+          }}
+          style={[styles.coachToggle, isCoaching && styles.coachToggleOn]}
+          accessibilityLabel="Play together"
+        >
+          <Text style={[styles.coachToggleText, isCoaching && styles.coachToggleTextOn]}>
+            👪 Play together: {isCoaching ? 'ON' : 'off'}
+          </Text>
+        </Pressable>
+
+        <Text style={styles.sectionLabel}>▶ Or pick a skill</Text>
         {nextSkills.map(({ subject, skill }, index) => (
           <BigButton
             key={skill.id}
@@ -251,6 +278,26 @@ const styles = StyleSheet.create({
     borderColor: colors.purple,
     padding: 14,
     marginBottom: 12,
+  },
+  coachToggle: {
+    marginTop: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 18,
+    borderWidth: 2,
+    borderColor: colors.purple,
+    backgroundColor: colors.white,
+  },
+  coachToggleOn: {
+    backgroundColor: colors.purple,
+  },
+  coachToggleText: {
+    fontSize: 15,
+    fontWeight: '900',
+    color: colors.purple,
+  },
+  coachToggleTextOn: {
+    color: colors.white,
   },
   stickerCard: {
     borderColor: '#C9A100',

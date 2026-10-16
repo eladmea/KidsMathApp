@@ -55,7 +55,7 @@ export default function FreezeZooScreen({ route, navigation }) {
     const next = setTimeout(() => {
       const nextIndex = index + 1;
       if (nextIndex >= trials.length) {
-        finishSkillRound(navigation, skillId, correctRef.current, TRIALS);
+        finishSkillRound(navigation, skillId, correctRef.current, TRIALS, route.params.adventureStep);
       } else {
         if (nextIndex === SWITCH_AT) setShowingRules(2);
         setIndex(nextIndex);

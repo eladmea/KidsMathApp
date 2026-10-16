@@ -30,6 +30,7 @@ export default function PlaytestReport({ log, onAddNote, onClear }) {
   const rounds = log.filter((e) => e.type === 'round').length;
   const quits = log.filter((e) => e.type === 'quit').length;
   const levelChanges = log.filter((e) => e.type === 'level' && e.change !== 'hint').length;
+  const together = log.filter((e) => e.type === 'answer' && e.coach).length;
 
   function addNote() {
     if (!note.trim()) return;
@@ -41,6 +42,7 @@ export default function PlaytestReport({ log, onAddNote, onClear }) {
     <View style={styles.box}>
       <Text style={styles.summary}>
         {daysPlayed(log)} day(s) · {answers} answers · {rounds} rounds · {quits} left early · {levelChanges} level changes
+        {together ? ` · ${together} answers played together` : ''}
       </Text>
 
       {rows.length === 0 ? (

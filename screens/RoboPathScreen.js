@@ -92,7 +92,7 @@ export default function RoboPathScreen({ route, navigation }) {
   function nextPuzzle() {
     const next = puzzleIndex + 1;
     if (next >= PUZZLES_PER_ROUND) {
-      finishSkillRound(navigation, skillId, correctRef.current, PUZZLES_PER_ROUND);
+      finishSkillRound(navigation, skillId, correctRef.current, PUZZLES_PER_ROUND, route.params.adventureStep);
       return;
     }
     const fresh = makePuzzle(level);

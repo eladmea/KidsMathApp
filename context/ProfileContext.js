@@ -10,12 +10,17 @@ import {
   deleteProgress,
   loadPlayTime,
   savePlayTime,
+  loadAdventure,
+  saveAdventure,
 } from '../utils/storage';
 import { createProfile as buildProfile, profileBand } from '../utils/profiles';
 import { applySession, toDayKey } from '../utils/progress';
 import { applyFinishedRound, canSpendTicket } from '../utils/funTickets';
 import { awardStickers, roundStickerEvents } from '../utils/stickers';
 import { addPlayTime, grantBonus, minutesLeft } from '../utils/playTime';
+import { completeStep, isFinished, newAdventure, planAdventure } from '../utils/adventure';
+
+const MAX_ADVENTURE_DAYS_KEPT = 60;
 
 // Play time is counted in small steps while a child is on a playing screen.
 const TICK_MS = 15000;
@@ -38,6 +43,24 @@ export function ProfileProvider({ children }) {
   const playTimeRef = useRef({});
   // The screen being shown, reported by the navigator in App.js.
   const [activeRoute, setActiveRoute] = useState(null);
+  // Today's Adventure for the active profile ({ day, steps, done } or null).
+  const [adventure, setAdventure] = useState(null);
+  const adventureRef = useRef(null);
+  // "Play together" coach mode lasts until the player changes.
+  const [isCoaching, setIsCoaching] = useState(false);
+
+  const commitAdventure = useCallback(async (profileId, next) => {
+    adventureRef.current = next;
+    setAdventure(next);
+    await saveAdventure(profileId, next);
+  }, []);
+
+  const loadAdventureFor = useCallback(async (profileId) => {
+    const stored = await loadAdventure(profileId);
+    const todays = stored && stored.day === toDayKey() ? stored : null;
+    adventureRef.current = todays;
+    setAdventure(todays);
+  }, []);
 
   const commitProfiles = useCallback(async (nextProfiles) => {
     profilesRef.current = nextProfiles;
@@ -62,6 +85,7 @@ export function ProfileProvider({ children }) {
         setActiveProfileId(storedActiveId);
         const storedProgress = await loadProgress(storedActiveId);
         if (isActive) setProgress(storedProgress);
+        if (isActive) await loadAdventureFor(storedActiveId);
       }
       if (isActive) setIsLoading(false);
     })();
@@ -70,12 +94,16 @@ export function ProfileProvider({ children }) {
     };
   }, []);
 
-  const selectProfile = useCallback(async (profileId) => {
-    const storedProgress = await loadProgress(profileId);
-    setActiveProfileId(profileId);
-    setProgress(storedProgress);
-    await saveActiveProfileId(profileId);
-  }, []);
+  const selectProfile = useCallback(
+    async (profileId) => {
+      const storedProgress = await loadProgress(profileId);
+      setActiveProfileId(profileId);
+      setProgress(storedProgress);
+      setIsCoaching(false);
+      await Promise.all([saveActiveProfileId(profileId), loadAdventureFor(profileId)]);
+    },
+    [loadAdventureFor]
+  );
 
   const addProfile = useCallback(
     async (details) => {
@@ -105,6 +133,8 @@ export function ProfileProvider({ children }) {
       if (profileId === activeProfileId) {
         setActiveProfileId(null);
         setProgress({});
+        adventureRef.current = null;
+        setAdventure(null);
         await saveActiveProfileId(null);
       }
     },
@@ -198,6 +228,38 @@ export function ProfileProvider({ children }) {
 
   const today = toDayKey();
   const timeLeft = activeProfile ? minutesLeft(activeProfile, playTime[activeProfile.id], today) : null;
+  // An adventure from an earlier day is never shown.
+  const todaysAdventure = adventure && adventure.day === today ? adventure : null;
+
+  // Plans today's adventure (or keeps the one already started today).
+  const startAdventure = useCallback(async () => {
+    if (!activeProfile) return null;
+    const day = toDayKey();
+    if (adventureRef.current && adventureRef.current.day === day) return adventureRef.current;
+    const steps = planAdventure({ bandId: profileBand(activeProfile).id, progress, today: day, minutesLeft: timeLeft });
+    const next = newAdventure(day, steps);
+    await commitAdventure(activeProfile.id, next);
+    return next;
+  }, [activeProfile, progress, timeLeft, commitAdventure]);
+
+  // Marks a step done. Finishing the last step earns an adventure sticker and
+  // is recorded for the parent dashboard. Returns { finished, earned }.
+  const completeAdventureStep = useCallback(
+    async (stepId) => {
+      const current = adventureRef.current;
+      if (!activeProfileId || !current || current.day !== toDayKey()) return { finished: false, earned: [] };
+      const next = completeStep(current, stepId);
+      if (next === current) return { finished: isFinished(current), earned: [] };
+      await commitAdventure(activeProfileId, next);
+      if (!isFinished(next)) return { finished: false, earned: [] };
+      const profile = profilesRef.current.find((p) => p.id === activeProfileId);
+      const days = [...(profile.adventureDays || []).filter((d) => d !== next.day), next.day].slice(-MAX_ADVENTURE_DAYS_KEPT);
+      const stickers = awardStickers(profile.stickers, [{ kind: 'adventure', ref: next.day }], next.day);
+      await updateProfile(activeProfileId, { adventureDays: days, stickers: stickers.stickers });
+      return { finished: true, earned: stickers.earned };
+    },
+    [activeProfileId, commitAdventure, updateProfile]
+  );
 
   // Uses one Fun Break ticket; returns false if there are none left.
   const spendTicket = useCallback(async () => {
@@ -225,6 +287,11 @@ export function ProfileProvider({ children }) {
       isTimeUp: timeLeft === 0,
       grantMoreTime,
       setActiveRoute,
+      adventure: todaysAdventure,
+      startAdventure,
+      completeAdventureStep,
+      isCoaching,
+      setIsCoaching,
     }),
     [
       isLoading,
@@ -241,6 +308,10 @@ export function ProfileProvider({ children }) {
       playTime,
       timeLeft,
       grantMoreTime,
+      todaysAdventure,
+      startAdventure,
+      completeAdventureStep,
+      isCoaching,
     ]
   );
 

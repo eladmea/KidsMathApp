@@ -17,7 +17,7 @@ const FASTEST_SWEEP_MS = 1000;
 const USE_NATIVE_DRIVER = Platform.OS !== 'web';
 
 // The cup slides back and forth; tap to toss a chip straight up and catch it.
-export default function ChipTossScreen({ navigation }) {
+export default function ChipTossScreen({ route, navigation }) {
   const { activeProfile } = useProfiles();
   const { say } = useNarrator(activeProfile?.narration);
   const { playCorrect, playWrong } = useSoundEffects();
@@ -112,7 +112,7 @@ export default function ChipTossScreen({ navigation }) {
           emoji="🏆"
           headline={`${score} of ${TOTAL_CHIPS} in the cup!`}
           detail={score >= 7 ? 'Super aim!' : 'Great tossing!'}
-          onDone={() => navigation.popToTop()}
+          onDone={() => (route.params?.adventure ? navigation.goBack() : navigation.popToTop())}
         />
       )}
     </SafeAreaView>

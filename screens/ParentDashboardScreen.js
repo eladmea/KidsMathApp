@@ -40,6 +40,8 @@ function ChildCard({ profile, progress, days, today, log, onChange, onMoreTime, 
   const week = recentDays(days, today);
   const weekMax = Math.max(limit || 0, ...week.map((d) => d.minutes), 1);
   const struggling = needsPractice(bandSkills, progress).slice(0, 3);
+  const weekDays = week.map((d) => d.day);
+  const adventures = (profile.adventureDays || []).filter((day) => weekDays.includes(day)).length;
 
   return (
     <View style={[styles.card, shadow, { borderColor: band.color }]}>
@@ -81,6 +83,10 @@ function ChildCard({ profile, progress, days, today, log, onChange, onMoreTime, 
           </View>
         ))}
       </View>
+
+      <Text style={styles.adventures}>
+        🗺️ Today's Adventure finished on {adventures} of the last 7 days
+      </Text>
 
       <Text style={styles.sectionTitle}>Daily limit</Text>
       <View style={styles.pills}>
@@ -367,6 +373,12 @@ const styles = StyleSheet.create({
   weekToday: {
     color: colors.textDark,
     fontWeight: '900',
+  },
+  adventures: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: colors.textDark,
+    marginTop: 10,
   },
   pills: {
     flexDirection: 'row',

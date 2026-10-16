@@ -29,7 +29,7 @@ const FUN_FACTS = [
 
 let nextBubbleId = 0;
 
-export default function BubblePopScreen({ navigation }) {
+export default function BubblePopScreen({ route, navigation }) {
   const { activeProfile } = useProfiles();
   const { say } = useNarrator(activeProfile?.narration);
   const { playCorrect } = useSoundEffects();
@@ -150,7 +150,7 @@ export default function BubblePopScreen({ navigation }) {
           emoji="🎉"
           headline={`You popped ${popped} bubbles!`}
           detail="What a bubble champion!"
-          onDone={() => navigation.popToTop()}
+          onDone={() => (route.params?.adventure ? navigation.goBack() : navigation.popToTop())}
         />
       )}
     </SafeAreaView>
