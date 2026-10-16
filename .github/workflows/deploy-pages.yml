@@ -1,0 +1,64 @@
+# Builds the web version of the app and publishes it to GitHub Pages.
+# - Pull requests: run the tests and check the web build still works.
+# - Pushes to main (e.g. merging a PR): the same, then deploy the live site.
+name: Test and deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Never run two deploys at once; a newer push replaces a queued one.
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm test -- --ci
+
+      - name: Export web build
+        run: npx expo export --platform web --output-dir dist
+        env:
+          CI: 1
+          EXPO_BASE_URL: /${{ github.event.repository.name }}
+
+      # Serve the app for any unknown path, and stop Pages from running Jekyll
+      # (which would hide the _expo folder).
+      - name: Prepare Pages files
+        run: |
+          cp dist/index.html dist/404.html
+          touch dist/.nojekyll
+
+      - uses: actions/upload-pages-artifact@v3
+        if: github.event_name != 'pull_request'
+        with:
+          path: dist
+
+  deploy:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
