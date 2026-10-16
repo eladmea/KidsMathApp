@@ -39,6 +39,8 @@ Two players (🦁 Player 1 and 🐸 Player 2) take turns flipping two cards from
 
 ```
 App.js                    Providers + navigation stack
+app.config.js             Sets the web base path for the GitHub Pages build
+.github/workflows/        Test + deploy to GitHub Pages
 context/
   ProfileContext.js       Profiles, active player, progress (AsyncStorage-backed)
 curriculum/
@@ -81,6 +83,16 @@ utils/
 __tests__/                Jest tests for generators, skill map, progress, sessions, memory game, buddy, path race, tickets, literacy
 assets/sounds/            correct.wav / wrong.wav
 ```
+
+## Play online
+
+The web version is published to GitHub Pages at **https://eladmea.github.io/KidsMathApp/** and works on any phone, tablet or computer with a browser (on a phone, use "Add to Home Screen" to open it like an app). Progress is saved per device/browser.
+
+Publishing is automatic (`.github/workflows/deploy-pages.yml`):
+- every pull request runs the tests and checks the web build;
+- every push to `main` (e.g. merging a PR) rebuilds and redeploys the site within a few minutes.
+
+One-time setup: in the GitHub repo go to **Settings → Pages** and set **Source** to **GitHub Actions**.
 
 ## Running the app
 
