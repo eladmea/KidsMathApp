@@ -19,7 +19,7 @@ This document describes where MathPlay is heading, why it is designed this way (
 | **Phase 3** | Science, Logic & Executive Function: Garden Days, Dress for Weather, Push & Roll, Robo Path, Freeze Zoo | ✅ Done | **2026-10-16** (commit `5636426`) |
 | **Phase 4** | Social-emotional learning & polish: Feelings Garden, Feelings Friends, Balloon Breath, sticker book, parent dashboard + soft time limits | ✅ Done | **2026-10-16** (commit `217d84c`) |
 | **Phase 5a** | Play-test tools: adaptive difficulty, play-test log and report, CSV export, play-test guide | ✅ Done | **2026-10-16** (commit `1eeeae8`) |
-| Phase 5b | Play-tests with 2–3 children per age band, then difficulty tuning from the results | 🔄 In progress: first feedback round done | Round 1 **2026-10-16** (commit `FIXES1`) |
+| Phase 5b | Play-tests with 2–3 children per age band, then difficulty tuning from the results | 🔄 In progress: first feedback round done | Round 1 **2026-10-16** (commit `b41d3ff`) |
 | **Phase 6** | Guided daily session (section 6) and a "play together" mode | ✅ Done | **2026-10-16** (commit `84b8f06`) |
 | Phase 7 | Curriculum gaps against section 4, in two parts (7a math, 7b literacy, science and logic) | 🔜 Planned, after 5b | — |
 | Phase 8 | Polish and release: remaining mini-games, voice recordings, app icon, accessibility, store builds | 🔜 Planned | — |
@@ -495,7 +495,7 @@ The play-tests themselves need real children, so this part of Phase 5 builds wha
 - A break step counts as done even if the child leaves it early: breaks are optional by design.
 - Step times are rough estimates (`STEP_MINUTES`). Phase 5b play-tests should check them.
 
-### Phase 5b, round 1: first play-test feedback (2026-10-16, commit `FIXES1`)
+### Phase 5b, round 1: first play-test feedback (2026-10-16, commit `b41d3ff`)
 
 | Feedback | Cause | Change |
 |---|---|---|
