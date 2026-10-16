@@ -14,12 +14,6 @@ export const colors = {
   gray: '#9E96B3',
 };
 
-export const difficultyColors = {
-  Easy: colors.green,
-  Medium: colors.orange,
-  Hard: colors.purple,
-};
-
 export const playerColors = {
   1: { main: '#4A6FE3', light: '#DCE6FF', dark: '#3552B5', name: 'Player 1', icon: '🦁' },
   2: { main: '#FF6FA8', light: '#FFE1ED', dark: '#D64E85', name: 'Player 2', icon: '🐸' },
