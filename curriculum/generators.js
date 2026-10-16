@@ -109,7 +109,12 @@ function numberSequence(steps, max) {
     const answer = first + 3 * delta;
     // Typical slips: skipping a step, repeating the last number, off by one.
     const slips = [answer + delta, numbers[2], answer + 1, answer - 1, answer + 2, answer - 2];
-    const distractors = [...new Set(slips)].filter((c) => c >= 0 && c !== answer).slice(0, CHOICES_PER_QUESTION - 1);
+    let distractors = [...new Set(slips)].filter((c) => c >= 0 && c !== answer).slice(0, CHOICES_PER_QUESTION - 1);
+    // Counting down to 0 rules out most slips; fill up with nearby numbers.
+    if (distractors.length < CHOICES_PER_QUESTION - 1) {
+      const nearby = buildChoices(answer, { min: 0, spread: 2 }).filter((c) => c !== answer && !distractors.includes(c));
+      distractors = [...distractors, ...nearby].slice(0, CHOICES_PER_QUESTION - 1);
+    }
     return {
       prompt: 'What comes next?',
       speech: `${numbers.join(', ')}. What comes next?`,

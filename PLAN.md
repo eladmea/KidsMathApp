@@ -581,6 +581,7 @@ All earlier walkthroughs (Phases 4–6, round 1) were re-run and pass. Real iOS 
 - **Change:** `buildChoices` widens the window on the open side near an edge. An answer of 1 now offers 1–4 and an answer of 5 offers 2–5, so there are always 4 choices when the range allows.
 - **Tests:** 260 unit tests, including a check that every numeric multiple-choice question has 4 distinct choices. Bigger Number keeps its deliberate 2 choices.
 - **Verification:** 30 Quick Look questions in the browser all showed 4 choices.
+- **Also fixed:** a test sweep found that *What Comes Next?* counting down to 0 (3, 2, 1 → ?) showed 3 choices, because most of its "typical slip" wrong answers were negative. It now tops up with nearby numbers.
 
 ### Phase 5b, round 4: Bunny Pop replaces Freeze Zoo for ages 3–4 (2026-10-16)
 

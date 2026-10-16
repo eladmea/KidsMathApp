@@ -140,6 +140,18 @@ describe('answer choices', () => {
     expect(buildChoices(2, { min: 1, max: 3 })).toHaveLength(3);
   });
 
+  it('gives What Comes Next? 4 choices even when counting down to 0', () => {
+    let sawZero = false;
+    for (let i = 0; i < 3000; i++) {
+      const q = generateQuestion('next-number');
+      if (q.answer === 0) sawZero = true;
+      expect(q.choices).toHaveLength(4);
+      expect(new Set(q.choices).size).toBe(4);
+      q.choices.forEach((c) => expect(c).toBeGreaterThanOrEqual(0));
+    }
+    expect(sawZero).toBe(true);
+  });
+
   it('gives every numeric multiple-choice question 4 distinct choices', () => {
     // Bigger Number is a deliberate either/or between two numbers.
     Object.keys(GENERATORS).filter((id) => id !== 'bigger-number').forEach((id) => {
