@@ -18,7 +18,7 @@ This document describes where MathPlay is heading, why it is designed this way (
 | **Phase 2** | Literacy: Sound Snack, Word Builder, Story Strip, Letter Chips, letter-sound playback | ✅ Done | **2026-10-16** (commit `c5c6411`) |
 | **Phase 3** | Science, Logic & Executive Function: Garden Days, Dress for Weather, Push & Roll, Robo Path, Freeze Zoo | ✅ Done | **2026-10-16** (commit `5636426`) |
 | **Phase 4** | Social-emotional learning & polish: Feelings Garden, Feelings Friends, Balloon Breath, sticker book, parent dashboard + soft time limits | ✅ Done | **2026-10-16** (commit `217d84c`) |
-| **Phase 5** | Play-testing with 2–3 kids per age band, difficulty tuning | 🛠️ Tooling done; play-tests ⏳ next | Tooling **2026-10-16** (commit `PHASE5`) |
+| **Phase 5** | Play-testing with 2–3 kids per age band, difficulty tuning | 🛠️ Tooling done; play-tests ⏳ next | Tooling **2026-10-16** (commit `1eeeae8`) |
 
 ---
 
@@ -358,7 +358,7 @@ Changes made after the first play-test of the live site:
 - The limit is soft by design. A child can still finish a long game such as Memory Chips after time runs out; the goodbye comes when they return to the map.
 - The SEL evidence is weaker than for the math and reading games (see section 3). Treat these games as enrichment.
 
-### Phase 5: Play-testing tools and adaptive difficulty (tooling implemented 2026-10-16, commit `PHASE5`)
+### Phase 5: Play-testing tools and adaptive difficulty (tooling implemented 2026-10-16, commit `1eeeae8`)
 
 The play-tests themselves need real children, so this part of Phase 5 builds what the sessions and the tuning afterwards rely on.
 
