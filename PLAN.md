@@ -596,7 +596,7 @@ All earlier walkthroughs (Phases 4–6, round 1) were re-run and pass. Real iOS 
 - **Fix found while testing:** holes respond to `onPress`. `onPressIn` didn't fire for quick taps in react-native-web.
 - **Tests:** 263 unit tests, covering pop rules, scoring and the band move. A browser round scored 15/16 with one deliberate wrong boop, with no page errors.
 
-### Phase 5b, round 5: patterns by age (2026-10-16, commit `PATTERNS`)
+### Phase 5b, round 5: patterns by age (2026-10-16, commit `2b8cd6e`)
 
 **Feedback:** the pattern game is too advanced for a 3-year-old. Research patterns by age and adapt the game for every age.
 
