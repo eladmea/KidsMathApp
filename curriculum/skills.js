@@ -69,12 +69,21 @@ export const SKILLS = [
   // ---- Puzzle Peak (logic, coding and executive function) ----
   // Bunny Pop: one fixed rule for ages 3-4. Freeze Zoo's rule switch is in 5-6.
   { id: 'logic-bunny-pop', subject: 'logic', band: 'sprouts', title: 'Bunny Pop', emoji: '🐰', screen: 'BunnyPop', prereqs: [] },
-  { id: 'logic-patterns', subject: 'logic', band: 'sprouts', title: 'Pattern Play', emoji: '🔁', generator: 'patterns-easy', prereqs: [] },
+  // Patterns follow the patterning trajectory: fill an AB gap -> extend
+  // AB/AAB/ABB -> longer cores -> same pattern, new things -> the repeating
+  // part -> growing patterns -> position and number rules.
+  { id: 'logic-patterns', subject: 'logic', band: 'sprouts', title: 'Pattern Play', emoji: '🔁', generator: 'patterns-ab', prereqs: [] },
+  { id: 'logic-patterns-more', subject: 'logic', band: 'sprouts', title: 'More Patterns', emoji: '🔂', generator: 'patterns-easy', prereqs: ['logic-patterns'] },
   { id: 'logic-freeze-zoo', subject: 'logic', band: 'explorers', title: 'Freeze Zoo', emoji: '🦒', screen: 'FreezeZoo', prereqs: [] },
   { id: 'logic-robo-path', subject: 'logic', band: 'explorers', title: 'Robo Path', emoji: '🤖', screen: 'RoboPath', prereqs: [] },
-  { id: 'logic-patterns-hard', subject: 'logic', band: 'explorers', title: 'Tricky Patterns', emoji: '🧩', generator: 'patterns-hard', prereqs: [] },
-  { id: 'logic-loops', subject: 'logic', band: 'builders', title: 'Robot Loops', emoji: '🔂', screen: 'RoboPath', prereqs: [] },
+  { id: 'logic-patterns-hard', subject: 'logic', band: 'explorers', title: 'Tricky Patterns', emoji: '🧩', generator: 'patterns-hard', prereqs: ['logic-patterns-more'] },
+  { id: 'logic-pattern-match', subject: 'logic', band: 'explorers', title: 'Same Pattern, New Look', emoji: '🎭', generator: 'pattern-match', prereqs: ['logic-patterns-hard'] },
+  { id: 'logic-loops', subject: 'logic', band: 'builders', title: 'Robot Loops', emoji: '🔁', screen: 'RoboPath', prereqs: [] },
+  { id: 'logic-pattern-unit', subject: 'logic', band: 'builders', title: 'Which Part Repeats?', emoji: '🔍', generator: 'pattern-unit', prereqs: [] },
+  { id: 'logic-growing', subject: 'logic', band: 'builders', title: 'Growing Patterns', emoji: '📈', generator: 'growing-patterns', prereqs: ['logic-pattern-unit'] },
   { id: 'logic-grids', subject: 'logic', band: 'masters', title: 'Logic Grids', emoji: '🕵️', generator: 'logic-grids', prereqs: [] },
+  { id: 'logic-pattern-position', subject: 'logic', band: 'masters', title: 'Pattern Detective', emoji: '🔢', generator: 'pattern-position', prereqs: [] },
+  { id: 'logic-number-rules', subject: 'logic', band: 'masters', title: 'Number Rules', emoji: '🧮', generator: 'number-rules', prereqs: ['logic-pattern-position'] },
 
   // ---- Feelings Garden (CASEL 5: name feelings -> feelings in situations,
   // calming -> fairness and turn-taking -> perspective-taking) ----

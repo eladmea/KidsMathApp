@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, useWindowDimensions } from 'react-native';
 import DotPattern from './DotPattern';
 import { colors } from '../utils/theme';
 
@@ -108,6 +108,74 @@ function SequenceStairs({ numbers, direction, step, reveal, showSteps }) {
   );
 }
 
+// A pattern laid out as big tiles. `gap` is the tile to find (shown as "?"
+// until answered, then filled in); `numbered` adds position numbers.
+// Tiles shrink so the whole pattern stays on one line: a pattern broken over
+// two lines is much harder for young children to see.
+const PATTERN_GAP = 5;
+const PATTERN_MAX_WIDTH = 480;
+function PatternRow({ items, gap, numbered, reveal }) {
+  const { width } = useWindowDimensions();
+  const tiles = items.length + (numbered ? 1 : 0);
+  const available = Math.min(width, PATTERN_MAX_WIDTH) - 72;
+  const tile = Math.max(26, Math.min(58, Math.floor((available - PATTERN_GAP * (tiles - 1)) / tiles)));
+  const size = Math.round(tile * 0.72);
+  return (
+    <View style={[styles.box, styles.patternBox]}>
+      <View style={styles.patternRow}>
+        {items.map((item, i) => {
+          const isGap = i === gap;
+          const filled = isGap && reveal !== null && reveal !== undefined;
+          return (
+            <View key={i} style={styles.patternCell}>
+              <View style={[styles.patternTile, { width: tile, height: tile }, isGap && styles.patternGap, filled && styles.patternFilled]}>
+                <Text style={[styles.patternItem, { fontSize: size }]}>{isGap ? (filled ? reveal : '?') : item}</Text>
+              </View>
+              {numbered && <Text style={styles.patternNumber}>{i + 1}</Text>}
+            </View>
+          );
+        })}
+        {numbered && (
+          <View style={styles.patternCell}>
+            <View style={[styles.patternTile, { width: tile, height: tile }]}>
+              <Text style={styles.patternMore}>…</Text>
+            </View>
+            <Text style={styles.patternNumber}> </Text>
+          </View>
+        )}
+      </View>
+    </View>
+  );
+}
+
+// Growing pattern: each step is a stack that grows by the same amount.
+function GrowingSteps({ steps, emoji, reveal }) {
+  const all = [...steps, reveal ?? null];
+  // Smaller blocks for taller stacks, so each step stays one column.
+  const tallest = Math.max(...all.filter((n) => n !== null));
+  const block = tallest <= 6 ? 22 : tallest <= 9 ? 17 : 13;
+  return (
+    <View style={[styles.box, styles.growingBox]}>
+      {all.map((count, i) => (
+        <View key={i} style={styles.growingStep}>
+          <View style={styles.growingStack}>
+            {count === null ? (
+              <Text style={styles.growingMystery}>?</Text>
+            ) : (
+              Array.from({ length: count }, (_, k) => (
+                <Text key={k} style={[styles.growingBlock, { fontSize: block, lineHeight: block + 3 }]}>
+                  {emoji}
+                </Text>
+              ))
+            )}
+          </View>
+          <Text style={styles.growingLabel}>Step {i + 1}</Text>
+        </View>
+      ))}
+    </View>
+  );
+}
+
 // Pictures that let pre-readers count, listen and look instead of reading.
 // `result` is 'correct' | 'wrong' | null once the child has answered;
 // `reveal` is the answer to show in place of a "?" (if the visual has one).
@@ -124,6 +192,14 @@ export default function QuestionVisual({ visual, result = null, reveal = null, s
         showSteps={showSteps}
       />
     );
+  }
+
+  if (visual.type === 'pattern') {
+    return <PatternRow items={visual.items} gap={visual.gap} numbered={visual.numbered} reveal={reveal} />;
+  }
+
+  if (visual.type === 'growing') {
+    return <GrowingSteps steps={visual.steps} emoji={visual.emoji} reveal={reveal} />;
   }
 
   if (visual.type === 'picture') {
@@ -185,6 +261,79 @@ export default function QuestionVisual({ visual, result = null, reveal = null, s
 }
 
 const styles = StyleSheet.create({
+  patternBox: {
+    width: '100%',
+  },
+  patternRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: PATTERN_GAP,
+  },
+  patternCell: {
+    alignItems: 'center',
+  },
+  patternTile: {
+    borderRadius: 14,
+    backgroundColor: '#F6F3FB',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  patternGap: {
+    backgroundColor: '#FFE9D4',
+    borderWidth: 3,
+    borderColor: colors.orange,
+    borderStyle: 'dashed',
+  },
+  patternFilled: {
+    backgroundColor: '#D9F7E6',
+    borderColor: colors.green,
+    borderStyle: 'solid',
+  },
+  patternItem: {
+    textAlign: 'center',
+  },
+  patternNumber: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: colors.gray,
+    marginTop: 2,
+  },
+  patternMore: {
+    fontSize: 28,
+    fontWeight: '900',
+    color: colors.gray,
+  },
+  growingBox: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+    gap: 14,
+    width: '100%',
+  },
+  growingStep: {
+    alignItems: 'center',
+  },
+  growingStack: {
+    flexDirection: 'column-reverse',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    minHeight: 40,
+  },
+  growingBlock: {
+    fontSize: 20,
+    lineHeight: 24,
+  },
+  growingMystery: {
+    fontSize: 34,
+    fontWeight: '900',
+    color: colors.orange,
+  },
+  growingLabel: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: colors.gray,
+    marginTop: 4,
+  },
   box: {
     backgroundColor: colors.white,
     borderRadius: 24,
