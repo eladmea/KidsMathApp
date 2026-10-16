@@ -6,6 +6,8 @@ import BigButton from '../components/BigButton';
 import { useProfiles } from '../context/ProfileContext';
 import { useNarrator } from '../utils/useNarrator';
 import { calculateStars } from '../utils/scoring';
+import { appendPlayLog } from '../utils/storage';
+import { toDayKey } from '../utils/progress';
 import { getSkill, skillRoute } from '../curriculum/skills';
 import { colors } from '../utils/theme';
 
@@ -37,6 +39,13 @@ export default function ResultsScreen({ route, navigation }) {
   useEffect(() => {
     if (hasRecorded.current) return;
     hasRecorded.current = true;
+    if (activeProfile) {
+      const at = Date.now();
+      appendPlayLog(
+        activeProfile.id,
+        Object.entries(tallies).map(([skillId, tally]) => ({ type: 'round', at, day: toDayKey(), skillId, mode, ...tally }))
+      );
+    }
     recordSession(tallies).then((result) => {
       setCelebration(result);
       const mastered = result.newlyMastered.map((id) => getSkill(id).title);

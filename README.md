@@ -24,6 +24,9 @@ A colorful Expo React Native learning-games app for kids ages 3-10, built around
 - **Parent dashboard** — behind a grown-up check (type the answer to a times fact): today's and this week's play time, a daily limit per child, "10 more minutes", progress per island, skills still being practiced, and the read-aloud setting.
 - **Soft daily time limit** — about 15 minutes for ages 3-5 and 20 for 6-10 by default (changeable or off). A ⏰ note appears in the last 5 minutes. When time is up the current round can finish, then a gentle goodbye screen offers Balloon Breath and "see you tomorrow".
 
+- **Adaptive difficulty** — in practice rounds, 3 wrong answers in a row step down to the easier skill with a worked example; 5 right in a row step up.
+- **Play-test tools** — every answer is logged on the device (time, replays, level, quits). The parent dashboard's 🧪 Play-test report flags skills that look too hard, too easy, unclear or abandoned, keeps session notes, and exports CSV. See [PLAYTEST.md](PLAYTEST.md) for how to run a play-test.
+
 All five islands and the games are playable.
 
 See [PLAN.md](PLAN.md) for the full roadmap, the research behind it, and the implementation log.
@@ -84,7 +87,7 @@ screens/
   ParentDashboardScreen.js  Grown-up check, play time, limits, progress
   TimeUpScreen.js         Gentle goodbye when today's time is used up
 components/               Buttons, cards, QuestionVisual, DotPattern, NumberLineInput,
-                          WordBuilderInput, StoryStripInput, ParentGate, memory-game pieces
+                          WordBuilderInput, StoryStripInput, ParentGate, PlaytestReport, memory-game pieces
 utils/
   progress.js             Pure mastery / spaced-review / unlock logic
   session.js              Builds (interleaved) rounds, tallies per skill
@@ -103,9 +106,12 @@ utils/
   stickers.js             Sticker awarding and pages
   playTime.js             Daily play time and the soft limit
   parentGate.js           Grown-up check
+  adaptive.js             In-round step down / step up between neighbouring skills
+  playLog.js              Play-test events, per-skill report and flags, CSV
+  exportFile.js           Download (web) or share (phones) a text file
   skillRounds.js          Game-screen skills report results like the quiz
   scoring.js / theme.js / constants.js
-__tests__/                Jest tests for generators, skill map, progress, sessions, memory game, buddy, path race, tickets, literacy, science, logic, Phase 3 games, Phase 4 (SEL, stickers, play time)
+__tests__/                Jest tests for generators, skill map, progress, sessions, memory game, buddy, path race, tickets, literacy, science, logic, Phase 3 games, Phase 4 (SEL, stickers, play time), Phase 5 (adaptive, play-test log)
 assets/sounds/            correct.wav / wrong.wav
 ```
 
