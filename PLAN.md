@@ -4,7 +4,7 @@ This document describes where MathPlay is heading, why it is designed this way (
 
 - **Plan written:** 2026-10-15
 - **Language:** English (all content, narration and phonics)
-- **Last updated:** 2026-10-16 (Phase 0 implemented)
+- **Last updated:** 2026-10-16 (Phase 1 implemented)
 
 ---
 
@@ -14,8 +14,8 @@ This document describes where MathPlay is heading, why it is designed this way (
 |---|---|---|---|
 | Pre-plan | MathPlay quiz (Easy/Medium/Hard), 2-player Memory Game with chip-gap twist | ✅ Done | 2026-08-05 → 2026-08-11 |
 | **Phase 0** | Foundation: profiles, age bands, narration, skill map, mastery + spaced review, world map, generic quiz engine, tests | ✅ Done | **2026-10-16** (commit `f4e97ed`) |
-| Phase 1 | Math track + Memory Chips variants, solo AI buddy, Number Path Race, Quick Look, Number Line Drop, first mini-games | ⏳ Next | — |
-| Phase 2 | Literacy: Sound Snack, Word Builder, Story Strip, recorded letter sounds | 🔜 Planned | — |
+| **Phase 1** | Math track + Memory Chips variants, solo AI buddy, Number Path Race, Quick Look, Number Line Drop, first mini-games | ✅ Done | **2026-10-16** (see log for commit) |
+| Phase 2 | Literacy: Sound Snack, Word Builder, Story Strip, Letter Chips, recorded letter sounds | ⏳ Next | — |
 | Phase 3 | Science, Logic & Executive Function: Garden Days, Dress for Weather, Push & Roll, Robo Path, Freeze Zoo | 🔜 Planned | — |
 | Phase 4 | Social-emotional learning & polish: Feelings Friends, Balloon Breath, sticker book, parent dashboard + time limits | 🔜 Planned | — |
 | Phase 5 | Play-testing with 2–3 kids per age band, difficulty tuning | 🔜 Planned | — |
@@ -71,10 +71,10 @@ All variants share the chip-gap engine: on a mismatch, the player calculates the
 
 | Variant | Ages | Pairs | Twist | Phase |
 |---|---|---|---|---|
-| Dot Chips | 3–5 | Dot pattern ↔ numeral | Gap counted by tapping chips | 1 |
+| Dot Chips | 3–5 | Dot pattern ↔ numeral | Gap counted by tapping chips | ✅ 1 |
 | Classic Chips | 5–7 | Number ↔ same number | Original rules | ✅ Pre-plan |
-| Fact Chips | 7–10 | `3×4` ↔ `12` | Gap = difference between answers | 1 |
-| Fraction Chips | 9–10 | ½ ↔ 2/4 ↔ picture | Gap in quarters/eighths | 1 |
+| Fact Chips (Plus & Minus / Times & Divide) | 7–10 | `3+4` ↔ `7`, `3×4` ↔ `12` | Work out each card, then the gap | ✅ 1 |
+| Fraction Chips | 9–10 | `1/2` ↔ `4/8` | Gap counted in eighths | ✅ 1 |
 | Letter Chips | 4–6 | Letter ↔ picture | "Alphabet steps" between letters | 2 |
 
 The variants also get a **solo mode against an AI buddy** and a post-game reflection on the chip trade.
@@ -83,10 +83,10 @@ The variants also get a **solo mode against an AI buddy** and a post-game reflec
 
 | Game | Subject | Ages | Phase |
 |---|---|---|---|
-| Number Path Race (linear board game) | Math | 3–7 | 1 |
-| Quick Look (subitizing flash) | Math | 3–6 | 1 |
-| Number Line Drop | Math | 5–10 | 1 |
-| Lemonade Stand (money) | Math | 7–10 | 1+ |
+| Number Path Race (linear board game) | Math | 3–7 | ✅ 1 |
+| Quick Look (subitizing flash) | Math | 3–6 | ✅ 1 |
+| Number Line Drop | Math | 5–10 | ✅ 1 |
+| Lemonade Stand (money) | Math | 7–10 | Later |
 | Sound Snack (first sounds) | Literacy | 3–6 | 2 |
 | Word Builder (phonics tiles) | Literacy | 5–8 | 2 |
 | Story Strip (sequencing) | Literacy | 4–9 | 2 |
@@ -99,7 +99,7 @@ The variants also get a **solo mode against an AI buddy** and a post-game reflec
 
 ### C. Mini-games (60–90 s breaks)
 
-Bubble Pop · Chip Toss · Dance Tap · Color Me · Balloon Breath · Peekaboo Hide & Seek. New simple ideas: **Chip Bridge** (cooperative add/subtract to hit a target) and **Echo Monster** (growing memory sequence).
+Bubble Pop ✅ · Chip Toss ✅ · Dance Tap ✅ · Color Me · Balloon Breath · Peekaboo Hide & Seek. New simple ideas: **Chip Bridge** (cooperative add/subtract to hit a target) and **Echo Monster** (growing memory sequence).
 
 ---
 
@@ -160,9 +160,48 @@ Rewards are cosmetic stickers shown *after* the thinking, never shops or pressur
 - The "next skill" button points to the next skill **not yet passed**. Passed skills return through Daily Review on a later day, which is what masters them.
 - Not yet covered: in-round adaptive difficulty, session time limits and the parent dashboard (Phase 4).
 
-### Phase 1: next
+### Phase 1: Math track, Memory Chips family, mini-games (implemented 2026-10-16)
 
-Memory Chips variants with a solo AI buddy, Number Path Race, Quick Look, Number Line Drop, and the first 3 mini-games.
+**Delivered:**
+- **Memory Chips family** (`utils/memoryGame.js`). Every card now has a numeric `value`, used for matching and chip gaps, and a `face`, which is what the child sees. Variants:
+  - **Dot Chips** (3–6): 6 pairs, dots ↔ numeral. The gap is counted out by tapping chips one at a time, with each count read aloud.
+  - **Classic Chips**: the original game, unchanged.
+  - **Plus & Minus Chips** (7–8): `3+4` ↔ `7`.
+  - **Times & Divide Chips** (9–10): `3×4` ↔ `12`, `56÷8` ↔ `7`.
+  - **Fraction Chips** (9–10): 8 pairs of equivalent fractions; each chip is 1/8.
+
+  The chip question shows both cards and is read aloud on the child's turn.
+- **Solo play against an AI buddy 🤖** (`utils/memoryBuddy.js`). The buddy remembers only some cards and sometimes misjudges or skips a gap. Its skill rises with the child's age band.
+- **Stalemate fix.** A game now ends when no natural pair is left and neither player can afford any remaining gap. This could deadlock the original game, because wrong guesses destroy chips.
+- **Number Path Race** (`screens/PathRaceScreen.js`, `utils/pathRace.js`), based on Siegler & Ramani:
+  - Linear 1–10 board with a 1–2 spinner, or 1–20 with a 1–3 spinner.
+  - The child taps each square in order while it is spoken. A wrong tap highlights the right square and says it.
+  - Play against Buddy or a friend.
+- **Quick Look**: a subitizing skill. Dice patterns flash for 1.5 s (ages 3–4), or a ten frame for 2 s (ages 5–6).
+- **Number Line Drop**: tap where a number goes on an empty line from 0 to 10, 100 or 1000. Shows 🪂 where the child tapped and 🎯 where the number really is. Lives in the generic quiz engine, so it works in Daily Review too.
+- **Game setup screen**: choose a variant (marked "⭐ Just right" for the child's band) and play with Buddy or a friend.
+- **Fun Break mini-games**: Bubble Pop (gold bubbles read a fun fact), Chip Toss (time your toss into a moving cup) and Dance Tap (tap the glowing pad on the beat).
+  - Every 2 finished learning rounds earn a 🎟️ ticket, and each mini-game costs one ticket.
+  - The Memory Chips and Path Race learning games stay free.
+- **World map** now lists the learning games and the Fun Break with the child's ticket count.
+- **Tests**: 124 unit tests, adding coverage for variant decks (fact and fraction faces are checked against their values), buddy choices, stalemate detection, path race and tickets.
+
+**Verification:**
+- Browser walkthrough on the web build, all checks passing with no page errors:
+  - A full Dot Chips game against Buddy, including paying chips correctly.
+  - A full Number Path Race.
+  - Two 10/10 Number Line rounds, with a ticket earned on the second.
+  - All 3 mini-games, ticket spending, and Quick Look's flash.
+- The Phase 0 walkthrough was re-run as a regression check.
+
+**Notes:**
+- React Native Web press events have no `locationX`. The number line falls back to `pageX` minus the line's measured position.
+- In Dot Chips the chip question also shows the numerals in text. Pre-readers rely on the picture cards and narration.
+- Not yet covered: in-round adaptive difficulty, parent dashboard and session limits (Phase 4).
+
+### Phase 2: next
+
+Literacy: Sound Snack, Word Builder, Story Strip, Letter Chips, and recorded letter sounds.
 
 ---
 

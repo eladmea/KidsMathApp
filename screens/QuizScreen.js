@@ -5,6 +5,7 @@ import ProgressBar from '../components/ProgressBar';
 import ScoreCounter from '../components/ScoreCounter';
 import AnswerButton from '../components/AnswerButton';
 import QuestionVisual from '../components/QuestionVisual';
+import NumberLineInput from '../components/NumberLineInput';
 import { useProfiles } from '../context/ProfileContext';
 import { useSoundEffects } from '../utils/useSoundEffects';
 import { useNarrator } from '../utils/useNarrator';
@@ -13,6 +14,15 @@ import { getSkill } from '../curriculum/skills';
 import { colors, shadow } from '../utils/theme';
 
 const ADVANCE_DELAY_MS = 900;
+// Number-line feedback needs longer to look at.
+const NUMBER_LINE_DELAY_MS = 1800;
+
+function isCorrectAnswer(question, choice) {
+  if (question.type === 'numberLine') {
+    return Math.abs(choice - question.answer) <= question.tolerance;
+  }
+  return choice === question.answer;
+}
 
 // Generic skill-driven round: works for a single skill (practice) or several
 // interleaved skills (review).
@@ -57,7 +67,7 @@ export default function QuizScreen({ route, navigation }) {
   function handleChoicePress(choice) {
     if (isAnswerLocked) return;
 
-    const isCorrect = choice === currentQuestion.answer;
+    const isCorrect = isCorrectAnswer(currentQuestion, choice);
     const nextResults = [...results, isCorrect];
     setSelectedChoice(choice);
     setResults(nextResults);
@@ -83,7 +93,7 @@ export default function QuizScreen({ route, navigation }) {
         setQuestionIndex(nextIndex);
         setSelectedChoice(null);
       }
-    }, ADVANCE_DELAY_MS);
+    }, currentQuestion.type === 'numberLine' ? NUMBER_LINE_DELAY_MS : ADVANCE_DELAY_MS);
   }
 
   function getButtonState(choice) {
@@ -119,20 +129,33 @@ export default function QuizScreen({ route, navigation }) {
 
         <View style={styles.questionBox}>
           <Text style={[styles.questionText, isLongPrompt && styles.questionTextLong]}>{currentQuestion.prompt}</Text>
-          <QuestionVisual visual={currentQuestion.visual} />
+          <QuestionVisual key={currentQuestion.id} visual={currentQuestion.visual} />
         </View>
 
-        <View style={styles.choicesGrid}>
-          {currentQuestion.choices.map((choice) => (
-            <AnswerButton
-              key={String(choice)}
-              value={choice}
-              state={getButtonState(choice)}
-              disabled={isAnswerLocked}
-              onPress={() => handleChoicePress(choice)}
-            />
-          ))}
-        </View>
+        {currentQuestion.type === 'numberLine' ? (
+          <NumberLineInput
+            key={currentQuestion.id}
+            min={currentQuestion.min}
+            max={currentQuestion.max}
+            guess={selectedChoice}
+            answer={currentQuestion.answer}
+            isCorrect={isAnswerLocked && isCorrectAnswer(currentQuestion, selectedChoice)}
+            disabled={isAnswerLocked}
+            onGuess={handleChoicePress}
+          />
+        ) : (
+          <View style={styles.choicesGrid}>
+            {currentQuestion.choices.map((choice) => (
+              <AnswerButton
+                key={String(choice)}
+                value={choice}
+                state={getButtonState(choice)}
+                disabled={isAnswerLocked}
+                onPress={() => handleChoicePress(choice)}
+              />
+            ))}
+          </View>
+        )}
       </View>
     </SafeAreaView>
   );

@@ -26,7 +26,7 @@ export default function ResultsScreen({ route, navigation }) {
   const stars = calculateStars(score, total);
   const { activeProfile, recordSession } = useProfiles();
   const { say } = useNarrator(activeProfile?.narration);
-  const [celebration, setCelebration] = useState({ newlyMastered: [], newlyUnlocked: [] });
+  const [celebration, setCelebration] = useState({ newlyMastered: [], newlyUnlocked: [], earnedTicket: false });
   const hasRecorded = useRef(false);
 
   useEffect(() => {
@@ -35,7 +35,13 @@ export default function ResultsScreen({ route, navigation }) {
     recordSession(tallies).then((result) => {
       setCelebration(result);
       const mastered = result.newlyMastered.map((id) => getSkill(id).title);
-      say([SPOKEN[stars], mastered.length ? `You mastered ${mastered.join(' and ')}!` : ''].join(' '));
+      say(
+        [
+          SPOKEN[stars],
+          mastered.length ? `You mastered ${mastered.join(' and ')}!` : '',
+          result.earnedTicket ? 'You earned a Fun Break!' : '',
+        ].join(' ')
+      );
     });
   }, [recordSession, tallies, say, stars]);
 
@@ -59,7 +65,17 @@ export default function ResultsScreen({ route, navigation }) {
           </Text>
         ))}
 
+        {celebration.earnedTicket && <Text style={styles.ticket}>🎟️ You earned a Fun Break!</Text>}
+
         <View style={styles.buttons}>
+          {celebration.earnedTicket && (
+            <BigButton
+              label="🎈 Fun Break"
+              color={colors.orange}
+              onPress={() => navigation.replace('MiniGames')}
+              style={styles.button}
+            />
+          )}
           <BigButton
             label="Play Again"
             color={colors.green}
@@ -113,6 +129,12 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: colors.purple,
     marginTop: 4,
+  },
+  ticket: {
+    fontSize: 18,
+    fontWeight: '900',
+    color: colors.orange,
+    marginTop: 8,
   },
   buttons: {
     width: '100%',

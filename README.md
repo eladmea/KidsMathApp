@@ -10,9 +10,12 @@ A colorful Expo React Native learning-games app for kids ages 3-10, built around
 - **Skill map** (`curriculum/skills.js`) — ordered skills per subject and band with prerequisites, from *Count to 5* and *Find the Shape* up to *Big Division*. Skills unlock when their same-band prerequisites are passed; kids can peek at other bands.
 - **Mastery + spaced review** — a round is passed at ≥ 80%. A skill is **mastered** after passing on **2 different days**. Passed skills return in Daily Review on a Leitner schedule (1, 2, 4, 8, 16 days), interleaving several skills in one round.
 - **Generic quiz engine** — one generator per skill (`curriculum/generators.js`) with optional pictures (count the apples, add two groups, fade out the "taken away" ones), 2-4 big answer buttons, green/red feedback with sounds.
-- **Memory Chips** — the 2-player number-matching memory game with the bonus-chip twist (see below).
+- **Quick Look & Number Line Drop** — subitizing (dots flash, then hide) and number-line estimation (tap where 37 goes on 0-100) skills.
+- **Memory Chips** — the number-matching memory game with the bonus-chip twist (see below), now in 5 variants (Dot, Classic, Plus & Minus, Times & Divide, Fraction Chips), played solo against an AI 🤖 Buddy or with a friend.
+- **Number Path Race** — a linear 1-10 / 1-20 number board game: spin, then tap and hear each square you hop through.
+- **Fun Break** — Bubble Pop, Chip Toss and Dance Tap mini-games. Every 2 learning rounds earn a 🎟️ ticket; each mini-game costs one.
 
-Number Island is playable now; the other islands show their planned games as "coming soon".
+Number Island and the games are playable now; the other islands show their planned games as "coming soon".
 
 See [PLAN.md](PLAN.md) for the full roadmap, the research behind it, and the implementation log.
 
@@ -27,7 +30,9 @@ Two players (🦁 Player 1 and 🐸 Player 2) take turns flipping two cards from
   - **Skip**: no chips are risked, the pair flips back face-down, and the turn passes.
 - **The twist**: forcing a match like 2→5 uses up the board's other "2" and "5" cards' natural partners, leaving an orphaned pair elsewhere with the same 3-chip gap. The chips the first player paid land in the other player's pile — exactly enough for them to close that same gap later, if they calculate it correctly too.
 - Each player starts with 🪙 chips equal to the number of pairs on the board (12, by default) — bigger boards mean a bigger bonus-chip pool. If a player doesn't have enough chips to even attempt the gap, the cards just flip back and the turn passes — no guess is offered.
-- The game ends when all cards are matched; whoever found the most pairs wins.
+- The game ends when all cards are matched, or when no natural pair is left and nobody has enough chips to close any remaining gap; whoever found the most pairs wins.
+- **Variants** — every card has a hidden value and a face. Dot Chips pairs dots with numerals (6 pairs, chips counted out by tapping), Plus & Minus / Times & Divide Chips pair a fact with its answer (so you work out each card before the gap), and Fraction Chips pair equivalent fractions (each chip is 1/8).
+- **Solo mode** — play against 🤖 Buddy, who remembers only some cards and sometimes gets the gap wrong; Buddy gets sharper for older age bands.
 
 ## Project structure
 
@@ -40,6 +45,7 @@ curriculum/
   subjects.js             Subject islands
   skills.js               Skill map with prerequisites
   generators.js           Question generator per skill
+  games.js                Learning games + mini-games catalogue
 screens/
   ProfilesScreen.js       Who's playing?
   CreateProfileScreen.js  New player
@@ -47,8 +53,12 @@ screens/
   SkillListScreen.js      Skills of one island, by band
   QuizScreen.js           Generic skill-driven round
   ResultsScreen.js        Stars, mastered/unlocked celebration
-  MemoryGameScreen.js
-components/               Buttons, cards, QuestionVisual, memory-game pieces
+  GameSetupScreen.js      Pick a game variant + Buddy or a friend
+  MemoryGameScreen.js     Memory Chips (all variants, solo or duo)
+  PathRaceScreen.js       Number Path Race
+  MiniGamesScreen.js      Fun Break hub (tickets)
+  BubblePopScreen.js / ChipTossScreen.js / DanceTapScreen.js
+components/               Buttons, cards, QuestionVisual, DotPattern, NumberLineInput, memory-game pieces
 utils/
   progress.js             Pure mastery / spaced-review / unlock logic
   session.js              Builds (interleaved) rounds, tallies per skill
@@ -56,9 +66,13 @@ utils/
   storage.js              AsyncStorage persistence
   useNarrator.js          Text-to-speech hook (expo-speech)
   useSoundEffects.js      Sound effect playback hook
-  memoryGame.js           Memory game deck generation + chip-cost math
+  memoryGame.js           Memory Chips variants, decks, chip-gap math, stalemate check
+  memoryBuddy.js          Solo-mode AI buddy
+  pathRace.js             Number Path Race rules
+  funTickets.js           Fun Break ticket rules
+  players.js              Player names/icons (child, Buddy, friend)
   scoring.js / theme.js / constants.js
-__tests__/                Jest tests for generators, skill map, progress, sessions, memory game
+__tests__/                Jest tests for generators, skill map, progress, sessions, memory game, buddy, path race, tickets
 assets/sounds/            correct.wav / wrong.wav
 ```
 

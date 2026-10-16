@@ -91,7 +91,7 @@ describe('applySession', () => {
   it('reports newly mastered and newly unlocked skills', () => {
     const day1 = applySession({}, { 'math-count-5': PASS }, DAY1, 'sprouts');
     expect(day1.newlyMastered).toEqual([]);
-    expect(day1.newlyUnlocked.sort()).toEqual(['math-count-10', 'math-more-less']);
+    expect(day1.newlyUnlocked.sort()).toEqual(['math-count-10', 'math-more-less', 'math-quick-look-5']);
 
     const day2 = applySession(day1.progress, { 'math-count-5': PASS }, DAY2, 'sprouts');
     expect(day2.newlyMastered).toEqual(['math-count-5']);

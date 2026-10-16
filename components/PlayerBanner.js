@@ -1,13 +1,13 @@
 import { View, Text, StyleSheet } from 'react-native';
-import { playerColors, colors, shadow } from '../utils/theme';
+import { colors, shadow } from '../utils/theme';
 
-export default function PlayerBanner({ activePlayer }) {
-  const player = playerColors[activePlayer];
+export default function PlayerBanner({ players, activePlayer, isBuddy = false }) {
+  const player = players[activePlayer];
 
   return (
     <View style={[styles.banner, { backgroundColor: player.main }, shadow]}>
       <Text style={styles.icon}>{player.icon}</Text>
-      <Text style={styles.text}>{player.name}'s turn!</Text>
+      <Text style={styles.text}>{isBuddy ? `${player.name} is playing…` : `${player.name}'s turn!`}</Text>
     </View>
   );
 }

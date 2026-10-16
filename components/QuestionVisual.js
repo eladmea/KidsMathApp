@@ -1,5 +1,32 @@
+import { useEffect, useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import DotPattern from './DotPattern';
 import { colors } from '../utils/theme';
+
+const DOTS_SIZE = { dice: 130, tenFrame: 240 };
+
+// Dots that disappear after `flashMs`, so children subitize instead of counting.
+function FlashDots({ count, layout, flashMs }) {
+  const [isVisible, setIsVisible] = useState(true);
+  useEffect(() => {
+    const timer = setTimeout(() => setIsVisible(false), flashMs);
+    return () => clearTimeout(timer);
+  }, [flashMs]);
+
+  const size = DOTS_SIZE[layout] || DOTS_SIZE.dice;
+  const height = layout === 'tenFrame' ? (size / 5) * 2 + 4 : size;
+  return (
+    <View style={[styles.box, { minWidth: size + 32 }]}>
+      {isVisible ? (
+        <DotPattern count={count} layout={layout} size={size} />
+      ) : (
+        <View style={[styles.hidden, { height }]}>
+          <Text style={styles.hiddenText}>👀 ?</Text>
+        </View>
+      )}
+    </View>
+  );
+}
 
 function EmojiGroup({ emoji, count, fadedFrom = count, size }) {
   if (count === 0) {
@@ -19,6 +46,10 @@ function EmojiGroup({ emoji, count, fadedFrom = count, size }) {
 // Pictures that let pre-readers count instead of reading numbers.
 export default function QuestionVisual({ visual }) {
   if (!visual) return null;
+
+  if (visual.type === 'dots') {
+    return <FlashDots count={visual.count} layout={visual.layout} flashMs={visual.flashMs} />;
+  }
 
   if (visual.type === 'objects') {
     const size = visual.count <= 5 ? 52 : 38;
@@ -79,6 +110,15 @@ const styles = StyleSheet.create({
     borderStyle: 'dashed',
     borderColor: colors.gray,
     borderRadius: 12,
+  },
+  hidden: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  hiddenText: {
+    fontSize: 40,
+    fontWeight: '900',
+    color: colors.gray,
   },
   faded: {
     opacity: 0.2,

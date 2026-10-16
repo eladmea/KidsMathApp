@@ -7,6 +7,7 @@ import { useProfiles } from '../context/ProfileContext';
 import { useNarrator } from '../utils/useNarrator';
 import { profileBand } from '../utils/profiles';
 import { SUBJECTS } from '../curriculum/subjects';
+import { LEARNING_GAMES } from '../curriculum/games';
 import { skillsFor, isPlayable } from '../curriculum/skills';
 import { getDueReviews, getRecord, isMastered, recommendNextSkill, toDayKey } from '../utils/progress';
 import { colors, shadow } from '../utils/theme';
@@ -119,12 +120,29 @@ export default function WorldMapScreen({ navigation }) {
         </View>
 
         <Text style={styles.sectionLabel}>🎲 Games</Text>
-        <BigButton
-          label="🦁 🐸 Memory Chips (2 players)"
-          color={colors.purple}
-          onPress={() => navigation.navigate('Memory')}
-          style={styles.wideButton}
-        />
+        {LEARNING_GAMES.map((game) => (
+          <Pressable
+            key={game.id}
+            onPress={() => navigation.navigate('GameSetup', { gameId: game.id })}
+            style={({ pressed }) => [styles.gameCard, shadow, { opacity: pressed ? 0.85 : 1 }]}
+          >
+            <Text style={styles.gameEmoji}>{game.emoji}</Text>
+            <View style={styles.gameBody}>
+              <Text style={styles.gameTitle}>{game.title}</Text>
+              <Text style={styles.gameNote}>{game.description}</Text>
+            </View>
+          </Pressable>
+        ))}
+        <Pressable
+          onPress={() => navigation.navigate('MiniGames')}
+          style={({ pressed }) => [styles.gameCard, styles.funCard, shadow, { opacity: pressed ? 0.85 : 1 }]}
+        >
+          <Text style={styles.gameEmoji}>🎈</Text>
+          <View style={styles.gameBody}>
+            <Text style={styles.gameTitle}>Fun Break</Text>
+            <Text style={styles.gameNote}>🎟️ × {activeProfile.funTickets || 0} · earn tickets by playing rounds</Text>
+          </View>
+        </Pressable>
       </ScrollView>
     </SafeAreaView>
   );
@@ -190,6 +208,39 @@ const styles = StyleSheet.create({
     marginTop: 24,
     marginBottom: 12,
     maxWidth: 480,
+  },
+  gameCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+    maxWidth: 480,
+    backgroundColor: colors.white,
+    borderRadius: 22,
+    borderWidth: 3,
+    borderColor: colors.purple,
+    padding: 14,
+    marginBottom: 12,
+  },
+  funCard: {
+    borderColor: colors.orange,
+    backgroundColor: '#FFF1DC',
+  },
+  gameEmoji: {
+    fontSize: 38,
+    marginRight: 14,
+  },
+  gameBody: {
+    flex: 1,
+  },
+  gameTitle: {
+    fontSize: 19,
+    fontWeight: '900',
+    color: colors.textDark,
+  },
+  gameNote: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: colors.gray,
   },
   islandGrid: {
     flexDirection: 'row',

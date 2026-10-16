@@ -1,9 +1,12 @@
 // One generator per skill. Each returns a question object:
-//   { prompt, speech, visual, answer, choices }
+//   { type, prompt, speech, visual, answer, choices }
+// - type: 'choice' (tap an answer button) or 'numberLine' (tap a spot on a line)
 // - prompt: short text shown on screen
 // - speech: what the narrator reads aloud (pre-readers rely on this)
 // - visual: optional picture data rendered by QuestionVisual
 // - choices: values shown on the answer buttons (answer is always one of them)
+// Number-line questions also carry { min, max, tolerance }; a tap within
+// `tolerance` of the answer counts as correct.
 import { CHOICES_PER_QUESTION } from '../utils/constants';
 
 export function randInt(min, max) {
@@ -188,6 +191,38 @@ function division(min, max) {
   };
 }
 
+// Subitizing: dots flash briefly so children "see" the amount without counting.
+function quickLook(min, max, layout, flashMs) {
+  return () => {
+    const count = randInt(min, max);
+    return {
+      prompt: 'Quick look!',
+      speech: 'Quick! How many dots did you see?',
+      visual: { type: 'dots', count, layout, flashMs },
+      answer: count,
+      choices: buildChoices(count, { min: 1, max: max + 1, spread: 2 }),
+    };
+  };
+}
+
+// Number-line estimation: place a number on an empty line.
+function numberLine(max, tolerance) {
+  return () => {
+    const target = randInt(1, max - 1);
+    return {
+      type: 'numberLine',
+      prompt: `Where does ${target} go?`,
+      speech: `Tap where ${target} goes on the line.`,
+      visual: null,
+      answer: target,
+      choices: [],
+      min: 0,
+      max,
+      tolerance,
+    };
+  };
+}
+
 function range(min, max) {
   return Array.from({ length: max - min + 1 }, (_, i) => min + i);
 }
@@ -197,6 +232,11 @@ export const GENERATORS = {
   'count-10': countObjects(3, 10),
   shapes: findShape,
   'more-less': whichHasMore(8),
+  'quick-look-5': quickLook(1, 5, 'dice', 1500),
+  'quick-look-10': quickLook(3, 10, 'tenFrame', 2000),
+  'number-line-10': numberLine(10, 1),
+  'number-line-100': numberLine(100, 8),
+  'number-line-1000': numberLine(1000, 70),
   'next-number': nextNumber(1, 100),
   'bigger-number': biggerNumber(100),
   'add-10': addition(10, { withPicture: true }),
@@ -217,5 +257,5 @@ export function generateQuestion(generatorId) {
   if (!generator) {
     throw new Error(`Unknown generator: ${generatorId}`);
   }
-  return generator();
+  return { type: 'choice', ...generator() };
 }

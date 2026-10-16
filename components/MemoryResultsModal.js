@@ -1,8 +1,8 @@
 import { Modal, View, Text, StyleSheet } from 'react-native';
 import BigButton from './BigButton';
-import { playerColors, colors, shadow } from '../utils/theme';
+import { colors, shadow } from '../utils/theme';
 
-export default function MemoryResultsModal({ visible, scores, onPlayAgain, onBackHome }) {
+export default function MemoryResultsModal({ visible, players, scores, note, onPlayAgain, onBackHome }) {
   const winner = scores[1] === scores[2] ? null : scores[1] > scores[2] ? 1 : 2;
 
   return (
@@ -12,19 +12,20 @@ export default function MemoryResultsModal({ visible, scores, onPlayAgain, onBac
           <Text style={styles.trophy}>{winner ? '🏆' : '🤝'}</Text>
           <Text style={styles.headline}>
             {winner
-              ? `${playerColors[winner].icon} ${playerColors[winner].name} wins!`
+              ? `${players[winner].icon} ${players[winner].name} wins!`
               : "It's a tie!"}
           </Text>
+          {note ? <Text style={styles.note}>{note}</Text> : null}
           <Text style={styles.scoreLine}>
-            {playerColors[1].icon} {playerColors[1].name}: {scores[1]} pairs
+            {players[1].icon} {players[1].name}: {scores[1]} pairs
           </Text>
           <Text style={styles.scoreLine}>
-            {playerColors[2].icon} {playerColors[2].name}: {scores[2]} pairs
+            {players[2].icon} {players[2].name}: {scores[2]} pairs
           </Text>
 
           <View style={styles.buttons}>
             <BigButton label="Play Again" color={colors.primary} onPress={onPlayAgain} style={styles.button} />
-            <BigButton label="Back to Home" color={colors.gray} onPress={onBackHome} style={styles.button} />
+            <BigButton label="🗺️ Map" color={colors.gray} onPress={onBackHome} style={styles.button} />
           </View>
         </View>
       </View>
@@ -57,6 +58,13 @@ const styles = StyleSheet.create({
     color: colors.textDark,
     textAlign: 'center',
     marginBottom: 16,
+  },
+  note: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: colors.gray,
+    textAlign: 'center',
+    marginBottom: 12,
   },
   scoreLine: {
     fontSize: 17,

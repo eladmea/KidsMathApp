@@ -9,10 +9,13 @@ export const SKILLS = [
   { id: 'math-shapes', subject: 'math', band: 'sprouts', title: 'Find the Shape', emoji: '🔺', generator: 'shapes', prereqs: [] },
   { id: 'math-count-10', subject: 'math', band: 'sprouts', title: 'Count to 10', emoji: '🔟', generator: 'count-10', prereqs: ['math-count-5'] },
   { id: 'math-more-less', subject: 'math', band: 'sprouts', title: 'Which Has More?', emoji: '⚖️', generator: 'more-less', prereqs: ['math-count-5'] },
+  { id: 'math-quick-look-5', subject: 'math', band: 'sprouts', title: 'Quick Look', emoji: '👀', generator: 'quick-look-5', prereqs: ['math-count-5'] },
 
   // ---- Number Island: Explorers (5-6) ----
   { id: 'math-next-number', subject: 'math', band: 'explorers', title: 'What Comes Next?', emoji: '➡️', generator: 'next-number', prereqs: ['math-count-10'] },
   { id: 'math-bigger-number', subject: 'math', band: 'explorers', title: 'Bigger Number', emoji: '🐊', generator: 'bigger-number', prereqs: ['math-next-number'] },
+  { id: 'math-quick-look-10', subject: 'math', band: 'explorers', title: 'Quick Look: Ten Frame', emoji: '👀', generator: 'quick-look-10', prereqs: ['math-quick-look-5'] },
+  { id: 'math-number-line-10', subject: 'math', band: 'explorers', title: 'Number Line Drop', emoji: '🪂', generator: 'number-line-10', prereqs: ['math-next-number'] },
   { id: 'math-add-10', subject: 'math', band: 'explorers', title: 'Add within 10', emoji: '➕', generator: 'add-10', prereqs: ['math-more-less'] },
   { id: 'math-sub-10', subject: 'math', band: 'explorers', title: 'Take Away within 10', emoji: '➖', generator: 'sub-10', prereqs: ['math-add-10'] },
 
@@ -22,12 +25,14 @@ export const SKILLS = [
   { id: 'math-add-100', subject: 'math', band: 'builders', title: 'Add within 100', emoji: '💯', generator: 'add-100', prereqs: ['math-add-20'] },
   { id: 'math-sub-100', subject: 'math', band: 'builders', title: 'Subtract within 100', emoji: '🧮', generator: 'sub-100', prereqs: ['math-sub-20', 'math-add-100'] },
   { id: 'math-mult-2-5-10', subject: 'math', band: 'builders', title: 'Times 2, 5 & 10', emoji: '✖️', generator: 'mult-2-5-10', prereqs: ['math-add-20'] },
+  { id: 'math-number-line-100', subject: 'math', band: 'builders', title: 'Number Line Drop: 100', emoji: '🪂', generator: 'number-line-100', prereqs: ['math-number-line-10'] },
 
   // ---- Number Island: Masters (9-10) ----
   { id: 'math-mult-10', subject: 'math', band: 'masters', title: 'Times Tables to 10', emoji: '✖️', generator: 'mult-10', prereqs: ['math-mult-2-5-10'] },
   { id: 'math-div-10', subject: 'math', band: 'masters', title: 'Divide within 100', emoji: '➗', generator: 'div-10', prereqs: ['math-mult-10'] },
   { id: 'math-mult-12', subject: 'math', band: 'masters', title: 'Big Times Tables', emoji: '🚀', generator: 'mult-12', prereqs: ['math-mult-10'] },
   { id: 'math-div-12', subject: 'math', band: 'masters', title: 'Big Division', emoji: '🪐', generator: 'div-12', prereqs: ['math-div-10', 'math-mult-12'] },
+  { id: 'math-number-line-1000', subject: 'math', band: 'masters', title: 'Number Line Drop: 1000', emoji: '🪂', generator: 'number-line-1000', prereqs: ['math-number-line-100'] },
 
   // ---- Word Woods (Phase 2) ----
   { id: 'lit-rhymes', subject: 'literacy', band: 'sprouts', title: 'Rhyme Time', emoji: '🎵', generator: null, prereqs: [] },

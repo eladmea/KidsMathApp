@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import {
   loadProfiles,
   saveProfiles,
@@ -10,6 +10,7 @@ import {
 } from '../utils/storage';
 import { createProfile as buildProfile, profileBand } from '../utils/profiles';
 import { applySession, toDayKey } from '../utils/progress';
+import { applyFinishedRound, canSpendTicket } from '../utils/funTickets';
 
 const ProfileContext = createContext(null);
 
@@ -18,12 +19,22 @@ export function ProfileProvider({ children }) {
   const [profiles, setProfiles] = useState([]);
   const [activeProfileId, setActiveProfileId] = useState(null);
   const [progress, setProgress] = useState({});
+  // The latest profile list, so back-to-back writes (e.g. recording a round
+  // and then spending a ticket) never overwrite each other with stale data.
+  const profilesRef = useRef([]);
+
+  const commitProfiles = useCallback(async (nextProfiles) => {
+    profilesRef.current = nextProfiles;
+    setProfiles(nextProfiles);
+    await saveProfiles(nextProfiles);
+  }, []);
 
   useEffect(() => {
     let isActive = true;
     (async () => {
       const [storedProfiles, storedActiveId] = await Promise.all([loadProfiles(), loadActiveProfileId()]);
       if (!isActive) return;
+      profilesRef.current = storedProfiles;
       setProfiles(storedProfiles);
       if (storedProfiles.some((p) => p.id === storedActiveId)) {
         setActiveProfileId(storedActiveId);
@@ -47,29 +58,23 @@ export function ProfileProvider({ children }) {
   const addProfile = useCallback(
     async (details) => {
       const profile = buildProfile(details);
-      const nextProfiles = [...profiles, profile];
-      setProfiles(nextProfiles);
-      await saveProfiles(nextProfiles);
+      await commitProfiles([...profilesRef.current, profile]);
       await selectProfile(profile.id);
       return profile;
     },
-    [profiles, selectProfile]
+    [commitProfiles, selectProfile]
   );
 
   const updateProfile = useCallback(
     async (profileId, changes) => {
-      const nextProfiles = profiles.map((p) => (p.id === profileId ? { ...p, ...changes } : p));
-      setProfiles(nextProfiles);
-      await saveProfiles(nextProfiles);
+      await commitProfiles(profilesRef.current.map((p) => (p.id === profileId ? { ...p, ...changes } : p)));
     },
-    [profiles]
+    [commitProfiles]
   );
 
   const removeProfile = useCallback(
     async (profileId) => {
-      const nextProfiles = profiles.filter((p) => p.id !== profileId);
-      setProfiles(nextProfiles);
-      await saveProfiles(nextProfiles);
+      await commitProfiles(profilesRef.current.filter((p) => p.id !== profileId));
       await deleteProgress(profileId);
       if (profileId === activeProfileId) {
         setActiveProfileId(null);
@@ -77,7 +82,7 @@ export function ProfileProvider({ children }) {
         await saveActiveProfileId(null);
       }
     },
-    [profiles, activeProfileId]
+    [commitProfiles, activeProfileId]
   );
 
   const activeProfile = profiles.find((p) => p.id === activeProfileId) || null;
@@ -85,14 +90,27 @@ export function ProfileProvider({ children }) {
   // Records a finished round and reports what to celebrate.
   const recordSession = useCallback(
     async (tallies) => {
-      if (!activeProfile) return { newlyMastered: [], newlyUnlocked: [] };
+      if (!activeProfile) return { newlyMastered: [], newlyUnlocked: [], earnedTicket: false };
       const result = applySession(progress, tallies, toDayKey(), profileBand(activeProfile).id);
+      const tickets = applyFinishedRound(profilesRef.current.find((p) => p.id === activeProfile.id) || activeProfile);
       setProgress(result.progress);
-      await saveProgress(activeProfile.id, result.progress);
-      return { newlyMastered: result.newlyMastered, newlyUnlocked: result.newlyUnlocked };
+      await Promise.all([saveProgress(activeProfile.id, result.progress), updateProfile(activeProfile.id, tickets.changes)]);
+      return {
+        newlyMastered: result.newlyMastered,
+        newlyUnlocked: result.newlyUnlocked,
+        earnedTicket: tickets.earnedTicket,
+      };
     },
-    [activeProfile, progress]
+    [activeProfile, progress, updateProfile]
   );
+
+  // Uses one Fun Break ticket; returns false if there are none left.
+  const spendTicket = useCallback(async () => {
+    const current = profilesRef.current.find((p) => p.id === activeProfileId);
+    if (!current || !canSpendTicket(current)) return false;
+    await updateProfile(current.id, { funTickets: current.funTickets - 1 });
+    return true;
+  }, [activeProfileId, updateProfile]);
 
   const value = useMemo(
     () => ({
@@ -105,8 +123,9 @@ export function ProfileProvider({ children }) {
       updateProfile,
       removeProfile,
       recordSession,
+      spendTicket,
     }),
-    [isLoading, profiles, activeProfile, progress, selectProfile, addProfile, updateProfile, removeProfile, recordSession]
+    [isLoading, profiles, activeProfile, progress, selectProfile, addProfile, updateProfile, removeProfile, recordSession, spendTicket]
   );
 
   return <ProfileContext.Provider value={value}>{children}</ProfileContext.Provider>;

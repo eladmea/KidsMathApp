@@ -10,6 +10,14 @@ describe.each(Object.keys(GENERATORS))('generator %s', (generatorId) => {
       expect(q.prompt.length).toBeGreaterThan(0);
       expect(typeof q.speech).toBe('string');
       expect(q.speech.length).toBeGreaterThan(0);
+      if (q.type === 'numberLine') {
+        expect(q.answer).toBeGreaterThan(q.min);
+        expect(q.answer).toBeLessThan(q.max);
+        expect(q.tolerance).toBeGreaterThan(0);
+        expect(q.tolerance).toBeLessThanOrEqual((q.max - q.min) / 10);
+        continue;
+      }
+      expect(q.type).toBe('choice');
       expect(q.choices).toContain(q.answer);
       expect(new Set(q.choices).size).toBe(q.choices.length);
       expect(q.choices.length).toBeGreaterThanOrEqual(2);
@@ -76,6 +84,34 @@ describe('young-child generators', () => {
       const q = generateQuestion('sub-10');
       expect(q.visual.a - q.visual.b).toBe(q.answer);
     }
+  });
+});
+
+describe('quick look', () => {
+  it.each([
+    ['quick-look-5', 1, 5, 'dice'],
+    ['quick-look-10', 3, 10, 'tenFrame'],
+  ])('%s flashes a dot pattern matching the answer', (generatorId, min, max, layout) => {
+    for (let i = 0; i < RUNS_PER_GENERATOR; i++) {
+      const q = generateQuestion(generatorId);
+      expect(q.visual).toMatchObject({ type: 'dots', count: q.answer, layout });
+      expect(q.visual.flashMs).toBeGreaterThan(0);
+      expect(q.answer).toBeGreaterThanOrEqual(min);
+      expect(q.answer).toBeLessThanOrEqual(max);
+      q.choices.forEach((c) => expect(c).toBeGreaterThanOrEqual(1));
+    }
+  });
+});
+
+describe('number line', () => {
+  it.each([
+    ['number-line-10', 10],
+    ['number-line-100', 100],
+    ['number-line-1000', 1000],
+  ])('%s spans 0 to %i', (generatorId, max) => {
+    const q = generateQuestion(generatorId);
+    expect(q).toMatchObject({ type: 'numberLine', min: 0, max, choices: [] });
+    expect(q.prompt).toBe(`Where does ${q.answer} go?`);
   });
 });
 

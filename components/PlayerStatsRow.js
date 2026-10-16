@@ -1,8 +1,7 @@
 import { View, Text, StyleSheet } from 'react-native';
-import { playerColors, colors, shadow } from '../utils/theme';
+import { colors, shadow } from '../utils/theme';
 
-function PlayerCard({ player, score, chips, isActive }) {
-  const info = playerColors[player];
+function PlayerCard({ info, score, chips, isActive }) {
   return (
     <View
       style={[
@@ -11,7 +10,7 @@ function PlayerCard({ player, score, chips, isActive }) {
         isActive && shadow,
       ]}
     >
-      <Text style={styles.name}>
+      <Text style={styles.name} numberOfLines={1}>
         {info.icon} {info.name}
       </Text>
       <Text style={[styles.stat, { color: info.dark }]}>⭐ Pairs: {score}</Text>
@@ -20,11 +19,11 @@ function PlayerCard({ player, score, chips, isActive }) {
   );
 }
 
-export default function PlayerStatsRow({ scores, chips, activePlayer }) {
+export default function PlayerStatsRow({ players, scores, chips, activePlayer }) {
   return (
     <View style={styles.row}>
-      <PlayerCard player={1} score={scores[1]} chips={chips[1]} isActive={activePlayer === 1} />
-      <PlayerCard player={2} score={scores[2]} chips={chips[2]} isActive={activePlayer === 2} />
+      <PlayerCard info={players[1]} score={scores[1]} chips={chips[1]} isActive={activePlayer === 1} />
+      <PlayerCard info={players[2]} score={scores[2]} chips={chips[2]} isActive={activePlayer === 2} />
     </View>
   );
 }
