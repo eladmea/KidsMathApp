@@ -17,7 +17,7 @@ This document describes where MathPlay is heading, why it is designed this way (
 | **Phase 1** | Math track + Memory Chips variants, solo AI buddy, Number Path Race, Quick Look, Number Line Drop, first mini-games | ✅ Done | **2026-10-16** (commit `c4e1e07`) |
 | **Phase 2** | Literacy: Sound Snack, Word Builder, Story Strip, Letter Chips, letter-sound playback | ✅ Done | **2026-10-16** (commit `c5c6411`) |
 | **Phase 3** | Science, Logic & Executive Function: Garden Days, Dress for Weather, Push & Roll, Robo Path, Freeze Zoo | ✅ Done | **2026-10-16** (commit `5636426`) |
-| **Phase 4** | Social-emotional learning & polish: Feelings Garden, Feelings Friends, Balloon Breath, sticker book, parent dashboard + soft time limits | ✅ Done | **2026-10-16** (commit `PHASE4`) |
+| **Phase 4** | Social-emotional learning & polish: Feelings Garden, Feelings Friends, Balloon Breath, sticker book, parent dashboard + soft time limits | ✅ Done | **2026-10-16** (commit `217d84c`) |
 | Phase 5 | Play-testing with 2–3 kids per age band, difficulty tuning | ⏳ Next | — |
 
 ---
@@ -307,7 +307,7 @@ Changes made after the first play-test of the live site:
 
 - **Number Line Drop praise** (follow-up): a correct tap now says "Bullseye!" (exact) or rotating praise such as "Great job! 45 lives right there! 🎉" instead of "Close!". A miss says "Good try! … 45 lives here."
 
-### Phase 4: Social-emotional learning and polish (implemented 2026-10-16, commit `PHASE4`)
+### Phase 4: Social-emotional learning and polish (implemented 2026-10-16, commit `217d84c`)
 
 **Delivered:** Feelings Garden is playable in every age band, following the CASEL 5 order in the curriculum spine.
 
