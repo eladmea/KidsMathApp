@@ -14,7 +14,7 @@ This document describes where MathPlay is heading, why it is designed this way (
 |---|---|---|---|
 | Pre-plan | MathPlay quiz (Easy/Medium/Hard), 2-player Memory Game with chip-gap twist | ✅ Done | 2026-08-05 → 2026-08-11 |
 | **Phase 0** | Foundation: profiles, age bands, narration, skill map, mastery + spaced review, world map, generic quiz engine, tests | ✅ Done | **2026-10-16** (commit `f4e97ed`) |
-| **Phase 1** | Math track + Memory Chips variants, solo AI buddy, Number Path Race, Quick Look, Number Line Drop, first mini-games | ✅ Done | **2026-10-16** (see log for commit) |
+| **Phase 1** | Math track + Memory Chips variants, solo AI buddy, Number Path Race, Quick Look, Number Line Drop, first mini-games | ✅ Done | **2026-10-16** (commit `c4e1e07`) |
 | Phase 2 | Literacy: Sound Snack, Word Builder, Story Strip, Letter Chips, recorded letter sounds | ⏳ Next | — |
 | Phase 3 | Science, Logic & Executive Function: Garden Days, Dress for Weather, Push & Roll, Robo Path, Freeze Zoo | 🔜 Planned | — |
 | Phase 4 | Social-emotional learning & polish: Feelings Friends, Balloon Breath, sticker book, parent dashboard + time limits | 🔜 Planned | — |
@@ -160,7 +160,7 @@ Rewards are cosmetic stickers shown *after* the thinking, never shops or pressur
 - The "next skill" button points to the next skill **not yet passed**. Passed skills return through Daily Review on a later day, which is what masters them.
 - Not yet covered: in-round adaptive difficulty, session time limits and the parent dashboard (Phase 4).
 
-### Phase 1: Math track, Memory Chips family, mini-games (implemented 2026-10-16)
+### Phase 1: Math track, Memory Chips family, mini-games (implemented 2026-10-16, commit `c4e1e07`)
 
 **Delivered:**
 - **Memory Chips family** (`utils/memoryGame.js`). Every card now has a numeric `value`, used for matching and chip gaps, and a `face`, which is what the child sees. Variants:
