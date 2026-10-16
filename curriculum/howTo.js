@@ -45,4 +45,8 @@ export const HOW_TO = {
   'patterns-easy': 'Find the part that repeats, then tap what comes next.',
   'patterns-hard': 'Find the part that repeats. It can be longer this time!',
   'logic-grids': 'Read every clue. Each friend has a different pet.',
+  'feelings-faces': 'Look at the faces. Listen for the feeling, then tap the face that shows it.',
+  'feelings-situations': 'Think about how it would feel if this happened to you. Tap that face.',
+  'fair-play': 'Fair means everyone gets a chance. Tap the fair thing to do.',
+  'in-their-shoes': 'Imagine you are the person in the story. How would you feel, or what would help?',
 };

@@ -10,10 +10,11 @@ import { SUBJECTS } from '../curriculum/subjects';
 import { LEARNING_GAMES } from '../curriculum/games';
 import { skillsFor, isPlayable, skillRoute } from '../curriculum/skills';
 import { getDueReviews, getRecord, isMastered, recommendNextSkill, toDayKey } from '../utils/progress';
+import { WARN_MINUTES } from '../utils/playTime';
 import { colors, shadow } from '../utils/theme';
 
 export default function WorldMapScreen({ navigation }) {
-  const { activeProfile, progress, updateProfile } = useProfiles();
+  const { activeProfile, progress, updateProfile, timeLeft, isTimeUp } = useProfiles();
   const { say } = useNarrator(activeProfile?.narration);
   const name = activeProfile?.name;
 
@@ -23,10 +24,18 @@ export default function WorldMapScreen({ navigation }) {
     }
   }, [activeProfile, navigation]);
 
+  // Soft time limit: rounds already started may finish, but the map says
+  // goodbye once today's time is used up.
   useFocusEffect(
     useCallback(() => {
-      if (name) say(`Hi ${name}! Pick an island to play.`);
-    }, [name, say])
+      if (isTimeUp) navigation.reset({ index: 0, routes: [{ name: 'TimeUp' }] });
+    }, [isTimeUp, navigation])
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      if (name && !isTimeUp) say(`Hi ${name}! Pick an island to play.`);
+    }, [name, say, isTimeUp])
   );
 
   if (!activeProfile) return null;
@@ -74,6 +83,11 @@ export default function WorldMapScreen({ navigation }) {
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
+        {timeLeft !== null && timeLeft <= WARN_MINUTES && (
+          <Text style={styles.timeWarning}>
+            ⏰ {timeLeft} minute{timeLeft === 1 ? '' : 's'} left today
+          </Text>
+        )}
         {nextSkills.map(({ subject, skill }, index) => (
           <BigButton
             key={skill.id}
@@ -146,6 +160,18 @@ export default function WorldMapScreen({ navigation }) {
           <View style={styles.gameBody}>
             <Text style={styles.gameTitle}>Fun Break</Text>
             <Text style={styles.gameNote}>🎟️ × {activeProfile.funTickets || 0} · earn tickets by playing rounds</Text>
+          </View>
+        </Pressable>
+        <Pressable
+          onPress={() => navigation.navigate('StickerBook')}
+          style={({ pressed }) => [styles.gameCard, styles.stickerCard, shadow, { opacity: pressed ? 0.85 : 1 }]}
+        >
+          <Text style={styles.gameEmoji}>📒</Text>
+          <View style={styles.gameBody}>
+            <Text style={styles.gameTitle}>Sticker Book</Text>
+            <Text style={styles.gameNote}>
+              {(activeProfile.stickers || []).length} stickers · earn them by passing and mastering skills
+            </Text>
           </View>
         </Pressable>
       </ScrollView>
@@ -225,6 +251,16 @@ const styles = StyleSheet.create({
     borderColor: colors.purple,
     padding: 14,
     marginBottom: 12,
+  },
+  stickerCard: {
+    borderColor: '#C9A100',
+    backgroundColor: '#FFF8DA',
+  },
+  timeWarning: {
+    fontSize: 16,
+    fontWeight: '900',
+    color: colors.orange,
+    marginBottom: 10,
   },
   funCard: {
     borderColor: colors.orange,

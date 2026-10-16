@@ -70,11 +70,11 @@ describe('skill routing', () => {
     const game = getSkill('logic-robo-path');
     expect(isPlayable(game)).toBe(true);
     expect(isQuizSkill(game)).toBe(false);
-    expect(isPlayable(getSkill('sel-faces'))).toBe(false);
+    expect(isPlayable({ id: 'soon', prereqs: [], generator: null })).toBe(false);
   });
 
-  it('opens Nature Bay and Puzzle Peak in every age band', () => {
-    ['science', 'logic'].forEach((subject) => {
+  it('opens Nature Bay, Puzzle Peak and Feelings Garden in every age band', () => {
+    ['science', 'logic', 'sel'].forEach((subject) => {
       ['sprouts', 'explorers', 'builders', 'masters'].forEach((band) => {
         expect(skillsFor({ subject, band }).some(isPlayable)).toBe(true);
       });

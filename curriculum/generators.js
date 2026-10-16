@@ -12,6 +12,7 @@ import { pick, randInt, shuffle } from './random';
 import { LITERACY_GENERATORS } from './literacyGenerators';
 import { SCIENCE_GENERATORS } from './scienceGenerators';
 import { LOGIC_GENERATORS } from './logicGenerators';
+import { SEL_GENERATORS } from './selGenerators';
 
 export { randInt, shuffle };
 
@@ -264,6 +265,7 @@ export const GENERATORS = {
   ...LITERACY_GENERATORS,
   ...SCIENCE_GENERATORS,
   ...LOGIC_GENERATORS,
+  ...SEL_GENERATORS,
 };
 
 export function generateQuestion(generatorId) {

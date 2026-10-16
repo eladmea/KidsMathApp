@@ -1,5 +1,5 @@
 // Learning games (free to play) and mini-games (Fun Break, earned by
-// finishing learning rounds). `bands` marks the age bands an option is "just
+// finishing learning rounds; `free` ones, like the calm-down, need no ticket). `bands` marks the age bands an option is "just
 // right" for; every option stays playable by anyone.
 
 export const LEARNING_GAMES = [
@@ -45,6 +45,7 @@ export const MINI_GAMES = [
   { id: 'bubble-pop', title: 'Bubble Pop', emoji: '🫧', description: 'Pop the bubbles! Gold ones hide a fun fact.', route: 'BubblePop' },
   { id: 'chip-toss', title: 'Chip Toss', emoji: '🥤', description: 'Time your toss to land chips in the cup.', route: 'ChipToss' },
   { id: 'dance-tap', title: 'Dance Tap', emoji: '🕺', description: 'Tap the glowing pad to the beat.', route: 'DanceTap' },
+  { id: 'balloon-breath', title: 'Balloon Breath', emoji: '🎈', description: 'Slow breaths fill the balloon. Always free!', route: 'BalloonBreath', free: true },
 ];
 
 export function getLearningGame(gameId) {

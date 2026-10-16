@@ -14,9 +14,9 @@ describe('buildSession', () => {
     expect(counts).toEqual({ 'math-add-20': 5, 'math-mult-10': 5 });
   });
 
-  it('skips unknown or coming-soon skills', () => {
-    expect(buildSession(['sel-faces', 'nope'])).toEqual([]);
-    expect(buildSession(['sel-faces', 'math-count-5']).every((q) => q.skillId === 'math-count-5')).toBe(true);
+  it('skips unknown and game-screen skills', () => {
+    expect(buildSession(['logic-robo-path', 'nope'])).toEqual([]);
+    expect(buildSession(['logic-robo-path', 'math-count-5']).every((q) => q.skillId === 'math-count-5')).toBe(true);
   });
 });
 

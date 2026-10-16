@@ -14,7 +14,7 @@ export default function MiniGamesScreen({ navigation }) {
   const roundsToGo = activeProfile ? roundsUntilNextTicket(activeProfile) : 0;
 
   async function start(game) {
-    if (await spendTicket()) {
+    if (game.free || (await spendTicket())) {
       navigation.navigate(game.route);
     } else {
       say(`Play ${roundsToGo} more learning ${roundsToGo === 1 ? 'round' : 'rounds'} to earn a Fun Break!`, { force: true });
@@ -35,24 +35,22 @@ export default function MiniGamesScreen({ navigation }) {
             : `Play ${roundsToGo} more learning ${roundsToGo === 1 ? 'round' : 'rounds'} to earn a ticket.`}
         </Text>
 
-        {MINI_GAMES.map((game) => (
-          <Pressable
-            key={game.id}
-            onPress={() => start(game)}
-            style={({ pressed }) => [
-              styles.card,
-              shadow,
-              tickets === 0 && styles.cardLocked,
-              { opacity: pressed ? 0.85 : 1 },
-            ]}
-          >
-            <Text style={styles.cardEmoji}>{tickets > 0 ? game.emoji : '🔒'}</Text>
-            <View style={styles.cardBody}>
-              <Text style={styles.cardTitle}>{game.title}</Text>
-              <Text style={styles.cardNote}>{game.description}</Text>
-            </View>
-          </Pressable>
-        ))}
+        {MINI_GAMES.map((game) => {
+          const isLocked = tickets === 0 && !game.free;
+          return (
+            <Pressable
+              key={game.id}
+              onPress={() => start(game)}
+              style={({ pressed }) => [styles.card, shadow, isLocked && styles.cardLocked, { opacity: pressed ? 0.85 : 1 }]}
+            >
+              <Text style={styles.cardEmoji}>{isLocked ? '🔒' : game.emoji}</Text>
+              <View style={styles.cardBody}>
+                <Text style={styles.cardTitle}>{game.title}</Text>
+                <Text style={styles.cardNote}>{game.description}</Text>
+              </View>
+            </Pressable>
+          );
+        })}
       </ScrollView>
     </SafeAreaView>
   );

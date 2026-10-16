@@ -3,14 +3,14 @@ import BigButton from './BigButton';
 import { colors, shadow } from '../utils/theme';
 
 // Shared "time's up" card for Fun Break mini-games.
-export default function MiniGameEnd({ emoji, headline, detail, onDone }) {
+export default function MiniGameEnd({ emoji, headline, detail, onDone, buttonLabel = 'Back to learning ▶' }) {
   return (
     <View style={styles.overlay}>
       <View style={[styles.box, shadow]}>
         <Text style={styles.emoji}>{emoji}</Text>
         <Text style={styles.headline}>{headline}</Text>
         {detail ? <Text style={styles.detail}>{detail}</Text> : null}
-        <BigButton label="Back to learning ▶" color={colors.primary} onPress={onDone} style={styles.button} />
+        <BigButton label={buttonLabel} color={colors.primary} onPress={onDone} style={styles.button} />
       </View>
     </View>
   );
