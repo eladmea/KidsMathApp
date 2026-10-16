@@ -173,3 +173,18 @@ describe('how-to lines', () => {
     SKILLS.filter((s) => s.generator).forEach((s) => expect(HOW_TO[s.generator]).toBeTruthy());
   });
 });
+
+describe('number line feedback', () => {
+  const { numberLineFeedback } = require('../components/NumberLineInput');
+
+  it('praises a correct tap instead of saying "close"', () => {
+    expect(numberLineFeedback(45, 45, true)).toMatch(/^Bullseye!/);
+    const nearby = numberLineFeedback(43, 45, true);
+    expect(nearby).not.toMatch(/close/i);
+    expect(nearby).toMatch(/Great job!|You got it!|Awesome!|Super tapping!/);
+  });
+
+  it('is kind and shows where the number lives when the tap is off', () => {
+    expect(numberLineFeedback(80, 45, false)).toBe('Good try! You tapped 80. 45 lives here. 🎯');
+  });
+});

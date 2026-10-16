@@ -305,6 +305,8 @@ Changes made after the first play-test of the live site:
   - The worked example and the ❓ button work.
   - The Phase 0–3 walkthroughs pass.
 
+- **Number Line Drop praise** (follow-up): a correct tap now says "Bullseye!" (exact) or rotating praise such as "Great job! 45 lives right there! 🎉" instead of "Close!". A miss says "Good try! … 45 lives here."
+
 ### Phase 4: next
 
 Social-emotional learning and polish: Feelings Friends, Balloon Breath, the sticker book, and a parent dashboard with time limits.
