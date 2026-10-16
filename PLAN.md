@@ -528,7 +528,7 @@ The Phase 4–6 walkthroughs were re-run and pass.
 - Voices come from the device, so quality depends on what it has. On iPhone/iPad, better voices can be downloaded in Settings → Accessibility → Spoken Content → Voices.
 - A truly human voice everywhere would need a cloud text-to-speech service, which means an API key, an internet connection and a cost per use, or pre-recorded audio for the fixed phrases. Neither is set up.
 
-### Phase 5b, round 2: free text-to-speech audit (2026-10-16, commit `TTS2`)
+### Phase 5b, round 2: free text-to-speech audit (2026-10-16, commit `63f2ce8`)
 
 Goal: the most natural voice possible on web, iOS and Android, free, with no API keys.
 
