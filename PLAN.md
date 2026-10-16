@@ -4,7 +4,7 @@ This document describes where MathPlay is heading, why it is designed this way (
 
 - **Plan written:** 2026-10-15
 - **Language:** English (all content, narration and phonics)
-- **Last updated:** 2026-10-16 (Phase 5b round 5: pattern games rebuilt along the patterning trajectory)
+- **Last updated:** 2026-10-16 (Phase 5b round 6: writing games for ages 3–4)
 
 ---
 
@@ -89,6 +89,10 @@ The variants also get a **solo mode against an AI buddy** and a post-game reflec
 |---|---|---|---|
 | Number Path Race (linear board game) | Math | 3–7 | ✅ 1 |
 | Number Tracing (write 0–9 with a finger) | Math | 3–5 | ✅ 5b |
+| Bee Paths (pre-writing strokes) | Math / writing | 3–4 | ✅ 5b |
+| Race Track Numbers (drive the digit) | Math / writing | 3–5 | ✅ 5b |
+| Pizza Shop (write a number in sauce, add that many toppings) | Math / writing | 3–5 | ✅ 5b |
+| Birthday Cake (write the age in icing, candles, blow them out) | Math / writing | 3–5 | ✅ 5b |
 | Quick Look (subitizing flash) | Math | 3–6 | ✅ 1 |
 | Number Line Drop | Math | 5–10 | ✅ 1 |
 | Lemonade Stand (money) | Math | 7–10 | 7a |
@@ -636,6 +640,47 @@ All earlier walkthroughs (Phases 4–6, round 1) were re-run and pass. Real iOS 
   - no other common rule (constant step, doubling, add-the-two-before) gives a different answer that is among the choices.
 - **Found by screenshot review:** "2, 3, 5, 8, ?" could also be read as "add the two before" (13 instead of 12). That rule now shows five numbers (2, 3, 5, 8, 12), and the new test guards against such ambiguity.
 - **Verification:** every pattern level was opened in the browser for ages 4, 6, 8 and 10 and showed the expected choices (2, 3, 3, 3, 3, 4, 3, 4), with no page errors. All earlier walkthroughs pass.
+
+### Phase 5b, round 6: writing games for ages 3–4 (2026-10-16, commit `WRITING`)
+
+**Feedback:** ages 3–4 need more fun games for writing digits. The idea came from the owner: make a pizza (dough, sauce, cheese) and choose the topping and the number.
+
+**Research note:** before digits, young children master **pre-writing strokes** in a typical order (Beery VMI copying norms): vertical line (~2y10m), horizontal line (~3y), circle (~3y), cross (~4y), diagonals (~4–5y). Digits are made of these strokes, so a stroke game comes first.
+
+**New skills** (Number Island, ages 3–4), all built on one shared tracing component (`components/TraceCanvas.js`):
+
+| Skill | How it plays |
+|---|---|
+| 🐝 **Bee Paths** | Fly the bee from the honey pot 🍯 to the flower 🌸 along a stroke: straight down, straight across, a rainbow, a circle, a cross. The bee follows the finger |
+| 🏁 **Race Track Numbers** | Each digit is a grey road: drive a vehicle (a different one each time) from 🚦 to 🏁. Digits 1–5, or 0–9 once *Write 1 to 5* is passed |
+| 🍕 **Pizza Shop** | Rub the dough to roll it out → pick your number → write it in tomato sauce → tap to sprinkle cheese → pick a topping (🍄🍅🫑🍍🫒🌽) → **drag** that many from the tray (counted aloud; "➖ Take one off" fixes too many) → Done checks the count → bake 🔥 → the animal customer says "Yum! 3 mushrooms!". 3 pizzas a round |
+| 🎂 **Birthday Cake** | An animal friend turns N: write N in pink icing → drag N candles onto the cake → blow them out by tapping each one, counting down ("3, 2, 1… Happy birthday, Bunny!"). 3 cakes a round |
+
+- Numbers: 1–5 at first, 1–9 once *Write 1 to 5* is passed (Race Track also gets 0).
+- **Scoring:** a pizza or cake counts if the tracing needed at most one restart and the count was right on the first "Done". A road or path counts if it needed at most one restart. Results, stickers, unlocks and Today's Adventure work as for every game skill.
+- **Shared building blocks:**
+  - `TraceCanvas`: the start marker, live progress, trail, watch-me demo and stroke judging, with configurable looks (sauce, icing, road, bee path), a follower emoji and start/end markers. Number Tracing now uses it too.
+  - `DragTray`: an endless tray of one item to drag onto a target.
+  - `utils/writingGames.js`: counts, circle placement and scoring.
+  - `PREWRITING_PATHS` in `utils/tracing.js`.
+
+**Fixed while testing:** on the web, the first drag selected the tray's emoji text, and the browser then turned the next press into its own text drag, cancelling ours. Only the first topping could be added. Drag and tracing surfaces are now unselectable. Removing items is a "➖ Take one off" button instead of tapping a small topping, which is easier for 3-year-olds too.
+
+**Tests:** 294 unit tests. New tests cover:
+- the stroke order;
+- every path traces cleanly and needs the whole stroke;
+- the circle starts at the top and closes;
+- the number pools;
+- count checks, circle placement, countdown and scoring;
+- the skill map entries.
+
+**Verification:** a browser walkthrough as a 3-year-old, no page errors:
+- Bee Paths 5/5;
+- Race Track 5/5, all roads 1–5;
+- Pizza Shop: three pizzas. On the first, 4 toppings were dropped for a 3, "Too many!" was shown, and one was taken off; it scored 2/3 as designed;
+- Birthday Cake 3/3: icing, candles dragged, all blown out.
+
+All earlier walkthroughs pass.
 
 ---
 

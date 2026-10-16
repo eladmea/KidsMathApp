@@ -16,6 +16,7 @@ A colorful Expo React Native learning-games app for kids ages 3-10, built around
 - **Puzzle Peak (logic)** — Bunny Pop (ages 3-4: whack-a-mole, boop only the bunny), Freeze Zoo (ages 5-6: tap / freeze with a rule switch), a pattern ladder for every age (fill the gap in AB → longer patterns → same pattern in new things → which part repeats → growing patterns → pattern position and number rules), Robo Path and Robot Loops (program a robot with arrow and repeat blocks) and Logic Grids.
 - **Garden Days** — grow a plant over real days by reading its daily clue (water, sunlight or soil); it grows one stage per day until it blooms.
 - **Number Tracing** — ages 3-4 trace the digits with a finger from a green dot, stroke by stroke, after a pencil shows how (*Write 1 to 5*, then *Write 6 to 9 and 0*).
+- **Writing games (ages 3-4)** — 🐝 Bee Paths (pre-writing strokes: down, across, rainbow, circle, cross), 🏁 Race Track Numbers (drive along the digit), 🍕 Pizza Shop (roll the dough, write a number in sauce, drag that many toppings, bake, serve) and 🎂 Birthday Cake (write the age in icing, drag the candles, blow them out).
 - **Quick Look & Number Line Drop** — subitizing (dots flash, then hide) and number-line estimation (tap where 37 goes on 0-100) skills.
 - **Memory Chips** — the number-matching memory game with the bonus-chip twist (see below), now in 6 variants (Dot, Letter, Classic, Plus & Minus, Times & Divide, Fraction Chips), played solo against an AI 🤖 Buddy or with a friend.
 - **Number Path Race** — a linear 1-10 / 1-20 number board game: spin, then tap and hear each square you hop through.
@@ -92,8 +93,10 @@ screens/
   TimeUpScreen.js         Gentle goodbye when today's time is used up
   AdventureScreen.js      Today's Adventure path and finale
   TraceDigitsScreen.js    Number Tracing (write 0-9 with a finger)
+  TracePathScreen.js      Bee Paths and Race Track Numbers
+  PizzaShopScreen.js / BirthdayCakeScreen.js   Writing + counting games
 components/               Buttons, cards, QuestionVisual, DotPattern, NumberLineInput,
-                          WordBuilderInput, StoryStripInput, ParentGate, PlaytestReport, memory-game pieces
+                          WordBuilderInput, StoryStripInput, ParentGate, PlaytestReport, TraceCanvas, DragTray, memory-game pieces
 utils/
   progress.js             Pure mastery / spaced-review / unlock logic
   session.js              Builds (interleaved) rounds, tallies per skill
@@ -116,7 +119,8 @@ utils/
   speechEngine.js         One speech engine: voices, sentence queue, fallbacks, iOS unlock, background stop, status
   voices.js               Ranks device voices (natural / premium / enhanced first), fallback voice, sentence splitting
   useNarrator.js          useNarrator() to speak from a screen, useSpeechStatus() for the current voice and state
-  tracing.js              Number Tracing strokes and tracing rules
+  tracing.js              Digit and pre-writing strokes, tracing rules, number pools
+  writingGames.js         Pizza / cake / race rules: counts, placement, scoring
   playLog.js              Play-test events, per-skill report and flags, CSV
   exportFile.js           Download (web) or share (phones) a text file
   skillRounds.js          Game-screen skills report results like the quiz
