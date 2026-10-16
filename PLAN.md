@@ -16,7 +16,7 @@ This document describes where MathPlay is heading, why it is designed this way (
 | **Phase 0** | Foundation: profiles, age bands, narration, skill map, mastery + spaced review, world map, generic quiz engine, tests | ✅ Done | **2026-10-16** (commit `f4e97ed`) |
 | **Phase 1** | Math track + Memory Chips variants, solo AI buddy, Number Path Race, Quick Look, Number Line Drop, first mini-games | ✅ Done | **2026-10-16** (commit `c4e1e07`) |
 | **Phase 2** | Literacy: Sound Snack, Word Builder, Story Strip, Letter Chips, letter-sound playback | ✅ Done | **2026-10-16** (commit `c5c6411`) |
-| **Phase 3** | Science, Logic & Executive Function: Garden Days, Dress for Weather, Push & Roll, Robo Path, Freeze Zoo | ✅ Done | **2026-10-16** (see log for commit) |
+| **Phase 3** | Science, Logic & Executive Function: Garden Days, Dress for Weather, Push & Roll, Robo Path, Freeze Zoo | ✅ Done | **2026-10-16** (commit `5636426`) |
 | Phase 4 | Social-emotional learning & polish: Feelings Friends, Balloon Breath, sticker book, parent dashboard + time limits | ⏳ Next | — |
 | Phase 5 | Play-testing with 2–3 kids per age band, difficulty tuning | 🔜 Planned | — |
 
@@ -247,7 +247,7 @@ Rewards are cosmetic stickers shown *after* the thinking, never shops or pressur
 - One-time repo setup done by the owner: the repository is public, **Settings → Pages → Source = GitHub Actions**, and the default branch is `main`.
 - The first deploy attempts failed at the final publish step while those settings were being changed. Build and tests passed every time.
 
-### Phase 3: Science, logic and executive function (implemented 2026-10-16)
+### Phase 3: Science, logic and executive function (implemented 2026-10-16, commit `5636426`)
 
 **Delivered:** Nature Bay and Puzzle Peak are playable in every age band.
 
