@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { appendEvents } from './playLog';
 
 const PROFILES_KEY = '@mathplay_profiles';
 const ACTIVE_PROFILE_KEY = '@mathplay_active_profile';
@@ -6,6 +7,8 @@ const PROGRESS_KEY_PREFIX = '@mathplay_progress_';
 const GARDEN_KEY_PREFIX = '@mathplay_garden_';
 // Play time for every profile: { [profileId]: { 'YYYY-MM-DD': seconds } }.
 const PLAY_TIME_KEY = '@mathplay_play_time';
+// Play-test events per profile (see utils/playLog.js).
+const PLAY_LOG_KEY_PREFIX = '@mathplay_play_log_';
 
 async function readJson(key, fallback) {
   try {
@@ -64,9 +67,33 @@ export function savePlayTime(playTime) {
   return writeJson(PLAY_TIME_KEY, playTime);
 }
 
+export function loadPlayLog(profileId) {
+  return readJson(PLAY_LOG_KEY_PREFIX + profileId, []);
+}
+
+// Appends are chained so quick back-to-back writes (an answer, then the end of
+// the round) never lose each other.
+let playLogWrites = Promise.resolve();
+export function appendPlayLog(profileId, events) {
+  playLogWrites = playLogWrites.then(async () => {
+    const log = await loadPlayLog(profileId);
+    await writeJson(PLAY_LOG_KEY_PREFIX + profileId, appendEvents(log, events));
+  });
+  return playLogWrites;
+}
+
+export function clearPlayLog(profileId) {
+  playLogWrites = playLogWrites.then(() => writeJson(PLAY_LOG_KEY_PREFIX + profileId, []));
+  return playLogWrites;
+}
+
 export async function deleteProgress(profileId) {
   try {
-    await AsyncStorage.multiRemove([PROGRESS_KEY_PREFIX + profileId, GARDEN_KEY_PREFIX + profileId]);
+    await AsyncStorage.multiRemove([
+      PROGRESS_KEY_PREFIX + profileId,
+      GARDEN_KEY_PREFIX + profileId,
+      PLAY_LOG_KEY_PREFIX + profileId,
+    ]);
   } catch (e) {
     // ignore
   }

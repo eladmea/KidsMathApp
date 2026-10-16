@@ -4,7 +4,7 @@ This document describes where MathPlay is heading, why it is designed this way (
 
 - **Plan written:** 2026-10-15
 - **Language:** English (all content, narration and phonics)
-- **Last updated:** 2026-10-16 (Phase 4: social-emotional learning, sticker book, parent dashboard and time limits)
+- **Last updated:** 2026-10-16 (Phase 5 tooling: adaptive difficulty, play-test log and report, play-test guide)
 
 ---
 
@@ -18,7 +18,7 @@ This document describes where MathPlay is heading, why it is designed this way (
 | **Phase 2** | Literacy: Sound Snack, Word Builder, Story Strip, Letter Chips, letter-sound playback | ✅ Done | **2026-10-16** (commit `c5c6411`) |
 | **Phase 3** | Science, Logic & Executive Function: Garden Days, Dress for Weather, Push & Roll, Robo Path, Freeze Zoo | ✅ Done | **2026-10-16** (commit `5636426`) |
 | **Phase 4** | Social-emotional learning & polish: Feelings Garden, Feelings Friends, Balloon Breath, sticker book, parent dashboard + soft time limits | ✅ Done | **2026-10-16** (commit `217d84c`) |
-| Phase 5 | Play-testing with 2–3 kids per age band, difficulty tuning | ⏳ Next | — |
+| **Phase 5** | Play-testing with 2–3 kids per age band, difficulty tuning | 🛠️ Tooling done; play-tests ⏳ next | Tooling **2026-10-16** (commit `1eeeae8`) |
 
 ---
 
@@ -112,9 +112,9 @@ Bubble Pop ✅ · Chip Toss ✅ · Dance Tap ✅ · Balloon Breath ✅ (free cal
 5. **Second subject** (3 min): subjects rotate through the week.
 6. **Cool-down**: a calm activity, the stickers earned, and "see you tomorrow!"
 
-Adaptive rules (target):
+Adaptive rules (✅ Phase 5, practice rounds):
 - 3 wrong answers in a row: drop a level and show a hint.
-- 5 right answers in a row: speed up.
+- 5 right answers in a row: step up a level.
 
 Rewards are cosmetic stickers shown *after* the thinking, never shops or pressure timers.
 
@@ -358,9 +358,48 @@ Changes made after the first play-test of the live site:
 - The limit is soft by design. A child can still finish a long game such as Memory Chips after time runs out; the goodbye comes when they return to the map.
 - The SEL evidence is weaker than for the math and reading games (see section 3). Treat these games as enrichment.
 
-### Phase 5: next
+### Phase 5: Play-testing tools and adaptive difficulty (tooling implemented 2026-10-16, commit `1eeeae8`)
 
-Play-testing with 2–3 children per age band, then tuning difficulty, pacing and the default time limits.
+The play-tests themselves need real children, so this part of Phase 5 builds what the sessions and the tuning afterwards rely on.
+
+**Delivered:**
+- **In-round adaptive difficulty** (`utils/adaptive.js`), in practice rounds of quiz skills:
+  - 3 wrong answers in a row step down a level and open a worked example of the easier skill ("⬇️ Let's practice ➕ Add within 10 for a bit").
+  - 5 right answers in a row step up ("⬆️ Back to…" or "⚡ Level up!").
+  - A level is a neighbouring skill on the learning trajectory: the skill's first quiz prerequisite (easier), or a same-subject skill that builds on it, preferring one where it is the first prerequisite (Add within 20 → Add within 100).
+  - A round moves at most one level from where it started. A skill with no easier neighbour gets the worked example only.
+  - Questions are tallied to the skill actually practiced, so mastery stays honest.
+  - Daily Review and game-screen skills don't adapt.
+- **Play-test log** (`utils/playLog.js`), kept on the device per child (newest 3000 events):
+  - every quiz answer, with skill, level, right/wrong, response time and 🔊 replays;
+  - every finished round, including game-screen skills;
+  - practice quizzes left early;
+  - level changes;
+  - grown-ups' notes.
+- **Play-test report** (Parent dashboard → child → 🧪 Play-test report):
+  - per-skill tries, accuracy, median answer time and replays per question;
+  - ⬇️/⚡ level-change counts and rounds left early;
+  - flags once there are 10+ tries: **too hard** (under 60% right), **too easy** (95%+ and under 3 s), **unclear** (replayed on half the tries) and **drop-off** (a third of rounds left early);
+  - session notes, and clearing a child's log.
+- **CSV export** of every child's events: a download on the web, the share sheet on phones (`utils/exportFile.js`).
+- **[PLAYTEST.md](PLAYTEST.md)**: a printable guide with session lengths per band, what to watch for, per-band questions, how to read the report, and what to change for each kind of finding.
+- **Tests**: 227 unit tests. New tests cover:
+  - level neighbours, streaks, step-down and step-up limits, and swapping the remaining questions;
+  - the log cap, medians, every flag, game-skill rounds, notes and CSV quoting.
+
+**Verification:**
+- Browser walkthrough of the Pages build, all checks passing with no page errors:
+  - In Add within 20: 2 replays, then 3 wrong answers stepped down to Add within 10 with a worked example. 5 right answers stepped back up. The round ended 7/10.
+  - 10 answers were logged with times, replays and levels. Progress and round events were recorded for both skills.
+  - Leaving Story Strip early logged a quit.
+  - The report showed the step-down and the quit, a note saved, and the CSV export downloaded with all 16 events. Clearing the log emptied it.
+- The Phase 4 walkthroughs were re-run on this build and pass.
+
+**Notes:**
+- Because questions are tallied by skill, 5 right answers at the easier or harder level count as a passed round for that skill, as in Daily Review.
+- Game-screen skills (Freeze Zoo, Robo Path, Push & Roll, Feelings Friends) log only finished rounds: no per-answer events, and no quits.
+
+**Next:** run the play-tests with [PLAYTEST.md](PLAYTEST.md), then record each tuning change and its evidence here.
 
 ---
 

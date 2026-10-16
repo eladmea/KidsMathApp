@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { View, Text, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ProgressBar from '../components/ProgressBar';
@@ -14,9 +14,11 @@ import { soundSpeech } from '../curriculum/phonics';
 import { useProfiles } from '../context/ProfileContext';
 import { useSoundEffects } from '../utils/useSoundEffects';
 import { useNarrator } from '../utils/useNarrator';
-import { buildSession, tallyBySkill } from '../utils/session';
-import { getRecord, hasPassed } from '../utils/progress';
-import { getSkill } from '../curriculum/skills';
+import { buildSession, replaceRemaining, tallyBySkill } from '../utils/session';
+import { getRecord, hasPassed, toDayKey } from '../utils/progress';
+import { adapt, skillForLevel } from '../utils/adaptive';
+import { appendPlayLog } from '../utils/storage';
+import { getSkill, isQuizSkill } from '../curriculum/skills';
 import { generateQuestion } from '../curriculum/generators';
 import { HOW_TO } from '../curriculum/howTo';
 import { colors, shadow } from '../utils/theme';
@@ -40,15 +42,28 @@ function isCorrectAnswer(question, choice) {
   }
 }
 
+const LEVEL_NOTES = {
+  down: (skill) => `⬇️ Let's practice ${skill.emoji} ${skill.title} for a bit`,
+  up: (skill, level) => (level > 0 ? `⚡ Level up! ${skill.emoji} ${skill.title}` : `⬆️ Back to ${skill.emoji} ${skill.title}. Nice!`),
+  hint: () => "💡 Here's a hint",
+};
+
 // Generic skill-driven round: works for a single skill (practice) or several
-// interleaved skills (review).
+// interleaved skills (review). Practice rounds adapt: a run of wrong answers
+// steps down a level with a hint, a run of right ones steps up.
 export default function QuizScreen({ route, navigation }) {
   const { skillIds, mode = 'practice' } = route.params;
   const { activeProfile, progress } = useProfiles();
-  const questions = useMemo(() => buildSession(skillIds), [skillIds]);
-  const skill = getSkill(skillIds[0]);
+  const [questions, setQuestions] = useState(() => buildSession(skillIds));
+  const baseSkill = getSkill(skillIds[0]);
+  const isAdaptive = mode === 'practice' && isQuizSkill(baseSkill);
+  const [level, setLevel] = useState(0);
+  const [levelNote, setLevelNote] = useState(null);
+  const streakRef = useRef(0);
+  const skill = isAdaptive ? skillForLevel(baseSkill, level) : baseSkill;
   const howTo = skill?.generator ? HOW_TO[skill.generator] : null;
-  const makeExample = () => (skill?.generator ? { ...generateQuestion(skill.generator), id: 'example' } : null);
+  const makeExample = (exampleSkill = skill) =>
+    exampleSkill?.generator ? { ...generateQuestion(exampleSkill.generator), id: 'example' } : null;
   // A worked example opens practice rounds until the child has passed the skill.
   const [example, setExample] = useState(() =>
     mode === 'practice' && skill?.generator && !hasPassed(getRecord(progress, skill.id)) ? makeExample() : null
@@ -61,6 +76,13 @@ export default function QuizScreen({ route, navigation }) {
   const { say, stop } = useNarrator(activeProfile?.narration);
   const timeoutRef = useRef(null);
   const blendTimerRef = useRef(null);
+  // Play-test log: when the question appeared, how often it was replayed,
+  // and whether the round was finished.
+  const shownAtRef = useRef(Date.now());
+  const replaysRef = useRef(0);
+  const answeredRef = useRef(0);
+  const finishedRef = useRef(false);
+  const profileId = activeProfile?.id;
 
   const currentQuestion = questions[questionIndex];
   const isAnswerLocked = selectedChoice !== null;
@@ -73,6 +95,33 @@ export default function QuizScreen({ route, navigation }) {
       if (blendTimerRef.current) clearTimeout(blendTimerRef.current);
     };
   }, []);
+
+  // Leaving a practice round early is logged as a quit.
+  useEffect(() => {
+    return () => {
+      if (finishedRef.current || !profileId || mode !== 'practice' || !baseSkill) return;
+      appendPlayLog(profileId, [
+        {
+          type: 'quit',
+          at: Date.now(),
+          day: toDayKey(),
+          skillId: baseSkill.id,
+          mode,
+          answered: answeredRef.current,
+          total: questions.length,
+        },
+      ]);
+    };
+    // Only on unmount.
+  }, []);
+
+  useEffect(() => {
+    replaysRef.current = 0;
+  }, [currentQuestion]);
+
+  useEffect(() => {
+    if (!example) shownAtRef.current = Date.now();
+  }, [currentQuestion, example]);
 
   useEffect(() => {
     // Listening tasks (rhymes, sounds, spelling) are read aloud even when
@@ -102,6 +151,30 @@ export default function QuizScreen({ route, navigation }) {
     const nextResults = [...results, isCorrect];
     setSelectedChoice(choice);
     setResults(nextResults);
+    answeredRef.current = nextResults.length;
+
+    const adapted = isAdaptive ? adapt({ level, streak: streakRef.current }, isCorrect, baseSkill) : null;
+    if (adapted) streakRef.current = adapted.streak;
+    const now = Date.now();
+    const events = [
+      {
+        type: 'answer',
+        at: now,
+        day: toDayKey(),
+        skillId: currentQuestion.skillId,
+        baseSkillId: baseSkill?.id,
+        mode,
+        correct: isCorrect,
+        ms: now - shownAtRef.current,
+        replays: replaysRef.current,
+        level,
+      },
+    ];
+    const nextSkill = adapted?.change ? skillForLevel(baseSkill, adapted.level) : null;
+    if (adapted?.change) {
+      events.push({ type: 'level', at: now, day: toDayKey(), skillId: baseSkill.id, change: adapted.change, toSkillId: nextSkill.id });
+    }
+    if (profileId) appendPlayLog(profileId, events);
 
     // Show the green/red result first; stopping speech and starting a sound
     // can stall a phone's screen for a moment, so do that a frame later.
@@ -119,6 +192,7 @@ export default function QuizScreen({ route, navigation }) {
     timeoutRef.current = setTimeout(() => {
       const nextIndex = questionIndex + 1;
       if (nextIndex >= questions.length) {
+        finishedRef.current = true;
         navigation.replace('Results', {
           skillIds,
           mode,
@@ -127,6 +201,14 @@ export default function QuizScreen({ route, navigation }) {
           tallies: tallyBySkill(questions, nextResults),
         });
       } else {
+        if (adapted?.change === 'up' || adapted?.change === 'down') {
+          setQuestions(replaceRemaining(questions, nextIndex, nextSkill));
+          setLevel(adapted.level);
+        }
+        if (adapted?.change) setLevelNote(LEVEL_NOTES[adapted.change](nextSkill, adapted.level));
+        else setLevelNote(null);
+        // A run of wrong answers gets a worked example of the (easier) skill.
+        if (adapted?.change === 'down' || adapted?.change === 'hint') setExample(makeExample(nextSkill));
         setQuestionIndex(nextIndex);
         setSelectedChoice(null);
       }
@@ -219,11 +301,14 @@ export default function QuizScreen({ route, navigation }) {
             </Pressable>
           )}
           <Pressable
-            onPress={() =>
-              example
-                ? say(exampleSpeech(howTo, example), { force: true })
-                : say(currentQuestion.speech, { force: true })
-            }
+            onPress={() => {
+              if (example) {
+                say(exampleSpeech(howTo, example), { force: true });
+              } else {
+                replaysRef.current += 1;
+                say(currentQuestion.speech, { force: true });
+              }
+            }}
             style={[styles.roundButton, shadow]}
             accessibilityLabel="Say it again"
           >
@@ -233,11 +318,13 @@ export default function QuizScreen({ route, navigation }) {
 
         {example ? (
           <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
+            {levelNote ? <Text style={styles.levelNote}>{levelNote}</Text> : null}
             <ExampleCard question={example} howTo={howTo} onDone={() => setExample(null)} />
           </ScrollView>
         ) : (
           <>
             <ProgressBar current={questionIndex + 1} total={questions.length} />
+            {levelNote ? <Text style={styles.levelNote}>{levelNote}</Text> : null}
             <ScoreCounter score={score} />
 
             <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
@@ -337,6 +424,13 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'space-between',
     width: '100%',
+  },
+  levelNote: {
+    fontSize: 15,
+    fontWeight: '900',
+    color: colors.purple,
+    textAlign: 'center',
+    marginTop: 6,
   },
   emptyText: {
     fontSize: 20,

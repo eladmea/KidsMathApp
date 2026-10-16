@@ -36,3 +36,18 @@ export function tallyBySkill(questions, results) {
   });
   return tallies;
 }
+
+// Replaces the questions from `fromIndex` on with questions for `skill` (used
+// when a round steps up or down a level). Earlier questions are kept.
+export function replaceRemaining(questions, fromIndex, skill) {
+  const next = questions.slice(0, fromIndex);
+  for (let index = fromIndex; index < questions.length; index++) {
+    let question = generateQuestion(skill.generator);
+    const previous = next[next.length - 1];
+    for (let tries = 0; tries < 5 && previous && previous.speech === question.speech; tries++) {
+      question = generateQuestion(skill.generator);
+    }
+    next.push({ ...question, id: index, skillId: skill.id });
+  }
+  return next;
+}
