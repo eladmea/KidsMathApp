@@ -59,6 +59,7 @@ function countObjects(min, max) {
       speech: `How many ${object.name}?`,
       visual: { type: 'objects', emoji: object.emoji, count },
       answer: count,
+      explain: `Count them one by one: ${Array.from({ length: count }, (_, i) => i + 1).join(', ')}. There are ${count} ${object.name}!`,
       choices: buildChoices(count, { min: 1, max: max + 2, spread: 3 }),
     };
   };
@@ -72,6 +73,7 @@ function findShape() {
     speech: `Tap the ${target.name}.`,
     visual: null,
     answer: target.emoji,
+    explain: `This is a ${target.name}.`,
     choices: options.map((shape) => shape.emoji),
   };
 }
@@ -88,21 +90,33 @@ function whichHasMore(max) {
       speech: `Which group has more ${object.name}?`,
       visual: null,
       answer,
+      explain: `${b} ${object.name} is more than ${a} ${object.name}.`,
       choices: groups,
     };
   };
 }
 
-function nextNumber(min, max) {
+// Number sequences that go up or down by a steady step. Shown as a staircase
+// (see QuestionVisual 'sequence') so the direction is visible at a glance.
+function numberSequence(steps, max) {
   return () => {
-    const start = randInt(min, max - 3);
-    const answer = start + 3;
+    const step = pick(steps);
+    const direction = Math.random() < 0.5 ? 'up' : 'down';
+    const delta = direction === 'up' ? step : -step;
+    const span = step * 3;
+    const first = direction === 'up' ? randInt(0, max - span) : randInt(span, max);
+    const numbers = [first, first + delta, first + 2 * delta];
+    const answer = first + 3 * delta;
+    // Typical slips: skipping a step, repeating the last number, off by one.
+    const slips = [answer + delta, numbers[2], answer + 1, answer - 1, answer + 2, answer - 2];
+    const distractors = [...new Set(slips)].filter((c) => c >= 0 && c !== answer).slice(0, CHOICES_PER_QUESTION - 1);
     return {
-      prompt: `${start}, ${start + 1}, ${start + 2}, ?`,
-      speech: `${start}, ${start + 1}, ${start + 2}. What number comes next?`,
-      visual: null,
+      prompt: 'What comes next?',
+      speech: `${numbers.join(', ')}. What comes next?`,
+      visual: { type: 'sequence', numbers, direction, step },
       answer,
-      choices: buildChoices(answer, { min: 0, spread: 3 }),
+      choices: shuffle([answer, ...distractors]),
+      explain: `The numbers go ${direction} by ${step} each time. ${numbers[2]} ${direction === 'up' ? 'plus' : 'minus'} ${step} is ${answer}!`,
     };
   };
 }
@@ -117,6 +131,7 @@ function biggerNumber(max) {
       speech: `Which number is bigger, ${a} or ${b}?`,
       visual: null,
       answer: Math.max(a, b),
+      explain: `${Math.max(a, b)} is bigger than ${Math.min(a, b)}.`,
       choices: [a, b],
     };
   };
@@ -132,6 +147,7 @@ function addition(maxSum, { minAddend = 0, withPicture = false } = {}) {
       speech: `What is ${a} plus ${b}?`,
       visual: withPicture ? { type: 'sum', emoji: object.emoji, a, b } : null,
       answer: a + b,
+      explain: `Start at ${a} and count on ${b} more: that makes ${a + b}.`,
       choices: buildChoices(a + b, { min: 0 }),
     };
   };
@@ -147,6 +163,7 @@ function subtraction(maxStart, { minStart = 0, withPicture = false } = {}) {
       speech: `What is ${a} minus ${b}?`,
       visual: withPicture ? { type: 'takeAway', emoji: object.emoji, a, b } : null,
       answer: a - b,
+      explain: `Start with ${a} and take away ${b}: ${a - b} are left.`,
       choices: buildChoices(a - b, { min: 0 }),
     };
   };
@@ -161,6 +178,7 @@ function multiplication(factorsA, factorsB) {
       speech: `What is ${a} times ${b}?`,
       visual: null,
       answer: a * b,
+      explain: `${a} groups of ${b} make ${a * b}.`,
       choices: buildChoices(a * b, { min: 0, spread: Math.max(5, a) }),
     };
   };
@@ -175,6 +193,7 @@ function division(min, max) {
       speech: `What is ${divisor * quotient} divided by ${divisor}?`,
       visual: null,
       answer: quotient,
+      explain: `Share ${divisor * quotient} into ${divisor} equal groups: ${quotient} in each, because ${divisor} × ${quotient} = ${divisor * quotient}.`,
       choices: buildChoices(quotient, { min: 0 }),
     };
   };
@@ -189,6 +208,7 @@ function quickLook(min, max, layout, flashMs) {
       speech: 'Quick! How many dots did you see?',
       visual: { type: 'dots', count, layout, flashMs },
       answer: count,
+      explain: `There were ${count} dots.`,
       choices: buildChoices(count, { min: 1, max: max + 1, spread: 2 }),
     };
   };
@@ -204,6 +224,7 @@ function numberLine(max, tolerance) {
       speech: `Tap where ${target} goes on the line.`,
       visual: null,
       answer: target,
+      explain: `${target} goes here: the line runs from 0 to ${max}.`,
       choices: [],
       min: 0,
       max,
@@ -226,7 +247,8 @@ export const GENERATORS = {
   'number-line-10': numberLine(10, 1),
   'number-line-100': numberLine(100, 8),
   'number-line-1000': numberLine(1000, 70),
-  'next-number': nextNumber(1, 100),
+  'next-number': numberSequence([1], 30),
+  'skip-count': numberSequence([2, 5, 10], 100),
   'bigger-number': biggerNumber(100),
   'add-10': addition(10, { withPicture: true }),
   'sub-10': subtraction(10, { withPicture: true }),

@@ -8,18 +8,24 @@ import QuestionVisual from '../components/QuestionVisual';
 import NumberLineInput from '../components/NumberLineInput';
 import WordBuilderInput from '../components/WordBuilderInput';
 import StoryStripInput from '../components/StoryStripInput';
+import ExampleCard, { exampleSpeech } from '../components/ExampleCard';
 import { playPhoneme } from '../utils/phonemeAudio';
 import { soundSpeech } from '../curriculum/phonics';
 import { useProfiles } from '../context/ProfileContext';
 import { useSoundEffects } from '../utils/useSoundEffects';
 import { useNarrator } from '../utils/useNarrator';
 import { buildSession, tallyBySkill } from '../utils/session';
+import { getRecord, hasPassed } from '../utils/progress';
 import { getSkill } from '../curriculum/skills';
+import { generateQuestion } from '../curriculum/generators';
+import { HOW_TO } from '../curriculum/howTo';
 import { colors, shadow } from '../utils/theme';
 
-const ADVANCE_DELAY_MS = 900;
+// How long the green/red result stays before the next question. A wrong
+// answer stays longer so the child can see which one was right.
+const FEEDBACK_MS = { correct: 1400, wrong: 2200 };
 // Number lines, built words and stories need longer to look at.
-const REVIEW_DELAY_MS = { numberLine: 1800, build: 2200, order: 2600 };
+const REVIEW_DELAY_MS = { numberLine: 2000, build: 2400, order: 2800 };
 
 function isCorrectAnswer(question, choice) {
   switch (question.type) {
@@ -38,8 +44,15 @@ function isCorrectAnswer(question, choice) {
 // interleaved skills (review).
 export default function QuizScreen({ route, navigation }) {
   const { skillIds, mode = 'practice' } = route.params;
-  const { activeProfile } = useProfiles();
+  const { activeProfile, progress } = useProfiles();
   const questions = useMemo(() => buildSession(skillIds), [skillIds]);
+  const skill = getSkill(skillIds[0]);
+  const howTo = skill?.generator ? HOW_TO[skill.generator] : null;
+  const makeExample = () => (skill?.generator ? { ...generateQuestion(skill.generator), id: 'example' } : null);
+  // A worked example opens practice rounds until the child has passed the skill.
+  const [example, setExample] = useState(() =>
+    mode === 'practice' && skill?.generator && !hasPassed(getRecord(progress, skill.id)) ? makeExample() : null
+  );
 
   const [questionIndex, setQuestionIndex] = useState(0);
   const [results, setResults] = useState([]);
@@ -64,8 +77,12 @@ export default function QuizScreen({ route, navigation }) {
   useEffect(() => {
     // Listening tasks (rhymes, sounds, spelling) are read aloud even when
     // narration is off — they can't be done without hearing the word.
-    if (currentQuestion) say(currentQuestion.speech, { force: Boolean(currentQuestion.speakAlways) });
-  }, [currentQuestion, say]);
+    if (example) {
+      say(exampleSpeech(howTo, example), { force: Boolean(example.speakAlways) });
+    } else if (currentQuestion) {
+      say(currentQuestion.speech, { force: Boolean(currentQuestion.speakAlways) });
+    }
+  }, [currentQuestion, example, howTo, say]);
 
   if (!currentQuestion) {
     return (
@@ -85,13 +102,14 @@ export default function QuizScreen({ route, navigation }) {
     const nextResults = [...results, isCorrect];
     setSelectedChoice(choice);
     setResults(nextResults);
-    stop();
 
-    if (isCorrect) {
-      playCorrect();
-    } else {
-      playWrong();
-    }
+    // Show the green/red result first; stopping speech and starting a sound
+    // can stall a phone's screen for a moment, so do that a frame later.
+    setTimeout(() => {
+      stop();
+      if (isCorrect) playCorrect();
+      else playWrong();
+    }, 30);
     if (currentQuestion.type === 'build') {
       // Blend the sounds back into the word: "kuh, aah, tuh… cat!"
       const sounds = currentQuestion.parts.map(soundSpeech).join(', ');
@@ -112,7 +130,7 @@ export default function QuizScreen({ route, navigation }) {
         setQuestionIndex(nextIndex);
         setSelectedChoice(null);
       }
-    }, REVIEW_DELAY_MS[currentQuestion.type] ?? ADVANCE_DELAY_MS);
+    }, REVIEW_DELAY_MS[currentQuestion.type] ?? FEEDBACK_MS[isCorrect ? 'correct' : 'wrong']);
   }
 
   function getButtonState(choice) {
@@ -191,8 +209,21 @@ export default function QuizScreen({ route, navigation }) {
           <Text style={styles.title} numberOfLines={1}>
             {title}
           </Text>
+          {howTo && mode === 'practice' && !example && (
+            <Pressable
+              onPress={() => setExample(makeExample())}
+              style={[styles.roundButton, shadow]}
+              accessibilityLabel="Show an example"
+            >
+              <Text style={styles.roundButtonText}>❓</Text>
+            </Pressable>
+          )}
           <Pressable
-            onPress={() => say(currentQuestion.speech, { force: true })}
+            onPress={() =>
+              example
+                ? say(exampleSpeech(howTo, example), { force: true })
+                : say(currentQuestion.speech, { force: true })
+            }
             style={[styles.roundButton, shadow]}
             accessibilityLabel="Say it again"
           >
@@ -200,21 +231,32 @@ export default function QuizScreen({ route, navigation }) {
           </Pressable>
         </View>
 
-        <ProgressBar current={questionIndex + 1} total={questions.length} />
-        <ScoreCounter score={score} />
+        {example ? (
+          <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
+            <ExampleCard question={example} howTo={howTo} onDone={() => setExample(null)} />
+          </ScrollView>
+        ) : (
+          <>
+            <ProgressBar current={questionIndex + 1} total={questions.length} />
+            <ScoreCounter score={score} />
 
-        <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
-          <View style={styles.questionBox}>
-            <Text style={[styles.questionText, isLongPrompt && styles.questionTextLong, isVeryLongPrompt && styles.questionTextSmall]}>{currentQuestion.prompt}</Text>
-            <QuestionVisual
-              key={currentQuestion.id}
-              visual={currentQuestion.visual}
-              result={isAnswerLocked ? (isCorrect ? 'correct' : 'wrong') : null}
-            />
-          </View>
+            <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
+              <View style={styles.questionBox}>
+                <Text style={[styles.questionText, isLongPrompt && styles.questionTextLong, isVeryLongPrompt && styles.questionTextSmall]}>
+                  {currentQuestion.prompt}
+                </Text>
+                <QuestionVisual
+                  key={currentQuestion.id}
+                  visual={currentQuestion.visual}
+                  result={isAnswerLocked ? (isCorrect ? 'correct' : 'wrong') : null}
+                  reveal={isAnswerLocked ? currentQuestion.answer : null}
+                />
+              </View>
 
-          {renderAnswerArea()}
-        </ScrollView>
+              {renderAnswerArea()}
+            </ScrollView>
+          </>
+        )}
       </View>
     </SafeAreaView>
   );

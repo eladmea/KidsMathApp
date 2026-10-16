@@ -26,6 +26,7 @@ export const SKILLS = [
   { id: 'math-sub-20', subject: 'math', band: 'builders', title: 'Subtract within 20', emoji: '➖', generator: 'sub-20', prereqs: ['math-sub-10', 'math-add-20'] },
   { id: 'math-add-100', subject: 'math', band: 'builders', title: 'Add within 100', emoji: '💯', generator: 'add-100', prereqs: ['math-add-20'] },
   { id: 'math-sub-100', subject: 'math', band: 'builders', title: 'Subtract within 100', emoji: '🧮', generator: 'sub-100', prereqs: ['math-sub-20', 'math-add-100'] },
+  { id: 'math-skip-count', subject: 'math', band: 'builders', title: 'Skip Counting', emoji: '🦘', generator: 'skip-count', prereqs: ['math-next-number'] },
   { id: 'math-mult-2-5-10', subject: 'math', band: 'builders', title: 'Times 2, 5 & 10', emoji: '✖️', generator: 'mult-2-5-10', prereqs: ['math-add-20'] },
   { id: 'math-number-line-100', subject: 'math', band: 'builders', title: 'Number Line Drop: 100', emoji: '🪂', generator: 'number-line-100', prereqs: ['math-number-line-10'] },
 
@@ -64,7 +65,7 @@ export const SKILLS = [
 
   // ---- Puzzle Peak (logic, coding and executive function) ----
   { id: 'logic-freeze-zoo', subject: 'logic', band: 'sprouts', title: 'Freeze Zoo', emoji: '🦒', screen: 'FreezeZoo', prereqs: [] },
-  { id: 'logic-patterns', subject: 'logic', band: 'sprouts', title: 'What Comes Next?', emoji: '🔁', generator: 'patterns-easy', prereqs: [] },
+  { id: 'logic-patterns', subject: 'logic', band: 'sprouts', title: 'Pattern Play', emoji: '🔁', generator: 'patterns-easy', prereqs: [] },
   { id: 'logic-robo-path', subject: 'logic', band: 'explorers', title: 'Robo Path', emoji: '🤖', screen: 'RoboPath', prereqs: [] },
   { id: 'logic-patterns-hard', subject: 'logic', band: 'explorers', title: 'Tricky Patterns', emoji: '🧩', generator: 'patterns-hard', prereqs: [] },
   { id: 'logic-loops', subject: 'logic', band: 'builders', title: 'Robot Loops', emoji: '🔂', screen: 'RoboPath', prereqs: [] },

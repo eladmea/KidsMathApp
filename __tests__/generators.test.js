@@ -141,3 +141,35 @@ describe('buildChoices', () => {
     expect(() => generateQuestion('nope')).toThrow('Unknown generator');
   });
 });
+
+describe('number sequences (What Comes Next? / Skip Counting)', () => {
+  it.each([
+    ['next-number', [1]],
+    ['skip-count', [2, 5, 10]],
+  ])('%s goes up or down by a steady step and asks for the next number', (generatorId, steps) => {
+    const directions = new Set();
+    for (let i = 0; i < RUNS_PER_GENERATOR; i++) {
+      const q = generateQuestion(generatorId);
+      const { numbers, direction, step } = q.visual;
+      expect(q.visual.type).toBe('sequence');
+      expect(steps).toContain(step);
+      const delta = direction === 'up' ? step : -step;
+      expect(numbers[1] - numbers[0]).toBe(delta);
+      expect(numbers[2] - numbers[1]).toBe(delta);
+      expect(q.answer).toBe(numbers[2] + delta);
+      expect(q.answer).toBeGreaterThanOrEqual(0);
+      q.choices.forEach((c) => expect(c).toBeGreaterThanOrEqual(0));
+      expect(q.explain).toContain(`go ${direction} by ${step}`);
+      directions.add(direction);
+    }
+    expect(directions).toEqual(new Set(['up', 'down']));
+  });
+});
+
+describe('how-to lines', () => {
+  it('every quiz skill has a how-to line for its worked example', () => {
+    const { SKILLS } = require('../curriculum/skills');
+    const { HOW_TO } = require('../curriculum/howTo');
+    SKILLS.filter((s) => s.generator).forEach((s) => expect(HOW_TO[s.generator]).toBeTruthy());
+  });
+});

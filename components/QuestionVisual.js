@@ -9,6 +9,7 @@ const DOTS_SIZE = { dice: 130, tenFrame: 240 };
 function FlashDots({ count, layout, flashMs }) {
   const [isVisible, setIsVisible] = useState(true);
   useEffect(() => {
+    if (!flashMs) return undefined;
     const timer = setTimeout(() => setIsVisible(false), flashMs);
     return () => clearTimeout(timer);
   }, [flashMs]);
@@ -57,10 +58,73 @@ function SnackMonster({ sound, result }) {
   );
 }
 
+const STAIR_BASE = 58;
+const STAIR_RISE = 20;
+
+// Number blocks on a staircase: they climb when the numbers go up and step
+// down when they go down, so the direction is visible before any reading.
+// `reveal` fills the "?" block (after answering, or in a worked example).
+function SequenceStairs({ numbers, direction, step, reveal, showSteps }) {
+  const values = [...numbers, reveal ?? '?'];
+  const height = (i) => STAIR_BASE + (direction === 'up' ? i : values.length - 1 - i) * STAIR_RISE;
+  const longest = Math.max(...values.map((v) => String(v).length));
+  const fontSize = longest >= 3 ? 20 : 26;
+  const isUp = direction === 'up';
+  // The revealed block always shows the right answer, so it is green; a wrong
+  // tap is marked red on its answer button instead.
+  const mysteryColor = reveal !== null && reveal !== undefined ? colors.green : colors.orange;
+  return (
+    <View style={[styles.box, styles.stairsBox]}>
+      <View style={[styles.directionChip, { backgroundColor: isUp ? '#D9F7E6' : '#FFE9D4' }]}>
+        <Text style={[styles.directionText, { color: isUp ? colors.greenDark : colors.orange }]}>
+          {isUp ? '⬆️ Going up' : '⬇️ Going down'}
+        </Text>
+      </View>
+      <View style={styles.stairs}>
+        {values.map((value, i) => {
+          const isMystery = i === values.length - 1;
+          return (
+            <View key={i} style={styles.stairStep}>
+              {i > 0 && (
+                <View style={styles.stepArrow}>
+                  {showSteps && <Text style={styles.stepAmount}>{isUp ? `+${step}` : `−${step}`}</Text>}
+                  <Text style={styles.stepArrowText}>{isUp ? '↗' : '↘'}</Text>
+                </View>
+              )}
+              <View
+                style={[
+                  styles.stairBlock,
+                  { height: height(i) },
+                  isMystery && { backgroundColor: mysteryColor, borderColor: mysteryColor },
+                ]}
+              >
+                <Text style={[styles.stairNumber, { fontSize }, isMystery && styles.stairMysteryText]}>{value}</Text>
+              </View>
+            </View>
+          );
+        })}
+      </View>
+    </View>
+  );
+}
+
 // Pictures that let pre-readers count, listen and look instead of reading.
-// `result` is 'correct' | 'wrong' | null once the child has answered.
-export default function QuestionVisual({ visual, result = null }) {
+// `result` is 'correct' | 'wrong' | null once the child has answered;
+// `reveal` is the answer to show in place of a "?" (if the visual has one).
+export default function QuestionVisual({ visual, result = null, reveal = null, showSteps = false }) {
   if (!visual) return null;
+
+  if (visual.type === 'sequence') {
+    return (
+      <SequenceStairs
+        numbers={visual.numbers}
+        direction={visual.direction}
+        step={visual.step}
+        reveal={reveal}
+        showSteps={showSteps}
+      />
+    );
+  }
 
   if (visual.type === 'picture') {
     return (
@@ -85,7 +149,8 @@ export default function QuestionVisual({ visual, result = null }) {
   }
 
   if (visual.type === 'dots') {
-    return <FlashDots count={visual.count} layout={visual.layout} flashMs={visual.flashMs} />;
+    // In a worked example (reveal set) the dots stay up so they can be studied.
+    return <FlashDots count={visual.count} layout={visual.layout} flashMs={reveal === null ? visual.flashMs : null} />;
   }
 
   if (visual.type === 'objects') {
@@ -147,6 +212,60 @@ const styles = StyleSheet.create({
     borderStyle: 'dashed',
     borderColor: colors.gray,
     borderRadius: 12,
+  },
+  stairsBox: {
+    width: '100%',
+    paddingTop: 10,
+  },
+  directionChip: {
+    borderRadius: 14,
+    paddingVertical: 4,
+    paddingHorizontal: 12,
+    marginBottom: 10,
+  },
+  directionText: {
+    fontSize: 16,
+    fontWeight: '900',
+  },
+  stairs: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+  },
+  stairStep: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+  },
+  stepArrow: {
+    width: 26,
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  stepAmount: {
+    fontSize: 12,
+    fontWeight: '900',
+    color: colors.purple,
+  },
+  stepArrowText: {
+    fontSize: 20,
+    fontWeight: '900',
+    color: colors.gray,
+  },
+  stairBlock: {
+    width: 62,
+    borderRadius: 14,
+    borderWidth: 3,
+    borderColor: colors.primary,
+    backgroundColor: '#DCE6FF',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  stairNumber: {
+    fontWeight: '900',
+    color: colors.textDark,
+  },
+  stairMysteryText: {
+    color: colors.white,
   },
   pictureBox: {
     paddingHorizontal: 28,

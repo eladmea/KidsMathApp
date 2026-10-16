@@ -24,9 +24,10 @@ export default function AnswerButton({ value, onPress, state = 'default', disabl
         {
           backgroundColor: style.backgroundColor,
           borderColor: style.borderColor,
-          opacity: pressed && !disabled ? 0.85 : 1,
         },
         shadow,
+        // Make the press obvious straight away: the button sinks and tints.
+        pressed && !disabled && styles.pressed,
       ]}
     >
       <Text
@@ -60,6 +61,11 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     textAlign: 'center',
     paddingHorizontal: 8,
+  },
+  pressed: {
+    backgroundColor: '#E3EAFF',
+    borderColor: colors.primaryDark,
+    transform: [{ scale: 0.95 }],
   },
   labelLong: {
     fontSize: 20,

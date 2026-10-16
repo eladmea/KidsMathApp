@@ -4,7 +4,7 @@ This document describes where MathPlay is heading, why it is designed this way (
 
 - **Plan written:** 2026-10-15
 - **Language:** English (all content, narration and phonics)
-- **Last updated:** 2026-10-16 (Phase 3 implemented; GitHub Pages deploy added)
+- **Last updated:** 2026-10-16 (feedback, worked examples and number sequences improved after play-testing)
 
 ---
 
@@ -280,6 +280,30 @@ Rewards are cosmetic stickers shown *after* the thinking, never shops or pressur
 **Notes:**
 - The native app icon (`assets/icon.png`) is still Expo's template placeholder. Only the web Home Screen icon was replaced.
 - Not yet covered: in-round adaptive difficulty, parent dashboard and session limits (Phase 4).
+
+### Play-testing fixes: feedback, worked examples, number sequences (2026-10-16)
+
+Changes made after the first play-test of the live site:
+
+- **Answer feedback**
+  - The green/red result now appears before the sound and voice start. Stopping speech and starting audio can stall a phone's screen, which made presses feel slow.
+  - Answer buttons visibly sink and tint while pressed.
+  - The result stays up for 1.4 s on a right answer and 2.2 s on a wrong one, so the child can see which answer was right (it was 0.9 s).
+- **Worked example ("Let's try one together!")**
+  - Until a child has passed a skill, a practice round opens with an unscored example: how to play (`curriculum/howTo.js`, one line per quiz game), the question with the answer filled in, and a 💡 "Why?" explanation.
+  - A ❓ button in the quiz header shows another example any time.
+- **What Comes Next?**
+  - Sequences now go **up or down**.
+  - The numbers sit on a **staircase** that climbs or descends, with ↗/↘ arrows and a "⬆️ Going up / ⬇️ Going down" label.
+  - The worked example also shows the +1/−1 step between blocks.
+  - After answering, the "?" block fills in with the answer.
+- **New skill: Skip Counting** (ages 7–8): the same staircase, counting up or down by 2s, 5s or 10s.
+- The Puzzle Peak pattern skill is renamed **Pattern Play**, so it no longer shares the "What Comes Next?" name.
+- **Tests:** 189 unit tests, adding sequence direction and step tests and a check that every quiz game has a how-to line.
+- **Verification:**
+  - Touch-screen browser check (Pixel 5 emulation): the press shows in about 10 ms, and results stay up 1.4 s (right) and 2.2 s (wrong).
+  - The worked example and the ❓ button work.
+  - The Phase 0–3 walkthroughs pass.
 
 ### Phase 4: next
 
