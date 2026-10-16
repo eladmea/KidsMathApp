@@ -40,12 +40,11 @@ jobs:
           CI: 1
           EXPO_BASE_URL: /${{ github.event.repository.name }}
 
-      # Serve the app for any unknown path, and stop Pages from running Jekyll
-      # (which would hide the _expo folder).
+      # Manifest + Home Screen icons, 404 fallback, and .nojekyll.
       - name: Prepare Pages files
-        run: |
-          cp dist/index.html dist/404.html
-          touch dist/.nojekyll
+        run: node scripts/prepare-pages.js dist
+        env:
+          EXPO_BASE_URL: /${{ github.event.repository.name }}
 
       - uses: actions/upload-pages-artifact@v3
         if: github.event_name != 'pull_request'
