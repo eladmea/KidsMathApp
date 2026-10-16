@@ -4,7 +4,7 @@ This document describes where MathPlay is heading, why it is designed this way (
 
 - **Plan written:** 2026-10-15
 - **Language:** English (all content, narration and phonics)
-- **Last updated:** 2026-10-16 (Phase 5 tooling: adaptive difficulty, play-test log and report, play-test guide)
+- **Last updated:** 2026-10-16 (Phase 5 split into tools and play-tests; Phases 6–8 added for what the plan promised but no phase covered)
 
 ---
 
@@ -18,7 +18,11 @@ This document describes where MathPlay is heading, why it is designed this way (
 | **Phase 2** | Literacy: Sound Snack, Word Builder, Story Strip, Letter Chips, letter-sound playback | ✅ Done | **2026-10-16** (commit `c5c6411`) |
 | **Phase 3** | Science, Logic & Executive Function: Garden Days, Dress for Weather, Push & Roll, Robo Path, Freeze Zoo | ✅ Done | **2026-10-16** (commit `5636426`) |
 | **Phase 4** | Social-emotional learning & polish: Feelings Garden, Feelings Friends, Balloon Breath, sticker book, parent dashboard + soft time limits | ✅ Done | **2026-10-16** (commit `217d84c`) |
-| **Phase 5** | Play-testing with 2–3 kids per age band, difficulty tuning | 🛠️ Tooling done; play-tests ⏳ next | Tooling **2026-10-16** (commit `1eeeae8`) |
+| **Phase 5a** | Play-test tools: adaptive difficulty, play-test log and report, CSV export, play-test guide | ✅ Done | **2026-10-16** (commit `1eeeae8`) |
+| Phase 5b | Play-tests with 2–3 children per age band, then difficulty tuning from the results | ⏳ Next (needs real sessions) | — |
+| Phase 6 | Guided daily session (section 6) and a "play together" mode | 🔜 Planned, can start before 5b | — |
+| Phase 7 | Curriculum gaps against section 4, in two parts (7a math, 7b literacy, science and logic) | 🔜 Planned, after 5b | — |
+| Phase 8 | Polish and release: remaining mini-games, voice recordings, app icon, accessibility, store builds | 🔜 Planned | — |
 
 ---
 
@@ -86,7 +90,7 @@ The variants also get a **solo mode against an AI buddy** and a post-game reflec
 | Number Path Race (linear board game) | Math | 3–7 | ✅ 1 |
 | Quick Look (subitizing flash) | Math | 3–6 | ✅ 1 |
 | Number Line Drop | Math | 5–10 | ✅ 1 |
-| Lemonade Stand (money) | Math | 7–10 | Later |
+| Lemonade Stand (money) | Math | 7–10 | 7a |
 | Sound Snack (first sounds) | Literacy | 3–6 | ✅ 2 |
 | Word Builder (phonics tiles) | Literacy | 5–8 | ✅ 2 |
 | Story Strip (sequencing) | Literacy | 4–9 | ✅ 2 |
@@ -99,7 +103,7 @@ The variants also get a **solo mode against an AI buddy** and a post-game reflec
 
 ### C. Mini-games (60–90 s breaks)
 
-Bubble Pop ✅ · Chip Toss ✅ · Dance Tap ✅ · Balloon Breath ✅ (free calm-down) · Color Me · Peekaboo Hide & Seek. New simple ideas: **Chip Bridge** (cooperative add/subtract to hit a target) and **Echo Monster** (growing memory sequence).
+Bubble Pop ✅ · Chip Toss ✅ · Dance Tap ✅ · Balloon Breath ✅ (free calm-down) · Color Me (8) · Peekaboo Hide & Seek (8). New simple ideas: **Chip Bridge** (cooperative add/subtract to hit a target) and **Echo Monster** (growing memory sequence), both in Phase 8.
 
 ---
 
@@ -120,7 +124,56 @@ Rewards are cosmetic stickers shown *after* the thinking, never shops or pressur
 
 ---
 
-## 7. Implementation log
+## 7. Roadmap after Phase 5
+
+A review on 2026-10-16 found parts of this plan that no phase delivered. Phases 6–8 cover them.
+
+**Order.** Phase 6 doesn't depend on play-test results, so it can start straight away. Phase 7 should wait for Phase 5b: the research behind this plan says to test with children before adding much more content, and the play-test report shows which skills need easier or harder neighbours.
+
+### Phase 5b: Play-tests and tuning
+
+- Run sessions with 2–3 children per age band, on at least 2 different days each, following [PLAYTEST.md](PLAYTEST.md).
+- Collect the CSV exports and notes. Tune skills that are flagged by 2+ children (generator ranges, distractors, prompts, prerequisites, default time limits).
+- Log each change, and the evidence behind it, under Phase 5 in section 8.
+
+### Phase 6: Guided daily session and play-together mode
+
+- **Today's Adventure**: one "▶ Start today" button that runs the session structure in section 6, sized to the child's band and remaining time:
+  1. Warm-up: due reviews.
+  2. New skill: the next recommended skill, opening with its worked example.
+  3. Mixed practice: a different mechanic, mixing new and older skills.
+  4. Mini-game: a free Fun Break.
+  5. Second subject: rotating through the week.
+  6. Cool-down: Balloon Breath, today's stickers, "see you tomorrow".
+- The free map stays available alongside it.
+- **Play together** (Four Pillars: social interaction; AAP: co-viewing):
+  - A grown-up joins as a second player, with turn prompts ("Your turn, Mum!") and talk prompts after answers ("Ask: how did you know?").
+  - Starts with the quiz engine; Memory Chips and Path Race already have 2-player modes.
+- Weekly subject rotation, and a parent-dashboard summary of guided sessions.
+
+### Phase 7: Curriculum gaps (section 4)
+
+**7a: Math**
+- 7–8: place value (tens and ones), telling time, money with **Lemonade Stand**, arrays.
+- 9–10: fractions (compare, equivalent fractions, fractions of a set), area and perimeter, multi-step word problems.
+
+**7b: Literacy, science and logic**
+- Literacy: letter names (3–4); sentence building and spelling patterns (7–8); vocabulary, grammar and short reading comprehension (9–10).
+- Science: seasons (5–6), simple maps (7–8), energy and geography (9–10).
+- Logic: sorting and matching (3–4), sequencing (5–6), easier logic grids (7–8).
+- Each new skill needs a generator, a how-to line, an exactly-one-answer test and a place in the prerequisite map, as in Phases 1–4.
+
+### Phase 8: Polish and release
+
+- The remaining mini-games: Color Me, Peekaboo Hide & Seek, **Chip Bridge** (cooperative add/subtract to a target) and **Echo Monster** (a growing memory sequence).
+- Real voice recordings for letter sounds (the playback path is ready in `utils/phonemeAudio.js`).
+- A real native app icon and splash screen.
+- An accessibility pass: screen-reader labels, colour contrast, text size, reduced motion.
+- Offline support for the web app, and optionally App Store / Play Store builds.
+
+---
+
+## 8. Implementation log
 
 ### Pre-plan (2026-08-05 → 2026-08-11)
 
@@ -358,7 +411,7 @@ Changes made after the first play-test of the live site:
 - The limit is soft by design. A child can still finish a long game such as Memory Chips after time runs out; the goodbye comes when they return to the map.
 - The SEL evidence is weaker than for the math and reading games (see section 3). Treat these games as enrichment.
 
-### Phase 5: Play-testing tools and adaptive difficulty (tooling implemented 2026-10-16, commit `1eeeae8`)
+### Phase 5a: Play-testing tools and adaptive difficulty (implemented 2026-10-16, commit `1eeeae8`)
 
 The play-tests themselves need real children, so this part of Phase 5 builds what the sessions and the tuning afterwards rely on.
 
@@ -399,11 +452,11 @@ The play-tests themselves need real children, so this part of Phase 5 builds wha
 - Because questions are tallied by skill, 5 right answers at the easier or harder level count as a passed round for that skill, as in Daily Review.
 - Game-screen skills (Freeze Zoo, Robo Path, Push & Roll, Feelings Friends) log only finished rounds: no per-answer events, and no quits.
 
-**Next:** run the play-tests with [PLAYTEST.md](PLAYTEST.md), then record each tuning change and its evidence here.
+**Next:** Phase 5b, the play-tests with [PLAYTEST.md](PLAYTEST.md). Record each tuning change and its evidence here. Phase 6 can start in parallel (see section 7).
 
 ---
 
-## 8. Sources
+## 9. Sources
 
 - Hirsh-Pasek et al. (2015), *Putting Education in "Educational" Apps*: https://www.psychologicalscience.org/publications/educational-apps.html
 - Clements & Sarama, learning trajectories: https://en.wikipedia.org/wiki/Douglas_Clements · https://amte.net/node/2301
