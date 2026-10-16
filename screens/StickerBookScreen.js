@@ -10,6 +10,7 @@ import { colors, shadow } from '../utils/theme';
 function stickerReason(sticker) {
   const [, ref] = sticker.key.split(':');
   if (sticker.kind === 'bloomed') return 'A flower bloomed in Garden Days';
+  if (sticker.kind === 'adventure') return `Finished Today's Adventure (${ref})`;
   const skill = getSkill(ref);
   const title = skill ? skill.title : 'a skill';
   return sticker.kind === 'mastered' ? `Mastered ${title}` : `Passed ${title}`;
@@ -84,6 +85,7 @@ export default function StickerBookScreen({ navigation }) {
           <Text style={styles.howLine}>⭐ Pass a skill for the first time</Text>
           <Text style={styles.howLine}>🏅 Master a skill (pass it on 2 different days)</Text>
           <Text style={styles.howLine}>🌻 Help a Garden Days flower bloom</Text>
+          <Text style={styles.howLine}>🗺️ Finish Today's Adventure</Text>
         </View>
       </ScrollView>
     </SafeAreaView>

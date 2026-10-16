@@ -18,6 +18,7 @@ export default function AnswerButton({ value, onPress, state = 'default', disabl
     <Pressable
       onPress={onPress}
       disabled={disabled}
+      accessibilityRole="button"
       style={({ pressed }) => [
         styles.button,
         variant === 'picture' && styles.buttonPicture,

@@ -9,6 +9,8 @@ const GARDEN_KEY_PREFIX = '@mathplay_garden_';
 const PLAY_TIME_KEY = '@mathplay_play_time';
 // Play-test events per profile (see utils/playLog.js).
 const PLAY_LOG_KEY_PREFIX = '@mathplay_play_log_';
+// Today's Adventure per profile (see utils/adventure.js).
+const ADVENTURE_KEY_PREFIX = '@mathplay_adventure_';
 
 async function readJson(key, fallback) {
   try {
@@ -87,12 +89,21 @@ export function clearPlayLog(profileId) {
   return playLogWrites;
 }
 
+export function loadAdventure(profileId) {
+  return readJson(ADVENTURE_KEY_PREFIX + profileId, null);
+}
+
+export function saveAdventure(profileId, adventure) {
+  return writeJson(ADVENTURE_KEY_PREFIX + profileId, adventure);
+}
+
 export async function deleteProgress(profileId) {
   try {
     await AsyncStorage.multiRemove([
       PROGRESS_KEY_PREFIX + profileId,
       GARDEN_KEY_PREFIX + profileId,
       PLAY_LOG_KEY_PREFIX + profileId,
+      ADVENTURE_KEY_PREFIX + profileId,
     ]);
   } catch (e) {
     // ignore

@@ -21,6 +21,7 @@ import { appendPlayLog } from '../utils/storage';
 import { getSkill, isQuizSkill } from '../curriculum/skills';
 import { generateQuestion } from '../curriculum/generators';
 import { HOW_TO } from '../curriculum/howTo';
+import { COACH_INTRO, talkPrompt } from '../curriculum/talkPrompts';
 import { colors, shadow } from '../utils/theme';
 
 // How long the green/red result stays before the next question. A wrong
@@ -52,9 +53,14 @@ const LEVEL_NOTES = {
 // interleaved skills (review). Practice rounds adapt: a run of wrong answers
 // steps down a level with a hint, a run of right ones steps up.
 export default function QuizScreen({ route, navigation }) {
-  const { skillIds, mode = 'practice' } = route.params;
-  const { activeProfile, progress } = useProfiles();
-  const [questions, setQuestions] = useState(() => buildSession(skillIds));
+  // mode: 'practice' (one skill), 'review' (Daily Review) or 'mixed' (an
+  // adventure's mixed practice). `count` shortens rounds in an adventure.
+  const { skillIds, mode = 'practice', count, adventureStep } = route.params;
+  const { activeProfile, progress, isCoaching } = useProfiles();
+  const [questions, setQuestions] = useState(() => buildSession(skillIds, count));
+  // Coach mode: after an answer, a talk prompt waits for "Next".
+  const [coachPrompt, setCoachPrompt] = useState(null);
+  const advanceRef = useRef(null);
   const baseSkill = getSkill(skillIds[0]);
   const isAdaptive = mode === 'practice' && isQuizSkill(baseSkill);
   const [level, setLevel] = useState(0);
@@ -87,7 +93,12 @@ export default function QuizScreen({ route, navigation }) {
   const currentQuestion = questions[questionIndex];
   const isAnswerLocked = selectedChoice !== null;
   const score = results.filter(Boolean).length;
-  const title = mode === 'review' ? '⭐ Daily Review' : `${getSkill(skillIds[0])?.emoji ?? ''} ${getSkill(skillIds[0])?.title ?? ''}`;
+  const title =
+    mode === 'review'
+      ? '⭐ Daily Review'
+      : mode === 'mixed'
+        ? '🔀 Mixed Practice'
+        : `${getSkill(skillIds[0])?.emoji ?? ''} ${getSkill(skillIds[0])?.title ?? ''}`;
 
   useEffect(() => {
     return () => {
@@ -168,6 +179,7 @@ export default function QuizScreen({ route, navigation }) {
         ms: now - shownAtRef.current,
         replays: replaysRef.current,
         level,
+        coach: isCoaching,
       },
     ];
     const nextSkill = adapted?.change ? skillForLevel(baseSkill, adapted.level) : null;
@@ -189,13 +201,16 @@ export default function QuizScreen({ route, navigation }) {
       blendTimerRef.current = setTimeout(() => say(`${sounds}… ${currentQuestion.word}!`, { force: true }), 400);
     }
 
-    timeoutRef.current = setTimeout(() => {
+    const advance = () => {
+      setCoachPrompt(null);
+      advanceRef.current = null;
       const nextIndex = questionIndex + 1;
       if (nextIndex >= questions.length) {
         finishedRef.current = true;
         navigation.replace('Results', {
           skillIds,
           mode,
+          adventureStep,
           score: nextResults.filter(Boolean).length,
           total: questions.length,
           tallies: tallyBySkill(questions, nextResults),
@@ -212,7 +227,16 @@ export default function QuizScreen({ route, navigation }) {
         setQuestionIndex(nextIndex);
         setSelectedChoice(null);
       }
-    }, REVIEW_DELAY_MS[currentQuestion.type] ?? FEEDBACK_MS[isCorrect ? 'correct' : 'wrong']);
+    };
+
+    if (isCoaching) {
+      // Give the grown-up and child time to talk before moving on.
+      const subject = getSkill(currentQuestion.skillId)?.subject;
+      setCoachPrompt({ text: talkPrompt(subject, isCorrect, questionIndex), isCorrect });
+      advanceRef.current = advance;
+    } else {
+      timeoutRef.current = setTimeout(advance, REVIEW_DELAY_MS[currentQuestion.type] ?? FEEDBACK_MS[isCorrect ? 'correct' : 'wrong']);
+    }
   }
 
   function getButtonState(choice) {
@@ -340,7 +364,26 @@ export default function QuizScreen({ route, navigation }) {
                 />
               </View>
 
+              {isCoaching && questionIndex === 0 && !isAnswerLocked && (
+                <Text style={styles.coachIntro}>👪 Playing together: {COACH_INTRO}</Text>
+              )}
+
               {renderAnswerArea()}
+
+              {coachPrompt && (
+                <View style={[styles.coachCard, shadow]}>
+                  <Text style={styles.coachLabel}>👪 Talk about it</Text>
+                  <Text style={styles.coachText}>{coachPrompt.text}</Text>
+                  {currentQuestion.explain ? <Text style={styles.coachExplain}>💡 {currentQuestion.explain}</Text> : null}
+                  <Pressable
+                    onPress={() => advanceRef.current && advanceRef.current()}
+                    style={styles.coachNext}
+                    accessibilityLabel="Next question"
+                  >
+                    <Text style={styles.coachNextText}>Next ▶</Text>
+                  </Pressable>
+                </View>
+              )}
             </ScrollView>
           </>
         )}
@@ -424,6 +467,52 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'space-between',
     width: '100%',
+  },
+  coachIntro: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: colors.purple,
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  coachCard: {
+    width: '100%',
+    backgroundColor: colors.white,
+    borderRadius: 20,
+    borderWidth: 3,
+    borderColor: colors.purple,
+    padding: 14,
+    marginTop: 12,
+  },
+  coachLabel: {
+    fontSize: 14,
+    fontWeight: '900',
+    color: colors.purple,
+  },
+  coachText: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: colors.textDark,
+    marginTop: 4,
+  },
+  coachExplain: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: colors.gray,
+    marginTop: 6,
+  },
+  coachNext: {
+    alignSelf: 'flex-end',
+    backgroundColor: colors.purple,
+    borderRadius: 16,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    marginTop: 10,
+  },
+  coachNextText: {
+    fontSize: 18,
+    fontWeight: '900',
+    color: colors.white,
   },
   levelNote: {
     fontSize: 15,

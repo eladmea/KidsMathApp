@@ -24,9 +24,9 @@ const SPOKEN = {
 };
 
 export default function ResultsScreen({ route, navigation }) {
-  const { skillIds, mode, score, total, tallies } = route.params;
+  const { skillIds, mode, score, total, tallies, adventureStep } = route.params;
   const stars = calculateStars(score, total);
-  const { activeProfile, recordSession, isTimeUp } = useProfiles();
+  const { activeProfile, recordSession, isTimeUp, completeAdventureStep } = useProfiles();
   const { say } = useNarrator(activeProfile?.narration);
   const [celebration, setCelebration] = useState({
     newlyMastered: [],
@@ -46,6 +46,7 @@ export default function ResultsScreen({ route, navigation }) {
         Object.entries(tallies).map(([skillId, tally]) => ({ type: 'round', at, day: toDayKey(), skillId, mode, ...tally }))
       );
     }
+    if (adventureStep) completeAdventureStep(adventureStep);
     recordSession(tallies).then((result) => {
       setCelebration(result);
       const mastered = result.newlyMastered.map((id) => getSkill(id).title);
@@ -97,7 +98,15 @@ export default function ResultsScreen({ route, navigation }) {
               style={styles.button}
             />
           )}
-          {celebration.earnedTicket && !isTimeUp && (
+          {adventureStep && !isTimeUp && (
+            <BigButton
+              label="▶ Continue adventure"
+              color={colors.green}
+              onPress={() => navigation.goBack()}
+              style={styles.button}
+            />
+          )}
+          {celebration.earnedTicket && !isTimeUp && !adventureStep && (
             <BigButton
               label="🎈 Fun Break"
               color={colors.orange}
@@ -105,7 +114,7 @@ export default function ResultsScreen({ route, navigation }) {
               style={styles.button}
             />
           )}
-          {!isTimeUp && (
+          {!isTimeUp && !adventureStep && (
             <BigButton
               label="Play Again"
               color={colors.green}

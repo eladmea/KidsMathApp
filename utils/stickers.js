@@ -1,7 +1,8 @@
 // Sticker book: cosmetic rewards that arrive *after* the thinking (plan rule:
 // no shops, no pressure). A sticker is earned the first time a skill is
-// passed, a gold one when it is mastered, and a flower one when a Garden Days
-// plant blooms. Each event earns its sticker once.
+// passed, a gold one when it is mastered, a flower one when a Garden Days
+// plant blooms, and a map one for finishing Today's Adventure. Each event
+// earns its sticker once.
 //
 // A profile keeps `stickers: [{ key, emoji, kind, day }]`, in earning order.
 
@@ -13,6 +14,7 @@ export const STICKER_POOL = [
 ];
 export const GOLD_STICKERS = ['🏅', '🏆', '👑', '💎', '🥇', '⭐', '🌟', '🎖️'];
 export const FLOWER_STICKERS = ['🌻', '🌷', '🌹', '🌸', '🌼', '💐', '🪷', '🌺'];
+export const ADVENTURE_STICKERS = ['🗺️', '🧭', '⛰️', '🏝️', '🗻', '🏕️', '🌋', '🛶'];
 export const PAGE_SIZE = 12;
 
 function stickerKey(event) {
@@ -23,10 +25,11 @@ function nextEmoji(stickers, kind) {
   const count = stickers.filter((s) => s.kind === kind).length;
   if (kind === 'mastered') return GOLD_STICKERS[count % GOLD_STICKERS.length];
   if (kind === 'bloomed') return FLOWER_STICKERS[count % FLOWER_STICKERS.length];
+  if (kind === 'adventure') return ADVENTURE_STICKERS[count % ADVENTURE_STICKERS.length];
   return STICKER_POOL[count % STICKER_POOL.length];
 }
 
-// events: [{ kind: 'passed' | 'mastered' | 'bloomed', ref }]
+// events: [{ kind: 'passed' | 'mastered' | 'bloomed' | 'adventure', ref }]
 // Returns the profile's new sticker list and just the new stickers.
 export function awardStickers(stickers = [], events, day) {
   const owned = new Set(stickers.map((s) => s.key));

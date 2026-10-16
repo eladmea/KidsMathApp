@@ -32,7 +32,7 @@ export const SITUATIONS = [
 
 // [emoji, situation, fair choice, unfair choices]
 export const FAIR_PLAY = [
-  ['🛝', 'Two kids both want the swing.', 'Take turns', ['Push the other kid off', 'Hide the swing']],
+  ['🛝', 'Two kids both want the slide.', 'Take turns', ['Push the other kid off', 'Block the ladder']],
   ['🍪', 'There are 4 cookies for 2 friends.', 'Two cookies each', ['Keep all 4', 'Give one away and eat 3']],
   ['🎲', 'You lose a board game.', 'Say "Good game!"', ['Throw the board', 'Say the winner cheated']],
   ['🧩', 'A new kid wants to join your puzzle.', 'Say "Come join us!"', ['Say "Go away"', 'Hide the pieces']],
