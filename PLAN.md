@@ -20,7 +20,7 @@ This document describes where MathPlay is heading, why it is designed this way (
 | **Phase 4** | Social-emotional learning & polish: Feelings Garden, Feelings Friends, Balloon Breath, sticker book, parent dashboard + soft time limits | ✅ Done | **2026-10-16** (commit `217d84c`) |
 | **Phase 5a** | Play-test tools: adaptive difficulty, play-test log and report, CSV export, play-test guide | ✅ Done | **2026-10-16** (commit `1eeeae8`) |
 | Phase 5b | Play-tests with 2–3 children per age band, then difficulty tuning from the results | ⏳ Next (needs real sessions) | — |
-| **Phase 6** | Guided daily session (section 6) and a "play together" mode | ✅ Done | **2026-10-16** (commit `PHASE6`) |
+| **Phase 6** | Guided daily session (section 6) and a "play together" mode | ✅ Done | **2026-10-16** (commit `84b8f06`) |
 | Phase 7 | Curriculum gaps against section 4, in two parts (7a math, 7b literacy, science and logic) | 🔜 Planned, after 5b | — |
 | Phase 8 | Polish and release: remaining mini-games, voice recordings, app icon, accessibility, store builds | 🔜 Planned | — |
 
@@ -445,7 +445,7 @@ The play-tests themselves need real children, so this part of Phase 5 builds wha
 
 **Next:** Phase 5b, the play-tests with [PLAYTEST.md](PLAYTEST.md). Record each tuning change and its evidence here.
 
-### Phase 6: Today's Adventure and Play together (implemented 2026-10-16, commit `PHASE6`)
+### Phase 6: Today's Adventure and Play together (implemented 2026-10-16, commit `84b8f06`)
 
 **Delivered:**
 - **Today's Adventure** (`utils/adventure.js`, `screens/AdventureScreen.js`): the guided session from section 6, started from the map ("🗺️ Start today's adventure"):
