@@ -9,7 +9,7 @@
 //   beats cramming), and stays in the review queue afterwards.
 // - `box` is a Leitner box: passing moves it up (longer gap until the next
 //   review), struggling moves it back down.
-import { SKILLS, getSkill, isPlayable } from '../curriculum/skills';
+import { SKILLS, getSkill, isPlayable, isQuizSkill } from '../curriculum/skills';
 
 export const PASS_RATIO = 0.8;
 export const STRUGGLE_RATIO = 0.5;
@@ -144,7 +144,7 @@ export function recommendNextSkill(skills, progress) {
 // overdue first.
 export function getDueReviews(progress, today, limit = 3) {
   return Object.entries(progress || {})
-    .filter(([skillId, record]) => isPlayable(getSkill(skillId)) && hasPassed(record) && record.dueDate <= today)
+    .filter(([skillId, record]) => isQuizSkill(getSkill(skillId)) && hasPassed(record) && record.dueDate <= today)
     .sort(([, a], [, b]) => (a.dueDate < b.dueDate ? -1 : a.dueDate > b.dueDate ? 1 : 0))
     .slice(0, limit)
     .map(([skillId]) => skillId);

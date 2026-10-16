@@ -15,8 +15,8 @@ describe('buildSession', () => {
   });
 
   it('skips unknown or coming-soon skills', () => {
-    expect(buildSession(['sci-weather', 'nope'])).toEqual([]);
-    expect(buildSession(['sci-weather', 'math-count-5']).every((q) => q.skillId === 'math-count-5')).toBe(true);
+    expect(buildSession(['sel-faces', 'nope'])).toEqual([]);
+    expect(buildSession(['sel-faces', 'math-count-5']).every((q) => q.skillId === 'math-count-5')).toBe(true);
   });
 });
 

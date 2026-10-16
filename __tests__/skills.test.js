@@ -1,4 +1,4 @@
-import { SKILLS, getSkill, skillsFor } from '../curriculum/skills';
+import { SKILLS, SKILL_SCREENS, getSkill, isPlayable, isQuizSkill, skillRoute, skillsFor } from '../curriculum/skills';
 import { GENERATORS } from '../curriculum/generators';
 import { SUBJECTS } from '../curriculum/subjects';
 import { AGE_BANDS, bandForAge } from '../curriculum/ageBands';
@@ -16,6 +16,8 @@ describe('skill map', () => {
       expect(subjectIds).toContain(skill.subject);
       expect(bandIds).toContain(skill.band);
       if (skill.generator) expect(GENERATORS[skill.generator]).toBeDefined();
+      if (skill.screen) expect(SKILL_SCREENS).toContain(skill.screen);
+      expect(Boolean(skill.generator && skill.screen)).toBe(false);
       skill.prereqs.forEach((id) => expect(getSkill(id)).toBeDefined());
     });
   });
@@ -55,6 +57,28 @@ describe('skill map', () => {
   it('covers every playable generator', () => {
     const used = new Set(SKILLS.map((s) => s.generator).filter(Boolean));
     Object.keys(GENERATORS).forEach((id) => expect(used).toContain(id));
+  });
+});
+
+describe('skill routing', () => {
+  it('sends quiz skills to the quiz and game skills to their screen', () => {
+    expect(skillRoute(getSkill('math-count-5'))).toEqual(['Quiz', { skillIds: ['math-count-5'], mode: 'practice' }]);
+    expect(skillRoute(getSkill('logic-freeze-zoo'))).toEqual(['FreezeZoo', { skillId: 'logic-freeze-zoo' }]);
+  });
+
+  it('treats game skills as playable but keeps them out of quiz review', () => {
+    const game = getSkill('logic-robo-path');
+    expect(isPlayable(game)).toBe(true);
+    expect(isQuizSkill(game)).toBe(false);
+    expect(isPlayable(getSkill('sel-faces'))).toBe(false);
+  });
+
+  it('opens Nature Bay and Puzzle Peak in every age band', () => {
+    ['science', 'logic'].forEach((subject) => {
+      ['sprouts', 'explorers', 'builders', 'masters'].forEach((band) => {
+        expect(skillsFor({ subject, band }).some(isPlayable)).toBe(true);
+      });
+    });
   });
 });
 

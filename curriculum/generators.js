@@ -10,6 +10,8 @@
 import { CHOICES_PER_QUESTION } from '../utils/constants';
 import { pick, randInt, shuffle } from './random';
 import { LITERACY_GENERATORS } from './literacyGenerators';
+import { SCIENCE_GENERATORS } from './scienceGenerators';
+import { LOGIC_GENERATORS } from './logicGenerators';
 
 export { randInt, shuffle };
 
@@ -238,6 +240,8 @@ export const GENERATORS = {
   'mult-12': multiplication(range(5, 12), range(5, 12)),
   'div-12': division(5, 12),
   ...LITERACY_GENERATORS,
+  ...SCIENCE_GENERATORS,
+  ...LOGIC_GENERATORS,
 };
 
 export function generateQuestion(generatorId) {

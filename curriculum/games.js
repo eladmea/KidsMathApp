@@ -19,6 +19,16 @@ export const LEARNING_GAMES = [
     ],
   },
   {
+    id: 'garden-days',
+    title: 'Garden Days',
+    emoji: '🌻',
+    description: 'Grow a plant over real days by giving it what it needs.',
+    route: 'Garden',
+    // Opens straight away: no variants or players to pick.
+    direct: true,
+    options: [],
+  },
+  {
     id: 'path-race',
     title: 'Number Path Race',
     emoji: '🏁',

@@ -123,6 +123,7 @@ export default function QuizScreen({ route, navigation }) {
   }
 
   const isLongPrompt = currentQuestion.prompt.length > 12;
+  const isVeryLongPrompt = currentQuestion.prompt.length > 40;
   const isCorrect = isAnswerLocked && isCorrectAnswer(currentQuestion, selectedChoice);
 
   function renderAnswerArea() {
@@ -204,7 +205,7 @@ export default function QuizScreen({ route, navigation }) {
 
         <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
           <View style={styles.questionBox}>
-            <Text style={[styles.questionText, isLongPrompt && styles.questionTextLong]}>{currentQuestion.prompt}</Text>
+            <Text style={[styles.questionText, isLongPrompt && styles.questionTextLong, isVeryLongPrompt && styles.questionTextSmall]}>{currentQuestion.prompt}</Text>
             <QuestionVisual
               key={currentQuestion.id}
               visual={currentQuestion.visual}
@@ -284,6 +285,10 @@ const styles = StyleSheet.create({
   },
   questionTextLong: {
     fontSize: 32,
+  },
+  questionTextSmall: {
+    fontSize: 20,
+    lineHeight: 30,
   },
   choicesGrid: {
     flexDirection: 'row',

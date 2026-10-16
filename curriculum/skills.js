@@ -1,4 +1,6 @@
 // The skill map: ordered learning-trajectory steps per subject and age band.
+// A skill is played either through the quiz engine (`generator`) or on its
+// own game screen (`screen`), which reports results the same way.
 // `prereqs` follow the developmental order (e.g. subitize/count -> compare ->
 // add). Prerequisites outside a child's band are treated as already met, so a
 // 7-year-old isn't sent back to counting apples. Skills without a `generator`
@@ -49,18 +51,24 @@ export const SKILLS = [
   { id: 'lit-compound-words', subject: 'literacy', band: 'masters', title: 'Compound Words', emoji: '🌻', generator: 'compound-words', prereqs: [] },
   { id: 'lit-word-parts', subject: 'literacy', band: 'masters', title: 'Word Parts', emoji: '🔍', generator: 'word-parts', prereqs: ['lit-compound-words'] },
 
-  // ---- Nature Bay (Phase 3) ----
-  { id: 'sci-weather', subject: 'science', band: 'sprouts', title: 'Dress for Weather', emoji: '☔', generator: null, prereqs: [] },
-  { id: 'sci-garden', subject: 'science', band: 'explorers', title: 'Garden Days', emoji: '🌻', generator: null, prereqs: [] },
-  { id: 'sci-push-pull', subject: 'science', band: 'explorers', title: 'Push & Roll', emoji: '⚽', generator: null, prereqs: [] },
-  { id: 'sci-life-cycles', subject: 'science', band: 'builders', title: 'Life Cycles', emoji: '🦋', generator: null, prereqs: [] },
-  { id: 'sci-ecosystems', subject: 'science', band: 'masters', title: 'Food Chains', emoji: '🦉', generator: null, prereqs: [] },
+  // ---- Nature Bay (NGSS K-2 core ideas, then life science and matter) ----
+  { id: 'sci-weather', subject: 'science', band: 'sprouts', title: 'Dress for Weather', emoji: '☔', generator: 'dress-weather', prereqs: [] },
+  { id: 'sci-animal-homes', subject: 'science', band: 'sprouts', title: 'Where Do I Live?', emoji: '🐧', generator: 'animal-homes', prereqs: [] },
+  { id: 'sci-plant-needs', subject: 'science', band: 'explorers', title: 'What Plants Need', emoji: '🌱', generator: 'plant-needs', prereqs: [] },
+  { id: 'sci-push-pull', subject: 'science', band: 'explorers', title: 'Push or Pull?', emoji: '🛒', generator: 'push-pull', prereqs: [] },
+  { id: 'sci-push-roll', subject: 'science', band: 'explorers', title: 'Push & Roll', emoji: '⚽', screen: 'PushRoll', prereqs: ['sci-push-pull'] },
+  { id: 'sci-life-cycles', subject: 'science', band: 'builders', title: 'Life Cycles', emoji: '🦋', generator: 'life-cycles', prereqs: [] },
+  { id: 'sci-matter', subject: 'science', band: 'builders', title: 'Solid, Liquid, Gas', emoji: '🧊', generator: 'states-of-matter', prereqs: [] },
+  { id: 'sci-ecosystems', subject: 'science', band: 'masters', title: 'Food Chains', emoji: '🦉', generator: 'food-chains', prereqs: [] },
+  { id: 'sci-body', subject: 'science', band: 'masters', title: 'My Amazing Body', emoji: '🫀', generator: 'human-body', prereqs: [] },
 
-  // ---- Puzzle Peak (Phase 3) ----
-  { id: 'logic-freeze-zoo', subject: 'logic', band: 'sprouts', title: 'Freeze Zoo', emoji: '🦒', generator: null, prereqs: [] },
-  { id: 'logic-robo-path', subject: 'logic', band: 'explorers', title: 'Robo Path', emoji: '🤖', generator: null, prereqs: [] },
-  { id: 'logic-loops', subject: 'logic', band: 'builders', title: 'Robot Loops', emoji: '🔁', generator: null, prereqs: [] },
-  { id: 'logic-grids', subject: 'logic', band: 'masters', title: 'Logic Grids', emoji: '🗺️', generator: null, prereqs: [] },
+  // ---- Puzzle Peak (logic, coding and executive function) ----
+  { id: 'logic-freeze-zoo', subject: 'logic', band: 'sprouts', title: 'Freeze Zoo', emoji: '🦒', screen: 'FreezeZoo', prereqs: [] },
+  { id: 'logic-patterns', subject: 'logic', band: 'sprouts', title: 'What Comes Next?', emoji: '🔁', generator: 'patterns-easy', prereqs: [] },
+  { id: 'logic-robo-path', subject: 'logic', band: 'explorers', title: 'Robo Path', emoji: '🤖', screen: 'RoboPath', prereqs: [] },
+  { id: 'logic-patterns-hard', subject: 'logic', band: 'explorers', title: 'Tricky Patterns', emoji: '🧩', generator: 'patterns-hard', prereqs: [] },
+  { id: 'logic-loops', subject: 'logic', band: 'builders', title: 'Robot Loops', emoji: '🔂', screen: 'RoboPath', prereqs: [] },
+  { id: 'logic-grids', subject: 'logic', band: 'masters', title: 'Logic Grids', emoji: '🕵️', generator: 'logic-grids', prereqs: [] },
 
   // ---- Feelings Garden (Phase 4) ----
   { id: 'sel-faces', subject: 'sel', band: 'sprouts', title: 'Feelings Faces', emoji: '😊', generator: null, prereqs: [] },
@@ -75,8 +83,21 @@ export function getSkill(skillId) {
   return SKILLS_BY_ID[skillId];
 }
 
+// Game screens that play a skill (they receive { skillId }).
+export const SKILL_SCREENS = ['FreezeZoo', 'RoboPath', 'PushRoll'];
+
 export function isPlayable(skill) {
+  return Boolean(skill && (skill.generator || skill.screen));
+}
+
+// Quiz skills can be mixed into Daily Review; game-screen skills can't.
+export function isQuizSkill(skill) {
   return Boolean(skill && skill.generator);
+}
+
+// [routeName, params] for starting a skill.
+export function skillRoute(skill) {
+  return skill.screen ? [skill.screen, { skillId: skill.id }] : ['Quiz', { skillIds: [skill.id], mode: 'practice' }];
 }
 
 export function skillsFor({ subject, band } = {}) {
