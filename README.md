@@ -14,6 +14,8 @@ A colorful Expo React Native learning-games app for kids ages 3-10, built around
 
 Number Island is playable now; the other islands show their planned games as "coming soon".
 
+See [PLAN.md](PLAN.md) for the full roadmap, the research behind it, and the implementation log.
+
 ## Memory Game rules
 
 Two players (🦁 Player 1 and 🐸 Player 2) take turns flipping two cards from a 6x4 grid of numbers 1-12 (each number appears twice — 24 cards, 12 pairs). The current player's turn is always shown with their color and animal icon so it's obvious whose go it is.
