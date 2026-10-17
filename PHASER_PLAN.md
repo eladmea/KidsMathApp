@@ -3,6 +3,11 @@
 - **Written:** 2026-10-17
 - **Goal:** rebuild MathPlay as a Phaser game. We don't keep the Expo / React Native screens, components or assets. Islands get designed later, inside Phaser.
 - **Engine:** Phaser 4 (4.1 "Salusa" is the latest release found, from April 2026). Bundled with Vite.
+- **Decided 2026-10-17:**
+  - landscape on phones and tablets;
+  - the logic is copied over;
+  - the old app is kept for reference only: it isn't in use, so we can move or break it to get a clean structure;
+  - plain JavaScript.
 
 ---
 
@@ -35,14 +40,15 @@ Phaser fixes these by design:
 | The jest test suite for those modules (~300 tests) | `theme.js`, `useNarrator`, `useIdleHint`, `useSoundEffects` (React hooks) |
 | `PLAN.md` research and design rules (section 3 onwards) | All current emoji-as-art drawing |
 
-**Recommendation:** port the logic rather than rewrite it. It doesn't depend on React, it's research-based and it's covered by tests, so moving it costs about a day. "No need to save the structure" still holds, because none of the UI layer survives.
+**Decided:** copy the logic over instead of rewriting it. It doesn't depend on React, it's research-based and it's covered by tests. None of the UI layer survives.
 
 ---
 
 ## 3. Target architecture
 
 ```
-mathplay/                 (new Vite project; replaces the Expo app at the end)
+(repo root)               new Vite + Phaser project
+  legacy/                 the old Expo app, moved here untouched (reference only, not built or deployed)
   index.html
   src/
     main.js               Phaser.Game config, scale, scene list
@@ -59,12 +65,12 @@ mathplay/                 (new Vite project; replaces the Expo app at the end)
   tests/                  vitest unit tests + Playwright scene tests
 ```
 
-### 3.1 Core decisions (recommended defaults; flag any you want changed)
+### 3.1 Core decisions
 
 | Topic | Recommendation | Why |
 |---|---|---|
-| Language | Plain JS (ES modules), with JSDoc where it helps | The ported logic is JS, so no conversion step |
-| Layout | **Landscape, 1280×720 design size, `Scale.FIT`** with a safe area | Kids mostly play on tablets and phones held sideways, and it suits game scenes. The current app is portrait, so this needs your OK |
+| Language | **Decided:** plain JS (ES modules), with JSDoc where it helps | The ported logic is JS, so no conversion step |
+| Layout | **Decided:** landscape on phones and tablets. 1280×720 design size with `Scale.EXPAND`: the 16:9 safe area always shows, and wider phones (19.5:9) or squarer tablets (4:3) see more background instead of black bars. UI is anchored to the safe area's edges, plus the device notch insets. A "please turn your device" screen appears in portrait | One layout covers every device without letterboxing |
 | Native apps | **Capacitor** wraps the web build for iOS and Android | One codebase, and native TTS and storage plugins |
 | Tests | Vitest for logic (the jest tests run nearly unchanged), Playwright for scenes | Fast; same browser setup as now |
 | Fonts | One rounded kid-friendly web font (e.g. Fredoka) | Emoji stays only where it's content, e.g. feelings |
@@ -118,7 +124,7 @@ Phaser is a poor fit for forms and text. The parent dashboard, playtest report, 
   - the spoken lines.
 
   The current walkthroughs (walk1–11) get rewritten against this bridge.
-- **Saved data:** existing players' progress isn't carried over (fresh start, as agreed). The storage keys get a version prefix, so later changes can migrate.
+- **Saved data:** existing players' progress isn't carried over (fresh start; the old app isn't in use). The storage keys get a version prefix, so later changes can migrate.
 
 ---
 
@@ -128,13 +134,13 @@ Each phase ends with tests passing, a web build, a Playwright walkthrough and a 
 
 | Phase | Scope | Done when |
 |---|---|---|
-| **P0 Spike** | Vite + Phaser 4 project. Port `logic/`. Build one quiz skill (Count to 5) and the Pizza sauce trace (PaintLayer + TraceLayer). Try it on a phone and a tablet | Drags, painting and TTS feel right on touch; layout and orientation confirmed |
-| **P1 Foundation** | Scale/safe area, storage, speech, audio, session, SceneRouter, UI kit, test bridge. Profiles and CreateProfile scenes. GitHub Pages deploy of the new build at `/KidsMathApp/next/`, with the old app still live at `/KidsMathApp/` | A child can pick a profile and hear the greeting |
+| **P0 Spike** | Move the Expo app to `legacy/`. Set up Vite + Phaser 4 at the root. Copy the logic into `src/logic/` with its tests. Build one quiz skill (Count to 5) and the Pizza sauce trace (PaintLayer + TraceLayer). Try it on a phone and a tablet | Drags, painting and TTS feel right on touch; layout and orientation confirmed |
+| **P1 Foundation** | Scale/safe area, storage, speech, audio, session, SceneRouter, UI kit, test bridge. Profiles and CreateProfile scenes. GitHub Pages deploy of the new build at `/KidsMathApp/`, replacing the old app | A child can pick a profile and hear the greeting |
 | **P2 Core learning loop** | WorldMap and Island placeholders. The generic Quiz scene with every question visual and input type. Worked examples, Results, stars, stickers, adaptive steps, review and mixed rounds | Every quiz skill in all 5 subjects is playable and saves progress |
 | **P3 Writing & drag games** | TraceDigits, Bee Paths, Race Track, Pizza Shop (full flow: stations, oven drag, slices, feeding), Birthday Cake | The sprouts (3–4) math band is fully playable |
 | **P4 Remaining games** | Memory Chips (+ setup, buddy), Bunny Pop, Freeze Zoo, Robo Path, Push & Roll, Feelings Friends, Garden, Balloon Breath, Bubble Pop, Dance Tap, Chip Toss | Every skill and mini-game from the old app exists |
 | **P5 Sessions & grown-ups** | Today's Adventure + coach mode, soft time limits, TimeUp, parent overlay (dashboard, report, CSV, limits, voices) | Matches the old app feature for feature |
-| **P6 Switch over** | Move the new build to `/KidsMathApp/`. Delete the Expo app, React deps and old walkthroughs. Update README, PLAYTEST.md, PLAN.md, AGENTS.md (Phaser docs instead of Expo) | One codebase |
+| **P6 Clean-up** | Delete `legacy/` once nothing in it is needed as a reference. Update README, PLAYTEST.md, PLAN.md, AGENTS.md (Phaser docs instead of Expo) | One codebase |
 | **P7 Islands & art** | Design the islands in Phaser: tilemap or illustrated islands, camera scrolling, the stage path, avatar, chest. Plus the art pass, sound and music | Your island design, done properly |
 | **P8 Native apps** | Capacitor iOS/Android builds, native TTS and storage, app icon, store builds (the old Phase 8) | Installable apps |
 
@@ -149,5 +155,5 @@ Old **Phase 5b** play-test rounds pause during P0–P5, then continue on the Pha
 | TTS differs between browsers and devices | Port the existing voice ranking. P0 tests it on a real phone. Native plugin under Capacitor |
 | Without art, everything looks worse than the emoji version | Placeholder sprites with a consistent palette from P1. Art pass in P7 |
 | Text input (names) on a canvas | DOM input element over the canvas |
-| A rewrite stalls feature work | The old app stays live until P6. The logic keeps its tests the whole time |
+| A rewrite stalls feature work | The old app isn't in use, so there's nothing to keep running. The logic keeps its tests the whole time |
 | Bundle size on slow connections | Phaser custom build, plus atlases loaded per scene |
