@@ -2,22 +2,12 @@
 
 Learning games for kids ages 3-10, built around a research-based skill map (learning trajectories, spaced review, read-aloud prompts for pre-readers).
 
-> **Being rebuilt in [Phaser 4](https://phaser.io)** (landscape, phones and tablets). See [PHASER_PLAN.md](PHASER_PLAN.md).
-> Right now (phase P4) the Phaser build has:
-> - players: "Who's playing?", new player, and a grown-up check to delete one;
-> - the world map and the five islands (placeholder art until the island design);
-> - **every quiz skill in all five subjects** (54), with worked examples, adaptive levels, results, stickers and Daily Review;
-> - the writing games for ages 3-4: Write 1 to 5, Write 6 to 9 and 0, Bee Paths, Race Track Numbers, Pizza Shop and Birthday Cake;
-> - the other island games: Bunny Pop, Freeze Zoo, Robo Path and Robot Loops, Push & Roll, Feelings Friends;
-> - 🎲 Games (Memory Chips with the buddy or a friend, Number Path Race, Garden Days) and 🎈 Fun Break (Bubble Pop, Chip Toss, Dance Tap, Balloon Breath), with tickets earned by learning rounds.
->
-> Still to come: Today's Adventure, time limits and the grown-ups' dashboard (P5).
-> The feature list below describes the old Expo app, kept in [`legacy/`](legacy/) for reference. It is the target the rebuild works towards.
+> Built with [Phaser 4](https://phaser.io) for landscape phones and tablets (and any browser). [PHASER_PLAN.md](PHASER_PLAN.md) has the plan and what each phase built; [ARCHITECTURE.md](ARCHITECTURE.md) explains how to change things. The old Expo app it replaced is in the git history (up to commit `86c82f2`).
 
 ## Features
 
 - **Player profiles** — "Who's playing?" picker; each child has a name, age (3-10) and animal buddy. Age sets their band: 🌱 Sprouts 3-4, 🧭 Explorers 5-6, 🧱 Builders 7-8, 🏆 Masters 9-10. Progress is saved per child.
-- **Read-aloud narration** — prompts are spoken with `expo-speech` in the most natural English voice the device has (grown-ups can pick another in the parent dashboard) (on by default for ages 3-6, toggle 🔊/🔇 on the map). A 🔊 button in every round repeats the question.
+- **Read-aloud narration** — prompts are read aloud in the most natural voice the device has (Web Speech API; grown-ups can pick another in the parent dashboard), or from recordings where they exist (see ARCHITECTURE.md). On by default for ages 3-6, toggle 🔊/🔇 on the map. A 🔊 button in every round repeats the question.
 - **World map** — subject "islands" (Number Island, Word Woods, Nature Bay, Puzzle Peak, Feelings Garden), a big "▶ next skill" button, and a ⭐ Daily Review button when skills are due.
 - **Skill map** (`curriculum/skills.js`) — ordered skills per subject and band with prerequisites, from *Count to 5* and *Find the Shape* up to *Big Division*. Skills unlock when their same-band prerequisites are passed; kids can peek at other bands.
 - **Mastery + spaced review** — a round is passed at ≥ 80%. A skill is **mastered** after passing on **2 different days**. Passed skills return in Daily Review on a Leitner schedule (1, 2, 4, 8, 16 days), interleaving several skills in one round.
@@ -35,7 +25,7 @@ Learning games for kids ages 3-10, built around a research-based skill map (lear
 - **Feelings Garden (social-emotional)** — Feelings Faces, How Would You Feel?, Feelings Friends (name a friend's feeling, then pick what would help), Fair Play and In Their Shoes.
 - **Fun Break** — Bubble Pop, Chip Toss and Dance Tap mini-games. Every 2 learning rounds earn a 🎟️ ticket; each mini-game costs one. **Balloon Breath** (hold to breathe in, let go to breathe out) is a calm-down and always free.
 - **Sticker book** — a sticker for passing a skill the first time, a gold one for mastering it, and a flower when a Garden Days plant blooms. Stickers come after the thinking; there is no shop.
-- **Parent dashboard** — behind a grown-up check (type the answer to a times fact): today's and this week's play time, a daily limit per child, "10 more minutes", progress per island, skills still being practiced, and the read-aloud setting.
+- **Parent dashboard** — "Who's playing?" → 👪 Grown-ups, behind a grown-up check (type the answer to a times fact): today's and this week's play time, a daily limit per child, "10 more minutes", progress per island, skills still being practiced, the read-aloud setting and voice, and the play-test report.
 - **Soft daily time limit** — about 15 minutes for ages 3-5 and 20 for 6-10 by default (changeable or off). A ⏰ note appears in the last 5 minutes. When time is up the current round can finish, then a gentle goodbye screen offers Balloon Breath and "see you tomorrow".
 
 - **Today's Adventure** — a guided daily session from the map: warm-up review, a new skill, mixed practice, a free mini-game, a second subject and a Balloon Breath cool-down. Subjects rotate by day, rounds are short, and it shrinks to fit the time left today.
@@ -93,8 +83,8 @@ public/                   Web app manifest and Home Screen icons
 tests/                    Vitest unit tests for curriculum and logic
 e2e/                      Playwright walkthroughs through the window.__mathplay test hook: players, games, learning (the learning
                           loop), writing (the tracing games), pizza (Pizza Shop, Birthday Cake), thinking (Bunny Pop, Freeze Zoo, Robo Path,
-                          Push & Roll, Feelings Friends), fun (Games, Fun Break and tickets), quiz (every quiz skill once), smoke (a deployed site); run.mjs runs them all
-legacy/                   The old Expo app (reference only; not built or deployed)
+                          Push & Roll, Feelings Friends), fun (Games, Fun Break and tickets), grownups (adventure, time limit,
+                          dashboard), quiz (every quiz skill once), smoke (a deployed site); run.mjs runs them all
 ```
 
 ## Play online
@@ -124,9 +114,10 @@ npm run voice:lines -- en   # every line to record, with file names (voice-lines
 Browser walkthrough (needs a Playwright browser, e.g. `npx playwright install chromium`):
 
 ```bash
-BASE_URL=/KidsMathApp/ npm run build && npx vite preview --port 8765 &
-URL=http://localhost:8765/KidsMathApp/ npm run e2e    # every walkthrough at phone, tablet and portrait sizes (~10 min)
-node e2e/players.mjs shots 844 390 phone             # or one walkthrough at one size
+npm run e2e:local                       # builds, serves the build itself, runs every walkthrough at phone,
+                                        # tablet and portrait sizes (~25 min), then stops the server
+node e2e/players.mjs shots 844 390 phone    # or one walkthrough at one size, against a server you run
+                                            # (npx vite preview --port 8765 after a BASE_URL=/KidsMathApp/ build)
 ```
 
 Add `?fast` to the address to run the game's timers and animations 8x faster (the every-skill walkthrough uses it).
@@ -142,4 +133,4 @@ Text on a canvas can't be read by browser tests, so `src/services/testBridge.js`
 
 ## Adding recorded letter sounds
 
-Isolated letter sounds are hard for text-to-speech, so Word Builder tiles use tuned spellings ("mmm", "buh") by default. Recorded letter sounds will come back with the Word Builder scene (P2). The old app's hook is `legacy/utils/phonemeAudio.js`.
+Isolated letter sounds are hard for text-to-speech, so Word Builder tiles use tuned spellings ("mmm", "buh"). Those spellings are sentences like any other, so recording them replaces the device voice: see "Record the voice" in [ARCHITECTURE.md](ARCHITECTURE.md).

@@ -129,22 +129,6 @@
           "note": "Spin 1, 2 or 3"
         }
       }
-    },
-    "bubble-pop": {
-      "title": "Bubble Pop",
-      "description": "Pop the bubbles! Gold ones hide a fun fact."
-    },
-    "chip-toss": {
-      "title": "Chip Toss",
-      "description": "Time your toss to land chips in the cup."
-    },
-    "dance-tap": {
-      "title": "Dance Tap",
-      "description": "Tap the glowing pad to the beat."
-    },
-    "balloon-breath": {
-      "title": "Balloon Breath",
-      "description": "Slow breaths fill the balloon. Always free!"
     }
   },
   "miniGames": {

@@ -28,6 +28,9 @@ export default class ProfilesScene extends BaseScene {
     this.manage = this.add.text(SAFE.width / 2, 668, '', textStyle(26, COLORS.ink)).setOrigin(0.5).setInteractive({ useHandCursor: true });
     this.manage.on('pointerup', () => this.toggleManage());
     this.tag('manage', this.manage);
+    this.grownUps = this.add.text(SAFE.width - 40, 668, t('players.grownUps'), textStyle(26, COLORS.ink)).setOrigin(1, 0.5).setInteractive({ useHandCursor: true });
+    this.grownUps.on('pointerup', () => openParentGate(this, { title: t('parents.title'), onPass: () => this.go('ParentDashboard') }));
+    this.tag('grown-ups', this.grownUps);
     this.drawCards();
     speak(t('players.tapYourPicture'));
   }

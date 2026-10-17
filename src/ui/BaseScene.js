@@ -2,6 +2,8 @@ import Phaser from 'phaser';
 import { reportScene, reportState, tag } from '../services/testBridge';
 import { stop as stopSpeech } from '../services/speech';
 import * as router from '../services/router';
+import { enterScene } from '../services/playClock';
+import { isTimeUp } from '../services/session';
 import Button from './Button';
 import { COLORS, textStyle } from './theme';
 import { skillTitle } from '../i18n/names';
@@ -27,9 +29,11 @@ export default class BaseScene extends Phaser.Scene {
 
   create(data) {
     this.built = false;
+    this.leaving = false;
     this.startData = data || {};
     this.backButton = null;
     reportScene(this.scene.key);
+    enterScene(this.scene.key);
     this.view = new Phaser.Geom.Rectangle(0, 0, SAFE.width, SAFE.height);
     this.scale.on('resize', this.fitCamera, this);
     this.events.once('shutdown', () => {
@@ -51,7 +55,7 @@ export default class BaseScene extends Phaser.Scene {
     camera.setSize(width, height);
     camera.centerOn(SAFE.width / 2, SAFE.height / 2);
     this.view.setTo((SAFE.width - width) / 2, (SAFE.height - height) / 2, width, height);
-    if (!this.built) return;
+    if (!this.built || this.leaving) return;
     if (this.backButton) this.backButton.setPosition(this.view.x + 70, this.view.y + 70);
     this.layout();
   }
@@ -77,6 +81,16 @@ export default class BaseScene extends Phaser.Scene {
     this.backButton.setDepth(40);
     this.tag('back', this.backButton.box);
     return this.backButton;
+  }
+
+  // The places a child picks what to play next (the map, an island, the game
+  // lists) call this first: once today's time is up they go to the goodbye
+  // screen instead. A round already started is never cut short.
+  timeUpGate() {
+    if (!isTimeUp()) return false;
+    this.leaving = true;
+    this.reset('TimeUp');
+    return true;
   }
 
   // A game's header under the ← button: the skill's title on the left, and
@@ -106,6 +120,7 @@ export default class BaseScene extends Phaser.Scene {
       total,
       tallies: { [skillId]: { correct: score, total } },
       replay: { key: this.scene.key, data: this.startData },
+      adventureStep: this.startData.adventureStep,
     });
   }
 

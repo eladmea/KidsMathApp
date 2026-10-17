@@ -8,9 +8,8 @@
 // Steps without anything to play are skipped. With a daily time limit, steps
 // are dropped from the end (never the cool-down) so the adventure fits the
 // time that's left.
-import { miniGameTitle, skillTitle } from '../i18n/names';
 import { MINI_GAMES } from '../curriculum/games';
-import { getSkill, isQuizSkill, skillsFor } from '../curriculum/skills';
+import { isQuizSkill, skillsFor } from '../curriculum/skills';
 import { getDueReviews, getRecord, hasPassed, recommendNextSkill } from './progress';
 
 export const ADVENTURE_QUESTIONS = 5;
@@ -18,13 +17,15 @@ export const MAIN_SUBJECTS = ['math', 'literacy'];
 export const SECOND_SUBJECTS = ['science', 'logic', 'sel'];
 // Rough minutes per step, used to fit the adventure into the time left.
 export const STEP_MINUTES = { warmup: 2, new: 3, mixed: 3, minigame: 1.5, second: 3, cooldown: 1 };
+// Each kind's name is in i18n (adventure.json kinds); names.js stepTitle()
+// says what a step plays.
 export const STEP_INFO = {
-  warmup: { emoji: '⭐', title: 'Warm-up' },
-  new: { emoji: '🌟', title: 'New skill' },
-  mixed: { emoji: '🔀', title: 'Mixed practice' },
-  minigame: { emoji: '🎈', title: 'Fun Break' },
-  second: { emoji: '🧭', title: 'Explore' },
-  cooldown: { emoji: '😌', title: 'Cool-down' },
+  warmup: { emoji: '⭐' },
+  new: { emoji: '🌟' },
+  mixed: { emoji: '🔀' },
+  minigame: { emoji: '🎈' },
+  second: { emoji: '🧭' },
+  cooldown: { emoji: '😌' },
 };
 const MINI_GAME_ROTATION = MINI_GAMES.filter((game) => !game.free);
 const MAX_MIXED_EXTRAS = 2;
@@ -106,16 +107,6 @@ export function stepRoute(step) {
   if (step.screen) return [step.screen, { ...params, skillId: step.skillIds[0] }];
   const mode = step.kind === 'warmup' ? 'review' : step.kind === 'mixed' ? 'mixed' : 'practice';
   return ['Quiz', { ...params, skillIds: step.skillIds, mode, count: ADVENTURE_QUESTIONS }];
-}
-
-// What the step plays, shown under its kind on the adventure path.
-export function stepTitle(step) {
-  if (step.kind === 'minigame') return `${step.emoji} ${miniGameTitle(step.gameId)}`;
-  if (step.kind === 'cooldown') return '🎈 Balloon Breath';
-  if (step.kind === 'warmup') return `⭐ Review ${step.skillIds.length} skill${step.skillIds.length === 1 ? '' : 's'}`;
-  if (step.kind === 'mixed') return `🔀 ${step.skillIds.map((id) => getSkill(id).emoji).join(' ')} mixed`;
-  const skill = getSkill(step.skillIds[0]);
-  return `${skill.emoji} ${skillTitle(skill)}`;
 }
 
 // Today's adventure record: { day, steps, done: [stepId] }.

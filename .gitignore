@@ -15,3 +15,5 @@ npm-debug.*
 
 # voice line lists (npm run voice:lines)
 voice-lines.*.csv
+dist-e2e/
+e2e-shots/

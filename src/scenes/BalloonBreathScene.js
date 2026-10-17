@@ -4,7 +4,7 @@ import { showGameEnd } from '../ui/GameEnd';
 import { glyph } from '../ui/Art';
 import { COLORS, textStyle } from '../ui/theme';
 import { BREATHS, IN_MS, MIN_SCALE, OUT_MS, balloonScale, countdown, judgeBreath } from '../logic/balloonBreath';
-import { gameTitle } from '../i18n/names';
+import { miniGameTitle } from '../i18n/names';
 import { t } from '../i18n/index';
 
 // Balloon Breath (Fun Break, always free): hold the button to breathe in
@@ -27,7 +27,7 @@ export default class BalloonBreathScene extends BaseScene {
     this.bg = this.add.rectangle(0, 0, 10, 10, 0xe8f6ff).setOrigin(0, 0);
     this.addBackButton();
     this.narrator = new Narrator(this, 660, 70, { width: 800, fontSize: 30 });
-    this.addHeader('🎈', gameTitle('balloon-breath'));
+    this.addHeader('🎈', miniGameTitle('balloon-breath'));
     this.balloon = glyph(this, 640, 370, '🎈', BALLOON).setScale(MIN_SCALE);
     this.hint = this.add.text(640, 560, t('mini.breath.hint'), textStyle(26, COLORS.ink, { wordWrap: { width: 900 } })).setOrigin(0.5);
     this.button = this.add.rectangle(640, 650, 460, 100, COLORS.primary).setRounded(30).setStrokeStyle(4, COLORS.white).setInteractive({ useHandCursor: true });

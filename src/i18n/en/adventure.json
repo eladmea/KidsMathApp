@@ -1,0 +1,18 @@
+{
+  "title": "🗺️ Today's Adventure",
+  "kinds": { "warmup": "Warm-up", "new": "New skill", "mixed": "Mixed practice", "minigame": "Fun Break", "second": "Explore", "cooldown": "Cool-down" },
+  "review": { "one": "⭐ Review {count} skill", "other": "⭐ Review {count} skills" },
+  "mixed": "🔀 {emoji} mixed",
+  "about": "About {minutes} min · {main} + {second}",
+  "start": "▶ Start: {kind}",
+  "next": "▶ Next: {kind}",
+  "sayNext": "Next: {kind}.",
+  "sayNextSkill": "Next: {kind}. {title}.",
+  "complete": "Adventure complete!",
+  "sayComplete": "Adventure complete! Great job, {name}. See you tomorrow!",
+  "newSticker": "New sticker: {list}",
+  "todayStickers": "Today's stickers: {list}",
+  "tomorrow": "See you tomorrow for a new adventure! 👋",
+  "mapButton": "🗺️ Today's Adventure",
+  "mapDone": "✓ Today's Adventure done!"
+}

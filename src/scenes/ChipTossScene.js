@@ -4,7 +4,7 @@ import { showGameEnd } from '../ui/GameEnd';
 import { glyph } from '../ui/Art';
 import { COLORS, textStyle } from '../ui/theme';
 import { play } from '../services/audio';
-import { gameTitle } from '../i18n/names';
+import { miniGameTitle } from '../i18n/names';
 import { t } from '../i18n/index';
 
 // Chip Toss (Fun Break): a cup slides back and forth; tap to toss a chip
@@ -33,7 +33,7 @@ export default class ChipTossScene extends BaseScene {
     this.tag('toss', this.bg);
     this.addBackButton();
     this.narrator = new Narrator(this, 660, 70, { width: 800, fontSize: 30 });
-    this.addHeader('🥤', gameTitle('chip-toss'));
+    this.addHeader('🥤', miniGameTitle('chip-toss'));
     this.add.rectangle(CENTER, LANE.cupY + 50, LANE.right - LANE.left + CUP_WIDTH, 12, 0xd9b88f).setRounded(6);
     this.cup = glyph(this, LANE.left, LANE.cupY, '🥤', CUP_WIDTH * 0.9);
     this.chip = glyph(this, CENTER, LANE.chipY, '🪙', CHIP_SIZE);

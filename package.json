@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "test": "vitest run",
     "e2e": "node e2e/run.mjs",
+    "e2e:local": "BASE_URL=/KidsMathApp/ vite build --outDir dist-e2e --emptyOutDir && node e2e/run.mjs e2e-shots --serve dist-e2e",
     "voice:lines": "node scripts/voice-lines.mjs",
     "lint": "eslint ."
   },

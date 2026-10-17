@@ -1,3 +1,4 @@
+import { stepTitle } from '../src/i18n/names';
 import {
   ADVENTURE_QUESTIONS,
   STEP_MINUTES,
@@ -9,7 +10,6 @@ import {
   newAdventure,
   planAdventure,
   stepRoute,
-  stepTitle,
   subjectsForDay,
   weekdayOf,
 } from '../src/logic/adventure';

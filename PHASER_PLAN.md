@@ -50,7 +50,6 @@ The how-to for each kind of change lives in [ARCHITECTURE.md](ARCHITECTURE.md). 
 
 ```
 (repo root)               Vite + Phaser project
-  legacy/                 the old Expo app (reference only, not built or deployed)
   index.html
   src/
     main.js               Phaser.Game config (scenes come from scenes/registry.js)
@@ -146,8 +145,8 @@ Each phase ends with tests passing, a web build, a Playwright walkthrough and a 
 | **P2.5 Architecture for change** ✅ built | Assets by folder (images by key or emoji, per-language overrides, sounds). Every word in language files (`i18n/`) or per-language content packs (`content/`), with a language per child and a picker. Recorded voice by sentence with device-voice fallback, plus the `voice:lines` script. Scenes self-register, and games declare the skills they play. ESLint in CI. See ARCHITECTURE.md | A new language, picture or recording is just new files; tests catch missing words |
 | **P3 Writing & drag games** ✅ built | TraceDigits, Bee Paths, Race Track, Pizza Shop (full flow: stations, oven drag, slices, feeding), Birthday Cake | The sprouts (3–4) math band is fully playable |
 | **P4 Remaining games** ✅ built | Memory Chips (+ setup, buddy), Bunny Pop, Freeze Zoo, Robo Path, Push & Roll, Feelings Friends, Garden, Balloon Breath, Bubble Pop, Dance Tap, Chip Toss | Every skill and mini-game from the old app exists |
-| **P5 Sessions & grown-ups** | Today's Adventure + coach mode, soft time limits, TimeUp, parent overlay (dashboard, report, CSV, limits, voices) | Matches the old app feature for feature |
-| **P6 Clean-up** | Delete `legacy/` once nothing in it is needed as a reference. Update README, PLAYTEST.md, PLAN.md, AGENTS.md (Phaser docs instead of Expo) | One codebase |
+| **P5 Sessions & grown-ups** ✅ built | Today's Adventure + coach mode, soft time limits, TimeUp, parent overlay (dashboard, report, CSV, limits, voices) | Matches the old app feature for feature |
+| **P6 Clean-up** | `legacy/` was deleted in P5 (asked for), and README, PLAYTEST.md, PLAN.md and AGENTS.md updated. Left: real-device checks, the island designs and art | One codebase ✅ |
 | **P7 Islands & art** | Design the islands in Phaser: tilemap or illustrated islands, camera scrolling, the stage path, avatar, chest. Plus the art pass, sound and music | Your island design, done properly |
 | **P8 Native apps** | Capacitor iOS/Android builds, native TTS and storage, app icon, store builds (the old Phase 8) | Installable apps |
 
@@ -391,4 +390,34 @@ Asked for before moving on: change assets easily, add languages easily, replace 
 **Not done yet**
 - Today's Adventure, time limits and the parent overlay (P5).
 - Real-device feel: Push & Roll and Balloon Breath holds, Dance Tap's pace, Chip Toss timing.
+
+### P5 Sessions & grown-ups: built 2026-10-17 (branch `claude/phaser-p5`)
+
+**What was done**
+- **Play time:** `services/playClock.js` counts the signed-in child's time every 15 s, but only on timed scenes and while the tab is visible. It skips "Who's playing?", the grown-ups' screens, the goodbye screen and Balloon Breath. The daily limit defaults to 15 minutes for ages 3-5 and 20 for 6-10.
+  - The map warns in the last 5 minutes.
+  - Once time is up, the places a child picks what to play next (map, islands, game lists, adventure) open TimeUp instead. A round already started finishes.
+  - TimeUp shows today's stickers, Balloon Breath and Switch player, and "+10 min" behind the grown-up check.
+- **Today's Adventure** (map button): warm-up review, a new skill, mixed practice, a free Fun Break game, a second subject and a Balloon Breath cool-down.
+  - Subjects rotate by day, quiz steps are 5 questions, and the plan shrinks to the time left.
+  - Results and the mini-game end card mark the step done.
+  - Finishing earns an adventure sticker, and the dashboard counts it.
+- **Play together** (map toggle): after each quiz answer, a talk prompt for the grown-up waits for Next. Those answers are logged as played together.
+- **Parent dashboard** ("Who's playing?" → 👪 Grown-ups, behind the grown-up check). There is a tab per child, a Voice tab, and a CSV export of every child's log. A child's tab has:
+  - today's minutes and "+10 minutes";
+  - the last 7 days as bars;
+  - the number of adventures finished this week;
+  - the daily limit (Off, 10 to 60 minutes) and read-aloud on/off;
+  - progress per island (passed and mastered) and skills still being practiced;
+  - the play-test report: the per-skill table with flags, session notes in a text field, and clearing the log after a confirm.
+- **Words:** adventure step names moved from the game rules into i18n (`adventure.json`). The duplicate mini-game titles were removed (they live in `curriculum.miniGames`).
+- **The old app** (`legacy/`, 396 MB with its packages) was deleted, and the docs now point at the git history (up to commit `86c82f2`) instead.
+
+**Checked**
+- 335 unit tests.
+- New walkthrough `e2e/grownups.mjs` covers:
+  - a whole adventure (two 5-question rounds, a Fun Break game, five slow breaths), the sticker, and the map showing it done;
+  - Play together's prompt and Next;
+  - a child out of time getting TimeUp, then a grown-up adding 10 minutes;
+  - the dashboard: setting a limit, turning read-aloud off, another child's minutes, the report with a "played together" answer, adding a note, the CSV download, clearing the log, and picking a voice.
 

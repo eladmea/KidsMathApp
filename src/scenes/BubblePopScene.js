@@ -5,7 +5,7 @@ import { glyph } from '../ui/Art';
 import { COLORS, colorOf } from '../ui/theme';
 import { play } from '../services/audio';
 import { content } from '../content/index';
-import { gameTitle } from '../i18n/names';
+import { miniGameTitle } from '../i18n/names';
 import { t } from '../i18n/index';
 
 // Bubble Pop (Fun Break): pop the rising bubbles for 45 seconds. Every
@@ -32,7 +32,7 @@ export default class BubblePopScene extends BaseScene {
     this.bg = this.add.rectangle(0, 0, 10, 10, 0xe6f4ff).setOrigin(0, 0);
     this.addBackButton();
     this.narrator = new Narrator(this, 660, 70, { width: 800, fontSize: 30 });
-    this.addHeader('🫧', gameTitle('bubble-pop'));
+    this.addHeader('🫧', miniGameTitle('bubble-pop'));
     this.narrator.say(t('mini.bubble.intro'));
     this.showCounter();
     this.clock = this.time.addEvent({ delay: 1000, loop: true, callback: () => this.tick() });

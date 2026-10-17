@@ -6,7 +6,7 @@ import { COLORS, textStyle } from '../ui/theme';
 import { session, spendTicket } from '../services/session';
 import { MINI_GAMES } from '../curriculum/games';
 import { roundsUntilNextTicket } from '../logic/funTickets';
-import { gameDescription, gameTitle } from '../i18n/names';
+import { miniGameDescription, miniGameTitle } from '../i18n/names';
 import { t } from '../i18n/index';
 
 // Fun Break: mini-games paid for with tickets, which finishing learning
@@ -15,6 +15,7 @@ export default class FunBreakScene extends BaseScene {
   static key = 'FunBreak';
 
   build() {
+    if (this.timeUpGate()) return;
     this.bg = this.add.rectangle(0, 0, 10, 10, 0xfff0f6).setOrigin(0, 0);
     this.addBackButton();
     this.narrator = new Narrator(this, 660, 70, { width: 800, fontSize: 30 });
@@ -29,8 +30,8 @@ export default class FunBreakScene extends BaseScene {
       const locked = tickets === 0 && !game.free;
       const card = new Button(this, x, 430, { label: '', width: 270, height: 380, color: COLORS.white, onTap: () => this.start(game) });
       card.add(glyph(this, 0, -100, locked ? '🔒' : game.emoji, 100));
-      card.add(this.add.text(0, 10, gameTitle(game), textStyle(30, COLORS.primary)).setOrigin(0.5));
-      card.add(this.add.text(0, 90, gameDescription(game), textStyle(20, COLORS.ink, { wordWrap: { width: 230 } })).setOrigin(0.5));
+      card.add(this.add.text(0, 10, miniGameTitle(game), textStyle(30, COLORS.primary)).setOrigin(0.5));
+      card.add(this.add.text(0, 90, miniGameDescription(game), textStyle(20, COLORS.ink, { wordWrap: { width: 230 } })).setOrigin(0.5));
       if (game.free) card.add(this.add.text(0, 160, t('hubs.free'), textStyle(22, COLORS.greenDark)).setOrigin(0.5));
       if (locked) card.setAlpha(0.6);
       this.tag(`mini:${game.id}`, card.box);

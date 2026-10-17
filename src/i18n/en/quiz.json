@@ -25,5 +25,6 @@
     "bullseye": "Bullseye! {answer} is right there! 🎯",
     "right": "{praise} {answer} lives right there! 🎉",
     "wrong": "Good try! You tapped {guess}. {answer} lives here. 🎯"
-  }
+  },
+  "coachNext": "Next ▶"
 }

@@ -16,7 +16,7 @@ import { getSkill, isQuizSkill } from '../curriculum/skills';
 import { generateQuestion } from '../curriculum/generators';
 import { howTo } from '../curriculum/howTo';
 import { t } from '../i18n/index';
-import { skillTitle } from '../i18n/names';
+import { skillTitle, talkPrompt } from '../i18n/names';
 import { content } from '../content/index';
 
 // How the narrator says a letter tile's sound, in the current language.
@@ -188,7 +188,7 @@ export default class QuizScene extends BaseScene {
     const adapted = this.adaptive ? adapt({ level: this.level, streak: this.streak }, right, this.baseSkill, this.bandId) : null;
     if (adapted) this.streak = adapted.streak;
     const now = Date.now();
-    const events = [{ type: 'answer', at: now, day: toDayKey(), skillId: question.skillId, baseSkillId: this.baseSkill.id, mode: this.mode, correct: right, ms: now - this.shownAt, replays: this.replays, level: this.level }];
+    const events = [{ type: 'answer', at: now, day: toDayKey(), skillId: question.skillId, baseSkillId: this.baseSkill.id, mode: this.mode, correct: right, ms: now - this.shownAt, replays: this.replays, level: this.level, coach: session.coaching }];
     const nextSkill = adapted?.change ? skillForLevel(this.baseSkill, adapted.level, this.bandId) : null;
     if (adapted?.change) events.push({ type: 'level', at: now, day: toDayKey(), skillId: this.baseSkill.id, change: adapted.change, toSkillId: nextSkill.id });
     logEvents(events);
@@ -210,7 +210,24 @@ export default class QuizScene extends BaseScene {
     this.dots[this.index].setFillStyle(right ? COLORS.green : COLORS.orange, 1);
     this.score.setText(t('quiz.score', { score: this.results.filter(Boolean).length }));
     this.report({ step: 'feedback', right, change: adapted?.change || null });
-    this.timer = this.time.delayedCall(feedbackDelay(question, right), () => this.next(adapted, nextSkill));
+    if (session.coaching) this.showTalkPrompt(question, right, () => this.next(adapted, nextSkill));
+    else this.timer = this.time.delayedCall(feedbackDelay(question, right), () => this.next(adapted, nextSkill));
+  }
+
+  // "Play together": a prompt for the grown-up to talk about the answer; the
+  // round waits for Next.
+  showTalkPrompt(question, right, next) {
+    const subject = getSkill(question.skillId).subject;
+    const card = this.add.container(SAFE.width / 2, 655).setDepth(60);
+    card.add(this.add.rectangle(0, 0, 1000, 110, 0xfff4d6).setRounded(24).setStrokeStyle(4, 0xf2b441));
+    card.add(this.add.text(-470, 0, `👪 ${talkPrompt(subject, right, this.index)}`, textStyle(24, COLORS.ink, { align: 'left', wordWrap: { width: 700 } })).setOrigin(0, 0.5));
+    const button = new Button(this, 390, 0, { label: t('quiz.coachNext'), width: 190, height: 80, fontSize: 30, color: COLORS.primary, onTap: () => {
+      card.destroy();
+      next();
+    } });
+    card.add(button);
+    this.tag('coach-next', button.box);
+    this.report({ step: 'talk', right });
   }
 
   next(adapted, nextSkill) {
@@ -238,6 +255,7 @@ export default class QuizScene extends BaseScene {
       total: this.questions.length,
       tallies: tallyBySkill(this.questions, this.results),
       replay: { key: 'Quiz', data: this.startData },
+      adventureStep: this.startData.adventureStep,
     });
   }
 

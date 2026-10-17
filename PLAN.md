@@ -2,6 +2,8 @@
 
 This document describes where MathPlay is heading, why it is designed this way (the research behind it), and **what has been implemented and when**.
 
+> The implementation log below is for the first app, built with Expo / React Native. It was rebuilt in Phaser 4 ([PHASER_PLAN.md](PHASER_PLAN.md)) and removed from the repository in P5; its code is in the git history up to commit `86c82f2`. The research and design rules here still apply.
+
 - **Plan written:** 2026-10-15
 - **Language:** English (all content, narration and phonics)
 - **Last updated:** 2026-10-17 (Phase 5b round 8: Pizza Shop ingredient bar, oven drag, reminder arrows)

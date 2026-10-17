@@ -8,5 +8,7 @@
   "review": "⭐ Daily Review",
   "stickers": "📒 Stickers ({count})",
   "games": "🎲 Games",
-  "funBreak": "🎈 Fun Break · 🎟️ {count}"
+  "funBreak": "🎈 Fun Break · 🎟️ {count}",
+  "coachOn": "👪 Play together: ON",
+  "coachOff": "👪 Play together: off"
 }

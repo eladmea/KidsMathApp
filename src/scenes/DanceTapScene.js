@@ -4,7 +4,7 @@ import { showGameEnd } from '../ui/GameEnd';
 import { glyph } from '../ui/Art';
 import { COLORS, colorOf, textStyle } from '../ui/theme';
 import { play } from '../services/audio';
-import { gameTitle } from '../i18n/names';
+import { miniGameTitle } from '../i18n/names';
 import { t } from '../i18n/index';
 
 // Dance Tap (Fun Break): one of four animal pads glows on each beat; tap it
@@ -37,7 +37,7 @@ export default class DanceTapScene extends BaseScene {
     this.bg = this.add.rectangle(0, 0, 10, 10, 0xf3ecff).setOrigin(0, 0);
     this.addBackButton();
     this.narrator = new Narrator(this, 660, 70, { width: 800, fontSize: 30 });
-    this.addHeader('🕺', gameTitle('dance-tap'));
+    this.addHeader('🕺', miniGameTitle('dance-tap'));
     this.dancer = glyph(this, 640, 300, '🕺', 140);
     this.beatText = this.add.text(640, 410, '', textStyle(26, COLORS.gray)).setOrigin(0.5);
     this.pads = PADS.map((pad, i) => {

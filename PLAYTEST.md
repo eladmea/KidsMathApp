@@ -2,7 +2,7 @@
 
 A guide for running Phase 5: play-testing with **2–3 children per age band**, then tuning difficulty. Print it, or keep it open on a second device.
 
-The app records every answer on the device the child plays on. Your job is to watch what the numbers can't show: confusion, boredom, delight, and where the child looks for help.
+The app records every answer on the device the child plays on. The **Parent dashboard** is on "Who's playing?": tap **👪 Grown-ups** and answer the grown-up question. Your job is to watch what the numbers can't show: confusion, boredom, delight, and where the child looks for help.
 
 ---
 
@@ -37,7 +37,7 @@ Mastery needs passes on **2 different days**, and Garden Days grows once a day. 
 | Looks at you, frowns, freezes | Doesn't know what to do | Screen name, what they tried |
 | ⬇️ "Let's practice…" appears | Adaptive difficulty stepped down after 3 wrong answers | Did the hint help? |
 | ⚡ "Level up!" appears | Stepped up after 5 right answers | Did the harder level feel fair? |
-| Leaves a round (✕) | Bored, frustrated or confused | Why, if they tell you |
+| Leaves a round (←) | Bored, frustrated or confused | Why, if they tell you |
 | Smiles, laughs, asks for more | Working well | Which game |
 | Asks to skip the Fun Break | Rewards may be in the way | — |
 
