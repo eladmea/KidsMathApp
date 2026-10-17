@@ -11,7 +11,9 @@ const args = process.argv.slice(2);
 const serveAt = args.indexOf('--serve');
 const served = serveAt >= 0 ? args.splice(serveAt, 2)[1] : null;
 const dir = args[0] || 'e2e-shots';
-const close = served ? await serve(served) : null;
+const server = served ? await serve(served) : null;
+// The walkthroughs read the address from URL (helpers.mjs).
+if (server) process.env.URL = server.url;
 const SIZES = [
   [844, 390, 'phone'],
   [1180, 820, 'tablet'],
@@ -38,5 +40,5 @@ for (const [script, width, height, label] of runs) {
     console.log(String(error.stderr || error.message).split('\n').slice(0, 8).join('\n'));
   }
 }
-if (close) await close();
+if (server) await server.close();
 process.exit(failed ? 1 : 0);
