@@ -8,7 +8,7 @@ Learning games for kids ages 3-10, built around a research-based skill map (lear
 
 - **Player profiles** — "Who's playing?" picker; each child has a name, age (3-10) and animal buddy. Age sets their band: 🌱 Sprouts 3-4, 🧭 Explorers 5-6, 🧱 Builders 7-8, 🏆 Masters 9-10. Progress is saved per child.
 - **Read-aloud narration** — prompts are read aloud in the most natural voice the device has (Web Speech API; grown-ups can pick another in the parent dashboard), or from recordings where they exist (see ARCHITECTURE.md). On by default for ages 3-6, toggle 🔊/🔇 on the map. A 🔊 button in every round repeats the question.
-- **World map** — subject "islands" (Number Island, Word Woods, Nature Bay, Puzzle Peak, Feelings Garden), a big "▶ next skill" button, and a ⭐ Daily Review button when skills are due.
+- **World map** — five drawn islands in the sea (Number Island, Word Woods, Nature Bay, Puzzle Peak, Feelings Garden) with each child's progress and their avatar, plus Today's Adventure, and a ⭐ Daily Review button when skills are due. Each island is a winding road of skill stops (locked, ready, passed with stars, mastered) ending in a treasure chest that opens once every stop is passed.
 - **Skill map** (`curriculum/skills.js`) — ordered skills per subject and band with prerequisites, from *Count to 5* and *Find the Shape* up to *Big Division*. Skills unlock when their same-band prerequisites are passed; kids can peek at other bands.
 - **Mastery + spaced review** — a round is passed at ≥ 80%. A skill is **mastered** after passing on **2 different days**. Passed skills return in Daily Review on a Leitner schedule (1, 2, 4, 8, 16 days), interleaving several skills in one round.
 - **Worked examples** — until a child passes a skill, each practice round opens with "Let's try one together!": how to play, a question with the answer shown, and why. A ❓ button shows another example any time.
@@ -84,7 +84,7 @@ tests/                    Vitest unit tests for curriculum and logic
 e2e/                      Playwright walkthroughs through the window.__mathplay test hook: players, games, learning (the learning
                           loop), writing (the tracing games), pizza (Pizza Shop, Birthday Cake), thinking (Bunny Pop, Freeze Zoo, Robo Path,
                           Push & Roll, Feelings Friends), fun (Games, Fun Break and tickets), grownups (adventure, time limit,
-                          dashboard), quiz (every quiz skill once), smoke (a deployed site); run.mjs runs them all
+                          dashboard), islands (map, stops, chest), quiz (every quiz skill once), smoke (a deployed site); run.mjs runs them all
 ```
 
 ## Play online
