@@ -55,14 +55,59 @@
         0%, 30% { transform: rotate(0deg); }
         60%, 100% { transform: rotate(-90deg); }
       }
+      /* Shown until the game draws, and kept if it fails to start. */
+      #status {
+        position: fixed;
+        inset: 0;
+        z-index: 5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 10px;
+        color: #2d3142;
+        font-size: 24px;
+        font-weight: 600;
+        text-align: center;
+        padding: 24px;
+      }
+      #status .detail {
+        font-size: 14px;
+        font-weight: 400;
+        max-width: 640px;
+        word-break: break-word;
+        opacity: 0.75;
+      }
       @media (orientation: portrait) and (max-width: 900px) {
         #rotate { display: flex; }
       }
     </style>
   </head>
   <body>
+    <div id="status">Loading MathPlay…</div>
     <div id="game"></div>
     <div id="rotate" role="alert"><div class="phone">📱</div>Please turn your device sideways</div>
+    <script>
+      // If the game can't start (an old browser, a failed download), say so
+      // instead of leaving a blank page, with the error for a grown-up.
+      window.__showStartError = function (message) {
+        var box = document.getElementById('status');
+        if (!box || window.__started) return;
+        box.innerHTML = '<div>😕 MathPlay could not start.</div><div>Try reloading, or updating the browser.</div><div class="detail"></div>';
+        box.querySelector('.detail').textContent = String(message || '');
+      };
+      window.addEventListener('error', function (event) {
+        var target = event.target;
+        window.__showStartError(event.message || (target && (target.src || target.href) ? 'Could not load ' + (target.src || target.href) : ''));
+      }, true);
+      window.addEventListener('unhandledrejection', function (event) {
+        window.__showStartError(event.reason && (event.reason.message || event.reason));
+      });
+      // A browser too old for the game's script never runs it at all.
+      setTimeout(function () {
+        if (!window.__started) window.__showStartError('The game did not start within 15 seconds.');
+      }, 15000);
+    </script>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>

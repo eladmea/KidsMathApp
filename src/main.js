@@ -40,6 +40,11 @@ async function start() {
     scene: [BootScene, ProfilesScene, CreateProfileScene, HomeScene, QuizScene, PizzaScene],
   });
   installBridge(game);
+  // The game is up: drop the loading / error message.
+  game.events.once('ready', () => {
+    window.__started = true;
+    document.getElementById('status')?.remove();
+  });
 }
 
-start();
+start().catch((error) => window.__showStartError?.(error && error.message));
