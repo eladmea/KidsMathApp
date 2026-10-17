@@ -59,7 +59,7 @@ describe('t()', () => {
 
   it('falls back to English, then to the key', () => {
     setLanguage('xx');
-    expect(t('map.allDone')).toBe('🎉 All done!');
+    expect(t('map.review')).toBe('⭐ Daily Review');
     expect(t('nothing.here')).toBe('nothing.here');
   });
 
