@@ -1,0 +1,13 @@
+{
+  "intro": "Hold the button to push the ball. A harder push makes it roll farther. Stop it on the target!",
+  "instructions": "Hold to push. Stop the ball on the 🎯!",
+  "soft": "soft push",
+  "medium": "medium push",
+  "hard": "HARD push",
+  "hold": "👐 Hold to push",
+  "pushing": "💪 Pushing…",
+  "hit": "Just right! 🎯",
+  "tooSoft": "Too soft! Push harder.",
+  "tooHard": "Too hard! Push softer.",
+  "sayHit": "Just right!"
+}

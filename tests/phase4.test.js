@@ -1,8 +1,8 @@
 import { SEL_GENERATORS } from '../src/curriculum/selGenerators';
-import { FAIR_PLAY, FEELINGS, PERSPECTIVES, SITUATIONS } from '../src/content/en/sel';
+import { FAIR_PLAY, FEELINGS, FRIENDS as FRIEND_WORDS, PERSPECTIVES, SITUATIONS } from '../src/content/en/sel';
 import { generateQuestion } from '../src/curriculum/generators';
 import { howTo } from '../src/curriculum/howTo';
-import { FRIENDS, POINTS_PER_FRIEND, makeFriendTurn, makeRound, roundTotal } from '../src/logic/feelingsFriends';
+import { FEELING_IDS, FRIENDS, POINTS_PER_FRIEND, makeFriendTurn, makeRound, roundTotal } from '../src/logic/feelingsFriends';
 import { BREATHS, IN_MS, MIN_IN_MS, MIN_SCALE, balloonScale, countdown, judgeBreath } from '../src/logic/balloonBreath';
 import {
   FLOWER_STICKERS,
@@ -87,8 +87,18 @@ describe('Feelings Friends', () => {
         friend.alsoFits.forEach((id) => expect(turn.feelingChoices).not.toContain(id));
         expect(turn.helpChoices).toHaveLength(3);
         expect(turn.helpChoices.filter((o) => o.helpful)).toHaveLength(1);
-        expect(new Set(turn.helpChoices.map((o) => o.label)).size).toBe(3);
+        expect(new Set(turn.helpChoices.map((o) => o.id)).size).toBe(3);
       }
+    });
+  });
+
+  it('has words for every friend and helper, and offers only known feelings', () => {
+    expect(Object.keys(FEELINGS).sort()).toEqual([...FEELING_IDS].sort());
+    FRIENDS.forEach((friend) => {
+      const words = FRIEND_WORDS[friend.id];
+      expect(words.name && words.story).toBeTruthy();
+      expect(words.helps).toHaveLength(friend.helps.length);
+      expect(words.unhelpful).toHaveLength(friend.unhelpful.length);
     });
   });
 

@@ -20,6 +20,7 @@ Before writing Phaser code, read the guides that ship with the installed version
   - Never use Phaser's own scene property names for your own fields (`this.input`, `this.time`, `this.tweens`, `this.sound`, `this.add`, `this.cameras`, ...). Overwriting `this.input` silently breaks every tap in the scene.
   - `tag()` the objects a browser test needs to tap.
   - `report()` the scene's state.
+- Resize shapes with `setSize(width, height)`. Assigning `rect.width = …` changes nothing on screen in Phaser 4.
 - Don't pass functions with optional parameters straight to `.filter`/`.map` (`skills.filter(isAvailable)` passes the index as the language). Wrap them: `.filter((s) => isAvailable(s))`.
 - After changing a scene, run `npm run lint`, `npm test` and the walkthroughs (`npm run e2e` against a build; see README), and add checks for new behaviour.
 - `legacy/` is the old Expo app, for reference only.

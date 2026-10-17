@@ -6,7 +6,6 @@ import { COLORS, textStyle } from './theme';
 import { play } from '../services/audio';
 import { MAX_RESTARTS_FOR_POINT } from '../logic/tracing';
 import { getSkill } from '../curriculum/skills';
-import { skillTitle } from '../i18n/names';
 import { t } from '../i18n/index';
 
 const CELEBRATE_MS = 2200;
@@ -35,8 +34,7 @@ export default class TraceRound extends BaseScene {
     this.bg = this.add.rectangle(0, 0, 10, 10, this.colors.background).setOrigin(0, 0);
     this.addBackButton();
     this.narrator = new Narrator(this, 660, 70, { width: 800, fontSize: 30 });
-    this.title = this.add.text(30, 150, t('quiz.title', { emoji: this.skill.emoji, title: skillTitle(this.skill) }), textStyle(26, COLORS.gray)).setOrigin(0, 0.5);
-    this.counter = this.add.text(1250, 150, '', textStyle(28)).setOrigin(1, 0.5);
+    this.addGameHeader(this.skill);
     this.card = this.add.rectangle(SAFE.width / 2, 190 + (TRACE_WIDTH * 1.4) / 2, TRACE_WIDTH + 40, TRACE_WIDTH * 1.4 + 40, this.colors.card).setRounded(30);
     this.prompt = this.add.text(1000, 300, '', textStyle(54, COLORS.primary, { wordWrap: { width: 420 } })).setOrigin(0.5);
     this.message = this.add.text(1000, 420, '', textStyle(26, COLORS.ink, { wordWrap: { width: 420 } })).setOrigin(0.5);
@@ -66,7 +64,7 @@ export default class TraceRound extends BaseScene {
     });
     this.prompt.setText(item.prompt);
     this.message.setText(this.idleText()).setColor('#2d3142');
-    this.counter.setText(t('tracing.progress', { index: this.index + 1, total: this.items.length }) + `   ⭐ ${this.points}`);
+    this.setCounter(this.index + 1, this.items.length, this.points);
     this.narrator.say(item.intro, { show: item.prompt, force: true });
     this.restartIdle();
     this.report({ step: 'trace', index: this.index, total: this.items.length, key: item.key, points: this.points, ...this.layer.state() });
@@ -109,14 +107,6 @@ export default class TraceRound extends BaseScene {
   }
 
   finish() {
-    const total = this.items.length;
-    this.swap('Results', {
-      skillIds: [this.skill.id],
-      mode: 'practice',
-      score: this.points,
-      total,
-      tallies: { [this.skill.id]: { correct: this.points, total } },
-      replay: { key: this.scene.key, data: this.startData },
-    });
+    this.finishRound(this.skill.id, this.points, this.items.length);
   }
 }

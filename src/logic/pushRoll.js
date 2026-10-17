@@ -24,9 +24,3 @@ export function judgeShot(position, zone) {
   if (position > zone.start + zone.width) return 'tooHard';
   return 'hit';
 }
-
-export const SHOT_FEEDBACK = {
-  hit: 'Just right! 🎯',
-  tooSoft: 'Too soft! Push harder.',
-  tooHard: 'Too hard! Push softer.',
-};

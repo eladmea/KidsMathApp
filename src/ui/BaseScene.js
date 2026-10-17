@@ -3,7 +3,9 @@ import { reportScene, reportState, tag } from '../services/testBridge';
 import { stop as stopSpeech } from '../services/speech';
 import * as router from '../services/router';
 import Button from './Button';
-import { COLORS } from './theme';
+import { COLORS, textStyle } from './theme';
+import { skillTitle } from '../i18n/names';
+import { t } from '../i18n/index';
 
 // Every scene is laid out in a fixed 1280 x 720 "safe area" that is always
 // fully visible. The canvas grows (Scale.EXPAND) to fill wider phones or
@@ -75,6 +77,30 @@ export default class BaseScene extends Phaser.Scene {
     this.backButton.setDepth(40);
     this.tag('back', this.backButton.box);
     return this.backButton;
+  }
+
+  // A game's header under the ← button: the skill's title on the left, and
+  // a counter on the right ("2 / 5   ⭐ 1", see setCounter).
+  addGameHeader(skill) {
+    this.headerTitle = this.add.text(30, 150, t('quiz.title', { emoji: skill.emoji, title: skillTitle(skill) }), textStyle(24, COLORS.gray)).setOrigin(0, 0.5);
+    this.headerCounter = this.add.text(1250, 150, '', textStyle(28)).setOrigin(1, 0.5);
+  }
+
+  // `index` counts from 1.
+  setCounter(index, total, score, icon = '⭐') {
+    this.headerCounter.setText(`${t('common.progress', { index, total })}   ${icon} ${score}`);
+  }
+
+  // The end of a game's round: Results saves it and offers "Again".
+  finishRound(skillId, score, total) {
+    this.swap('Results', {
+      skillIds: [skillId],
+      mode: 'practice',
+      score,
+      total,
+      tallies: { [skillId]: { correct: score, total } },
+      replay: { key: this.scene.key, data: this.startData },
+    });
   }
 
   // Opens another scene; back() returns here with the same data.

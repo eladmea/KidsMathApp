@@ -9,5 +9,7 @@
   "turnDevice": "Please turn your device sideways",
   "voice": "Voice: {name}",
   "deviceVoice": "device default",
-  "readToYou": "I will read to you."
+  "readToYou": "I will read to you.",
+  "progress": "{index} / {total}",
+  "go": "Go! ▶"
 }

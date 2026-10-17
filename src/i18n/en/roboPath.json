@@ -1,0 +1,15 @@
+{
+  "intro": "Help the robot reach the cookie!",
+  "introLoops": "Help the robot reach the cookie. Use repeat blocks: you can use {limit} blocks.",
+  "programHint": "Tap arrows to build a program",
+  "blocks": "Blocks: {count} / {limit}",
+  "run": "▶ Run",
+  "tryAgain": "Try again",
+  "skip": "⏭ Skip",
+  "yum": "Yum! The robot found the cookie!",
+  "success": "🍪 Yum! You did it!",
+  "bonk": "Bonk! The robot bumped into something.",
+  "bonkFix": "Bonk! Fix your program and try again.",
+  "short": "The robot stopped before the cookie.",
+  "shortFix": "Not there yet! Add more steps."
+}
