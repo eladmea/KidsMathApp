@@ -710,7 +710,7 @@ All earlier walkthroughs pass.
 - **Tests:** 298 unit tests, covering coverage counting (inside the circle only, no double counting), a full-pizza zig-zag finishing both layers, the swipe-to-cut rule, slice layout, exactly the four toppings, and 2 pizzas per round.
 - **Verification:** three full browser runs as a 3-year-old, each with two random orders and different numbers. Every step passed: dough, writing, sauce, cheese, the 4-topping choice, dragging, oven, two cuts, feeding 4 slices, Results 2/2. No page errors. All earlier walkthroughs pass.
 
-### Phase 5b, round 8: Pizza Shop clarity (2026-10-17, commit `PIZZA3`)
+### Phase 5b, round 8: Pizza Shop clarity (2026-10-17, commit `be578bd`)
 
 **Feedback:**
 1. The sauce brush is too big.
