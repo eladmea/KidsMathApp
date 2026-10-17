@@ -1,6 +1,10 @@
 # MathPlay 🧮
 
-A colorful Expo React Native learning-games app for kids ages 3-10, built around a research-based skill map (learning trajectories, spaced review, read-aloud prompts for pre-readers).
+Learning games for kids ages 3-10, built around a research-based skill map (learning trajectories, spaced review, read-aloud prompts for pre-readers).
+
+> **Being rebuilt in [Phaser 4](https://phaser.io)** (landscape, phones and tablets). See [PHASER_PLAN.md](PHASER_PLAN.md).
+> Right now (phase P1) the Phaser build has players ("Who's playing?", new player, a grown-up check to delete one) and two games: *Count to 5* and the *Pizza Shop* sauce step.
+> The feature list below describes the old Expo app, kept in [`legacy/`](legacy/) for reference. It is the target the rebuild works towards.
 
 ## Features
 
@@ -53,91 +57,29 @@ Two players (🦁 Player 1 and 🐸 Player 2) take turns flipping two cards from
 ## Project structure
 
 ```
-App.js                    Providers + navigation stack
-app.config.js             Sets the web base path for the GitHub Pages build
-.github/workflows/        Test + deploy to GitHub Pages
-scripts/prepare-pages.js  Manifest, Home Screen icons, 404 page for Pages
-context/
-  ProfileContext.js       Profiles, active player, progress, stickers, play time (AsyncStorage-backed)
-curriculum/
-  ageBands.js             Age bands (3-4, 5-6, 7-8, 9-10)
-  subjects.js             Subject islands
-  skills.js               Skill map with prerequisites
-  generators.js           Question generator per skill (math) + registry
-  scienceGenerators.js    Nature Bay questions
-  logicGenerators.js      Puzzle Peak questions (patterns, logic grids)
-  literacyGenerators.js   Question generators for Word Woods
-  selGenerators.js        Feelings Garden questions
-  talkPrompts.js          Play together prompts for grown-ups
-  phonics.js              Word banks, letter sounds, stories
-  random.js               Shared random helpers
-  games.js                Learning games + mini-games catalogue
-screens/
-  ProfilesScreen.js       Who's playing?
-  CreateProfileScreen.js  New player
-  WorldMapScreen.js       Home: islands, next skill, daily review
-  SkillListScreen.js      Skills of one island, by band
-  QuizScreen.js           Generic skill-driven round
-  ResultsScreen.js        Stars, mastered/unlocked celebration
-  GameSetupScreen.js      Pick a game variant + Buddy or a friend
-  MemoryGameScreen.js     Memory Chips (all variants, solo or duo)
-  PathRaceScreen.js       Number Path Race
-  MiniGamesScreen.js      Fun Break hub (tickets)
-  BubblePopScreen.js / ChipTossScreen.js / DanceTapScreen.js
-  BunnyPopScreen.js / FreezeZooScreen.js / RoboPathScreen.js / PushRollScreen.js   Game-screen skills
-  GardenScreen.js         Garden Days
-  FeelingsFriendsScreen.js  Feelings Friends (game-screen skill)
-  BalloonBreathScreen.js  Balloon Breath calm-down (free mini-game)
-  StickerBookScreen.js    Sticker book
-  ParentDashboardScreen.js  Grown-up check, play time, limits, progress
-  TimeUpScreen.js         Gentle goodbye when today's time is used up
-  AdventureScreen.js      Today's Adventure path and finale
-  TraceDigitsScreen.js    Number Tracing (write 0-9 with a finger)
-  TracePathScreen.js      Bee Paths and Race Track Numbers
-  PizzaShopScreen.js / BirthdayCakeScreen.js   Writing + counting games
-components/               Buttons, cards, QuestionVisual, DotPattern, NumberLineInput,
-                          WordBuilderInput, StoryStripInput, ParentGate, PlaytestReport, TraceCanvas, DragTray, memory-game pieces
-utils/
-  progress.js             Pure mastery / spaced-review / unlock logic
-  session.js              Builds (interleaved) rounds, tallies per skill
-  profiles.js             Profile helpers
-  storage.js              AsyncStorage persistence
-  phonemeAudio.js         Letter sounds: bundled recordings, else tuned TTS
-  useSoundEffects.js      Sound effect playback hook
-  memoryGame.js           Memory Chips variants, decks, chip-gap math, stalemate check
-  memoryBuddy.js          Solo-mode AI buddy
-  pathRace.js             Number Path Race rules
-  funTickets.js           Fun Break ticket rules
-  players.js              Player names/icons (child, Buddy, friend)
-  roboPath.js / freezeZoo.js / pushRoll.js / garden.js   Rules for the Phase 3 games
-  feelingsFriends.js / balloonBreath.js   Rules for the Phase 4 games
-  stickers.js             Sticker awarding and pages
-  playTime.js             Daily play time and the soft limit
-  parentGate.js           Grown-up check
-  adaptive.js             In-round step down / step up between neighbouring skills
-  adventure.js            Today's Adventure planner (steps, rotation, fitting the time left)
-  speechEngine.js         One speech engine: voices, sentence queue, fallbacks, iOS unlock, background stop, status
-  voices.js               Ranks device voices (natural / premium / enhanced first), fallback voice, sentence splitting
-  useNarrator.js          useNarrator() to speak from a screen, useSpeechStatus() for the current voice and state
-  tracing.js              Digit and pre-writing strokes, tracing rules, number pools
-  writingGames.js         Pizza / cake / race rules: counts, placement, scoring
-  playLog.js              Play-test events, per-skill report and flags, CSV
-  exportFile.js           Download (web) or share (phones) a text file
-  skillRounds.js          Game-screen skills report results like the quiz
-  scoring.js / theme.js / constants.js
-__tests__/                Jest tests for generators, skill map, progress, sessions, memory game, buddy, path race, tickets, literacy, science, logic, Phase 3 games, Phase 4 (SEL, stickers, play time), Phase 5 (adaptive, play-test log), Phase 6 (adventure, coach prompts)
-assets/sounds/            correct.wav / wrong.wav
+index.html                Page shell: full-screen canvas, notch insets, "turn your device" screen
+vite.config.js            Build (BASE_URL sets the GitHub Pages path) and test settings
+src/main.js               Phaser game config: Scale.EXPAND around a 1280 x 720 safe area, scene list
+src/curriculum/           Skill map, age bands, subjects, question generators, phonics, how-to texts (copied from the old app)
+src/logic/                Game rules with no UI: progress/mastery/review, adaptive, adventure, sessions, tracing, writing games, memory game, ...
+src/services/             storage (localStorage), speech (Web Speech API, best natural voice, per-child narration on/off),
+                          session (players, signed-in child, progress), router (back history), audio (sound effects), testBridge
+src/ui/                   BaseScene (safe-area camera, go/back/reset, ← button), Button, Narrator, StarRow, Dialog,
+                          ParentGate (keypad times-fact check), HintArrow + IdleHint, PaintLayer + DragSurface, theme
+src/scenes/               Boot, Profiles ("Who's playing?"), CreateProfile, Home, Quiz (any generator skill), Pizza
+public/                   Web app manifest, Home Screen icons, sounds
+tests/                    Vitest unit tests for curriculum and logic
+e2e/                      Playwright walkthroughs (players, games) through the window.__mathplay test hook; run.mjs runs them all
+legacy/                   The old Expo app (reference only; not built or deployed)
 ```
 
 ## Play online
 
-The web version is published to GitHub Pages at **https://eladmea.github.io/KidsMathApp/** and works on any phone, tablet or computer with a browser (on a phone, use "Add to Home Screen" to open it like an app). Progress is saved per device/browser.
+The web version is published to GitHub Pages at **https://eladmea.github.io/KidsMathApp/** and works on any phone, tablet or computer with a browser. It's landscape only. On a phone, use "Add to Home Screen" to open it full screen like an app. Progress is saved per device and browser.
 
 Publishing is automatic (`.github/workflows/deploy-pages.yml`):
-- every pull request runs the tests and checks the web build;
+- every pull request runs the tests and checks the build;
 - every push to `main` (e.g. merging a PR) rebuilds and redeploys the site within a few minutes.
-
-The deploy also runs `scripts/prepare-pages.js`, which adds a web app manifest and Home Screen icon (`assets/web/`), so "Add to Home Screen" opens the game full screen with its own icon.
 
 One-time setup (already done for this repo): make the repository public (or use a paid plan), set **Settings → Pages → Source** to **GitHub Actions**, and make `main` the default branch.
 
@@ -145,21 +87,27 @@ One-time setup (already done for this repo): make the repository public (or use 
 
 ```bash
 npm install
-npx expo start
+npm run dev        # http://localhost:5173, open it on a phone on the same Wi-Fi with --host
+npm test           # unit tests
 ```
 
-Run the tests with:
+Browser walkthrough (needs a Playwright browser, e.g. `npx playwright install chromium`):
 
 ```bash
-npm test
+BASE_URL=/KidsMathApp/ npm run build && npx vite preview --port 8765 &
+URL=http://localhost:8765/KidsMathApp/ npm run e2e    # every walkthrough at phone, tablet and portrait sizes
+node e2e/players.mjs shots 844 390 phone             # or one walkthrough at one size
 ```
 
-Scan the QR code with the **Expo Go** app on your phone (Android/iOS) to run it, or press `a` / `i` in the terminal for an emulator/simulator.
+### Test hook
+
+Text on a canvas can't be read by browser tests, so `src/services/testBridge.js` puts `window.__mathplay` on the page. It shows:
+
+- the active scene, and what that scene reports (`state`);
+- every line read aloud (`spoken`);
+- `box(name)` for tagged buttons and play areas, in page pixels;
+- `toPage(x, y)` to turn game coordinates into page pixels.
 
 ## Adding recorded letter sounds
 
-Isolated letter sounds are hard for text-to-speech, so Word Builder tiles use tuned spellings ("mmm", "buh") by default. To use real recordings, add audio files to `assets/phonemes/` and register them in `PHONEME_RECORDINGS` in `utils/phonemeAudio.js`, e.g. `m: require('../assets/phonemes/m.mp3')`. Registered sounds play instead of the TTS fallback.
-
-## Note on sound playback
-
-The task asked for `expo-av`, but that package is deprecated by Expo (removed in favor of `expo-audio`/`expo-video`) and this project is on Expo SDK 57, where `expo-av` is on its way out. The app uses **`expo-audio`** instead — same behavior (a happy chime on correct answers, a gentle tone on wrong ones), just via the currently supported API.
+Isolated letter sounds are hard for text-to-speech, so Word Builder tiles use tuned spellings ("mmm", "buh") by default. Recorded letter sounds will come back with the Word Builder scene (P2). The old app's hook is `legacy/utils/phonemeAudio.js`.

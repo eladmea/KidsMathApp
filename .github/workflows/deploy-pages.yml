@@ -1,5 +1,5 @@
-# Builds the web version of the app and publishes it to GitHub Pages.
-# - Pull requests: run the tests and check the web build still works.
+# Builds the game and publishes it to GitHub Pages.
+# - Pull requests: run the tests and check the build still works.
 # - Pushes to main (e.g. merging a PR): the same, then deploy the live site.
 name: Test and deploy to GitHub Pages
 
@@ -32,19 +32,12 @@ jobs:
 
       - run: npm ci
 
-      - run: npm test -- --ci
+      - run: npm test
 
-      - name: Export web build
-        run: npx expo export --platform web --output-dir dist
+      - name: Build
+        run: npm run build
         env:
-          CI: 1
-          EXPO_BASE_URL: /${{ github.event.repository.name }}
-
-      # Manifest + Home Screen icons, 404 fallback, and .nojekyll.
-      - name: Prepare Pages files
-        run: node scripts/prepare-pages.js dist
-        env:
-          EXPO_BASE_URL: /${{ github.event.repository.name }}
+          BASE_URL: /${{ github.event.repository.name }}/
 
       - uses: actions/upload-pages-artifact@v3
         if: github.event_name != 'pull_request'
