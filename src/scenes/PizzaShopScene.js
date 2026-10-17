@@ -37,7 +37,6 @@ import {
   stationStatus,
 } from '../logic/writingGames';
 import { getSkill } from '../curriculum/skills';
-import { skillTitle } from '../i18n/names';
 import { t } from '../i18n/index';
 
 // Pizza Shop: an animal orders a pizza with a number of toppings. Roll the
@@ -89,8 +88,7 @@ export default class PizzaShopScene extends BaseScene {
     this.bg = this.add.rectangle(0, 0, 10, 10, 0xfff3e0).setOrigin(0, 0);
     this.addBackButton();
     this.narrator = new Narrator(this, 660, 70, { width: 800, fontSize: 30 });
-    this.title = this.add.text(30, 150, t('quiz.title', { emoji: this.skill.emoji, title: skillTitle(this.skill) }), textStyle(24, COLORS.gray)).setOrigin(0, 0.5);
-    this.counter = this.add.text(1250, 150, '', textStyle(28)).setOrigin(1, 0.5);
+    this.addGameHeader(this.skill);
     this.buildStations();
     this.buildTicket();
     this.buildPizza();
@@ -211,7 +209,7 @@ export default class PizzaShopScene extends BaseScene {
     this.slices.forEach((slice) => slice.destroy());
     this.slices = [];
     this.ovenPizza.setVisible(false);
-    this.counter.setText(t('tracing.progress', { index: this.index + 1, total: this.numbers.length }) + `   ⭐ ${this.points}`);
+    this.setCounter(this.index + 1, this.numbers.length, this.points);
     this.setStep('dough');
     this.say(this.words.say.pizza.order({ friend: this.friendName, number: this.number, word: this.numberWord }));
   }
@@ -503,7 +501,7 @@ export default class PizzaShopScene extends BaseScene {
 
   updateMeter() {
     const goal = this.step === 'cheese' ? CHEESE_COVERED : SAUCE_COVERED;
-    this.meterFill.width = 300 * Math.min(1, coverageRatio(this.coverage) / goal);
+    this.meterFill.setSize(300 * Math.min(1, coverageRatio(this.coverage) / goal), 20);
   }
 
   sauceDone() {
@@ -691,14 +689,6 @@ export default class PizzaShopScene extends BaseScene {
   }
 
   finish() {
-    const total = this.numbers.length;
-    this.swap('Results', {
-      skillIds: [this.skill.id],
-      mode: 'practice',
-      score: this.points,
-      total,
-      tallies: { [this.skill.id]: { correct: this.points, total } },
-      replay: { key: this.scene.key, data: this.startData },
-    });
+    this.finishRound(this.skill.id, this.points, this.numbers.length);
   }
 }

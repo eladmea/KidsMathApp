@@ -14,7 +14,6 @@ import { getRecord, hasPassed } from '../logic/progress';
 import { digitCheckpoints, numberPool, pickDistinct } from '../logic/tracing';
 import { CAKES_PER_ROUND, CUSTOMERS, MAX_ON_TRAY_TARGET, checkCount, roundPoint } from '../logic/writingGames';
 import { getSkill } from '../curriculum/skills';
-import { skillTitle } from '../i18n/names';
 import { t } from '../i18n/index';
 
 // Birthday Cake: a friend turns 1 to 5 (1 to 9 once Write 1 to 5 is passed).
@@ -59,8 +58,7 @@ export default class BirthdayCakeScene extends BaseScene {
     this.bg = this.add.rectangle(0, 0, 10, 10, 0xfff0f6).setOrigin(0, 0);
     this.addBackButton();
     this.narrator = new Narrator(this, 660, 70, { width: 800, fontSize: 30 });
-    this.add.text(30, 150, t('quiz.title', { emoji: this.skill.emoji, title: skillTitle(this.skill) }), textStyle(24, COLORS.gray)).setOrigin(0, 0.5);
-    this.counter = this.add.text(1250, 150, '', textStyle(28)).setOrigin(1, 0.5);
+    this.addGameHeader(this.skill);
     glyph(this, FRIEND_AT.x + 50, FRIEND_AT.y - 50, '🥳', 44).setDepth(1);
 
     // The cake: sponge, an icing band on top, a layer of cream.
@@ -97,7 +95,7 @@ export default class BirthdayCakeScene extends BaseScene {
     this.friendArt = glyph(this, FRIEND_AT.x, FRIEND_AT.y, this.friend.emoji, FRIEND_AT.size);
     this.age.setText('');
     this.holder.setVisible(true);
-    this.counter.setText(t('tracing.progress', { index: this.index + 1, total: this.ages.length }) + `   ⭐ ${this.points}`);
+    this.setCounter(this.index + 1, this.ages.length, this.points);
     this.layer = new TraceLayer(this, CX - TRACE_WIDTH / 2, CY - (TRACE_WIDTH * 1.4) / 2, TRACE_WIDTH, {
       strokes: digitCheckpoints(this.number),
       look: ICING_LOOK,
@@ -278,14 +276,6 @@ export default class BirthdayCakeScene extends BaseScene {
   }
 
   finish() {
-    const total = this.ages.length;
-    this.swap('Results', {
-      skillIds: [this.skill.id],
-      mode: 'practice',
-      score: this.points,
-      total,
-      tallies: { [this.skill.id]: { correct: this.points, total } },
-      replay: { key: this.scene.key, data: this.startData },
-    });
+    this.finishRound(this.skill.id, this.points, this.ages.length);
   }
 }

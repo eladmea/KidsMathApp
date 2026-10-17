@@ -145,7 +145,7 @@ Each phase ends with tests passing, a web build, a Playwright walkthrough and a 
 | **P2 Core learning loop** ✅ merged (#22) | WorldMap and Island placeholders. The generic Quiz scene with every question visual and input type. Worked examples, Results, stars, stickers, adaptive steps, review and mixed rounds | Every quiz skill in all 5 subjects is playable and saves progress |
 | **P2.5 Architecture for change** ✅ built | Assets by folder (images by key or emoji, per-language overrides, sounds). Every word in language files (`i18n/`) or per-language content packs (`content/`), with a language per child and a picker. Recorded voice by sentence with device-voice fallback, plus the `voice:lines` script. Scenes self-register, and games declare the skills they play. ESLint in CI. See ARCHITECTURE.md | A new language, picture or recording is just new files; tests catch missing words |
 | **P3 Writing & drag games** ✅ built | TraceDigits, Bee Paths, Race Track, Pizza Shop (full flow: stations, oven drag, slices, feeding), Birthday Cake | The sprouts (3–4) math band is fully playable |
-| **P4 Remaining games** | Memory Chips (+ setup, buddy), Bunny Pop, Freeze Zoo, Robo Path, Push & Roll, Feelings Friends, Garden, Balloon Breath, Bubble Pop, Dance Tap, Chip Toss | Every skill and mini-game from the old app exists |
+| **P4 Remaining games** ✅ built | Memory Chips (+ setup, buddy), Bunny Pop, Freeze Zoo, Robo Path, Push & Roll, Feelings Friends, Garden, Balloon Breath, Bubble Pop, Dance Tap, Chip Toss | Every skill and mini-game from the old app exists |
 | **P5 Sessions & grown-ups** | Today's Adventure + coach mode, soft time limits, TimeUp, parent overlay (dashboard, report, CSV, limits, voices) | Matches the old app feature for feature |
 | **P6 Clean-up** | Delete `legacy/` once nothing in it is needed as a reference. Update README, PLAYTEST.md, PLAN.md, AGENTS.md (Phaser docs instead of Expo) | One codebase |
 | **P7 Islands & art** | Design the islands in Phaser: tilemap or illustrated islands, camera scrolling, the stage path, avatar, chest. Plus the art pass, sound and music | Your island design, done properly |
@@ -357,4 +357,38 @@ Asked for before moving on: change assets easily, add languages easily, replace 
 **Not done yet**
 - Feel on a real phone and tablet (tracing accuracy, drag sizes).
 - Drawn art: everything is emoji or shapes until the art pass (any of it can be replaced by dropping in an image, see ARCHITECTURE.md; toppings use `toppings/<id>`).
+
+### P4 Remaining games: built 2026-10-17 (branch `claude/phaser-p4`)
+
+**What was done**
+- **Island games** (each declares the skills it plays):
+  - Bunny Pop (ages 3-4): boop only the bunny as animals pop out of 6 holes; 16 pops.
+  - Freeze Zoo (5-6): tap every animal but freeze for the owl, then the rule switches to "only the owl"; 24 animals.
+  - Robo Path (5-6) and Robot Loops (7-8): arrow blocks (with ×2-×4 repeats and a block limit for loops) to take the robot to the cookie; skip after 2 failed runs; 6 puzzles.
+  - Push & Roll (5-6): hold to push, a longer hold rolls farther; stop on the target; 8 shots. The hold is timed in real time.
+  - Feelings Friends (5-6): name how the friend feels, then pick what would help; 4 friends.
+- **🎲 Games** (from the map, free):
+  - Memory Chips: 6 variants (Dot, Letter, Classic, Plus & Minus, Times & Divide, Fraction Chips). A mismatch can still be paired by paying the gap in chips. Pre-readers count chips out one by one; others tap the number. Solo against the buddy (who forgets and sometimes misjudges the gap, more for younger bands) or with a friend.
+  - Number Path Race: spin, then tap each square while hearing its number, 1-10 or 1-20, against the buddy or a friend.
+  - Garden Days: a clue each day, one stage of growth a day at most, a sticker for each flower.
+  - GameSetup picks the variant "just right" for the child's band, and who to play with.
+- **🎈 Fun Break:** Bubble Pop (golden bubbles tell a fun fact), Chip Toss, Dance Tap, and Balloon Breath (always free). Every second learning round earns a ticket, which Results announces.
+- **Shared pieces:** RulesCard, GameEnd, and in BaseScene a game header, counter and `finishRound()` (the P3 games use them too).
+- **Words:** Feelings Friends, Garden Days, Memory Chips (how each card is read aloud), the players' names and Push & Roll's feedback moved out of the game rules into the content packs and i18n. Fixed on the way: the sauce/cheese meter in Pizza Shop never filled (Phaser 4 shapes resize with `setSize`).
+
+**Checked**
+- Unit tests: 335, now including one that every game a skill opens has a scene that plays it.
+- New walkthroughs:
+  - `e2e/thinking.mjs` (normal speed, since these are timed): Bunny Pop with one oops and one miss (14/16), Freeze Zoo with one wrong tap and the switch (23/24), Robo Path with a short run (5/6), a Robot Loops puzzle, Push & Roll aimed at the target, Feelings Friends with one wrong face (7/8).
+  - `e2e/fun.mjs`:
+    - Memory Chips against the buddy to the end, paying a gap in chips;
+    - Path Race to the finish, a wrong square, and a friend's turn;
+    - Garden (a silly choice droops, the right need grows it, then it rests);
+    - Bubble Pop, Chip Toss and Dance Tap spending tickets, the locked message, Balloon Breath's quick and slow breaths;
+    - a ticket earned by a learning round.
+- `learning.mjs` now checks that no island shows "coming soon".
+
+**Not done yet**
+- Today's Adventure, time limits and the parent overlay (P5).
+- Real-device feel: Push & Roll and Balloon Breath holds, Dance Tap's pace, Chip Toss timing.
 

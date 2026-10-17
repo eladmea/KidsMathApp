@@ -53,7 +53,71 @@ export const PERSPECTIVES = [
   ['🎨', 'Ben worked hard on a drawing, but it isn\'t very neat.', 'What kind thing could you say?', 'I like your colors!', ['That looks messy', 'Mine is much better']],
 ];
 
+// Feelings Friends (logic/feelingsFriends.js FRIENDS, by id): each friend's
+// name and story, and the words for their helpers (same order as the emoji).
+export const FRIENDS = {
+  bear: {
+    name: 'Bear',
+    story: 'My ice cream fell on the ground.',
+    helps: ['Give a hug', 'Share your snack'],
+    unhelpful: ['Laugh at Bear', 'Run away'],
+  },
+  bunny: {
+    name: 'Bunny',
+    story: 'There is a big thunder storm outside!',
+    helps: ['Sit close together', 'Take slow breaths together'],
+    unhelpful: ['Shout "Boo!"', 'Ignore Bunny'],
+  },
+  fox: {
+    name: 'Fox',
+    story: 'Someone knocked down my block tower on purpose!',
+    helps: ['Take a deep breath', 'Build it again together'],
+    unhelpful: ['Hit someone', 'Knock down another tower'],
+  },
+  pig: {
+    name: 'Pig',
+    story: 'It is my birthday and everyone came to my party!',
+    helps: ['Celebrate together', 'Sing happy birthday'],
+    unhelpful: ['Say parties are boring', 'Pop all the balloons'],
+  },
+  cat: {
+    name: 'Cat',
+    story: 'I stayed up so late. My eyes keep closing.',
+    helps: ['Rest in a cozy bed', 'Read a quiet story'],
+    unhelpful: ['Bang a loud drum', 'Eat lots of candy'],
+  },
+  monkey: {
+    name: 'Monkey',
+    story: 'Nobody wants to play with me today.',
+    helps: ['Ask Monkey to play', 'Say "You can play with us!"'],
+    unhelpful: ['Say "Go away"', 'Whisper about Monkey'],
+  },
+  frog: {
+    name: 'Frog',
+    story: 'My first day at a brand new school is tomorrow.',
+    helps: ['Say "I will be your friend"', 'Tell a grown-up how you feel'],
+    unhelpful: ['Say "Everyone will laugh"', 'Ignore Frog'],
+  },
+  lion: {
+    name: 'Lion',
+    story: 'My little brother broke my favorite toy!',
+    helps: ['Fix it together', 'Use words to say how you feel'],
+    unhelpful: ['Break his toy too', 'Scream at him'],
+  },
+};
+
 export const say = {
+  // Feelings Friends. `feeling` is a feeling's word; `helpful` the helper's words.
+  friends: {
+    says: ({ name }) => `${name} says`,
+    feelQuestion: ({ name }) => `How does ${name} feel?`,
+    helpQuestion: ({ name }) => `What could help ${name}?`,
+    story: ({ name, story, question }) => `${name} says: ${story} ${question}`,
+    feelRight: ({ name, feeling }) => `Yes! ${name} feels ${feeling}.`,
+    feelWrong: ({ name, feeling, story }) => `${name} feels ${feeling}. Look at the story again: ${story}`,
+    helpRight: () => 'That would help! Thank you for being kind.',
+    helpWrong: ({ name, helpful }) => `Hmm, that wouldn't help ${name}. "${helpful}" would help.`,
+  },
   faces: {
     prompt: ({ word }) => `Find ${word}!`,
     speech: ({ word }) => `Which face looks ${word}?`,

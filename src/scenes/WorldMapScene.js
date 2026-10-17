@@ -50,13 +50,20 @@ export default class WorldMapScene extends BaseScene {
       return { subject: subject.id, passed, total: skills.length, next: next ? next.id : null };
     });
 
+    // The bottom row: Daily Review (when due), Games, Fun Break, Stickers.
     this.reviews = getDueReviews(progress, toDayKey());
-    if (this.reviews.length) {
-      const review = new Button(this, SAFE.width / 2 - 170, 625, { label: t('map.review'), width: 320, height: 84, fontSize: 32, color: COLORS.yellow, textColor: COLORS.ink, onTap: () => this.go('Quiz', { skillIds: this.reviews, mode: 'review' }) });
-      this.tag('review', review.box);
-    }
-    const stickers = new Button(this, SAFE.width / 2 + (this.reviews.length ? 170 : 0), 625, { label: t('map.stickers', { count: (profile.stickers || []).length }), width: 320, height: 84, fontSize: 30, color: COLORS.white, textColor: COLORS.ink, onTap: () => this.go('StickerBook') });
-    this.tag('stickers', stickers.box);
+    const row = [
+      this.reviews.length && { name: 'review', label: t('map.review'), color: COLORS.yellow, onTap: () => this.go('Quiz', { skillIds: this.reviews, mode: 'review' }) },
+      { name: 'games', label: t('map.games'), color: COLORS.white, onTap: () => this.go('Games') },
+      { name: 'fun-break', label: t('map.funBreak', { count: profile.funTickets || 0 }), color: COLORS.white, onTap: () => this.go('FunBreak') },
+      { name: 'stickers', label: t('map.stickers', { count: (profile.stickers || []).length }), color: COLORS.white, onTap: () => this.go('StickerBook') },
+    ].filter(Boolean);
+    const width = row.length > 3 ? 285 : 330;
+    row.forEach(({ name, label, color, onTap }, i) => {
+      const x = SAFE.width / 2 + (i - (row.length - 1) / 2) * (width + 14);
+      const button = new Button(this, x, 625, { label, width, height: 84, fontSize: 26, color, textColor: COLORS.ink, onTap });
+      this.tag(name, button.box);
+    });
 
     this.player = new Button(this, 0, 0, { label: `${profile.avatar} ${profile.name}`, width: 260, height: 84, fontSize: 34, color: COLORS.white, textColor: COLORS.ink, onTap: () => this.reset('Profiles') });
     this.tag('switch-player', this.player.box);
@@ -69,7 +76,7 @@ export default class WorldMapScene extends BaseScene {
 
     speak(t('map.sayGreeting', { name: profile.name }));
     this.showNarration();
-    this.report({ player: profile.name, band: band.id, islands, reviews: this.reviews, stickers: (profile.stickers || []).length });
+    this.report({ player: profile.name, band: band.id, islands, reviews: this.reviews, stickers: (profile.stickers || []).length, tickets: profile.funTickets || 0 });
   }
 
   layout() {

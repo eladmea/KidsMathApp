@@ -1,0 +1,11 @@
+{
+  "title": "🌻 Garden Days",
+  "flowers": "🌻 × {count}",
+  "clue": "🔍 Clue",
+  "droopy": "{stage} (droopy)",
+  "bloomed": "Your flower bloomed! Plant a new seed when you are ready.",
+  "resting": "😴 Your plant is resting. Come back tomorrow to help it grow!",
+  "sayResting": "Your plant is resting. Come back tomorrow!",
+  "replanted": "You planted a new seed! 🌰",
+  "replant": "🌰 Plant a new seed"
+}

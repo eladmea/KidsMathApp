@@ -1,0 +1,10 @@
+{
+  "player1": "Player 1",
+  "player2": "Player 2",
+  "buddy": "Buddy",
+  "turn": "{name}'s turn!",
+  "buddyPlaying": "{name} is playing…",
+  "wins": "{name} wins!",
+  "tie": "It's a tie!",
+  "playAgain": "Play Again"
+}

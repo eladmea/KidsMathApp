@@ -1,0 +1,14 @@
+{
+  "rules1Title": "Tap the animals!",
+  "rules1Detail": "But when you see the owl, FREEZE!",
+  "rules1Say": "Tap the animals! But when you see the owl, freeze!",
+  "rules2Title": "Switch!",
+  "rules2Detail": "Now tap ONLY the owl. Freeze for everyone else!",
+  "rules2Say": "Switch! Now tap only the owl. Freeze for everyone else!",
+  "remind1": "Tap the animals · freeze for the owl",
+  "remind2": "Tap only the owl",
+  "hit": "✓ Nice tap!",
+  "freezeOk": "🧊 Great freezing!",
+  "oops": "✋ Freeze for that one!",
+  "missed": "👆 That one needed a tap!"
+}

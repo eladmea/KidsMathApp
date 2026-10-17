@@ -15,7 +15,24 @@ export const PETS = [['🐶', 'dog'], ['🐱', 'cat'], ['🐟', 'fish'], ['🐰'
 
 const spoken = (names) => names.join(', ');
 
+// Bunny Pop and Freeze Zoo's animals, by emoji.
+export const ANIMAL_NAMES = {
+  '🐸': 'frog',
+  '🐷': 'pig',
+  '🐱': 'cat',
+  '🐶': 'dog',
+  '🐵': 'monkey',
+  '🦊': 'fox',
+  '🐼': 'panda',
+  '🐔': 'chicken',
+  '🐰': 'bunny',
+  '🦁': 'lion',
+  '🦉': 'owl',
+};
+
 export const say = {
+  // Bunny Pop: tapped an animal that isn't the bunny.
+  bunnyOops: ({ animal }) => `That's the ${animal}. Only boop the bunny!`,
   gap: 'something',
   missing: { prompt: () => "What's missing?", question: () => 'What goes in the gap?' },
   next: { prompt: () => 'What comes next?', question: () => 'What comes next?' },

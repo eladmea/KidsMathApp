@@ -1,10 +1,10 @@
+import { content } from '../src/content/index';
 import {
   PAIR_COUNT,
   STARTING_CHIPS,
   VARIANTS,
   chipCostToMatch,
   createDeck,
-  gapQuestionSpeech,
   isStalemate,
   otherPlayer,
   startingChips,
@@ -24,17 +24,20 @@ function eighths(label) {
   return (n / d) * 8;
 }
 
+const { say } = content('math', 'en');
+const { MEMORY_LETTERS } = content('literacy', 'en');
+
 describe.each(Object.keys(VARIANTS))('%s deck', (variantId) => {
   const variant = VARIANTS[variantId];
 
   it('deals every value 1..pairCount exactly twice, face down, with unique ids', () => {
-    const deck = createDeck(variantId);
+    const deck = createDeck(variantId, { letters: MEMORY_LETTERS });
     expect(deck).toHaveLength(variant.pairCount * 2);
     const counts = {};
     deck.forEach((card) => {
       expect(card.status).toBe('hidden');
       expect(card.face.label.length).toBeGreaterThan(0);
-      expect(card.face.speech.length).toBeGreaterThan(0);
+      expect(say.memory.face(card.face).length).toBeGreaterThan(0);
       counts[card.value] = (counts[card.value] || 0) + 1;
     });
     for (let n = 1; n <= variant.pairCount; n++) expect(counts[n]).toBe(2);
@@ -107,8 +110,12 @@ describe('memory game rules', () => {
   });
 
   it('asks the gap question using the faces, not the hidden values', () => {
-    const speech = gapQuestionSpeech({ speech: '3 plus 4' }, { speech: '9' });
-    expect(speech).toBe('How many chips does it take to turn 3 plus 4 into 9?');
+    const low = say.memory.face({ kind: 'plus', label: '3+4', a: 3, b: 4 });
+    const high = say.memory.face({ kind: 'number', label: '9', n: 9 });
+    expect(say.memory.gap({ low, high })).toBe('How many chips does it take to turn 3 plus 4 into 9?');
+    expect(say.memory.face({ kind: 'dots', count: 1, n: 1 })).toBe('1 dot');
+    expect(say.memory.face({ kind: 'fraction', top: 3, bottom: 4 })).toBe('3 quarters');
+    expect(say.memory.face({ kind: 'letter', letter: 'b' })).toBe('the letter b');
   });
 });
 

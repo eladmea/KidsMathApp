@@ -2,98 +2,27 @@
 // feeling, then picks something that would help (CASEL self-awareness,
 // social awareness and relationship skills). Every friend has one helpful
 // choice per round; the others are clearly unkind or unhelpful.
-import { FEELINGS } from '../content/en/sel';
 
 export const FRIENDS_PER_ROUND = 4;
 // Each friend scores a point for the feeling and a point for the helper.
 export const POINTS_PER_FRIEND = 2;
 
 // feeling: the right face; alsoFits: feelings never offered as wrong answers.
-// helps: kind things to do; unhelpful: things that wouldn't help.
+// helps: kind things to do; unhelpful: things that wouldn't help (their
+// words are in the sel content pack, FRIENDS).
 export const FRIENDS = [
-  {
-    id: 'bear',
-    emoji: '🐻',
-    name: 'Bear',
-    story: 'My ice cream fell on the ground.',
-    feeling: 'sad',
-    alsoFits: ['angry', 'surprised'],
-    helps: [['🤗', 'Give a hug'], ['🍦', 'Share your snack']],
-    unhelpful: [['😂', 'Laugh at Bear'], ['🏃', 'Run away']],
-  },
-  {
-    id: 'bunny',
-    emoji: '🐰',
-    name: 'Bunny',
-    story: 'There is a big thunder storm outside!',
-    feeling: 'scared',
-    alsoFits: ['surprised'],
-    helps: [['🫂', 'Sit close together'], ['🌬️', 'Take slow breaths together']],
-    unhelpful: [['📢', 'Shout "Boo!"'], ['🙈', 'Ignore Bunny']],
-  },
-  {
-    id: 'fox',
-    emoji: '🦊',
-    name: 'Fox',
-    story: 'Someone knocked down my block tower on purpose!',
-    feeling: 'angry',
-    alsoFits: ['sad', 'surprised'],
-    helps: [['🌬️', 'Take a deep breath'], ['🧱', 'Build it again together']],
-    unhelpful: [['👊', 'Hit someone'], ['💥', 'Knock down another tower']],
-  },
-  {
-    id: 'pig',
-    emoji: '🐷',
-    name: 'Pig',
-    story: 'It is my birthday and everyone came to my party!',
-    feeling: 'happy',
-    alsoFits: ['surprised'],
-    helps: [['🎉', 'Celebrate together'], ['🎂', 'Sing happy birthday']],
-    unhelpful: [['😒', 'Say parties are boring'], ['🎈', 'Pop all the balloons']],
-  },
-  {
-    id: 'cat',
-    emoji: '🐱',
-    name: 'Cat',
-    story: 'I stayed up so late. My eyes keep closing.',
-    feeling: 'sleepy',
-    alsoFits: ['sad'],
-    helps: [['🛏️', 'Rest in a cozy bed'], ['📖', 'Read a quiet story']],
-    unhelpful: [['🥁', 'Bang a loud drum'], ['🍬', 'Eat lots of candy']],
-  },
-  {
-    id: 'monkey',
-    emoji: '🐵',
-    name: 'Monkey',
-    story: 'Nobody wants to play with me today.',
-    feeling: 'sad',
-    alsoFits: ['angry'],
-    helps: [['🙋', 'Ask Monkey to play'], ['💬', 'Say "You can play with us!"']],
-    unhelpful: [['🚫', 'Say "Go away"'], ['🤫', 'Whisper about Monkey']],
-  },
-  {
-    id: 'frog',
-    emoji: '🐸',
-    name: 'Frog',
-    story: 'My first day at a brand new school is tomorrow.',
-    feeling: 'scared',
-    alsoFits: ['happy', 'surprised'],
-    helps: [['💬', 'Say "I will be your friend"'], ['🗣️', 'Tell a grown-up how you feel']],
-    unhelpful: [['😝', 'Say "Everyone will laugh"'], ['🙈', 'Ignore Frog']],
-  },
-  {
-    id: 'lion',
-    emoji: '🦁',
-    name: 'Lion',
-    story: 'My little brother broke my favorite toy!',
-    feeling: 'angry',
-    alsoFits: ['sad', 'surprised'],
-    helps: [['🧸', 'Fix it together'], ['🗣️', 'Use words to say how you feel']],
-    unhelpful: [['😤', 'Break his toy too'], ['📢', 'Scream at him']],
-  },
+  { id: 'bear', emoji: '🐻', feeling: 'sad', alsoFits: ['angry', 'surprised'], helps: ['🤗', '🍦'], unhelpful: ['😂', '🏃'] },
+  { id: 'bunny', emoji: '🐰', feeling: 'scared', alsoFits: ['surprised'], helps: ['🫂', '🌬️'], unhelpful: ['📢', '🙈'] },
+  { id: 'fox', emoji: '🦊', feeling: 'angry', alsoFits: ['sad', 'surprised'], helps: ['🌬️', '🧱'], unhelpful: ['👊', '💥'] },
+  { id: 'pig', emoji: '🐷', feeling: 'happy', alsoFits: ['surprised'], helps: ['🎉', '🎂'], unhelpful: ['😒', '🎈'] },
+  { id: 'cat', emoji: '🐱', feeling: 'sleepy', alsoFits: ['sad'], helps: ['🛏️', '📖'], unhelpful: ['🥁', '🍬'] },
+  { id: 'monkey', emoji: '🐵', feeling: 'sad', alsoFits: ['angry'], helps: ['🙋', '💬'], unhelpful: ['🚫', '🤫'] },
+  { id: 'frog', emoji: '🐸', feeling: 'scared', alsoFits: ['happy', 'surprised'], helps: ['💬', '🗣️'], unhelpful: ['😝', '🙈'] },
+  { id: 'lion', emoji: '🦁', feeling: 'angry', alsoFits: ['sad', 'surprised'], helps: ['🧸', '🗣️'], unhelpful: ['😤', '📢'] },
 ];
 
-const FEELING_IDS = Object.keys(FEELINGS);
+// The feelings on offer (the sel content pack's FEELINGS, by id).
+export const FEELING_IDS = ['happy', 'sad', 'angry', 'scared', 'surprised', 'sleepy'];
 
 function shuffled(array, rng) {
   const copy = [...array];
@@ -110,14 +39,14 @@ export function makeFriendTurn(friend, rng = Math.random) {
     FEELING_IDS.filter((id) => id !== friend.feeling && !friend.alsoFits.includes(id)),
     rng
   ).slice(0, 2);
-  const help = friend.helps[Math.floor(rng() * friend.helps.length)];
+  const help = Math.floor(rng() * friend.helps.length);
   return {
     friend,
     feelingChoices: shuffled([friend.feeling, ...wrongFeelings], rng),
     helpChoices: shuffled(
       [
-        { emoji: help[0], label: help[1], helpful: true },
-        ...friend.unhelpful.map(([emoji, label]) => ({ emoji, label, helpful: false })),
+        { id: `helps-${help}`, kind: 'helps', index: help, emoji: friend.helps[help], helpful: true },
+        ...friend.unhelpful.map((emoji, index) => ({ id: `unhelpful-${index}`, kind: 'unhelpful', index, emoji, helpful: false })),
       ],
       rng
     ),

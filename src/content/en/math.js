@@ -122,6 +122,41 @@ export const say = {
       feed: ({ friend }) => `Drag a slice to ${friend}.`,
     },
   },
+  // Memory Chips: how a card is read aloud (logic/memoryGame.js faces), and
+  // the chip-gap question.
+  memory: {
+    face: (face) => {
+      const denominators = { 2: 'half', 4: 'quarter', 8: 'eighth', 16: 'sixteenth' };
+      switch (face.kind) {
+        case 'dots':
+          return face.count === 1 ? '1 dot' : `${face.count} dots`;
+        case 'plus':
+          return `${face.a} plus ${face.b}`;
+        case 'minus':
+          return `${face.a} minus ${face.b}`;
+        case 'times':
+          return `${face.a} times ${face.b}`;
+        case 'divide':
+          return `${face.a} divided by ${face.b}`;
+        case 'fraction':
+          return `${face.top} ${denominators[face.bottom]}${face.top === 1 ? '' : 's'}`;
+        case 'whole':
+          return '1 whole';
+        case 'letter':
+          return `the letter ${face.letter}`;
+        case 'picture':
+          return face.word;
+        default:
+          return String(face.n);
+      }
+    },
+    gap: ({ low, high }) => `How many chips does it take to turn ${low} into ${high}?`,
+    question: ({ name, low, high }) => `🤔 ${name}, how many chips does it take to turn ${low} into ${high}?`,
+    right: ({ cost, name }) => `Correct! 🎉 ${cost} chips go to ${name}.`,
+    wrong: ({ cost, name }) => `Not quite! It was ${cost}. ${name} loses ${cost} chips and the pair goes back.`,
+    tooFew: ({ cost, name, chips }) => `It takes 🪙 ${cost} chips, but ${name} only has ${chips}.`,
+    pairs: ({ name, count }) => `${name}: ${count} ${count === 1 ? 'pair' : 'pairs'}`,
+  },
   // Birthday Cake.
   cake: {
     intro: ({ friend, word }) => `It's ${friend}'s birthday! ${friend} is ${word} today. Write ${word} on the cake with icing.`,

@@ -66,7 +66,42 @@ export function listWords(words) {
 
 export const CHOICES = { push: 'push', pull: 'pull', solid: 'solid', liquid: 'liquid', gas: 'gas' };
 
+// Garden Days (logic/garden.js, by id): each stage's name, and each care
+// choice's label, clue (for real needs) and reason.
+export const GARDEN = {
+  stages: ['seed', 'sprout', 'young plant', 'leafy plant', 'bud', 'flower'],
+  choices: {
+    water: { label: 'Water', clue: 'The soil is dry and the leaves are floppy.', reason: 'Plants drink water through their roots.' },
+    sun: { label: 'Sunlight', clue: 'It is sitting in a dark corner.', reason: 'Plants use sunlight to make their food.' },
+    soil: { label: 'Fresh soil', clue: 'The leaves look pale and the soil is worn out.', reason: 'Good soil gives plants nutrients.' },
+    candy: { label: 'Candy', reason: "Plants don't eat candy!" },
+    music: { label: 'Loud music', reason: "Plants don't need loud music to grow." },
+  },
+};
+
+// Bubble Pop's golden bubbles.
+export const FUN_FACTS = [
+  'An octopus has three hearts!',
+  'Honey never goes bad.',
+  'A group of flamingos is called a flamboyance.',
+  'Sea otters hold hands while they sleep.',
+  'Bananas are berries, but strawberries are not!',
+  'A snail can sleep for three years.',
+  'Butterflies taste with their feet.',
+  'Cows have best friends.',
+  'The heart of a blue whale is as big as a small car.',
+  'Koalas sleep up to 20 hours a day.',
+];
+
 export const say = {
+  // Garden Days. `stage` is a stage's name, `reason` a choice's reason.
+  garden: {
+    look: ({ clue }) => `Look at your plant. ${clue} What does it need?`,
+    grew: ({ reason, stage }) => `Yes! ${reason} It grew into ${/^[aeiou]/.test(stage) ? 'an' : 'a'} ${stage}! Come back tomorrow to help it grow more. 🌙`,
+    bloomed: ({ flowers }) => `🌻 It bloomed! You have grown ${flowers} ${flowers === 1 ? 'flower' : 'flowers'}!`,
+    sticker: ({ emoji }) => `You earned a sticker: ${emoji}`,
+    wrong: ({ reason }) => `Hmm, not that. ${reason} Read the clue again!`,
+  },
   weather: {
     prompt: ({ weather }) => `It's ${weather.label}!`,
     speech: ({ weather, options }) => `It's ${weather.label} today! What should we take: ${listWords(options)}?`,

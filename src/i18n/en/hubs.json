@@ -1,0 +1,15 @@
+{
+  "games": "🎲 Games",
+  "sayGames": "Pick a game to play.",
+  "funBreak": "🎈 Fun Break",
+  "tickets": "🎟️ × {count}",
+  "pick": "Pick a game! Each one uses a ticket.",
+  "earn": { "one": "Play {count} more learning round to earn a ticket.", "other": "Play {count} more learning rounds to earn a ticket." },
+  "sayEarn": { "one": "Play {count} more learning round to earn a Fun Break!", "other": "Play {count} more learning rounds to earn a Fun Break!" },
+  "free": "Free!",
+  "choose": "Choose a game",
+  "playWith": "Play with",
+  "friend": "👫 A friend",
+  "justRight": "⭐ Just right",
+  "start": "Start ▶"
+}

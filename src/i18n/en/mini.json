@@ -1,0 +1,42 @@
+{
+  "backToLearning": "Back to learning ▶",
+  "bubble": {
+    "intro": "Pop as many bubbles as you can!",
+    "fact": "Fun fact! {fact}",
+    "end": { "one": "You popped {count} bubble!", "other": "You popped {count} bubbles!" },
+    "endDetail": "What a bubble champion!"
+  },
+  "toss": {
+    "intro": "Tap to toss the chip into the cup!",
+    "tapHint": "Tap anywhere to toss!",
+    "catch": "In the cup! 🎉",
+    "miss": "So close! Try again",
+    "end": "{score} of {total} in the cup!",
+    "super": "Super aim!",
+    "great": "Great tossing!"
+  },
+  "dance": {
+    "intro": "Tap the glowing animal to the beat!",
+    "beat": "Beat {beat} / {total}",
+    "end": "You danced {hits} of {total} beats!",
+    "best": "Best combo: 🔥 {combo}"
+  },
+  "breath": {
+    "intro": "Let's fill the balloon with slow breaths. Hold the button and breathe in. Let go and breathe out.",
+    "hint": "Hold the button while you breathe in. Let go to breathe out.",
+    "sayIn": "Breathe in…",
+    "good": "🌬️ Now breathe out slowly…",
+    "sayGood": "And breathe out slowly…",
+    "quick": "🐢 Try a slower breath in. Hold until the balloon is big!",
+    "sayQuick": "Try a slower breath in.",
+    "ready": "Hold to breathe in",
+    "in": "Breathe in… {seconds}",
+    "full": "Full! Let go…",
+    "out": "Breathe out… {seconds}",
+    "done": "All done",
+    "endHeadline": "So calm!",
+    "endDetail": "You took 5 slow breaths. Slow breathing helps when you feel upset, worried or wiggly.",
+    "sayDone": "Well done. You took five slow breaths. You can do this any time you need to feel calm.",
+    "doneButton": "Done ✓"
+  }
+}
