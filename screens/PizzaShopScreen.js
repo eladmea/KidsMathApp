@@ -5,6 +5,8 @@ import MiniGameHeader from '../components/MiniGameHeader';
 import TraceCanvas from '../components/TraceCanvas';
 import DragTray from '../components/DragTray';
 import BigButton from '../components/BigButton';
+import HintArrow from '../components/HintArrow';
+import { useIdleHint } from '../utils/useIdleHint';
 import { useProfiles } from '../context/ProfileContext';
 import { useNarrator } from '../utils/useNarrator';
 import { useSoundEffects } from '../utils/useSoundEffects';
@@ -39,7 +41,7 @@ const NEXT_MS = 2600;
 const MAX_SAUCE_DABS = 180;
 // The sauce brush (diameter, as a share of the pizza). The covered area
 // matches what is drawn, so the game never moves on while bare dough shows.
-const SAUCE_DAB = 0.2;
+const SAUCE_DAB = 0.12;
 const MAX_CHEESE_DABS = 160;
 const CRUST = 9;
 
@@ -152,8 +154,9 @@ export default function PizzaShopScreen({ route, navigation }) {
   // Pre-readers need to hear every step.
   const { say } = useNarrator(true);
   const { playCorrect, playWrong } = useSoundEffects();
-  const { width } = useWindowDimensions();
-  const size = Math.min(width - 56, 300);
+  const { width, height } = useWindowDimensions();
+  // Room above for the order and ingredients, below for the tray or oven.
+  const size = Math.max(200, Math.min(width - 56, 280, Math.round(height * 0.34)));
   const bigNumbers = hasPassed(getRecord(progress, 'math-write-1-5'));
   // The customer picks the number: different numbers each pizza.
   const numbers = useMemo(() => pickDistinct(numberPool({ bigNumbers }), PIZZAS_PER_ROUND), []);
@@ -170,6 +173,7 @@ export default function PizzaShopScreen({ route, navigation }) {
   const [cuts, setCuts] = useState(0);
   const [eaten, setEaten] = useState([]);
   const [dragSlice, setDragSlice] = useState(null);
+  const [ovenDrag, setOvenDrag] = useState(null);
   const [message, setMessage] = useState(null);
   const [points, setPoints] = useState(0);
 
@@ -179,6 +183,8 @@ export default function PizzaShopScreen({ route, navigation }) {
   const pizzaRef = useRef(null);
   const pizzaBoxRef = useRef({ x: 0, y: 0 });
   const animalRef = useRef(null);
+  const ovenRef = useRef(null);
+  const ovenBoxRef = useRef(null);
   const animalBoxRef = useRef(null);
   const timerRef = useRef(null);
   const rollRef = useRef({ last: null, total: 0 });
@@ -195,6 +201,16 @@ export default function PizzaShopScreen({ route, navigation }) {
   // Gesture handlers are created once; they read the latest state and
   // functions through this ref (so the second pizza isn't the first one).
   live.current = { step, coverage, sauceDabs, cheeseDabs, cuts, eaten };
+
+  // A reminder arrow (and the instruction spoken again) after 5 s without
+  // progress. The task key changes with the step, and when the toppings are
+  // all on (then the arrow points at Done instead of the tray).
+  const hintKey = `${index}-${step}-${step === 'place' && placed.length >= number}`;
+  const { showing: hinting, poke } = useIdleHint(hintKey, {
+    enabled: !['baking', 'done'].includes(step),
+    onIdle: () => live.current.sayHint && live.current.sayHint(),
+  });
+  live.current.poke = poke;
 
   useEffect(() => () => clearTimeout(timerRef.current), []);
 
@@ -234,6 +250,7 @@ export default function PizzaShopScreen({ route, navigation }) {
         onMoveShouldSetPanResponder: () => true,
         onPanResponderTerminationRequest: () => false,
         onPanResponderGrant: (event) => {
+          live.current.poke();
           rollRef.current.last = [event.nativeEvent.pageX, event.nativeEvent.pageY];
           rollRef.current.total += ROLL_DISTANCE * 0.08;
           setRolled(Math.min(1, rollRef.current.total / ROLL_DISTANCE));
@@ -244,6 +261,7 @@ export default function PizzaShopScreen({ route, navigation }) {
           rollRef.current.total += Math.hypot(point[0] - last[0], point[1] - last[1]);
           rollRef.current.last = point;
           setRolled(Math.min(1, rollRef.current.total / ROLL_DISTANCE));
+          live.current.poke();
         },
       }),
     []
@@ -259,6 +277,7 @@ export default function PizzaShopScreen({ route, navigation }) {
 
   // ---- Sauce: write the number ----
   function traceHint(kind) {
+    poke();
     if (kind === 'start') say('Start at the green dot!');
     else if (kind === 'next') say('Now the next line!');
     else {
@@ -302,6 +321,7 @@ export default function PizzaShopScreen({ route, navigation }) {
     const last = ref.last;
     if (last && Math.hypot(point[0] - last[0], point[1] - last[1]) < size * 0.035) return;
     ref.last = point;
+    live.current.poke();
     const [x, y] = clampToCircle(point[0], point[1], size, 0.12);
     if (current === 'sauce') {
       if (ref.sauce.length < MAX_SAUCE_DABS) ref.sauce = [...ref.sauce, [x, y]];
@@ -347,27 +367,50 @@ export default function PizzaShopScreen({ route, navigation }) {
     }
   }
 
+  const PIZZA_GESTURE_STEPS = ['sauce', 'cheese', 'slice', 'oven'];
   const pizzaResponder = useMemo(
     () =>
       PanResponder.create({
-        onStartShouldSetPanResponder: () => ['sauce', 'cheese', 'slice'].includes(live.current.step),
-        onStartShouldSetPanResponderCapture: () => ['sauce', 'cheese', 'slice'].includes(live.current.step),
-        onMoveShouldSetPanResponder: () => ['sauce', 'cheese', 'slice'].includes(live.current.step),
+        onStartShouldSetPanResponder: () => PIZZA_GESTURE_STEPS.includes(live.current.step),
+        onStartShouldSetPanResponderCapture: () => PIZZA_GESTURE_STEPS.includes(live.current.step),
+        onMoveShouldSetPanResponder: () => PIZZA_GESTURE_STEPS.includes(live.current.step),
         onPanResponderTerminationRequest: () => false,
         onPanResponderGrant: (event) => {
+          live.current.poke();
           measurePizza();
+          if (live.current.step === 'oven') {
+            ovenRef.current?.measureInWindow((x, y, w, h) => {
+              ovenBoxRef.current = { x, y, w, h };
+            });
+            setOvenDrag({ dx: 0, dy: 0 });
+            return;
+          }
           const point = toPizza(event);
           paintRef.current = { ...paintRef.current, last: null, waitForLift: false };
           cutRef.current = point;
           if (live.current.step !== 'slice') live.current.paint(point);
         },
-        onPanResponderMove: (event) => {
-          if (live.current.step !== 'slice') live.current.paint(toPizza(event));
+        onPanResponderMove: (event, gesture) => {
+          if (live.current.step === 'oven') setOvenDrag({ dx: gesture.dx, dy: gesture.dy });
+          else if (live.current.step !== 'slice') live.current.paint(toPizza(event));
         },
         onPanResponderRelease: (event) => {
+          if (live.current.step === 'oven') {
+            setOvenDrag(null);
+            const box = ovenBoxRef.current;
+            const { pageX, pageY } = event.nativeEvent;
+            const margin = 30;
+            if (box && pageX >= box.x - margin && pageX <= box.x + box.w + margin && pageY >= box.y - margin && pageY <= box.y + box.h + margin) {
+              live.current.bake();
+            } else {
+              live.current.say('Drag the pizza all the way into the oven!');
+            }
+            return;
+          }
           if (live.current.step === 'slice' && cutRef.current) live.current.cutSwipe(cutRef.current, toPizza(event));
           cutRef.current = null;
         },
+        onPanResponderTerminate: () => setOvenDrag(null),
       }),
     [size]
   );
@@ -380,6 +423,7 @@ export default function PizzaShopScreen({ route, navigation }) {
   }
 
   function drop(x, y) {
+    poke();
     if (placed.length >= MAX_ON_TRAY_TARGET) return;
     const [px, py] = clampToCircle(x, y, size);
     const next = [...placed, { id: `${Date.now()}-${Math.random()}`, x: px, y: py }];
@@ -389,6 +433,7 @@ export default function PizzaShopScreen({ route, navigation }) {
   }
 
   function takeOne() {
+    poke();
     if (!placed.length) return;
     const next = placed.slice(0, -1);
     setPlaced(next);
@@ -402,7 +447,7 @@ export default function PizzaShopScreen({ route, navigation }) {
       playCorrect();
       setMessage(null);
       setStep('oven');
-      say(`${number} ${word(number, topping)}! Now put the pizza in the oven.`);
+      say(`${number} ${word(number, topping)}! Now drag the pizza into the oven.`);
     } else if (result === 'more') {
       playWrong();
       setMessage(`${customer.name} wants ${number}. We have ${placed.length}. Add more!`);
@@ -433,6 +478,7 @@ export default function PizzaShopScreen({ route, navigation }) {
           onMoveShouldSetPanResponder: () => live.current.step === 'feed' && !live.current.eaten.includes(i),
           onPanResponderTerminationRequest: () => false,
           onPanResponderGrant: () => {
+            live.current.poke();
             animalRef.current?.measureInWindow((x, y, w, h) => {
               animalBoxRef.current = { x, y, w, h };
             });
@@ -476,6 +522,8 @@ export default function PizzaShopScreen({ route, navigation }) {
   live.current.paint = paint;
   live.current.cutSwipe = cutSwipe;
   live.current.feed = feed;
+  live.current.bake = bake;
+  live.current.say = say;
 
   const baked = ['slice', 'feed', 'done'].includes(step);
   const sauceSmooth = !['dough', 'trace', 'sauce'].includes(step);
@@ -487,15 +535,43 @@ export default function PizzaShopScreen({ route, navigation }) {
     dough: '👐 Rub the dough to roll it out!',
     trace: `Write ${number} with sauce 🥄`,
     sauce: '👆 Spread the sauce all over!',
-    cheese: '🧀 Sprinkle cheese all over!',
+    cheese: '🧀 Now the cheese! Spread it all over',
     topping: 'Pick a topping!',
     place: `Put ${number} on the pizza`,
-    oven: 'Into the oven!',
+    oven: '🔥 Drag the pizza into the oven!',
     baking: '🔥 Baking…',
     slice: `🔪 Swipe across to cut (${cuts}/${CUTS_NEEDED})`,
     feed: `Feed me the slices! (${eaten.length}/${SLICES})`,
     done: '😋 Yum! Thank you!',
   }[step];
+
+  // What the reminder says and where its arrow points.
+  const allOn = step === 'place' && placed.length >= number;
+  const hint = {
+    dough: { where: 'pizza', label: 'Rub!', say: 'Rub the dough with your finger to roll it out!' },
+    trace: { where: 'trace', say: 'Start at the green dot and follow the dots with your finger.' },
+    sauce: { where: 'pizza', label: 'Rub!', say: 'Rub your finger all over the pizza to spread the sauce.' },
+    cheese: { where: 'pizza', label: 'Rub!', say: 'Rub your finger all over the pizza to sprinkle the cheese.' },
+    topping: { where: 'toppings', label: 'Tap one!', say: 'Tap a topping you like.' },
+    place: allOn
+      ? { where: 'done', label: 'Tap!', say: `${number}! Now tap Done.` }
+      : { where: 'tray', label: 'Drag!', say: `Drag a ${topping ? topping.name : 'topping'} from the tray onto the pizza.` },
+    oven: { where: 'oven', label: 'Drag the pizza here!', say: 'Drag the pizza into the oven.' },
+    slice: { where: 'pizza', label: 'Swipe!', direction: 'right', say: 'Swipe your finger across the pizza to cut it.' },
+    feed: { where: 'animal', label: 'Feed me!', say: `Drag a slice to ${customer.name}.` },
+  }[step];
+  live.current.sayHint = () => hint && say(hint.say);
+  const showHint = (where) => hinting && hint && hint.where === where;
+
+  // Sauce -> cheese -> toppings, shown once the dough is rolled. The active
+  // one stands out; finished ones get a tick; later ones are greyed out.
+  const stationStatus = (steps) => {
+    const at = STEP_ORDER.indexOf(step);
+    if (steps.includes(step)) return 'active';
+    return at > Math.max(...steps.map((s) => STEP_ORDER.indexOf(s))) ? 'done' : 'later';
+  };
+
+  const pizzaOffset = ovenDrag ? { transform: [{ translateX: ovenDrag.dx }, { translateY: ovenDrag.dy }, { scale: 0.6 }] } : null;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -509,6 +585,7 @@ export default function PizzaShopScreen({ route, navigation }) {
         <View style={styles.customerRow}>
           <View ref={animalRef} collapsable={false} accessibilityLabel={`Customer ${customer.name}`}>
             <Text style={styles.customer}>{step === 'done' || (step === 'feed' && eaten.length) ? '😋' : customer.emoji}</Text>
+            {showHint('animal') && <HintArrow direction="up" label={hint.label} size={32} style={styles.animalHint} />}
           </View>
           <View style={[styles.bubble, shadow]}>
             <Text style={styles.bubbleText}>{instruction}</Text>
@@ -519,19 +596,32 @@ export default function PizzaShopScreen({ route, navigation }) {
           </View>
         </View>
 
+        {step !== 'dough' && (
+          <View style={styles.stations}>
+            {STATIONS.map((station, i) => {
+              const status = stationStatus(station.steps);
+              return (
+                <View key={station.id} style={styles.stationWrap}>
+                  {i > 0 && <Text style={styles.stationArrow}>›</Text>}
+                  <View
+                    accessibilityLabel={`${station.label} ${status}`}
+                    style={[styles.station, status === 'active' && [styles.stationActive, shadow], status === 'later' && styles.stationLater]}
+                  >
+                    <Text style={[styles.stationEmoji, status === 'active' && styles.stationEmojiActive]}>{station.emoji}</Text>
+                    <Text style={[styles.stationLabel, status === 'active' && styles.stationLabelActive]}>{station.label}</Text>
+                    {status === 'done' && <Text style={styles.stationTick}>✓</Text>}
+                  </View>
+                </View>
+              );
+            })}
+          </View>
+        )}
+
         {step === 'dough' ? (
           <View style={[styles.doughArea, { width: size, height: size }]} {...rollResponder.panHandlers} accessibilityLabel="Dough">
             <View style={[styles.dough, { width: size * (0.35 + 0.65 * rolled), height: size * (0.35 + 0.65 * rolled), borderRadius: size }]} />
             <Text style={styles.pin}>🥖</Text>
-          </View>
-        ) : step === 'topping' ? (
-          <View style={styles.cards}>
-            {TOPPINGS.map((item) => (
-              <Pressable key={item.id} onPress={() => pickTopping(item)} style={[styles.card, shadow]} accessibilityLabel={`Topping ${item.name}`}>
-                <Topping topping={item} size={50} />
-                <Text style={styles.cardLabel}>{item.plural}</Text>
-              </Pressable>
-            ))}
+            {showHint('pizza') && <HintArrow label={hint.label} style={styles.pizzaHint} />}
           </View>
         ) : step === 'feed' || step === 'done' ? (
           <View style={{ width: size, height: size }} accessibilityLabel="Pizza slices">
@@ -566,7 +656,7 @@ export default function PizzaShopScreen({ route, navigation }) {
             collapsable={false}
             onLayout={measurePizza}
             accessibilityLabel="Pizza"
-            style={[styles.pizzaArea, { width: size, height: size }]}
+            style={[styles.pizzaArea, { width: size, height: size }, pizzaOffset, ovenDrag && styles.pizzaLifted, step === 'baking' && styles.pizzaInOven]}
             {...pizzaResponder.panHandlers}
           >
             <PizzaLayers {...layers} />
@@ -577,6 +667,8 @@ export default function PizzaShopScreen({ route, navigation }) {
                   strokes={strokes}
                   width={canvasWidth}
                   look={SAUCE_LOOK}
+                  hintStart={showHint('trace')}
+                  onTouch={poke}
                   onHint={traceHint}
                   onComplete={traceDone}
                   label={`Sauce tracing for ${number}`}
@@ -585,17 +677,29 @@ export default function PizzaShopScreen({ route, navigation }) {
             )}
             {step === 'slice' && cuts >= 1 && <View pointerEvents="none" style={[styles.cutLine, styles.cutVertical, { left: size / 2 - 2, height: size }]} />}
             {step === 'slice' && cuts >= 2 && <View pointerEvents="none" style={[styles.cutLine, { top: size / 2 - 2, width: size, height: 4 }]} />}
-            {step === 'baking' && (
-              <View pointerEvents="none" style={[styles.oven, { borderRadius: size / 2 }]}>
-                <Text style={styles.ovenText}>🔥🔥🔥</Text>
-              </View>
-            )}
+            {showHint('pizza') && <HintArrow direction={hint.direction || 'down'} label={hint.label} style={styles.pizzaHint} />}
           </View>
         )}
 
         {(step === 'sauce' || step === 'cheese') && (
           <View style={styles.meter} accessibilityLabel={`Covered ${coverPercent} percent`}>
             <View style={[styles.meterFill, { width: `${Math.min(100, (coverPercent / ((step === 'sauce' ? SAUCE_COVERED : CHEESE_COVERED) * 100)) * 100)}%` }, step === 'cheese' && styles.meterCheese]} />
+          </View>
+        )}
+
+        {step === 'topping' && (
+          <View>
+            {showHint('toppings') && <HintArrow label={hint.label} style={styles.aboveHint} />}
+            <View style={styles.toppingRow}>
+              {TOPPINGS.map((item) => (
+                <Pressable key={item.id} onPress={() => pickTopping(item)} style={[styles.toppingCard, shadow]} accessibilityLabel={`Topping ${item.name}`}>
+                  <Topping topping={item} size={38} />
+                  <Text style={styles.toppingLabel} numberOfLines={1}>
+                    {CARD_LABELS[item.id]}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
           </View>
         )}
 
@@ -611,24 +715,54 @@ export default function PizzaShopScreen({ route, navigation }) {
                 </Pressable>
               )}
             </View>
-            <DragTray
-              emoji={topping.emoji}
-              renderItem={topping.emoji ? null : () => <Topping topping={topping} />}
-              label={topping.plural}
-              targetRef={pizzaRef}
-              onDrop={drop}
-            />
-            <BigButton label="Done ✓" color={colors.green} onPress={check} style={styles.done} />
+            <View style={styles.fullWidth}>
+              {showHint('tray') && <HintArrow label={hint.label} style={styles.aboveHint} />}
+              <DragTray
+                emoji={topping.emoji}
+                renderItem={topping.emoji ? null : () => <Topping topping={topping} />}
+                label={topping.plural}
+                targetRef={pizzaRef}
+                onDrop={drop}
+              />
+            </View>
+            <View>
+              {showHint('done') && <HintArrow label={hint.label} style={styles.aboveHint} />}
+              <BigButton label="Done ✓" color={colors.green} onPress={check} style={styles.done} />
+            </View>
           </>
         )}
 
-        {step === 'oven' && <BigButton label="🔥 Put in the oven" color={colors.orange} onPress={bake} style={styles.done} />}
+        {(step === 'oven' || step === 'baking') && (
+          <View style={styles.ovenSpot}>
+            {showHint('oven') && <HintArrow label={hint.label} style={styles.aboveHint} />}
+            <View ref={ovenRef} collapsable={false} accessibilityLabel="Oven" style={[styles.ovenBox, step === 'baking' && styles.ovenHot]}>
+              <View style={styles.ovenKnobs}>
+                <View style={styles.knob} />
+                <View style={styles.knob} />
+              </View>
+              <View style={[styles.ovenWindow, step === 'baking' && styles.ovenWindowHot]}>
+                <Text style={styles.ovenWindowText}>{step === 'baking' ? '🍕' : ''}</Text>
+              </View>
+              <Text style={styles.ovenFlames}>🔥🔥🔥</Text>
+            </View>
+          </View>
+        )}
 
         {message && <Text style={styles.message}>{message}</Text>}
       </View>
     </SafeAreaView>
   );
 }
+
+// Short names that fit the small topping cards.
+const CARD_LABELS = { olive: 'olives', corn: 'corn', mushroom: 'mushroom', pineapple: 'pineapple' };
+
+const STEP_ORDER = ['dough', 'trace', 'sauce', 'cheese', 'topping', 'place', 'oven', 'baking', 'slice', 'feed', 'done'];
+const STATIONS = [
+  { id: 'sauce', emoji: '🥫', label: 'Sauce', steps: ['trace', 'sauce'] },
+  { id: 'cheese', emoji: '🧀', label: 'Cheese', steps: ['cheese'] },
+  { id: 'toppings', emoji: '🍄', label: 'Toppings', steps: ['topping', 'place'] },
+];
 
 const styles = StyleSheet.create({
   container: {
@@ -700,6 +834,167 @@ const styles = StyleSheet.create({
   },
   pizzaArea: {
     userSelect: 'none',
+  },
+  pizzaLifted: {
+    zIndex: 20,
+  },
+  pizzaInOven: {
+    opacity: 0,
+  },
+  pizzaHint: {
+    position: 'absolute',
+    top: -8,
+    alignSelf: 'center',
+    left: 0,
+    right: 0,
+  },
+  aboveHint: {
+    position: 'absolute',
+    top: -78,
+    left: 0,
+    right: 0,
+  },
+  animalHint: {
+    position: 'absolute',
+    top: 52,
+    left: -20,
+    width: 100,
+  },
+  fullWidth: {
+    width: '100%',
+  },
+  stations: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  stationWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  stationArrow: {
+    fontSize: 26,
+    fontWeight: '900',
+    color: colors.gray,
+    marginHorizontal: 4,
+  },
+  station: {
+    alignItems: 'center',
+    borderRadius: 16,
+    borderWidth: 2,
+    borderColor: '#E5D3B3',
+    backgroundColor: '#FFFDF7',
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    minWidth: 72,
+  },
+  stationActive: {
+    borderWidth: 4,
+    borderColor: colors.orange,
+    backgroundColor: colors.white,
+    transform: [{ scale: 1.12 }],
+  },
+  stationLater: {
+    opacity: 0.3,
+  },
+  stationEmoji: {
+    fontSize: 24,
+  },
+  stationEmojiActive: {
+    fontSize: 32,
+  },
+  stationLabel: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: colors.gray,
+  },
+  stationLabelActive: {
+    fontSize: 14,
+    fontWeight: '900',
+    color: colors.textDark,
+  },
+  stationTick: {
+    position: 'absolute',
+    top: -8,
+    right: -8,
+    fontSize: 14,
+    fontWeight: '900',
+    color: colors.white,
+    backgroundColor: colors.greenDark,
+    borderRadius: 10,
+    width: 20,
+    height: 20,
+    textAlign: 'center',
+    overflow: 'hidden',
+  },
+  toppingRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 14,
+  },
+  toppingCard: {
+    width: 80,
+    height: 92,
+    borderRadius: 18,
+    backgroundColor: colors.white,
+    borderWidth: 3,
+    borderColor: colors.orange,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+  },
+  toppingLabel: {
+    fontSize: 12,
+    fontWeight: '900',
+    color: colors.textDark,
+  },
+  ovenSpot: {
+    marginTop: 16,
+    alignItems: 'center',
+  },
+  ovenBox: {
+    width: 180,
+    height: 130,
+    borderRadius: 18,
+    backgroundColor: '#5B5552',
+    borderWidth: 4,
+    borderColor: '#3E3936',
+    alignItems: 'center',
+    paddingTop: 6,
+  },
+  ovenHot: {
+    borderColor: '#FF7A1A',
+  },
+  ovenKnobs: {
+    flexDirection: 'row',
+    gap: 10,
+    alignSelf: 'flex-end',
+    marginRight: 12,
+  },
+  knob: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: '#C8C2BE',
+  },
+  ovenWindow: {
+    width: 130,
+    height: 62,
+    borderRadius: 12,
+    backgroundColor: '#2A2624',
+    marginTop: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  ovenWindowHot: {
+    backgroundColor: '#E86A1C',
+  },
+  ovenWindowText: {
+    fontSize: 40,
+  },
+  ovenFlames: {
+    fontSize: 18,
+    marginTop: 2,
   },
   crust: {
     position: 'absolute',

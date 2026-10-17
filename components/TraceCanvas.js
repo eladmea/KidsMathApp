@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { View, Text, PanResponder, StyleSheet } from 'react-native';
+import HintArrow from './HintArrow';
 import { BOX, advance, isStrokeDone, startsAtDot } from '../utils/tracing';
 import { colors } from '../utils/theme';
 
@@ -36,6 +37,9 @@ export const DEFAULT_LOOK = {
 //   onHint(kind)  'start' (touched away from the start) | 'almost' (stopped
 //                 early) | 'next' (a stroke done, more to go)
 //   onComplete({ restarts })  every stroke traced
+//   hintStart     show a bouncing arrow at the start dot (a "start here"
+//                 reminder)
+//   onTouch()     any touch on the canvas (e.g. to reset a reminder timer)
 //   label         accessibility label
 export default function TraceCanvas({
   strokes,
@@ -48,6 +52,8 @@ export default function TraceCanvas({
   finished = false,
   onHint = () => {},
   onComplete = () => {},
+  hintStart = false,
+  onTouch = () => {},
   label = 'Tracing area',
 }) {
   const look = { ...DEFAULT_LOOK, ...lookOverrides };
@@ -61,7 +67,7 @@ export default function TraceCanvas({
 
   const checkpoints = strokes[strokeIndex];
   const live = useRef({});
-  live.current = { checkpoints, strokeIndex, strokes, finished, onHint, onComplete };
+  live.current = { checkpoints, strokeIndex, strokes, finished, onHint, onComplete, onTouch };
   const originRef = useRef({ x: 0, y: 0 });
   const canvasRef = useRef(null);
   const dragRef = useRef({ active: false, reached: 0 });
@@ -130,6 +136,7 @@ export default function TraceCanvas({
         onPanResponderTerminationRequest: () => false,
         onPanResponderGrant: (event) => {
           if (live.current.finished) return;
+          live.current.onTouch();
           measure();
           const point = toBox(event);
           const cps = live.current.checkpoints;
@@ -235,6 +242,9 @@ export default function TraceCanvas({
           )}
         </View>
       )}
+      {hintStart && !finished && (
+        <HintArrow direction="down" size={34} style={[styles.hint, { left: checkpoints[0][0] * scale - 30, top: checkpoints[0][1] * scale - 62 }]} />
+      )}
       {rider && (
         <Text pointerEvents="none" style={[styles.follower, toPx(rider, 40)]}>
           {look.follower}
@@ -294,6 +304,10 @@ const styles = StyleSheet.create({
     fontSize: 32,
     width: 40,
     textAlign: 'center',
+  },
+  hint: {
+    position: 'absolute',
+    width: 60,
   },
   pencil: {
     position: 'absolute',
