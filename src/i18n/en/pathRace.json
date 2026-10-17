@@ -1,0 +1,10 @@
+{
+  "title": "🏁 Number Path 1-{max}",
+  "start": "Start",
+  "spin": "🎡 Spin!",
+  "saySpin": "{name}, spin!",
+  "hop": { "one": "One! Hop one square.", "other": "{count}! Hop {count} squares." },
+  "tap": "Tap {square} and say it!",
+  "hopTo": "Hop to {square}.",
+  "nice": "Nice hopping!"
+}

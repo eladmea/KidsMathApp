@@ -7,5 +7,7 @@
   "unlocked": "🔓 New: {emoji} {title}",
   "stickers": { "one": "🌟 New sticker: {list}", "other": "🌟 New stickers: {list}" },
   "sayMastered": "You mastered {titles}!",
-  "saySticker": "You got a new sticker!"
+  "saySticker": "You got a new sticker!",
+  "ticket": "🎟️ You earned a Fun Break ticket!",
+  "sayTicket": "You earned a Fun Break ticket!"
 }

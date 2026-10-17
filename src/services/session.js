@@ -1,5 +1,6 @@
 // The signed-in child and their progress, shared by every scene. Scenes read
 // `session.profile` / `session.progress` and save rounds through here.
+import { applyFinishedRound, canSpendTicket } from '../logic/funTickets';
 import { createProfile, profileBand } from '../logic/profiles';
 import { applySession, toDayKey } from '../logic/progress';
 import { awardStickers, roundStickerEvents } from '../logic/stickers';
@@ -74,9 +75,27 @@ export async function recordRound(tallies, mode = 'practice') {
   await storage.saveProgress(session.profile.id, session.progress);
   const { stickers, earned } = awardStickers(session.profile.stickers, roundStickerEvents(result), today);
   if (earned.length) await updateProfile({ stickers });
+  // Every few finished rounds earn a Fun Break ticket.
+  const { changes, earnedTicket } = applyFinishedRound(session.profile);
+  await updateProfile(changes);
   const at = Date.now();
   await logEvents(Object.entries(tallies).map(([skillId, tally]) => ({ type: 'round', at, day: today, skillId, mode, ...tally })));
-  return { ...result, earnedStickers: earned };
+  return { ...result, earnedStickers: earned, earnedTicket };
+}
+
+// Stickers for things outside a round (a flower in Garden Days).
+// events: [{ kind, ref }] as in logic/stickers.js. Returns the new stickers.
+export async function earnStickers(events) {
+  const { stickers, earned } = awardStickers(session.profile.stickers, events, toDayKey());
+  if (earned.length) await updateProfile({ stickers });
+  return earned;
+}
+
+// Uses a Fun Break ticket; false when there is none.
+export async function spendTicket() {
+  if (!canSpendTicket(session.profile)) return false;
+  await updateProfile({ funTickets: session.profile.funTickets - 1 });
+  return true;
 }
 
 // Play-test log events for the signed-in child (see logic/playLog.js).

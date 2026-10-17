@@ -13,7 +13,8 @@ import {
   WORD_PARTS,
   soundSpeech,
 } from '../src/content/en/literacy';
-import { createDeck, LETTER_PICTURES } from '../src/logic/memoryGame';
+import { createDeck } from '../src/logic/memoryGame';
+import { MEMORY_LETTERS } from '../src/content/en/literacy';
 
 const RUNS = 200;
 
@@ -144,14 +145,14 @@ describe('literacy questions', () => {
 describe('Letter Chips deck', () => {
   it('pairs each letter a-f with a picture that starts with it', () => {
     for (let i = 0; i < 20; i++) {
-      const deck = createDeck('letters');
+      const deck = createDeck('letters', { letters: MEMORY_LETTERS });
       expect(deck).toHaveLength(12);
       for (let v = 1; v <= 6; v++) {
         const pair = deck.filter((c) => c.value === v);
         const letterCard = pair.find((c) => !c.face.picture);
         const pictureCard = pair.find((c) => c.face.picture);
-        expect(letterCard.face.label).toBe(LETTER_PICTURES[v][0]);
-        expect(pictureCard.face.speech[0]).toBe(letterCard.face.label);
+        expect(letterCard.face.label).toBe(MEMORY_LETTERS[v][0]);
+        expect(pictureCard.face.word[0]).toBe(letterCard.face.label);
       }
     }
   });

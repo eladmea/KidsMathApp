@@ -38,17 +38,19 @@ export default class ResultsScene extends BaseScene {
         ...result.newlyMastered.map((id) => t('results.mastered', { title: skillTitle(id) })),
         ...result.newlyPassed.filter((id) => !result.newlyMastered.includes(id)).map((id) => t('results.passed', { title: skillTitle(id) })),
         ...(result.earnedStickers.length ? [t('results.stickers', { count: result.earnedStickers.length, list: result.earnedStickers.map((s) => s.emoji).join(' ') })] : []),
+        ...(result.earnedTicket ? [t('results.ticket')] : []),
         ...result.newlyUnlocked.map((id) => t('results.unlocked', { emoji: getSkill(id).emoji, title: skillTitle(id) })),
       ];
       this.news.setText(lines.slice(0, 4).join('\n'));
       const mastered = result.newlyMastered.map(skillTitle);
-      speak([resultLine(stars), t('results.sayScore', { score, total }), mastered.length ? t('results.sayMastered', { titles: list(mastered) }) : '', result.earnedStickers.length ? t('results.saySticker') : ''].filter(Boolean).join(' '));
+      speak([resultLine(stars), t('results.sayScore', { score, total }), mastered.length ? t('results.sayMastered', { titles: list(mastered) }) : '', result.earnedStickers.length ? t('results.saySticker') : '', result.earnedTicket ? t('results.sayTicket') : ''].filter(Boolean).join(' '));
       this.report({
         step: 'results',
         newlyPassed: result.newlyPassed,
         newlyMastered: result.newlyMastered,
         newlyUnlocked: result.newlyUnlocked,
         stickers: result.earnedStickers.map((s) => s.emoji),
+        ticket: result.earnedTicket,
       });
     });
   }

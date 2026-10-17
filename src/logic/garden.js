@@ -4,25 +4,22 @@
 // explains what it needed; the plant never dies.
 import { toDayKey } from './progress';
 
-export const STAGES = [
-  { emoji: '🌰', name: 'seed' },
-  { emoji: '🌱', name: 'sprout' },
-  { emoji: '🌿', name: 'young plant' },
-  { emoji: '🪴', name: 'leafy plant' },
-  { emoji: '🌷', name: 'bud' },
-  { emoji: '🌻', name: 'flower' },
-];
+// Names, clues and reasons are in the science content pack (GARDEN).
+export const STAGES = [{ emoji: '🌰' }, { emoji: '🌱' }, { emoji: '🌿' }, { emoji: '🪴' }, { emoji: '🌷' }, { emoji: '🌻' }];
 export const FLOWER_STAGE = STAGES.length - 1;
 
-export const NEEDS = {
-  water: { emoji: '💧', label: 'Water', clue: 'The soil is dry and the leaves are floppy.', reason: 'Plants drink water through their roots.' },
-  sun: { emoji: '☀️', label: 'Sunlight', clue: 'It is sitting in a dark corner.', reason: 'Plants use sunlight to make their food.' },
-  soil: { emoji: '🟫', label: 'Fresh soil', clue: 'The leaves look pale and the soil is worn out.', reason: 'Good soil gives plants nutrients.' },
-};
-export const SILLY_CHOICES = {
-  candy: { emoji: '🍬', label: 'Candy', reason: "Plants don't eat candy!" },
-  music: { emoji: '🎸', label: 'Loud music', reason: "Plants don't need loud music to grow." },
-};
+export const NEEDS = { water: { emoji: '💧' }, sun: { emoji: '☀️' }, soil: { emoji: '🟫' } };
+export const SILLY_CHOICES = { candy: { emoji: '🍬' }, music: { emoji: '🎸' } };
+
+// Today's four choices: the three real needs plus one silly one, turned
+// around daily so the right answer isn't always in the same place.
+export function careOptions(day) {
+  const dayNumber = Number(day.slice(-2));
+  const silly = Object.keys(SILLY_CHOICES)[dayNumber % 2];
+  const all = [...Object.keys(NEEDS), silly];
+  const shift = dayNumber % all.length;
+  return [...all.slice(shift), ...all.slice(0, shift)];
+}
 
 export function newGarden() {
   return { stage: 0, lastGrowDay: null, flowers: 0, droopy: false };

@@ -82,7 +82,13 @@ export default class BaseScene extends Phaser.Scene {
   // A game's header under the ← button: the skill's title on the left, and
   // a counter on the right ("2 / 5   ⭐ 1", see setCounter).
   addGameHeader(skill) {
-    this.headerTitle = this.add.text(30, 150, t('quiz.title', { emoji: skill.emoji, title: skillTitle(skill) }), textStyle(24, COLORS.gray)).setOrigin(0, 0.5);
+    this.addHeader(skill.emoji, skillTitle(skill));
+  }
+
+  // The same for anything else (a mini-game): headerCounter.setText() shows
+  // its counter.
+  addHeader(emoji, title) {
+    this.headerTitle = this.add.text(30, 150, t('quiz.title', { emoji, title }), textStyle(24, COLORS.gray)).setOrigin(0, 0.5);
     this.headerCounter = this.add.text(1250, 150, '', textStyle(28)).setOrigin(1, 0.5);
   }
 

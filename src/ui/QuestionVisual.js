@@ -45,7 +45,7 @@ function emojiGrid(scene, box, emoji, count, { size, cx = 0, cy = 0, perRow = 5,
 }
 
 // Dice layouts (row, col in a 3 x 3 grid): familiar patterns help subitizing.
-const DICE = {
+export const DICE = {
   1: [[1, 1]],
   2: [[0, 0], [2, 2]],
   3: [[0, 0], [1, 1], [2, 2]],

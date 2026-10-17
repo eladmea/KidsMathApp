@@ -1,0 +1,14 @@
+{
+  "score": "{pairs} pairs · 🪙 {chips}",
+  "notAPair": "Not a pair!",
+  "thinking": "{name} is thinking…",
+  "skip": "⏭ Skip",
+  "ok": "⏭ OK",
+  "tapChips": "Tap a chip for each step:",
+  "pay": "Pay {count} 🪙",
+  "unitNote": {
+    "letters": "Each chip is one step along the alphabet.",
+    "fractions": "Each chip is one eighth (1/8)."
+  },
+  "stuck": "Nobody has enough chips to match the last cards, so the game's over!"
+}

@@ -151,6 +151,17 @@ export function listWords(words) {
   return `${words.slice(0, -1).join(', ')}, or ${words[words.length - 1]}`;
 }
 
+// Memory Chips' Letter Chips: letter value (a = 1) -> the letter and
+// pictures that start with its sound.
+export const MEMORY_LETTERS = {
+  1: ['a', [['🍎', 'apple'], ['🐜', 'ant']]],
+  2: ['b', [['🐻', 'bear'], ['🍌', 'banana'], ['🐝', 'bee']]],
+  3: ['c', [['🐱', 'cat'], ['🚗', 'car'], ['🐮', 'cow']]],
+  4: ['d', [['🐶', 'dog'], ['🦆', 'duck'], ['🥁', 'drum']]],
+  5: ['e', [['🥚', 'egg'], ['🐘', 'elephant']]],
+  6: ['f', [['🐟', 'fish'], ['🦊', 'fox'], ['🐸', 'frog']]],
+};
+
 export const say = {
   rhymes: {
     prompt: ({ target }) => `What rhymes with ${target}?`,

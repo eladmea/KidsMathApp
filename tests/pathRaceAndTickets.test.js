@@ -65,7 +65,7 @@ describe('players', () => {
 
   it('gives a friend a different icon from the child in duo mode', () => {
     const players = buildPlayers(profile, 'duo');
-    expect(players[2].name).toBe('Player 2');
+    expect(players[2]).toMatchObject({ id: 'player2', name: null });
     expect(players[2].icon).not.toBe('🐸');
   });
 });
