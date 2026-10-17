@@ -19,7 +19,10 @@ import {
   countdownWords,
   insideCircle,
   roundPoint,
-  word,
+  STATIONS,
+  stationStatus,
+  cheeseShreds,
+  meltedCheese,
 } from '../src/logic/writingGames';
 import { SKILLS, getSkill, skillsFor } from '../src/curriculum/skills';
 
@@ -65,9 +68,6 @@ describe('counting toppings and candles', () => {
     expect(checkCount(3, 3)).toBe('right');
     expect(checkCount(2, 3)).toBe('more');
     expect(checkCount(4, 3)).toBe('fewer');
-    const mushroom = TOPPINGS.find((t) => t.id === 'mushroom');
-    expect(word(1, mushroom)).toBe('mushroom');
-    expect(word(3, mushroom)).toBe('mushrooms');
   });
 
   it('knows when a drop lands on the pizza, and keeps toppings on it', () => {
@@ -90,8 +90,27 @@ describe('counting toppings and candles', () => {
     expect(CUSTOMERS.length).toBeGreaterThanOrEqual(3);
     // Exactly the four toppings asked for; olives are slices (drawn, no emoji).
     expect(TOPPINGS.map((t) => t.id)).toEqual(['olive', 'corn', 'mushroom', 'pineapple']);
-    expect(TOPPINGS.find((t) => t.id === 'olive')).toMatchObject({ emoji: null, plural: 'olive slices' });
+    expect(TOPPINGS.find((t) => t.id === 'olive')).toMatchObject({ emoji: null });
     expect(VEHICLES.length).toBe(10);
+  });
+});
+
+describe("Pizza Shop's stations and cheese", () => {
+  it('marks each station active, done or still to come', () => {
+    const [sauce, cheese, toppings] = STATIONS;
+    expect(stationStatus(sauce, 'dough')).toBe('later');
+    expect(stationStatus(sauce, 'trace')).toBe('active');
+    expect(stationStatus(sauce, 'cheese')).toBe('done');
+    expect(stationStatus(cheese, 'cheese')).toBe('active');
+    expect(stationStatus(toppings, 'place')).toBe('active');
+    expect(STATIONS.map((s) => stationStatus(s, 'oven'))).toEqual(['done', 'done', 'done']);
+  });
+
+  it('scatters cheese near the dab and melts it inside the pizza', () => {
+    cheeseShreds(5).forEach(({ dx, dy }) => expect(Math.hypot(dx, dy)).toBeLessThanOrEqual(0.075 * 1.3));
+    const melted = meltedCheese();
+    expect(melted).toHaveLength(140);
+    melted.forEach(({ dx, dy }) => expect(Math.hypot(dx, dy)).toBeLessThanOrEqual(0.39 + 1e-9));
   });
 });
 

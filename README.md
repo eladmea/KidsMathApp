@@ -3,11 +3,11 @@
 Learning games for kids ages 3-10, built around a research-based skill map (learning trajectories, spaced review, read-aloud prompts for pre-readers).
 
 > **Being rebuilt in [Phaser 4](https://phaser.io)** (landscape, phones and tablets). See [PHASER_PLAN.md](PHASER_PLAN.md).
-> Right now (phase P2) the Phaser build has:
+> Right now (phase P3) the Phaser build has:
 > - players: "Who's playing?", new player, and a grown-up check to delete one;
 > - the world map and the five islands (placeholder art until the island design);
 > - **every quiz skill in all five subjects** (54), with worked examples, adaptive levels, results, stickers and Daily Review;
-> - the *Pizza Shop* sauce step.
+> - the writing games for ages 3-4: Write 1 to 5, Write 6 to 9 and 0, Bee Paths, Race Track Numbers, Pizza Shop and Birthday Cake, so the 🌱 Sprouts math band is complete.
 >
 > The other games are marked 🚧 Soon on their islands.
 > The feature list below describes the old Expo app, kept in [`legacy/`](legacy/) for reference. It is the target the rebuild works towards.
@@ -79,13 +79,15 @@ src/services/             storage (localStorage), speech (recordings first, then
                           session (players, signed-in child, progress), router (back history), audio (sound effects), testBridge
 src/ui/                   BaseScene (safe-area camera, go/back/swap/reset, ← button), Button, Narrator, StarRow, Dialog,
                           ParentGate (keypad times-fact check), HintArrow + IdleHint, PaintLayer + DragSurface, theme,
+                          TraceLayer + TraceRound (finger tracing), DragTray + CountPanel (drag a number of things),
                           QuestionVisual (all 11 picture types), QuizInputs (choices, number line, word builder, story strip)
-src/scenes/               Boot, Profiles ("Who's playing?"), CreateProfile, WorldMap, Island, Quiz, Results, StickerBook, Pizza
+src/scenes/               Boot, Profiles ("Who's playing?"), CreateProfile, WorldMap, Island, Quiz, Results, StickerBook,
+                          TraceDigits, TracePath (Bee Paths, Race Track), PizzaShop, BirthdayCake
                           (every *Scene.js registers itself via scenes/registry.js)
 public/                   Web app manifest and Home Screen icons
 tests/                    Vitest unit tests for curriculum and logic
 e2e/                      Playwright walkthroughs through the window.__mathplay test hook: players, games, learning (the learning
-                          loop), quiz (every quiz skill once), smoke (a deployed site); run.mjs runs them all
+                          loop), writing (the tracing games), pizza (Pizza Shop, Birthday Cake), quiz (every quiz skill once), smoke (a deployed site); run.mjs runs them all
 legacy/                   The old Expo app (reference only; not built or deployed)
 ```
 

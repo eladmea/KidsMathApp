@@ -34,20 +34,32 @@ await sleep(300);
 s = await state();
 const status = Object.fromEntries(s.skills.map((x) => [x.id, x.status]));
 check(
-  'island statuses: open, locked and coming soon',
-  status['math-count-5'] === 'ready' && status['math-count-10'] === 'locked' && status['math-bee-paths'] === 'soon' && status['math-pizza'] === 'ready' && s.next === 'math-count-5',
+  'island statuses: open and locked; every sprouts math game is open',
+  status['math-count-5'] === 'ready' && status['math-count-10'] === 'locked' && ['math-bee-paths', 'math-pizza', 'math-birthday-cake', 'math-write-1-5', 'math-race-track'].every((id) => status[id] === 'ready') && s.next === 'math-count-5',
   JSON.stringify(status)
 );
 await t.shot(dir, 'l2-island');
 await tap('skill:math-count-10');
 check('a locked skill says what to play first', (await state()).message === 'First, play Count to 5.');
-await tap('skill:math-bee-paths');
-check('a game not rebuilt yet says coming soon', (await state()).message === 'Bee Paths is coming soon!');
 await tap('band:explorers');
 await waitFor(() => window.__mathplay.state.band === 'explorers');
 check('band tabs show another age band', (await state()).skills.some((x) => x.id === 'math-add-10'));
 await tap('band:sprouts');
 await waitFor(() => window.__mathplay.state.band === 'sprouts');
+// A game not rebuilt yet (on Puzzle Island).
+await tap('back');
+await t.waitScene('WorldMap');
+await tap('island:logic');
+await t.waitScene('Island');
+await sleep(300);
+check('a game not rebuilt yet shows as coming soon', (await state()).skills.find((x) => x.id === 'logic-bunny-pop').status === 'soon');
+await tap('skill:logic-bunny-pop');
+check('and says so when tapped', (await state()).message === 'Bunny Pop is coming soon!', (await state()).message);
+await tap('back');
+await t.waitScene('WorldMap');
+await tap('island:math');
+await t.waitScene('Island');
+await sleep(300);
 
 // ---- Count to 5: worked example, a hint, a level up ----
 await tap('skill:math-count-5');

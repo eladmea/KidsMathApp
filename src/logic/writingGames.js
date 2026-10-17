@@ -8,13 +8,13 @@ export const CAKES_PER_ROUND = 3;
 export const ROADS_PER_ROUND = 5;
 export const MAX_ON_TRAY_TARGET = 12;
 
-// Pizza toppings. Olives are drawn as slices (rings), not whole olives, so
-// they have no emoji.
+// Pizza toppings (their names are in the math content pack). Olives are
+// drawn as slices (rings), not whole olives, so they have no emoji.
 export const TOPPINGS = [
-  { id: 'olive', emoji: null, name: 'olive slice', plural: 'olive slices' },
-  { id: 'corn', emoji: '🌽', name: 'corn', plural: 'corn' },
-  { id: 'mushroom', emoji: '🍄', name: 'mushroom', plural: 'mushrooms' },
-  { id: 'pineapple', emoji: '🍍', name: 'pineapple', plural: 'pineapples' },
+  { id: 'olive', emoji: null },
+  { id: 'corn', emoji: '🌽' },
+  { id: 'mushroom', emoji: '🍄' },
+  { id: 'pineapple', emoji: '🍍' },
 ];
 
 export const CUSTOMERS = [
@@ -29,10 +29,6 @@ export const CUSTOMERS = [
 ];
 
 export const VEHICLES = ['🚗', '🚕', '🚙', '🚌', '🏎️', '🚓', '🚑', '🚒', '🚜', '🛵'];
-
-export function word(count, item) {
-  return count === 1 ? item.name : item.plural;
-}
 
 // Checking a pile of toppings or candles against the number.
 // 'right' | 'more' (needs more) | 'fewer' (too many)
@@ -127,4 +123,44 @@ export function sliceGeometry(i, size) {
   return { left: col * half, top: row * half, size: half, corner: ['TopLeft', 'TopRight', 'BottomLeft', 'BottomRight'][i] };
 }
 
-export const SLICE_WORDS = ['One', 'Two', 'Three', 'Four'];
+// ---- Pizza Shop's steps ----
+// Rolling the dough out takes this much rubbing, in pizza widths; a new
+// touch counts as a little rub too.
+export const ROLL_WIDTHS = 2.5;
+export const ROLL_TOUCH = 0.08;
+
+export const PIZZA_STEPS = ['dough', 'trace', 'sauce', 'cheese', 'topping', 'place', 'oven', 'baking', 'slice', 'feed', 'done'];
+
+// The bar of stations above the pizza, and the steps each one covers.
+export const STATIONS = [
+  { id: 'sauce', emoji: '🥫', steps: ['trace', 'sauce'] },
+  { id: 'cheese', emoji: '🧀', steps: ['cheese'] },
+  { id: 'toppings', emoji: '🍄', steps: ['topping', 'place'] },
+];
+
+// 'active' | 'done' | 'later'
+export function stationStatus(station, step) {
+  if (station.steps.includes(step)) return 'active';
+  const last = PIZZA_STEPS.indexOf(station.steps[station.steps.length - 1]);
+  return PIZZA_STEPS.indexOf(step) > last ? 'done' : 'later';
+}
+
+// Cheese, as it is sprinkled: 4 shreds around each dab, scattered the same
+// way every time. Offsets are in pizza widths; angles in degrees.
+export function cheeseShreds(dab) {
+  return [0, 1, 2, 3].map((k) => {
+    const a = (dab * 7 + k * 1.7) % (Math.PI * 2);
+    const distance = 0.075 * (0.3 + ((dab * 13 + k * 5) % 10) / 14);
+    return { dx: Math.cos(a) * distance, dy: Math.sin(a) * distance, angle: (dab * 47 + k * 61) % 180 };
+  });
+}
+
+// Melted cheese, once it is all on: spots spread evenly over the pizza
+// (a sunflower spiral). Offsets are in pizza widths.
+export function meltedCheese(count = 140) {
+  return Array.from({ length: count }, (_, i) => {
+    const a = i * 2.399;
+    const r = 0.5 * 0.78 * Math.sqrt(((i * 37) % 100) / 100);
+    return { dx: Math.cos(a) * r, dy: Math.sin(a) * r, angle: (i * 53) % 180 };
+  });
+}
