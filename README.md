@@ -3,13 +3,15 @@
 Learning games for kids ages 3-10, built around a research-based skill map (learning trajectories, spaced review, read-aloud prompts for pre-readers).
 
 > **Being rebuilt in [Phaser 4](https://phaser.io)** (landscape, phones and tablets). See [PHASER_PLAN.md](PHASER_PLAN.md).
-> Right now (phase P3) the Phaser build has:
+> Right now (phase P4) the Phaser build has:
 > - players: "Who's playing?", new player, and a grown-up check to delete one;
 > - the world map and the five islands (placeholder art until the island design);
 > - **every quiz skill in all five subjects** (54), with worked examples, adaptive levels, results, stickers and Daily Review;
-> - the writing games for ages 3-4: Write 1 to 5, Write 6 to 9 and 0, Bee Paths, Race Track Numbers, Pizza Shop and Birthday Cake, so the 🌱 Sprouts math band is complete.
+> - the writing games for ages 3-4: Write 1 to 5, Write 6 to 9 and 0, Bee Paths, Race Track Numbers, Pizza Shop and Birthday Cake;
+> - the other island games: Bunny Pop, Freeze Zoo, Robo Path and Robot Loops, Push & Roll, Feelings Friends;
+> - 🎲 Games (Memory Chips with the buddy or a friend, Number Path Race, Garden Days) and 🎈 Fun Break (Bubble Pop, Chip Toss, Dance Tap, Balloon Breath), with tickets earned by learning rounds.
 >
-> The other games are marked 🚧 Soon on their islands.
+> Still to come: Today's Adventure, time limits and the grown-ups' dashboard (P5).
 > The feature list below describes the old Expo app, kept in [`legacy/`](legacy/) for reference. It is the target the rebuild works towards.
 
 ## Features
@@ -80,14 +82,18 @@ src/services/             storage (localStorage), speech (recordings first, then
 src/ui/                   BaseScene (safe-area camera, go/back/swap/reset, ← button), Button, Narrator, StarRow, Dialog,
                           ParentGate (keypad times-fact check), HintArrow + IdleHint, PaintLayer + DragSurface, theme,
                           TraceLayer + TraceRound (finger tracing), DragTray + CountPanel (drag a number of things),
+                          RulesCard (a game's rules and Go), GameEnd (a mini-game's last card),
                           QuestionVisual (all 11 picture types), QuizInputs (choices, number line, word builder, story strip)
 src/scenes/               Boot, Profiles ("Who's playing?"), CreateProfile, WorldMap, Island, Quiz, Results, StickerBook,
-                          TraceDigits, TracePath (Bee Paths, Race Track), PizzaShop, BirthdayCake
+                          TraceDigits, TracePath (Bee Paths, Race Track), PizzaShop, BirthdayCake, BunnyPop, FreezeZoo,
+                          RoboPath, PushRoll, FeelingsFriends, Games, GameSetup, Memory, PathRace, Garden, FunBreak,
+                          BubblePop, ChipToss, DanceTap, BalloonBreath
                           (every *Scene.js registers itself via scenes/registry.js)
 public/                   Web app manifest and Home Screen icons
 tests/                    Vitest unit tests for curriculum and logic
 e2e/                      Playwright walkthroughs through the window.__mathplay test hook: players, games, learning (the learning
-                          loop), writing (the tracing games), pizza (Pizza Shop, Birthday Cake), quiz (every quiz skill once), smoke (a deployed site); run.mjs runs them all
+                          loop), writing (the tracing games), pizza (Pizza Shop, Birthday Cake), thinking (Bunny Pop, Freeze Zoo, Robo Path,
+                          Push & Roll, Feelings Friends), fun (Games, Fun Break and tickets), quiz (every quiz skill once), smoke (a deployed site); run.mjs runs them all
 legacy/                   The old Expo app (reference only; not built or deployed)
 ```
 

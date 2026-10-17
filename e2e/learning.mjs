@@ -46,15 +46,13 @@ await waitFor(() => window.__mathplay.state.band === 'explorers');
 check('band tabs show another age band', (await state()).skills.some((x) => x.id === 'math-add-10'));
 await tap('band:sprouts');
 await waitFor(() => window.__mathplay.state.band === 'sprouts');
-// A game not rebuilt yet (on Puzzle Island).
+// Every game is rebuilt now: nothing on Puzzle Peak is "coming soon".
 await tap('back');
 await t.waitScene('WorldMap');
 await tap('island:logic');
 await t.waitScene('Island');
 await sleep(300);
-check('a game not rebuilt yet shows as coming soon', (await state()).skills.find((x) => x.id === 'logic-bunny-pop').status === 'soon');
-await tap('skill:logic-bunny-pop');
-check('and says so when tapped', (await state()).message === 'Bunny Pop is coming soon!', (await state()).message);
+check('no game shows as coming soon', (await state()).skills.every((x) => x.status !== 'soon'), JSON.stringify((await state()).skills.map((x) => x.status)));
 await tap('back');
 await t.waitScene('WorldMap');
 await tap('island:math');

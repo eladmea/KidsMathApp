@@ -90,7 +90,11 @@ Letter sounds for Word Builder (`soundSpeech` in the literacy pack: "mmm", "buh"
 ## Add a screen or a game
 
 1. Create `src/scenes/<Name>Scene.js` extending `ui/BaseScene.js` with `static key = '<Name>'`. It is registered automatically.
-2. A game that plays skills declares them: `static plays = ['PizzaShop']`, matching the skills' `screen` in `curriculum/skills.js`. Its island cards then open it instead of showing 🚧 Soon.
+2. A game that plays skills declares them: `static plays = ['PizzaShop']`, matching the skills' `screen` in `curriculum/skills.js`. Its island cards then open it instead of showing 🚧 Soon. `npm test` fails if a skill names a screen no scene plays.
+   - For a game round, BaseScene gives you:
+     - `addGameHeader(skill)` (title and counter) and `setCounter(index, total, score)`;
+     - `finishRound(skillId, score, total)`, which opens Results, saves the round and offers "Again".
+   - `ui/RulesCard` explains a game before Go, and `ui/GameEnd` is a mini-game's last card.
 3. **Text:**
    - Put it in `src/i18n/en/<feature>.json` (a new file, so it doesn't conflict) and read it with `t('<feature>.<key>', values)`.
    - Words that belong to the game's content (names, word lists, stories) go in a content pack instead.

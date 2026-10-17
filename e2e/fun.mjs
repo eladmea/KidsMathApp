@@ -109,6 +109,20 @@ check('path race: someone reaches 10 and wins', s.winner && s.positions[s.winner
 await sleep(700);
 await tap('map');
 await t.waitScene('GameSetup');
+
+// With a friend: both turns are played on this device.
+await tap('mode:duo');
+await tap('start');
+await t.waitScene('PathRace');
+await step('spin');
+await tap('spin');
+await step('hop');
+for (const square of (await state()).pending) await tap(`square:${square}`);
+await waitFor(() => window.__mathplay.state.current === 2 && window.__mathplay.state.step === 'spin', null, 8000);
+s = await state();
+check('with a friend, player 2 takes their own turn', !s.buddyTurn && (await t.spoken()).at(-1).startsWith('Player 2, spin'));
+await tap('back');
+await t.waitScene('GameSetup');
 await tap('back');
 await t.waitScene('Games');
 
