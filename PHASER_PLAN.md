@@ -144,7 +144,7 @@ Each phase ends with tests passing, a web build, a Playwright walkthrough and a 
 | **P1 Foundation** ✅ merged (#19) | Scale/safe area, storage, speech, audio, session, SceneRouter, UI kit, test bridge. Profiles and CreateProfile scenes. GitHub Pages deploy of the new build at `/KidsMathApp/`, replacing the old app | A child can pick a profile and hear the greeting |
 | **P2 Core learning loop** ✅ merged (#22) | WorldMap and Island placeholders. The generic Quiz scene with every question visual and input type. Worked examples, Results, stars, stickers, adaptive steps, review and mixed rounds | Every quiz skill in all 5 subjects is playable and saves progress |
 | **P2.5 Architecture for change** ✅ built | Assets by folder (images by key or emoji, per-language overrides, sounds). Every word in language files (`i18n/`) or per-language content packs (`content/`), with a language per child and a picker. Recorded voice by sentence with device-voice fallback, plus the `voice:lines` script. Scenes self-register, and games declare the skills they play. ESLint in CI. See ARCHITECTURE.md | A new language, picture or recording is just new files; tests catch missing words |
-| **P3 Writing & drag games** | TraceDigits, Bee Paths, Race Track, Pizza Shop (full flow: stations, oven drag, slices, feeding), Birthday Cake | The sprouts (3–4) math band is fully playable |
+| **P3 Writing & drag games** ✅ built | TraceDigits, Bee Paths, Race Track, Pizza Shop (full flow: stations, oven drag, slices, feeding), Birthday Cake | The sprouts (3–4) math band is fully playable |
 | **P4 Remaining games** | Memory Chips (+ setup, buddy), Bunny Pop, Freeze Zoo, Robo Path, Push & Roll, Feelings Friends, Garden, Balloon Breath, Bubble Pop, Dance Tap, Chip Toss | Every skill and mini-game from the old app exists |
 | **P5 Sessions & grown-ups** | Today's Adventure + coach mode, soft time limits, TimeUp, parent overlay (dashboard, report, CSV, limits, voices) | Matches the old app feature for feature |
 | **P6 Clean-up** | Delete `legacy/` once nothing in it is needed as a reference. Update README, PLAYTEST.md, PLAN.md, AGENTS.md (Phaser docs instead of Expo) | One codebase |
@@ -325,3 +325,36 @@ Asked for before moving on: change assets easily, add languages easily, replace 
 - Mirroring layouts for right-to-left languages (only the text direction flips): to do with the first RTL language.
 - Translating `index.html`'s loading and error messages (shown before the game loads).
 - The old game logic's words (see above): moved as each game is rebuilt.
+
+### P3 Writing & drag games: built 2026-10-17 (branch `claude/phaser-p3`)
+
+**What was done**
+- **Shared pieces** (`src/ui/`):
+  - TraceLayer: the finger-tracing area. It draws the dot guide and numbered green start dot, runs a "watch me" demo (pencil, spoon, cupcake, or the bee or car itself), and paints the trail or carries a follower. Strict stroke order (start at the dot, lifting early restarts that line) or free order (judged by the result, for sauce).
+  - TraceRound: a round of tracing items (a point for each done with at most one restart), then Results.
+  - DragTray (an endless supply to drag from) and CountPanel (how many, "Take one off", the tray, Done).
+  - Results' "Again" replays whichever scene played the round.
+- **Games:**
+  - TraceDigits: Write 1 to 5, and Write 6 to 9 and 0. Each digit ends by counting that many things.
+  - TracePath: Bee Paths (down, across, rainbow, circle, cross, from the honey pot to the flower) and Race Track Numbers (drive a car along 5 different digits, all of 0-9 once Write 1 to 5 is passed).
+  - PizzaShop, the full flow:
+    - roll the dough, write the number in sauce, spread the sauce and the cheese (with a meter);
+    - pick one of four toppings and drag that many on; Done checks the count;
+    - drag the pizza into the oven, bake it, swipe twice to cut 4 slices, and drag each slice to the customer;
+    - a stations bar shows the step, and an arrow and a spoken reminder come after 5 seconds without a touch;
+    - 2 pizzas per round.
+  - BirthdayCake: write the friend's age in icing (stroke by stroke), drag that many candles on, tap to blow them out. 3 cakes per round.
+  - A pizza or cake scores when the writing needed at most one restart and the first count was right, as in the old app.
+- **Words:** customer and topping names and every Pizza/Cake sentence are in the math content pack (`say.write`, `drive`, `fly`, `pizza`, `cake`). Four small slips in the old app are fixed: "Two slices!", "an olive slice", "1 candle!", and a capital at the start of a sentence.
+
+**Checked**
+- Unit tests: stations, cheese placement, and the English plurals: 332 in total.
+- New walkthroughs:
+  - `e2e/writing.mjs` plays Write 6 to 9 and 0 (an off-dot touch, an early lift, Show me again, Again), Bee Paths and Race Track.
+  - `e2e/pizza.mjs` makes two whole pizzas (too many toppings, too-messy sauce, missing the oven, a short swipe) and three cakes (off-dot touch, early lift, too few candles), checking the scores and the idle reminder.
+- `learning.mjs` now checks that every sprouts math game is open, and uses Puzzle Island for the coming-soon message.
+
+**Not done yet**
+- Feel on a real phone and tablet (tracing accuracy, drag sizes).
+- Drawn art: everything is emoji or shapes until the art pass (any of it can be replaced by dropping in an image, see ARCHITECTURE.md; toppings use `toppings/<id>`).
+

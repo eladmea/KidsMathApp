@@ -24,7 +24,6 @@ export const DIGIT_STROKES = {
   9: [[[74, 42], [62, 14], [38, 14], [26, 40], [42, 64], [74, 48], [74, 130]]],
 };
 
-export const DIGIT_WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
 // Things to count once a digit is written ("Three! 🐞🐞🐞").
 export const COUNT_EMOJI = ['🐞', '🍓', '⭐', '🐟', '🎈', '🍪', '🐥', '🌸', '🚗', '🦋'];
 
@@ -113,14 +112,14 @@ function arc(cx, cy, r, fromDeg, toDeg, steps = 12) {
 }
 
 export const PREWRITING_PATHS = [
-  { id: 'down', name: 'straight down', strokes: [[[50, 14], [50, 126]]] },
-  { id: 'across', name: 'straight across', strokes: [[[12, 70], [88, 70]]] },
+  { id: 'down', strokes: [[[50, 14], [50, 126]]] },
+  { id: 'across', strokes: [[[12, 70], [88, 70]]] },
   // Over the top from left to right, like a rainbow.
-  { id: 'rainbow', name: 'a rainbow', strokes: [arc(50, 92, 38, 180, 360)] },
+  { id: 'rainbow', strokes: [arc(50, 92, 38, 180, 360)] },
   // Counter-clockwise from the top, the way letters like c, o and a start.
-  { id: 'circle', name: 'a circle', strokes: [arc(50, 70, 36, 270, -90, 20)] },
-  { id: 'cross', name: 'a cross', strokes: [[[50, 20], [50, 120]], [[14, 70], [86, 70]]] },
-  { id: 'slide', name: 'a slide', strokes: [[[16, 22], [84, 118]]] },
+  { id: 'circle', strokes: [arc(50, 70, 36, 270, -90, 20)] },
+  { id: 'cross', strokes: [[[50, 20], [50, 120]], [[14, 70], [86, 70]]] },
+  { id: 'slide', strokes: [[[16, 22], [84, 118]]] },
 ];
 
 export function pathCheckpoints(path) {

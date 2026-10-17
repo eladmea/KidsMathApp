@@ -1,13 +1,4 @@
 {
-  "customers": { "bear": "Bear", "bunny": "Bunny", "fox": "Fox", "panda": "Panda", "frog": "Frog", "monkey": "Monkey", "lion": "Lion", "pig": "Pig" },
-  "order": "{friend} wants pizza number {number}! Write {number} with sauce.",
-  "orderShow": "Write {number} with sauce!",
-  "startHere": "Start at the green dot and write {number}.",
-  "rub": "Rub the sauce all over the pizza!",
-  "messy": "Oops, keep the sauce on the number. Let's write {number} again!",
-  "keepGoing": "Keep going! Cover the whole {number}.",
-  "written": "That's {number}! Now spread the sauce all over the pizza.",
-  "writtenShow": "Spread the sauce all over!",
-  "yummy": "Yummy! {friend} loves pizza number {number}!",
-  "done": { "one": "You made {count} pizza! Great job, chef!", "other": "You made {count} pizzas! Great job, chef!" }
+  "stations": { "sauce": "Sauce", "cheese": "Cheese", "toppings": "Toppings" },
+  "order": "🧾 Order"
 }

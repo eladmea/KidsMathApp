@@ -237,7 +237,7 @@ export default class QuizScene extends BaseScene {
       score,
       total: this.questions.length,
       tallies: tallyBySkill(this.questions, this.results),
-      replay: this.startData,
+      replay: { key: 'Quiz', data: this.startData },
     });
   }
 
