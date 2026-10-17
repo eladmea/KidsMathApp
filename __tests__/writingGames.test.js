@@ -141,3 +141,50 @@ describe('pizza: spreading, baking and slicing', () => {
     expect(PIZZAS_PER_ROUND).toBe(2);
   });
 });
+
+describe('free-order writing on the pizza', () => {
+  const { digitCheckpoints, freeTraceStart, freeTraceAdd, freeTraceResult, FREE_COVER } = require('../utils/tracing');
+  const run = (strokes, points) => freeTraceResult(points.reduce(freeTraceAdd, freeTraceStart(strokes)));
+
+  it('counts the number in the usual order', () => {
+    for (let d = 0; d <= 9; d++) {
+      const strokes = digitCheckpoints(d);
+      expect(run(strokes, strokes.flat()).done).toBe(true);
+    }
+  });
+
+  it('counts it backwards, with the strokes swapped, or in bits', () => {
+    for (let d = 0; d <= 9; d++) {
+      const strokes = digitCheckpoints(d);
+      expect(run(strokes, [...strokes].reverse().flatMap((s) => [...s].reverse())).done).toBe(true);
+      // Second half first, then first half (as if lifting the finger midway).
+      const flat = strokes.flat();
+      const half = Math.floor(flat.length / 2);
+      expect(run(strokes, [...flat.slice(half), ...flat.slice(0, half)]).done).toBe(true);
+    }
+  });
+
+  it('counts a wobbly line that stays near the number', () => {
+    const strokes = digitCheckpoints(3);
+    const wobbly = strokes.flat().map(([x, y], i) => [x + (i % 2 ? 6 : -6), y + (i % 3) * 3]);
+    expect(run(strokes, wobbly).done).toBe(true);
+  });
+
+  it('needs most of the number covered', () => {
+    const strokes = digitCheckpoints(5);
+    const flat = strokes.flat();
+    const part = run(strokes, flat.slice(0, Math.floor(flat.length * 0.5)));
+    expect(part.done).toBe(false);
+    expect(part.cover).toBeLessThan(FREE_COVER);
+  });
+
+  it('does not count sauce spread over the whole pizza', () => {
+    const strokes = digitCheckpoints(1);
+    const everywhere = [];
+    for (let y = 5; y <= 135; y += 8) for (let x = 5; x <= 95; x += 8) everywhere.push([x, y]);
+    const result = run(strokes, everywhere);
+    expect(result.cover).toBeGreaterThanOrEqual(FREE_COVER);
+    expect(result.done).toBe(false);
+    expect(result.messy).toBe(true);
+  });
+});

@@ -747,6 +747,12 @@ All earlier walkthroughs pass.
 
   All earlier walkthroughs pass, and the 298 unit tests pass.
 - `HintArrow` and `useIdleHint` are reusable, so other games can get the same reminders.
+- **Writing in sauce is judged by the result** (follow-up feedback: a child who writes the number in a different stroke order should still pass). `TraceCanvas` gets a `freeOrder` mode, and Pizza Shop uses it:
+  - The number counts once **80% of its dots are covered** and **70% of the sauce is on the number**, in any order, direction or number of lifts.
+  - Sauce spread over the whole pizza covers the dots but doesn't count: the child hears "Oops, the sauce went everywhere! Try to stay on the number" and tries again (this counts as a restart).
+  - Lifting too early gets "Keep going!".
+  - Number Tracing keeps strict stroke order, since it teaches how to form digits.
+  - Tests: the number counts in order, backwards, with strokes swapped, in two halves and wobbly; it doesn't count half done or scribbled everywhere. In the browser, a scribble over the whole canvas didn't count, and writing the number backwards did.
 
 ---
 

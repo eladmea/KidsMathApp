@@ -271,7 +271,7 @@ export default function PizzaShopScreen({ route, navigation }) {
     if (step === 'dough' && rolled >= 1) {
       setStep('trace');
       playCorrect();
-      say(`Great rolling! Now write ${DIGIT_WORDS[number]} with the sauce. Start at the green dot.`);
+      say(`Great rolling! Now write ${DIGIT_WORDS[number]} with the sauce. Follow the dots.`);
     }
   }, [rolled, step]);
 
@@ -280,7 +280,12 @@ export default function PizzaShopScreen({ route, navigation }) {
     poke();
     if (kind === 'start') say('Start at the green dot!');
     else if (kind === 'next') say('Now the next line!');
-    else {
+    else if (kind === 'more') say(`Keep going! Cover the whole ${DIGIT_WORDS[number]}.`);
+    else if (kind === 'messy') {
+      restartsRef.current += 1;
+      say(`Oops, the sauce went everywhere! Try to stay on the ${DIGIT_WORDS[number]}.`);
+      playWrong();
+    } else {
       restartsRef.current += 1;
       say('Almost! Follow the dots all the way.');
       playWrong();
@@ -549,7 +554,7 @@ export default function PizzaShopScreen({ route, navigation }) {
   const allOn = step === 'place' && placed.length >= number;
   const hint = {
     dough: { where: 'pizza', label: 'Rub!', say: 'Rub the dough with your finger to roll it out!' },
-    trace: { where: 'trace', say: 'Start at the green dot and follow the dots with your finger.' },
+    trace: { where: 'trace', say: `Write the ${DIGIT_WORDS[number]} with your finger. Follow the dots.` },
     sauce: { where: 'pizza', label: 'Rub!', say: 'Rub your finger all over the pizza to spread the sauce.' },
     cheese: { where: 'pizza', label: 'Rub!', say: 'Rub your finger all over the pizza to sprinkle the cheese.' },
     topping: { where: 'toppings', label: 'Tap one!', say: 'Tap a topping you like.' },
@@ -668,6 +673,7 @@ export default function PizzaShopScreen({ route, navigation }) {
                   width={canvasWidth}
                   look={SAUCE_LOOK}
                   hintStart={showHint('trace')}
+                  freeOrder
                   onTouch={poke}
                   onHint={traceHint}
                   onComplete={traceDone}

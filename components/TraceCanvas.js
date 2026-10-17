@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { View, Text, PanResponder, StyleSheet } from 'react-native';
 import HintArrow from './HintArrow';
-import { BOX, advance, isStrokeDone, startsAtDot } from '../utils/tracing';
+import { BOX, advance, freeTraceAdd, freeTraceResult, freeTraceStart, isStrokeDone, startsAtDot } from '../utils/tracing';
 import { colors } from '../utils/theme';
 
 const DEMO_STEP_MS = 30;
@@ -39,6 +39,11 @@ export const DEFAULT_LOOK = {
 //   onComplete({ restarts })  every stroke traced
 //   hintStart     show a bouncing arrow at the start dot (a "start here"
 //                 reminder)
+//   freeOrder     judge the result, not the stroke order: done once most dots
+//                 are covered and most of the line is on the number (any
+//                 order, direction or lifts). Extra hints: 'messy' (covered,
+//                 but too much went off the number; it starts over) and
+//                 'more' (lifted before enough was covered)
 //   onTouch()     any touch on the canvas (e.g. to reset a reminder timer)
 //   label         accessibility label
 export default function TraceCanvas({
@@ -53,6 +58,7 @@ export default function TraceCanvas({
   onHint = () => {},
   onComplete = () => {},
   hintStart = false,
+  freeOrder = false,
   onTouch = () => {},
   label = 'Tracing area',
 }) {
@@ -67,11 +73,13 @@ export default function TraceCanvas({
 
   const checkpoints = strokes[strokeIndex];
   const live = useRef({});
-  live.current = { checkpoints, strokeIndex, strokes, finished, onHint, onComplete, onTouch };
+  live.current = { checkpoints, strokeIndex, strokes, finished, onHint, onComplete, onTouch, freeOrder };
   const originRef = useRef({ x: 0, y: 0 });
   const canvasRef = useRef(null);
   const dragRef = useRef({ active: false, reached: 0 });
   const restartsRef = useRef(0);
+  const freeRef = useRef(freeTraceStart(strokes));
+  const [freeCovered, setFreeCovered] = useState(null);
   const demoTimerRef = useRef(null);
 
   // Watch-me demo: the pencil (or follower) runs along every stroke once.
@@ -102,11 +110,35 @@ export default function TraceCanvas({
     return [(pageX - originRef.current.x) / scale, (pageY - originRef.current.y) / scale];
   }
 
+  function freeAdd(point) {
+    freeRef.current = freeTraceAdd(freeRef.current, point);
+    setFreeCovered(freeRef.current.covered);
+  }
+
+  function endFreeDrag() {
+    const result = freeTraceResult(freeRef.current);
+    if (result.done) {
+      live.current.onComplete({ restarts: restartsRef.current });
+    } else if (result.messy) {
+      restartsRef.current += 1;
+      freeRef.current = freeTraceStart(live.current.strokes);
+      setFreeCovered(null);
+      setTrail([]);
+      live.current.onHint('messy');
+    } else {
+      live.current.onHint('more');
+    }
+  }
+
   function endDrag() {
     const drag = dragRef.current;
     if (!drag.active) return;
     drag.active = false;
     setFinger(null);
+    if (live.current.freeOrder) {
+      endFreeDrag();
+      return;
+    }
     const { checkpoints: cps, strokeIndex: current, strokes: all } = live.current;
     if (isStrokeDone(cps, drag.reached)) {
       if (current + 1 < all.length) {
@@ -140,6 +172,15 @@ export default function TraceCanvas({
           measure();
           const point = toBox(event);
           const cps = live.current.checkpoints;
+          if (live.current.freeOrder) {
+            clearInterval(demoTimerRef.current);
+            setDemoAt(null);
+            dragRef.current = { active: true, reached: 0 };
+            freeAdd(point);
+            setTrail((current) => (current.length >= MAX_TRAIL ? current : [...current, point]));
+            setFinger(point);
+            return;
+          }
           if (!startsAtDot(cps, point)) {
             dragRef.current = { active: false, reached: 0 };
             live.current.onHint('start');
@@ -156,6 +197,12 @@ export default function TraceCanvas({
           const drag = dragRef.current;
           if (!drag.active) return;
           const point = toBox(event);
+          if (live.current.freeOrder) {
+            freeAdd(point);
+            setFinger(point);
+            setTrail((current) => (current.length >= MAX_TRAIL ? current : [...current, point]));
+            return;
+          }
           drag.reached = advance(live.current.checkpoints, drag.reached, point);
           setReached(drag.reached);
           setFinger(point);
@@ -190,8 +237,10 @@ export default function TraceCanvas({
       ) : null}
       {strokes.map((stroke, s) =>
         stroke.map((point, i) => {
-          const isDone = finished || s < strokeIndex || (s === strokeIndex && i < reached);
-          const isCurrent = s === strokeIndex;
+          const isDone = freeOrder
+            ? finished || Boolean(freeCovered && freeCovered[s][i])
+            : finished || s < strokeIndex || (s === strokeIndex && i < reached);
+          const isCurrent = freeOrder || s === strokeIndex;
           if (!isDone && i % 2 === 1) return null;
           return (
             <View
@@ -233,7 +282,7 @@ export default function TraceCanvas({
           {endMarker}
         </Text>
       )}
-      {!finished && (
+      {!finished && !(freeOrder && freeCovered) && (
         <View pointerEvents="none" style={[styles.start, toPx(checkpoints[0], 28)]}>
           {startMarker && strokeIndex === 0 ? (
             <Text style={styles.startEmoji}>{startMarker}</Text>
