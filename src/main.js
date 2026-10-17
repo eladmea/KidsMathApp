@@ -8,9 +8,12 @@ import { initSpeech } from './services/speech';
 import BootScene from './scenes/BootScene';
 import ProfilesScene from './scenes/ProfilesScene';
 import CreateProfileScene from './scenes/CreateProfileScene';
-import HomeScene from './scenes/HomeScene';
+import WorldMapScene from './scenes/WorldMapScene';
+import IslandScene from './scenes/IslandScene';
 import QuizScene from './scenes/QuizScene';
 import PizzaScene from './scenes/PizzaScene';
+import ResultsScene from './scenes/ResultsScene';
+import StickerBookScene from './scenes/StickerBookScene';
 
 async function start() {
   // Canvas text needs the font loaded before the first scene draws.
@@ -37,7 +40,7 @@ async function start() {
     input: { activePointers: 3 },
     // Real HTML inputs (a child's name) float over the canvas.
     dom: { createContainer: true },
-    scene: [BootScene, ProfilesScene, CreateProfileScene, HomeScene, QuizScene, PizzaScene],
+    scene: [BootScene, ProfilesScene, CreateProfileScene, WorldMapScene, IslandScene, QuizScene, ResultsScene, PizzaScene, StickerBookScene],
   });
   installBridge(game);
   // The game is up: drop the loading / error message.

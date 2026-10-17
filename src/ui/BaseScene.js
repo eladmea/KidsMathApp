@@ -13,6 +13,9 @@ import { COLORS } from './theme';
 // and for backgrounds.
 export const SAFE = { width: 1280, height: 720 };
 
+// Browser tests open the game with ?fast: timers and tweens run 8x faster.
+const TEST_SPEED = typeof location !== 'undefined' && new URLSearchParams(location.search).has('fast') ? 8 : 1;
+
 export default class BaseScene extends Phaser.Scene {
   create(data) {
     this.built = false;
@@ -25,6 +28,8 @@ export default class BaseScene extends Phaser.Scene {
       this.scale.off('resize', this.fitCamera, this);
       stopSpeech();
     });
+    this.time.timeScale = TEST_SPEED;
+    this.tweens.timeScale = TEST_SPEED;
     this.fitCamera();
     this.build(this.startData);
     this.built = true;
@@ -72,11 +77,18 @@ export default class BaseScene extends Phaser.Scene {
     this.scene.start(key, data);
   }
 
-  // Back to the scene this one was opened from (Home if there is none).
+  // Back to the scene this one was opened from (the map if there is none).
   back() {
     const previous = router.pop();
     if (previous) this.scene.start(previous.key, previous.data);
-    else this.scene.start('Home');
+    else this.scene.start('WorldMap');
+  }
+
+  // Replaces this scene with another in the same place in the history (a
+  // finished quiz becomes its results; "back" from either goes to the same
+  // place).
+  swap(key, data = {}) {
+    this.scene.start(key, data);
   }
 
   // Starts a scene with a fresh history (e.g. after picking a player).

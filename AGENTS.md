@@ -13,6 +13,8 @@ Before writing Phaser code, read the guides that ship with the installed version
 - Game rules live in `src/curriculum/` and `src/logic/` and must stay free of Phaser, so `npm test` covers them.
 - Scenes extend `src/ui/BaseScene.js`: lay out in the 1280 x 720 safe area, and pin edges to `this.view` in `layout()`.
   - Navigate with `go()` / `back()` / `reset()` / `replay()`, never `scene.start` directly, so ← keeps working.
+  - Phaser reuses a scene object when the scene starts again, so set every field fresh in `build()`.
+  - Never use Phaser's own scene property names for your own fields (`this.input`, `this.time`, `this.tweens`, `this.sound`, `this.add`, `this.cameras`, ...). Overwriting `this.input` silently breaks every tap in the scene.
   - `tag()` the objects a browser test needs to tap.
   - `report()` the scene's state.
 - After changing a scene, run `npm test` and the walkthroughs (`npm run e2e` against a build; see README), and add checks for new behaviour.

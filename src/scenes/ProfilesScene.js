@@ -85,7 +85,7 @@ export default class ProfilesScene extends BaseScene {
 
   async pick(profile) {
     await selectProfile(profile.id);
-    this.reset('Home');
+    this.reset('WorldMap');
   }
 
   toggleManage() {

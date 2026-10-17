@@ -136,7 +136,7 @@ Each phase ends with tests passing, a web build, a Playwright walkthrough and a 
 |---|---|---|
 | **P0 Spike** ✅ built (#18), real-device check later | Move the Expo app to `legacy/`. Set up Vite + Phaser 4 at the root. Copy the logic into `src/logic/` with its tests. Build one quiz skill (Count to 5) and the Pizza sauce trace (PaintLayer + TraceLayer). Try it on a phone and a tablet | Drags, painting and TTS feel right on touch; layout and orientation confirmed |
 | **P1 Foundation** ✅ built | Scale/safe area, storage, speech, audio, session, SceneRouter, UI kit, test bridge. Profiles and CreateProfile scenes. GitHub Pages deploy of the new build at `/KidsMathApp/`, replacing the old app | A child can pick a profile and hear the greeting |
-| **P2 Core learning loop** | WorldMap and Island placeholders. The generic Quiz scene with every question visual and input type. Worked examples, Results, stars, stickers, adaptive steps, review and mixed rounds | Every quiz skill in all 5 subjects is playable and saves progress |
+| **P2 Core learning loop** ✅ built | WorldMap and Island placeholders. The generic Quiz scene with every question visual and input type. Worked examples, Results, stars, stickers, adaptive steps, review and mixed rounds | Every quiz skill in all 5 subjects is playable and saves progress |
 | **P3 Writing & drag games** | TraceDigits, Bee Paths, Race Track, Pizza Shop (full flow: stations, oven drag, slices, feeding), Birthday Cake | The sprouts (3–4) math band is fully playable |
 | **P4 Remaining games** | Memory Chips (+ setup, buddy), Bunny Pop, Freeze Zoo, Robo Path, Push & Roll, Feelings Friends, Garden, Balloon Breath, Bubble Pop, Dance Tap, Chip Toss | Every skill and mini-game from the old app exists |
 | **P5 Sessions & grown-ups** | Today's Adventure + coach mode, soft time limits, TimeUp, parent overlay (dashboard, report, CSV, limits, voices) | Matches the old app feature for feature |
@@ -229,3 +229,43 @@ Old **Phase 5b** play-test rounds pause during P0–P5, then continue on the Pha
     The portrait check passes 2/2.
 
 **Still to check on a device (later, as agreed):** the phone keyboard over the name field in landscape, and sound volume next to speech.
+
+### P2 Core learning loop: built 2026-10-17 (branch `claude/phaser-p2`)
+
+**What was done**
+- **World map** (placeholder art):
+  - five island cards, each with passed / total for the child's band, mastered count and the next skill;
+  - Daily Review when reviews are due;
+  - the sticker book;
+  - the player chip, narration switch and fullscreen.
+- **Island scene:**
+  - age-band tabs;
+  - skill cards with stars, the next skill highlighted, 🔒 locked ("First, play …") and 🚧 Soon for games not rebuilt yet (`logic/skillRoutes.js` says which scene plays which skill).
+- **Quiz scene, rebuilt for every generator:**
+  - 11 picture types (`ui/QuestionVisual.js`): objects, sum, take-away, flashing dice/ten-frame dots, number staircase, pattern row, growing pattern, picture, listen, Sound Snack monster.
+  - 4 answer types (`ui/QuizInputs.js`): choices (picture / letter / word / pattern styles), number line, word builder with tile sounds and blending, story strip.
+  - Worked example until the skill is passed, plus ❓ for another.
+  - Adaptive steps: 3 wrong → step down or a hint example; 5 right → level up, never beyond the child's band.
+  - Practice / review / mixed modes, listening prompts always read aloud, and the explanation after a wrong answer.
+  - Play-log events: answer, level, quit and round.
+- **Results:** stars, score, passed / mastered / unlocked skills and new stickers. Again or back to the island.
+- **Sticker book**, 12 to a page.
+- **Logic:** `logic/quizRound.js` (answer checking, example narration, pacing, notes) and `logic/skillRoutes.js`. Stickers and round logging live in the session service.
+- **Bugs the walkthroughs caught:**
+  - storing the quiz's answer input in `this.input` overwrote Phaser's input system, so no taps worked;
+  - Phaser reuses scene objects, so a finished round's step leaked into "Again".
+
+  Both are now noted in AGENTS.md.
+
+**Tests**
+- 310 unit tests.
+- `e2e/quiz.mjs` plays **every one of the 54 quiz skills** through map → island → quiz → results, with one wrong answer each, expecting 9/10 and 3 stars, plus screenshots. It takes about 5 minutes with `?fast`.
+- `e2e/learning.mjs` checks the learning loop at normal speed:
+  - island statuses and messages, and band tabs;
+  - the worked example, the hint after 3 wrong, the level up after 5 right;
+  - 2-star and 3-star results, passing, unlocking and stickers;
+  - the quit log, and Daily Review mixing due skills;
+  - the wrong-answer look for the number line, word builder, story strip and sums.
+- `players.mjs` and `games.mjs` are updated for the map and islands.
+
+**Not in P2 (later phases):** coach / play-together mode (P5), Fun Break tickets (P4), recorded letter sounds.

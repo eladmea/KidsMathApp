@@ -2,6 +2,7 @@
 // `session.profile` / `session.progress` and save rounds through here.
 import { createProfile, profileBand } from '../logic/profiles';
 import { applySession, toDayKey } from '../logic/progress';
+import { awardStickers, roundStickerEvents } from '../logic/stickers';
 import * as storage from './storage';
 import { setNarration } from './speech';
 
@@ -59,10 +60,23 @@ export async function updateProfile(patch) {
   if ('narration' in patch) setNarration(patch.narration);
 }
 
-// Saves a finished round. tallies: { [skillId]: { correct, total } }.
-export async function recordRound(tallies) {
-  const result = applySession(session.progress, tallies, toDayKey(), profileBand(session.profile).id);
+// Saves a finished round: progress, stickers for skills newly passed or
+// mastered, and a play-log entry per skill. tallies: { [skillId]: { correct,
+// total } }. Returns applySession's result plus `earnedStickers`.
+export async function recordRound(tallies, mode = 'practice') {
+  const today = toDayKey();
+  const result = applySession(session.progress, tallies, today, profileBand(session.profile).id);
   session.progress = result.progress;
   await storage.saveProgress(session.profile.id, session.progress);
-  return result;
+  const { stickers, earned } = awardStickers(session.profile.stickers, roundStickerEvents(result), today);
+  if (earned.length) await updateProfile({ stickers });
+  const at = Date.now();
+  await logEvents(Object.entries(tallies).map(([skillId, tally]) => ({ type: 'round', at, day: today, skillId, mode, ...tally })));
+  return { ...result, earnedStickers: earned };
+}
+
+// Play-test log events for the signed-in child (see logic/playLog.js).
+export function logEvents(events) {
+  if (!session.profile || !events.length) return Promise.resolve();
+  return storage.appendPlayLog(session.profile.id, events);
 }

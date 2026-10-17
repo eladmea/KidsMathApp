@@ -74,3 +74,22 @@ describe('session service', () => {
     expect([...store.keys()].filter((key) => key.includes(mia.id) || key.includes(leo.id))).toEqual([]);
   });
 });
+
+describe('session rounds', () => {
+  beforeEach(async () => {
+    store.clear();
+    await loadSession();
+  });
+
+  it('gives a sticker the first time a skill is passed, and logs the round', async () => {
+    const mia = await addProfile({ name: 'Mia', age: 4, avatar: '🦁' });
+    const first = await recordRound(PASS);
+    expect(first.earnedStickers).toHaveLength(1);
+    expect(session.profile.stickers).toHaveLength(1);
+    const again = await recordRound(PASS);
+    expect(again.earnedStickers).toHaveLength(0);
+    const log = await storage.loadPlayLog(mia.id);
+    expect(log.filter((e) => e.type === 'round')).toHaveLength(2);
+    expect(log[0]).toMatchObject({ skillId: 'math-count-5', correct: 9, total: 10, mode: 'practice' });
+  });
+});

@@ -50,6 +50,12 @@ const SHAPES = [
   { emoji: '🔷', name: 'diamond' },
 ];
 
+// "There is 1 star!" / "There are 3 stars!" (names are plural: 'stars').
+export function countSentence(count, plural) {
+  if (count !== 1) return `There are ${count} ${plural}!`;
+  return `There is 1 ${plural === 'fish' ? 'fish' : plural.replace(/s$/, '')}!`;
+}
+
 function countObjects(min, max) {
   return () => {
     const object = pick(OBJECTS);
@@ -59,7 +65,7 @@ function countObjects(min, max) {
       speech: `How many ${object.name}?`,
       visual: { type: 'objects', emoji: object.emoji, count },
       answer: count,
-      explain: `Count them one by one: ${Array.from({ length: count }, (_, i) => i + 1).join(', ')}. There are ${count} ${object.name}!`,
+      explain: `Count them one by one: ${Array.from({ length: count }, (_, i) => i + 1).join(', ')}. ${countSentence(count, object.name)}`,
       choices: buildChoices(count, { min: 1, max: max + 2, spread: 3 }),
     };
   };

@@ -99,6 +99,6 @@ export default class CreateProfileScene extends BaseScene {
     if (!isValidName(this.name()) || this.saving) return;
     this.saving = true;
     await addProfile({ name: this.name(), age: this.age, avatar: this.avatar });
-    this.reset('Home');
+    this.reset('WorldMap');
   }
 }
