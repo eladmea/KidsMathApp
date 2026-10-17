@@ -216,7 +216,7 @@ export default class PizzaScene extends BaseScene {
     this.narrator.say(`You made ${this.numbers.length} pizzas! Great job, chef!`);
     this.report({ step: 'results', points: this.points });
     const again = new Button(this, 1110, 330, { label: '🔁 Again', width: 260, color: COLORS.primary, onTap: () => this.replay() });
-    const home = new Button(this, 1110, 470, { label: '🏠 Home', width: 260, color: COLORS.green, onTap: () => this.back() });
+    const home = new Button(this, 1110, 470, { label: '◀ Back', width: 260, color: COLORS.green, onTap: () => this.back() });
     this.tag('again', again.box);
     this.tag('home', home.box);
   }

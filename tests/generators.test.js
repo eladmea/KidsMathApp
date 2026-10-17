@@ -189,3 +189,12 @@ describe('number line feedback', () => {
     expect(numberLineFeedback(80, 45, false)).toBe('Good try! You tapped 80. 45 lives here. 🎯');
   });
 });
+
+describe('counting explanations', () => {
+  it('say "is" and the singular for one', async () => {
+    const { countSentence } = await import('../src/curriculum/generators');
+    expect(countSentence(1, 'stars')).toBe('There is 1 star!');
+    expect(countSentence(1, 'fish')).toBe('There is 1 fish!');
+    expect(countSentence(3, 'stars')).toBe('There are 3 stars!');
+  });
+});

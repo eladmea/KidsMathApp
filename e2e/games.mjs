@@ -9,7 +9,7 @@ const { check, state, waitFor, tap, drag } = t;
 await seedPlayers(t, [{ name: 'Mia', age: 4, avatar: '🦁' }]);
 await t.waitScene('Profiles');
 await tap('player:Mia');
-await t.waitScene('Home');
+await t.waitScene('WorldMap');
 await sleep(500);
 await t.shot(dir, 'g1-home');
 const view = await t.mp(() => {
@@ -20,9 +20,11 @@ check('canvas fills the screen (no black bars)', Math.abs(view.w - width) < 2 &&
 check('greeting spoken', (await t.spoken()).some((line) => line.startsWith('Hi, Mia')));
 
 // ---- Count to 5 ----
-await tap('math-count-5');
+await tap('island:math');
+await t.waitScene('Island');
+await tap('skill:math-count-5');
 await waitFor(() => window.__mathplay.scene === 'Quiz' && window.__mathplay.state.step);
-check('first play shows the how-to card', (await state()).step === 'howTo');
+check('first play shows the worked example', (await state()).step === 'example');
 await t.shot(dir, 'g2-howto');
 await tap('start');
 for (let i = 0; i < 10; i++) {
@@ -39,16 +41,16 @@ for (let i = 0; i < 10; i++) {
     await t.shot(dir, 'g4-wrong');
   }
 }
-await waitFor(() => window.__mathplay.state.step === 'results', null, 10000);
+await waitFor(() => window.__mathplay.scene === 'Results' && window.__mathplay.state.step === 'results', null, 10000);
 const result = await state();
-check('9 of 10 recorded, passed with 2 stars', result.correct === 9 && result.stars === 2 && result.passed);
+check('9 of 10 recorded: 3 stars, passed', result.score === 9 && result.stars === 3 && result.newlyPassed.includes('math-count-5'));
 await sleep(500);
 await t.shot(dir, 'g5-results');
-await tap('home');
-await t.waitScene('Home');
+await tap('map');
+await t.waitScene('Island');
 
 // ---- Pizza ----
-await tap('math-pizza');
+await tap('skill:math-pizza');
 await waitFor(() => window.__mathplay.scene === 'Pizza' && window.__mathplay.state.step === 'trace');
 await sleep(400);
 await t.shot(dir, 'g6-pizza');
@@ -92,8 +94,8 @@ await sleep(5600);
 check('reminder after 5 s without a touch', (await t.spoken()).at(-1).startsWith('Start at the green dot'));
 await t.shot(dir, 'g10-reminder');
 await tap('back');
-await t.waitScene('Home');
-check('back from the pizza goes Home', true);
+await t.waitScene('Island');
+check('back from the pizza goes to the island', true);
 
 const utter = await t.mp(() => window.__utter);
 check('speech uses the natural voice', utter.length > 0 && utter.every((u) => u.voice === 'aria-natural'), utter.at(-1)?.voice);

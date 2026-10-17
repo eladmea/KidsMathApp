@@ -3,7 +3,13 @@
 Learning games for kids ages 3-10, built around a research-based skill map (learning trajectories, spaced review, read-aloud prompts for pre-readers).
 
 > **Being rebuilt in [Phaser 4](https://phaser.io)** (landscape, phones and tablets). See [PHASER_PLAN.md](PHASER_PLAN.md).
-> Right now (phase P1) the Phaser build has players ("Who's playing?", new player, a grown-up check to delete one) and two games: *Count to 5* and the *Pizza Shop* sauce step.
+> Right now (phase P2) the Phaser build has:
+> - players: "Who's playing?", new player, and a grown-up check to delete one;
+> - the world map and the five islands (placeholder art until the island design);
+> - **every quiz skill in all five subjects** (54), with worked examples, adaptive levels, results, stickers and Daily Review;
+> - the *Pizza Shop* sauce step.
+>
+> The other games are marked 🚧 Soon on their islands.
 > The feature list below describes the old Expo app, kept in [`legacy/`](legacy/) for reference. It is the target the rebuild works towards.
 
 ## Features
@@ -64,12 +70,14 @@ src/curriculum/           Skill map, age bands, subjects, question generators, p
 src/logic/                Game rules with no UI: progress/mastery/review, adaptive, adventure, sessions, tracing, writing games, memory game, ...
 src/services/             storage (localStorage), speech (Web Speech API, best natural voice, per-child narration on/off),
                           session (players, signed-in child, progress), router (back history), audio (sound effects), testBridge
-src/ui/                   BaseScene (safe-area camera, go/back/reset, ← button), Button, Narrator, StarRow, Dialog,
-                          ParentGate (keypad times-fact check), HintArrow + IdleHint, PaintLayer + DragSurface, theme
-src/scenes/               Boot, Profiles ("Who's playing?"), CreateProfile, Home, Quiz (any generator skill), Pizza
+src/ui/                   BaseScene (safe-area camera, go/back/swap/reset, ← button), Button, Narrator, StarRow, Dialog,
+                          ParentGate (keypad times-fact check), HintArrow + IdleHint, PaintLayer + DragSurface, theme,
+                          QuestionVisual (all 11 picture types), QuizInputs (choices, number line, word builder, story strip)
+src/scenes/               Boot, Profiles ("Who's playing?"), CreateProfile, WorldMap, Island, Quiz, Results, StickerBook, Pizza
 public/                   Web app manifest, Home Screen icons, sounds
 tests/                    Vitest unit tests for curriculum and logic
-e2e/                      Playwright walkthroughs (players, games) through the window.__mathplay test hook; run.mjs runs them all
+e2e/                      Playwright walkthroughs through the window.__mathplay test hook: players, games, learning (the learning
+                          loop), quiz (every quiz skill once), smoke (a deployed site); run.mjs runs them all
 legacy/                   The old Expo app (reference only; not built or deployed)
 ```
 
@@ -99,9 +107,11 @@ Browser walkthrough (needs a Playwright browser, e.g. `npx playwright install ch
 
 ```bash
 BASE_URL=/KidsMathApp/ npm run build && npx vite preview --port 8765 &
-URL=http://localhost:8765/KidsMathApp/ npm run e2e    # every walkthrough at phone, tablet and portrait sizes
+URL=http://localhost:8765/KidsMathApp/ npm run e2e    # every walkthrough at phone, tablet and portrait sizes (~10 min)
 node e2e/players.mjs shots 844 390 phone             # or one walkthrough at one size
 ```
+
+Add `?fast` to the address to run the game's timers and animations 8x faster (the every-skill walkthrough uses it).
 
 ### Test hook
 

@@ -9,8 +9,10 @@ const SIZES = [
   [1180, 820, 'tablet'],
 ];
 const runs = [
-  ...SIZES.flatMap((size) => [['players.mjs', ...size], ['games.mjs', ...size]]),
+  ...SIZES.flatMap((size) => [['players.mjs', ...size], ['games.mjs', ...size], ['learning.mjs', ...size]]),
   ['players.mjs', 390, 844, 'portrait'],
+  // Every quiz skill once (about 5 minutes, at test speed).
+  ['quiz.mjs', 1280, 720, 'laptop'],
 ];
 let failed = 0;
 for (const [script, width, height, label] of runs) {

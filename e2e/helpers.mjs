@@ -76,7 +76,8 @@ export async function open({ width, height, label }) {
 }
 
 // Puts players in storage before the app starts: [{ name, age, avatar, narration }].
-export async function seedPlayers(t, players, progress = {}) {
+// `query` is added to the address, e.g. '?fast' to run timers 8x faster.
+export async function seedPlayers(t, players, progress = {}, query = '') {
   await t.page.goto(URL);
   await t.mp(
     ({ players, progress }) => {
@@ -87,5 +88,37 @@ export async function seedPlayers(t, players, progress = {}) {
     },
     { players, progress }
   );
-  await t.page.goto(URL);
+  await t.page.goto(URL + query);
+}
+
+// A passed record (as the game saves it) for seeding progress.
+export const PASSED = { attempts: 10, correct: 10, bestScore: 10, passedDays: ['2026-10-16'], box: 1, lastPlayed: '2026-10-16', dueDate: '2099-01-01' };
+
+// Answers the current quiz question through the test hook: right, or wrong
+// on purpose. Works for every answer type.
+export async function answerQuestion(t, { wrong = false } = {}) {
+  const s = await t.state();
+  if (s.type === 'numberLine') {
+    const { left, right, y, min, max } = s.line;
+    const target = wrong ? (s.answer - min > (max - min) / 2 ? min : max) : s.answer;
+    const x = left + ((target - min) / (max - min)) * (right - left);
+    const p = await t.mp(([x, y]) => window.__mathplay.toPage(x, y), [x, y]);
+    await t.page.mouse.click(p.x, p.y);
+  } else if (s.type === 'build') {
+    const used = new Set();
+    const wanted = wrong ? [...s.parts].reverse() : s.parts;
+    const ids = wanted.map((part) => {
+      const tile = s.tiles.find((tl) => tl.text === part && !used.has(tl.id));
+      used.add(tile.id);
+      return tile.id;
+    });
+    // A palindrome reversed is still right: swap in a distractor tile.
+    if (wrong && wanted.join('') === s.parts.join('')) ids[0] = s.tiles.find((tl) => !ids.includes(tl.id)).id;
+    for (const id of ids) await t.tap(`tile:${id}`);
+  } else if (s.type === 'order') {
+    const order = wrong ? [...s.answer].reverse() : s.answer;
+    for (const id of order) await t.tap(`story:${id}`);
+  } else {
+    await t.tap(`choice:${wrong ? s.choices.find((c) => c !== s.answer) : s.answer}`);
+  }
 }
