@@ -11,8 +11,10 @@ import { colors, shadow } from '../utils/theme';
 // The parent passes `targetRef` (the View to drop on) and renders the placed
 // items itself. While a drag is on, onDragChange(true) lets the parent stop
 // placed items from grabbing the touch as the finger passes over them.
+// `renderItem` draws an item that isn't an emoji (e.g. an olive slice).
 export default function DragTray({
   emoji,
+  renderItem = null,
   label,
   targetRef,
   onDrop,
@@ -81,20 +83,36 @@ export default function DragTray({
       >
         {/* Not selectable: on the web a selected emoji turns the next drag
             into the browser's own text drag, which cancels ours. */}
-        <Text selectable={false} style={styles.trayItem}>{emoji}</Text>
-        <Text selectable={false} style={styles.trayItem}>{emoji}</Text>
-        <Text selectable={false} style={styles.trayItem}>{emoji}</Text>
+        {[0, 1, 2].map((i) =>
+          renderItem ? (
+            <View key={i} style={styles.trayDrawn}>
+              {renderItem()}
+            </View>
+          ) : (
+            <Text key={i} selectable={false} style={styles.trayItem}>
+              {emoji}
+            </Text>
+          )
+        )}
         <Text selectable={false} style={styles.trayHint}>Drag me!</Text>
       </View>
-      {ghost && (
-        <Text
-          pointerEvents="none"
-          selectable={false}
-          style={[styles.ghost, { left: ghost.x - originRef.current.x - 24, top: ghost.y - originRef.current.y - 30 }]}
-        >
-          {emoji}
-        </Text>
-      )}
+      {ghost &&
+        (renderItem ? (
+          <View
+            pointerEvents="none"
+            style={[styles.ghostDrawn, { left: ghost.x - originRef.current.x - 24, top: ghost.y - originRef.current.y - 24 }]}
+          >
+            {renderItem()}
+          </View>
+        ) : (
+          <Text
+            pointerEvents="none"
+            selectable={false}
+            style={[styles.ghost, { left: ghost.x - originRef.current.x - 24, top: ghost.y - originRef.current.y - 30 }]}
+          >
+            {emoji}
+          </Text>
+        ))}
     </View>
   );
 }
@@ -122,6 +140,20 @@ const styles = StyleSheet.create({
   },
   trayItem: {
     fontSize: 40,
+  },
+  trayDrawn: {
+    width: 48,
+    height: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  ghostDrawn: {
+    position: 'absolute',
+    width: 48,
+    height: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 20,
   },
   trayHint: {
     fontSize: 14,
