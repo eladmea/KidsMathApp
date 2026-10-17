@@ -143,3 +143,53 @@ export function pickDistinct(pool, count, rng = Math.random) {
   }
   return copy.slice(0, Math.min(count, copy.length));
 }
+
+// ---- Free-order writing (Pizza Shop sauce) ----
+// Writing a number in sauce is judged by the result, not the stroke order:
+// it counts once most of the number's dots are covered and most of the sauce
+// is on the number (not spread over the whole pizza). Any order, direction
+// or number of lifts is fine.
+export const FREE_COVER = 0.8;
+export const FREE_ON_NUMBER = 0.7;
+// A sauce point is "on the number" within this distance of its path.
+export const FREE_ON_RADIUS = 16;
+// Judge neatness only once there's enough sauce to judge.
+const FREE_MIN_POINTS = 12;
+
+export function freeTraceStart(strokes) {
+  return { strokes, covered: strokes.map((stroke) => stroke.map(() => false)), points: 0, onNumber: 0 };
+}
+
+// Adds one finger point: covers nearby dots and counts whether it's on the
+// number. Returns a new state.
+export function freeTraceAdd(state, point) {
+  let nearest = Infinity;
+  const covered = state.strokes.map((stroke, s) =>
+    stroke.map((cp, i) => {
+      const d = Math.hypot(cp[0] - point[0], cp[1] - point[1]);
+      if (d < nearest) nearest = d;
+      return state.covered[s][i] || d <= HIT_RADIUS;
+    })
+  );
+  return {
+    ...state,
+    covered,
+    points: state.points + 1,
+    onNumber: state.onNumber + (nearest <= FREE_ON_RADIUS ? 1 : 0),
+  };
+}
+
+// { cover, onNumber, done, messy }: `messy` = the dots are covered but too
+// much sauce went off the number.
+export function freeTraceResult(state) {
+  const all = state.covered.flat();
+  const cover = all.length ? all.filter(Boolean).length / all.length : 0;
+  const onNumber = state.points ? state.onNumber / state.points : 0;
+  const enough = state.points >= FREE_MIN_POINTS;
+  return {
+    cover,
+    onNumber,
+    done: cover >= FREE_COVER && (onNumber >= FREE_ON_NUMBER || !enough),
+    messy: cover >= FREE_COVER && enough && onNumber < FREE_ON_NUMBER,
+  };
+}

@@ -106,7 +106,7 @@ export function coverageRatio(coverage) {
 }
 
 // Sauce and cheese count as spread once most of the pizza is covered.
-export const SAUCE_COVERED = 0.8;
+export const SAUCE_COVERED = 0.75;
 export const CHEESE_COVERED = 0.7;
 
 // ---- Slicing ----

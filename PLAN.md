@@ -4,7 +4,7 @@ This document describes where MathPlay is heading, why it is designed this way (
 
 - **Plan written:** 2026-10-15
 - **Language:** English (all content, narration and phonics)
-- **Last updated:** 2026-10-17 (Phase 5b round 7: Pizza Shop reworked from play-test feedback)
+- **Last updated:** 2026-10-17 (Phase 5b round 8: Pizza Shop ingredient bar, oven drag, reminder arrows)
 
 ---
 
@@ -709,6 +709,50 @@ All earlier walkthroughs pass.
 - **Also fixed:** the "covered" area was larger than what's drawn, so the game moved on while bare dough still showed. Coverage now matches the brush, and the next layer starts on a new touch, not mid-swipe.
 - **Tests:** 298 unit tests, covering coverage counting (inside the circle only, no double counting), a full-pizza zig-zag finishing both layers, the swipe-to-cut rule, slice layout, exactly the four toppings, and 2 pizzas per round.
 - **Verification:** three full browser runs as a 3-year-old, each with two random orders and different numbers. Every step passed: dough, writing, sauce, cheese, the 4-topping choice, dragging, oven, two cuts, feeding 4 slices, Results 2/2. No page errors. All earlier walkthroughs pass.
+
+### Phase 5b, round 8: Pizza Shop clarity (2026-10-17, commit `be578bd`)
+
+**Feedback:**
+1. The sauce brush is too big.
+2. It isn't clear when it's cheese time: show sauce, cheese and toppings on the screen once the dough is rolled, with the active one standing out and the others greyed out.
+3. Drag the pizza to the oven instead of pressing a button.
+4. At every stage, an arrow should remind the child what to do if nothing happens for 5 seconds.
+
+**Changes:**
+- **Smaller sauce brush:** about 40% smaller (12% of the pizza, was 20%). The coverage target dropped from 80% to 75% so spreading doesn't drag on. Coverage still matches what's drawn.
+- **Ingredient bar** (🥫 Sauce › 🧀 Cheese › 🍄 Toppings) appears once the dough is rolled.
+  - The active station is larger, with an orange border; finished ones get a green ✓; later ones are faded.
+  - The bubble now says "🧀 Now the cheese! Spread it all over".
+  - The four topping choices appear as small cards under the pizza, so the pizza stays in view.
+- **Oven:** the "Put in the oven" button is gone. An oven appears under the pizza, and the child drags the pizza into it; the pizza shrinks a little while being carried. Inside, the oven window glows with the pizza 🍕 while it bakes. Dropping it short says "Drag the pizza all the way into the oven!".
+- **5-second reminders** (`utils/useIdleHint.js`, `components/HintArrow.js`): after 5 s without progress, a bouncing arrow with a word appears and the instruction is spoken again. Any progress hides it and restarts the wait. The arrow points at:
+
+  | Step | Arrow |
+  |---|---|
+  | Dough | 👇 "Rub!" on the dough |
+  | Writing the number | 👇 at the green start dot (`TraceCanvas` gains `hintStart` and `onTouch`) |
+  | Sauce, cheese | 👇 "Rub!" on the pizza |
+  | Topping choice | 👇 "Tap one!" over the cards |
+  | Adding toppings | 👇 "Drag!" over the tray; once the count is right, 👇 "Tap!" over Done |
+  | Oven | 👇 "Drag the pizza here!" over the oven |
+  | Slicing | 👉 "Swipe!" on the pizza |
+  | Eating | 👆 "Feed me!" under the animal |
+
+- **Verification:** three full browser runs, no page errors, all of them checking:
+  - the ingredient bar states;
+  - the toppings appearing under the pizza;
+  - the reminder arrow appearing after 5 s idle at the start dot, the toppings and the oven;
+  - no oven button, and the pizza dragged into the oven;
+  - baking, slicing, feeding, and Results 2/2.
+
+  All earlier walkthroughs pass, and the 298 unit tests pass.
+- `HintArrow` and `useIdleHint` are reusable, so other games can get the same reminders.
+- **Writing in sauce is judged by the result** (follow-up feedback: a child who writes the number in a different stroke order should still pass). `TraceCanvas` gets a `freeOrder` mode, and Pizza Shop uses it:
+  - The number counts once **80% of its dots are covered** and **70% of the sauce is on the number**, in any order, direction or number of lifts.
+  - Sauce spread over the whole pizza covers the dots but doesn't count: the child hears "Oops, the sauce went everywhere! Try to stay on the number" and tries again (this counts as a restart).
+  - Lifting too early gets "Keep going!".
+  - Number Tracing keeps strict stroke order, since it teaches how to form digits.
+  - Tests: the number counts in order, backwards, with strokes swapped, in two halves and wobbly; it doesn't count half done or scribbled everywhere. In the browser, a scribble over the whole canvas didn't count, and writing the number backwards did.
 
 ---
 
