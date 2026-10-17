@@ -38,7 +38,27 @@ export const STROKE_NAMES = {
 const noun = (object, count) => (count === 1 ? object.one : object.many);
 const upTo = (count) => Array.from({ length: count }, (_, i) => i + 1).join(', ');
 
+const an = (word) => (/^[aeiou]/.test(word) ? `an ${word}` : `a ${word}`);
+const capital = (word) => word[0].toUpperCase() + word.slice(1);
+
 export const say = {
+  // Writing games (Write 1 to 5, Race Track, Bee Paths).
+  write: {
+    prompt: ({ digit }) => `Write ${digit}`,
+    intro: ({ word }) => `Let's write ${word}! Watch me, then start at the green dot.`,
+    praise: ({ word }) => `${capital(word)}! You wrote ${word}!`,
+    celebrate: ({ digit, emoji }) => (digit === 0 ? '0: nothing at all! 🫙' : `${digit}! ${emoji.repeat(digit)}`),
+  },
+  drive: {
+    prompt: ({ digit }) => `Drive the ${digit}!`,
+    intro: ({ word }) => `Let's drive the number ${word}! Start at the traffic light.`,
+    praise: ({ word }) => `Vroom! You drove ${an(word)}!`,
+  },
+  fly: {
+    prompt: ({ name }) => `Fly ${name}!`,
+    intro: ({ name }) => `Help the bee fly ${name} to the flower. Start at the honey pot.`,
+    praise: () => 'Buzz buzz! The bee found the flower!',
+  },
   count: {
     prompt: () => 'How many?',
     speech: ({ object }) => `How many ${object.many}?`,

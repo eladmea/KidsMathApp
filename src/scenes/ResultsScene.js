@@ -10,10 +10,10 @@ import { getSkill } from '../curriculum/skills';
 import { list, t } from '../i18n/index';
 import { skillTitle } from '../i18n/names';
 
-// The end of a quiz round: stars, the score, and anything new (a skill
-// passed or mastered, skills it unlocked, stickers). Saves the round.
-//   data: { skillIds, mode, score, total, tallies, replay } (replay = the
-//   quiz's own data, for "Again")
+// The end of a round (a quiz or a game): stars, the score, and anything new
+// (a skill passed or mastered, skills it unlocked, stickers). Saves the round.
+//   data: { skillIds, mode, score, total, tallies, replay } (replay = { key,
+//   data } of the scene that played the round, for "Again")
 export default class ResultsScene extends BaseScene {
   static key = 'Results';
 
@@ -25,7 +25,7 @@ export default class ResultsScene extends BaseScene {
     new StarRow(this, SAFE.width / 2, 190, stars, 100);
     this.add.text(SAFE.width / 2, 290, t('results.score', { score, total }), textStyle(40)).setOrigin(0.5);
     this.news = this.add.text(SAFE.width / 2, 340, '', textStyle(30, COLORS.ink, { lineSpacing: 10 })).setOrigin(0.5, 0);
-    const again = new Button(this, SAFE.width / 2 - 180, 620, { label: t('common.again'), width: 320, color: COLORS.primary, onTap: () => this.swap('Quiz', replay) });
+    const again = new Button(this, SAFE.width / 2 - 180, 620, { label: t('common.again'), width: 320, color: COLORS.primary, onTap: () => this.swap(replay.key, replay.data) });
     const map = new Button(this, SAFE.width / 2 + 180, 620, { label: t('common.map'), width: 320, color: COLORS.green, onTap: () => this.back() });
     this.tag('again', again.box);
     this.tag('map', map.box);

@@ -77,8 +77,8 @@ export default class TraceLayer {
     this.objects = [this.guide, this.start, this.startMarker, this.endMarker, this.follower, this.pencil, this.arrow].filter(Boolean);
 
     this.surface = new DragSurface(scene, x - 30, y - 30, this.width + 60, this.height + 60, {
-      onStart: (lx, ly) => this.down(this.toBox(lx + x - 30, ly + y - 30)),
-      onMove: (lx, ly) => this.move(this.toBox(lx + x - 30, ly + y - 30)),
+      onStart: (lx, ly) => this.down(this.toBox([lx + x - 30, ly + y - 30])),
+      onMove: (lx, ly) => this.move(this.toBox([lx + x - 30, ly + y - 30])),
       onEnd: () => this.up(),
     });
     this.redraw();

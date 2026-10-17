@@ -1,0 +1,17 @@
+{
+  "watch": "👆 Watch the pencil, then start at the green dot.",
+  "watchMarker": "👆 Watch first, then start at the {marker}",
+  "startDot": "🟢 Start at the green dot!",
+  "sayStartDot": "Start at the green dot!",
+  "startMarker": "Start at the {marker}!",
+  "sayStartHoney": "Start at the honey pot!",
+  "sayStartLight": "Start at the traffic light!",
+  "nextLine": "👍 Now the next line, from the green dot!",
+  "nextLineShort": "👍 Now the next line!",
+  "sayNextLine": "Now the next line!",
+  "almostDigit": "✏️ Almost! Follow the dots all the way to the end.",
+  "sayAlmostDigit": "Almost! Follow the dots all the way.",
+  "almostPath": "Almost! Keep going all the way to the end.",
+  "showAgain": "👀 Show me again",
+  "progress": "{index} / {total}"
+}
