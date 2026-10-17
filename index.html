@@ -103,9 +103,21 @@
       window.addEventListener('unhandledrejection', function (event) {
         window.__showStartError(event.reason && (event.reason.message || event.reason));
       });
-      // A browser too old for the game's script never runs it at all.
+      // Still not started: either the game script is missing (browsers don't
+      // tell the page about a failed module download, so check it), or the
+      // browser is too old to run it.
       setTimeout(function () {
-        if (!window.__started) window.__showStartError('The game did not start within 15 seconds.');
+        if (window.__started) return;
+        var script = document.querySelector('script[type="module"][src]');
+        var timedOut = 'The game did not start within 15 seconds.';
+        if (!script || !window.fetch) return window.__showStartError(timedOut);
+        fetch(script.src, { method: 'HEAD', cache: 'no-store' })
+          .then(function (response) {
+            window.__showStartError(response.ok ? timedOut : 'Could not load ' + script.src + ' (HTTP ' + response.status + ')');
+          })
+          .catch(function () {
+            window.__showStartError('Could not load ' + script.src + ' (no connection?)');
+          });
       }, 15000);
     </script>
     <script type="module" src="/src/main.js"></script>
