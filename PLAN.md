@@ -682,7 +682,7 @@ All earlier walkthroughs (Phases 4–6, round 1) were re-run and pass. Real iOS 
 
 All earlier walkthroughs pass.
 
-### Phase 5b, round 7: Pizza Shop rework (2026-10-17, commit `PIZZA2`)
+### Phase 5b, round 7: Pizza Shop rework (2026-10-17, commit `3c8d32f`)
 
 **Feedback:**
 1. The child shouldn't choose the number; it should be random.
