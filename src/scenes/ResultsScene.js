@@ -2,7 +2,7 @@ import BaseScene, { SAFE } from '../ui/BaseScene';
 import Button from '../ui/Button';
 import StarRow from '../ui/StarRow';
 import { COLORS, textStyle } from '../ui/theme';
-import { recordRound } from '../services/session';
+import { completeAdventureStep, recordRound } from '../services/session';
 import { speak } from '../services/speech';
 import { calculateStars } from '../logic/scoring';
 import { resultLine } from '../logic/quizRound';
@@ -12,13 +12,14 @@ import { skillTitle } from '../i18n/names';
 
 // The end of a round (a quiz or a game): stars, the score, and anything new
 // (a skill passed or mastered, skills it unlocked, stickers). Saves the round.
-//   data: { skillIds, mode, score, total, tallies, replay } (replay = { key,
-//   data } of the scene that played the round, for "Again")
+//   data: { skillIds, mode, score, total, tallies, replay, adventureStep }
+//   (replay = { key, data } of the scene that played the round, for
+//   "Again"; adventureStep when the round is a step of Today's Adventure)
 export default class ResultsScene extends BaseScene {
   static key = 'Results';
 
 
-  build({ mode, score, total, tallies, replay }) {
+  build({ mode, score, total, tallies, replay, adventureStep }) {
     this.bg = this.add.rectangle(0, 0, 10, 10, COLORS.cream).setOrigin(0, 0);
     const stars = calculateStars(score, total);
     this.add.text(SAFE.width / 2, 80, resultLine(stars), textStyle(56, COLORS.primary)).setOrigin(0.5);
@@ -32,7 +33,9 @@ export default class ResultsScene extends BaseScene {
     if (stars === 3) this.celebrate();
     this.report({ step: 'saving', stars, score, total });
 
-    recordRound(tallies, mode).then((result) => {
+    recordRound(tallies, mode).then(async (result) => {
+      // A step of Today's Adventure: done once its round is saved.
+      if (adventureStep) await completeAdventureStep(adventureStep);
       if (!this.sys.isActive()) return;
       const lines = [
         ...result.newlyMastered.map((id) => t('results.mastered', { title: skillTitle(id) })),

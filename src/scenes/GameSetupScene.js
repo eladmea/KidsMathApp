@@ -16,6 +16,7 @@ export default class GameSetupScene extends BaseScene {
   static key = 'GameSetup';
 
   build({ gameId }) {
+    if (this.timeUpGate()) return;
     this.game = getLearningGame(gameId);
     this.band = profileBand(session.profile).id;
     this.option = recommendedOption(this.game, this.band).id;

@@ -1,7 +1,10 @@
 import BaseScene, { SAFE } from '../ui/BaseScene';
 import Button from '../ui/Button';
 import { COLORS, colorOf, textStyle } from '../ui/theme';
-import { session, updateProfile } from '../services/session';
+import { session, timeLeft, updateProfile } from '../services/session';
+import { isFinished } from '../logic/adventure';
+import { WARN_MINUTES } from '../logic/playTime';
+import { coachIntro } from '../i18n/names';
 import { currentVoiceName, initSpeech, isNarrationOn, speak } from '../services/speech';
 import { getDueReviews, getRecord, hasPassed, isMastered, recommendNextSkill, toDayKey } from '../logic/progress';
 import { profileBand } from '../logic/profiles';
@@ -22,6 +25,7 @@ export default class WorldMapScene extends BaseScene {
 
 
   build() {
+    if (this.timeUpGate()) return;
     const { profile, progress } = session;
     const band = profileBand(profile);
     this.sky = this.add.rectangle(0, 0, 10, 10, COLORS.sky).setOrigin(0, 0);
@@ -71,12 +75,22 @@ export default class WorldMapScene extends BaseScene {
     this.tag('narration', this.narration.box);
     this.fullscreen = new Button(this, 0, 0, { label: '⛶', width: 84, height: 84, fontSize: 44, color: COLORS.white, textColor: COLORS.ink, onTap: () => this.toggleFullscreen() });
     this.tag('fullscreen', this.fullscreen.box);
+    // Today's Adventure, and "Play together" for a grown-up sitting with them.
+    const adventureDone = isFinished(session.adventure);
+    this.adventure = new Button(this, SAFE.width / 2, 0, { label: t(adventureDone ? 'adventure.mapDone' : 'adventure.mapButton'), width: 420, height: 84, fontSize: 30, color: adventureDone ? COLORS.white : COLORS.green, textColor: adventureDone ? COLORS.greenDark : COLORS.white, onTap: () => this.go('Adventure') });
+    this.tag('adventure', this.adventure.box);
+    this.coach = new Button(this, 0, 0, { label: '', width: 300, height: 84, fontSize: 26, color: COLORS.white, textColor: COLORS.ink, onTap: () => this.toggleCoach() });
+    this.tag('coach', this.coach.box);
+    const left = timeLeft();
+    if (left !== null && left <= WARN_MINUTES) this.add.text(SAFE.width / 2, 228, t('timeUp.warn', { count: left }), textStyle(24, COLORS.orange, { stroke: '#ffffff', strokeThickness: 5 })).setOrigin(0.5);
+    this.showCoach();
+
     this.voice = this.add.text(SAFE.width / 2, 700, '', textStyle(18, COLORS.ink)).setOrigin(0.5).setAlpha(0.6);
     initSpeech().then(() => this.sys.isActive() && this.voice.setText(t('common.voice', { name: currentVoiceName() || t('common.deviceVoice') })));
 
     speak(t('map.sayGreeting', { name: profile.name }));
     this.showNarration();
-    this.report({ player: profile.name, band: band.id, islands, reviews: this.reviews, stickers: (profile.stickers || []).length, tickets: profile.funTickets || 0 });
+    this.report({ player: profile.name, band: band.id, islands, reviews: this.reviews, stickers: (profile.stickers || []).length, tickets: profile.funTickets || 0, minutesLeft: left, adventureDone });
   }
 
   layout() {
@@ -86,11 +100,24 @@ export default class WorldMapScene extends BaseScene {
     this.fullscreen.setPosition(v.right - 70, v.y + 60);
     this.narration.setPosition(v.right - 170, v.y + 60);
     this.player.setPosition(v.x + 160, v.y + 60);
+    this.adventure.setPosition(SAFE.width / 2, v.y + 60);
+    this.coach.setPosition(v.right - 380, v.y + 60);
   }
 
   openIsland(subject) {
     speak(subjectName(subject));
     this.go('Island', { subjectId: subject.id });
+  }
+
+  showCoach() {
+    this.coach.setLabel(t(session.coaching ? 'map.coachOn' : 'map.coachOff')).setColor(session.coaching ? 0xffe08a : COLORS.white);
+    this.report({ coaching: session.coaching });
+  }
+
+  toggleCoach() {
+    session.coaching = !session.coaching;
+    this.showCoach();
+    if (session.coaching) speak(coachIntro(), { force: true });
   }
 
   showNarration() {

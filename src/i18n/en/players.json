@@ -19,5 +19,6 @@
   "band": "{emoji} {band} (ages {min}-{max})",
   "save": "Let's go! ▶",
   "sayWelcome": "Welcome! Let's make your player.",
-  "sayNewPlayer": "A new player! What is their name?"
+  "sayNewPlayer": "A new player! What is their name?",
+  "grownUps": "👪 Grown-ups"
 }

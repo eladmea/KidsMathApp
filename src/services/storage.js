@@ -67,6 +67,11 @@ export function appendPlayLog(id, events) {
   return playLogWrites;
 }
 
+export function clearPlayLog(id) {
+  playLogWrites = playLogWrites.then(() => remove(KEYS.playLog(id)));
+  return playLogWrites;
+}
+
 export async function deleteProgress(id) {
   await Promise.all([KEYS.progress(id), KEYS.garden(id), KEYS.playLog(id), KEYS.adventure(id)].map(remove));
 }

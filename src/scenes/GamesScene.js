@@ -13,6 +13,7 @@ export default class GamesScene extends BaseScene {
   static key = 'Games';
 
   build() {
+    if (this.timeUpGate()) return;
     this.bg = this.add.rectangle(0, 0, 10, 10, COLORS.cream).setOrigin(0, 0);
     this.addBackButton();
     this.add.text(640, 70, t('hubs.games'), textStyle(48)).setOrigin(0.5);

@@ -266,3 +266,8 @@ export async function chooseVoice(id) {
   state.voiceId = id || chooseAutomatically();
   await saveVoiceChoice(id);
 }
+
+// The grown-up's pick (a voice id), or null for automatic.
+export function voiceChoice() {
+  return state.choice;
+}

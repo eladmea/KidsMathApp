@@ -114,7 +114,7 @@ export function daysPlayed(log = []) {
   return new Set(log.filter((event) => event.type !== 'note').map((event) => event.day)).size;
 }
 
-const CSV_COLUMNS = ['profile', 'type', 'day', 'at', 'skillId', 'baseSkillId', 'mode', 'correct', 'ms', 'replays', 'level', 'total', 'answered', 'change', 'toSkillId', 'text'];
+const CSV_COLUMNS = ['profile', 'type', 'day', 'at', 'skillId', 'baseSkillId', 'mode', 'correct', 'ms', 'replays', 'level', 'coach', 'total', 'answered', 'change', 'toSkillId', 'text'];
 
 function csvCell(value) {
   if (value === undefined || value === null) return '';

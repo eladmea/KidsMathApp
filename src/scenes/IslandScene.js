@@ -26,6 +26,7 @@ export default class IslandScene extends BaseScene {
 
 
   build({ subjectId, bandId }) {
+    if (this.timeUpGate()) return;
     this.subject = getSubject(subjectId);
     this.bandId = bandId || profileBand(session.profile).id;
     this.bg = this.add.rectangle(0, 0, 10, 10, colorOf(this.subject.light)).setOrigin(0, 0);

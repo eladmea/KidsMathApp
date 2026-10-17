@@ -1,0 +1,11 @@
+{
+  "title": "Great playing today, {name}!",
+  "subtitle": "It's time for a break. See you tomorrow! 👋",
+  "say": "Great playing today, {name}! It's time for a break. See you tomorrow!",
+  "stickers": "Today's stickers",
+  "breathe": "🎈 Balloon Breath",
+  "switchPlayer": "👥 Switch player",
+  "moreTime": "🔒 Grown-ups: +{minutes} min",
+  "gateTitle": "{minutes} more minutes",
+  "warn": { "one": "⏰ {count} minute left today", "other": "⏰ {count} minutes left today" }
+}
