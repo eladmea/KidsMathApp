@@ -2,7 +2,7 @@
 
 - **Written:** 2026-10-17
 - **Goal:** rebuild MathPlay as a Phaser game. We don't keep the Expo / React Native screens, components or assets. Islands get designed later, inside Phaser.
-- **Engine:** Phaser 4 (4.1 "Salusa" is the latest release found, from April 2026). Bundled with Vite.
+- **Engine:** Phaser 4.2.1 (latest on npm), bundled with Vite 8. Tests use Vitest; the browser walkthrough uses Playwright.
 - **Decided 2026-10-17:**
   - landscape on phones and tablets;
   - the logic is copied over;
@@ -134,7 +134,7 @@ Each phase ends with tests passing, a web build, a Playwright walkthrough and a 
 
 | Phase | Scope | Done when |
 |---|---|---|
-| **P0 Spike** | Move the Expo app to `legacy/`. Set up Vite + Phaser 4 at the root. Copy the logic into `src/logic/` with its tests. Build one quiz skill (Count to 5) and the Pizza sauce trace (PaintLayer + TraceLayer). Try it on a phone and a tablet | Drags, painting and TTS feel right on touch; layout and orientation confirmed |
+| **P0 Spike** 🔄 built, waiting for a real-device check | Move the Expo app to `legacy/`. Set up Vite + Phaser 4 at the root. Copy the logic into `src/logic/` with its tests. Build one quiz skill (Count to 5) and the Pizza sauce trace (PaintLayer + TraceLayer). Try it on a phone and a tablet | Drags, painting and TTS feel right on touch; layout and orientation confirmed |
 | **P1 Foundation** | Scale/safe area, storage, speech, audio, session, SceneRouter, UI kit, test bridge. Profiles and CreateProfile scenes. GitHub Pages deploy of the new build at `/KidsMathApp/`, replacing the old app | A child can pick a profile and hear the greeting |
 | **P2 Core learning loop** | WorldMap and Island placeholders. The generic Quiz scene with every question visual and input type. Worked examples, Results, stars, stickers, adaptive steps, review and mixed rounds | Every quiz skill in all 5 subjects is playable and saves progress |
 | **P3 Writing & drag games** | TraceDigits, Bee Paths, Race Track, Pizza Shop (full flow: stations, oven drag, slices, feeding), Birthday Cake | The sprouts (3–4) math band is fully playable |
@@ -157,3 +157,50 @@ Old **Phase 5b** play-test rounds pause during P0–P5, then continue on the Pha
 | Text input (names) on a canvas | DOM input element over the canvas |
 | A rewrite stalls feature work | The old app isn't in use, so there's nothing to keep running. The logic keeps its tests the whole time |
 | Bundle size on slow connections | Phaser custom build, plus atlases loaded per scene |
+
+---
+
+## 6. Progress log
+
+### P0 Spike: built 2026-10-17 (branch `claude/phaser-p0`)
+
+**What was done**
+- **Old app:** moved into `legacy/`, untouched.
+- **New Vite + Phaser 4.2.1 project** at the root:
+  - `src/curriculum` and `src/logic` copied over unchanged.
+  - Three small changes to make them run without the old app:
+    - `playerColors` moved into `logic/players.js`;
+    - `numberLineFeedback` moved out of a component into `logic/numberLine.js`;
+    - the tests' `require()` calls became imports.
+  - 290 tests pass under Vitest. The 13 old speech-engine tests were dropped because that engine was rewritten.
+- **Layout:**
+  - `Scale.EXPAND` with the camera centred on a 1280×720 safe area, so the canvas fills any landscape screen with no black bars;
+  - notch insets via CSS;
+  - a "please turn your device" screen in portrait;
+  - a fullscreen button that also tries to lock landscape.
+- **Services:**
+  - storage: localStorage, keys prefixed `mathplay2:`;
+  - speech: Web Speech API with the same natural-voice ranking, sentence queue, failed-voice fallback, iOS unlock on the first tap, and a stop when the tab is hidden;
+  - session;
+  - the `window.__mathplay` test hook.
+- **UI pieces:** Button (fires on finger-up, so quick taps count), Narrator bubble with 🔊 replay, HintArrow + IdleHint (5-second reminder), PaintLayer (a RenderTexture brush that fills gaps on fast strokes) + DragSurface (keeps following the finger outside the area until it lifts).
+- **Scenes:**
+  - Home;
+  - Quiz: generic, using any generator, with the how-to card, 10 questions, explanation on a wrong answer, stars and saved progress;
+  - Pizza: write the number in sauce in any stroke order, judged by the result; too messy starts over; then spread the sauce with a meter; 2 pizzas per round, progress saved.
+- **Deploy:** the GitHub Pages workflow now builds with Vite. A web app manifest sets landscape and fullscreen.
+- **Walkthrough** (`e2e/p0.mjs`), all checks passing:
+
+  | Size | Checks passed |
+  |---|---|
+  | Phone landscape, 844×390 | 14/14 |
+  | Tablet, 1180×820 | 14/14 |
+  | Laptop, 1366×768 | 13/13 (before the orientation check was added) |
+  | Portrait phone | 1/1 |
+
+**Findings**
+- Drags, painting and taps behave without any of the old web workarounds (text selection, stale closures, missed quick taps).
+- Phaser 4 RenderTextures need `render()` after stamping. That is noted in AGENTS.md, which now points at the guides that ship in `node_modules/phaser/skills/`.
+- Phaser adds about 357 KB gzipped (in its own cached chunk). The game code is 26 KB.
+
+**Still to check before calling P0 done:** play it on a real phone and tablet (touch feel, voice quality, fullscreen and orientation lock).

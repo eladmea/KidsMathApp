@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+    <meta name="theme-color" content="#4A6FE3" />
+    <title>MathPlay</title>
+    <meta name="description" content="Learning games for kids ages 3-10: numbers, reading, science and puzzles." />
+    <!-- Home Screen install: full screen, landscape, its own icon. -->
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" href="/icon-192.png" />
+    <link rel="apple-touch-icon" href="/icon-180.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="MathPlay" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        overflow: hidden;
+        background: #8fd3f4;
+        touch-action: none;
+        user-select: none;
+        -webkit-user-select: none;
+        -webkit-touch-callout: none;
+        font-family: 'Fredoka', system-ui, sans-serif;
+      }
+      /* The game fills the screen, inside the notch / home-bar insets. */
+      #game {
+        position: fixed;
+        inset: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+      }
+      /* MathPlay is landscape only: ask to turn a phone held upright. */
+      #rotate {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 10;
+        background: #4a6fe3;
+        color: #fff;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        text-align: center;
+        font-size: 28px;
+        font-weight: 600;
+        gap: 12px;
+      }
+      #rotate .phone {
+        font-size: 72px;
+        animation: turn 1.6s ease-in-out infinite;
+      }
+      @keyframes turn {
+        0%, 30% { transform: rotate(0deg); }
+        60%, 100% { transform: rotate(-90deg); }
+      }
+      @media (orientation: portrait) and (max-width: 900px) {
+        #rotate { display: flex; }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="game"></div>
+    <div id="rotate" role="alert"><div class="phone">📱</div>Please turn your device sideways</div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
