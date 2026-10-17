@@ -114,9 +114,10 @@ npm run voice:lines -- en   # every line to record, with file names (voice-lines
 Browser walkthrough (needs a Playwright browser, e.g. `npx playwright install chromium`):
 
 ```bash
-BASE_URL=/KidsMathApp/ npm run build && npx vite preview --port 8765 &
-URL=http://localhost:8765/KidsMathApp/ npm run e2e    # every walkthrough at phone, tablet and portrait sizes (~10 min)
-node e2e/players.mjs shots 844 390 phone             # or one walkthrough at one size
+npm run e2e:local                       # builds, serves the build itself, runs every walkthrough at phone,
+                                        # tablet and portrait sizes (~25 min), then stops the server
+node e2e/players.mjs shots 844 390 phone    # or one walkthrough at one size, against a server you run
+                                            # (npx vite preview --port 8765 after a BASE_URL=/KidsMathApp/ build)
 ```
 
 Add `?fast` to the address to run the game's timers and animations 8x faster (the every-skill walkthrough uses it).
