@@ -86,11 +86,19 @@ export class DragSurface {
     scene.input.on('pointermove', move);
     scene.input.on('pointerup', up);
     scene.input.on('pointerupoutside', up);
-    scene.events.once('shutdown', () => {
+    this.unlisten = () => {
       scene.input.off('pointermove', move);
       scene.input.off('pointerup', up);
       scene.input.off('pointerupoutside', up);
-    });
+    };
+    scene.events.once('shutdown', this.unlisten);
+  }
+
+  destroy() {
+    this.setEnabled(false);
+    this.unlisten();
+    this.scene.events.off('shutdown', this.unlisten);
+    this.zone.destroy();
   }
 
   setEnabled(enabled) {

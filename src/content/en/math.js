@@ -22,6 +22,19 @@ export const SHAPES = [
   { emoji: '🔷', name: 'diamond' },
 ];
 
+// Number words, 0-9 (the writing games say them).
+export const NUMBER_WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
+
+// The pre-writing strokes of Bee Paths, by id (logic/tracing.js PREWRITING_PATHS).
+export const STROKE_NAMES = {
+  down: 'straight down',
+  across: 'straight across',
+  rainbow: 'a rainbow',
+  circle: 'a circle',
+  cross: 'a cross',
+  slide: 'a slide',
+};
+
 const noun = (object, count) => (count === 1 ? object.one : object.many);
 const upTo = (count) => Array.from({ length: count }, (_, i) => i + 1).join(', ');
 
