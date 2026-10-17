@@ -1,4 +1,6 @@
 import { COLORS, textStyle } from './theme';
+import { t } from '../i18n/index';
+import { glyph } from './Art';
 
 // Pictures that let pre-readers count, listen and look instead of reading.
 // drawVisual() builds one inside a box of `width` x `height` centred on
@@ -17,6 +19,8 @@ export function drawVisual(scene, x, y, visual, { width = 600, height = 420, rev
 }
 
 const text = (scene, x, y, value, size, color = COLORS.ink, extra) => scene.add.text(x, y, String(value), textStyle(size, color, extra)).setOrigin(0.5);
+// Pictures (emoji, or their image from src/assets/images/emoji/ when added).
+const pic = (scene, x, y, emoji, size) => glyph(scene, x, y, emoji, size);
 
 function card(scene, box, width, height) {
   box.add(scene.add.rectangle(0, 0, width, height, COLORS.white, 0.9).setRounded(28));
@@ -29,7 +33,7 @@ function emojiGrid(scene, box, emoji, count, { size, cx = 0, cy = 0, perRow = 5,
   for (let i = 0; i < count; i++) {
     const row = Math.floor(i / perRow);
     const inRow = Math.min(perRow, count - row * perRow);
-    const item = text(scene, cx + ((i % perRow) - (inRow - 1) / 2) * gap, cy + (row - (rows - 1) / 2) * gap, emoji, size);
+    const item = pic(scene, cx + ((i % perRow) - (inRow - 1) / 2) * gap, cy + (row - (rows - 1) / 2) * gap, emoji, size);
     if (i >= fadedFrom) item.setAlpha(0.22);
     if (pop) {
       item.setScale(0);
@@ -118,7 +122,7 @@ const DRAW = {
     const heightOf = (i) => base + (up ? i : values.length - 1 - i) * rise;
     const tallest = base + (values.length - 1) * rise;
     const floor = tallest / 2 + 30;
-    box.add(text(scene, 0, -floor - 40, up ? '⬆️ Going up' : '⬇️ Going down', 28, up ? COLORS.greenDark : COLORS.orange));
+    box.add(text(scene, 0, -floor - 40, up ? t('quiz.goingUp') : t('quiz.goingDown'), 28, up ? COLORS.greenDark : COLORS.orange));
     values.forEach((value, i) => {
       const x = (i - (values.length - 1) / 2) * (block + 18);
       const h = heightOf(i);
@@ -144,7 +148,7 @@ const DRAW = {
       const filled = isGap && reveal !== null;
       const color = filled ? 0xd9f7e6 : isGap ? 0xffe9d4 : COLORS.white;
       box.add(scene.add.rectangle(x, 0, tile, tile, color).setRounded(12).setStrokeStyle(4, isGap ? (filled ? COLORS.green : COLORS.orange) : 0xd6dbe8));
-      box.add(text(scene, x, 0, isGap ? (filled ? reveal : '?') : item, tile * 0.62, isGap && !filled ? COLORS.orange : COLORS.ink));
+      box.add(isGap && !filled ? text(scene, x, 0, '?', tile * 0.62, COLORS.orange) : pic(scene, x, 0, isGap ? reveal : item, tile * 0.62));
       if (v.numbered) box.add(text(scene, x, tile / 2 + 18, i + 1, 18, COLORS.gray));
     });
     if (v.numbered) {
@@ -166,28 +170,28 @@ const DRAW = {
       if (count === null) {
         box.add(text(scene, x, floor - 40, '?', 64, COLORS.orange));
       } else {
-        for (let k = 0; k < count; k++) box.add(text(scene, x, floor - block / 2 - k * block, v.emoji, block * 0.9));
+        for (let k = 0; k < count; k++) box.add(pic(scene, x, floor - block / 2 - k * block, v.emoji, block * 0.9));
       }
-      box.add(text(scene, x, floor + 26, `Step ${i + 1}`, 22, COLORS.gray));
+      box.add(text(scene, x, floor + 26, t('quiz.step', { number: i + 1 }), 22, COLORS.gray));
     });
   },
 
   picture(scene, box, v, { width, height }) {
     card(scene, box, Math.min(width, 420), Math.min(height, 340));
-    box.add(text(scene, 0, v.caption ? -30 : 0, v.emoji, 150));
+    box.add(pic(scene, 0, v.caption ? -30 : 0, v.emoji, 150));
     if (v.caption) box.add(text(scene, 0, 110, v.caption, 30, COLORS.ink, { wordWrap: { width: 380 } }));
   },
 
   listen(scene, box) {
-    box.add(text(scene, 0, -30, '👂', 150));
-    box.add(text(scene, 0, 100, 'Listen!', 40, COLORS.primary));
+    box.add(pic(scene, 0, -30, '👂', 150));
+    box.add(text(scene, 0, 100, t('quiz.listen'), 40, COLORS.primary));
   },
 
   // The Sound Snack monster: hungry, then yum (right) or yuck (wrong).
   snackMonster(scene, box, v, { result }) {
     const face = result === 'correct' ? '😋' : result === 'wrong' ? '🤢' : '👾';
-    const words = result === 'correct' ? 'Yum!' : result === 'wrong' ? 'Yuck!' : `${v.sound}!`;
-    box.add(text(scene, -70, 0, face, 170));
+    const words = result === 'correct' ? t('quiz.yum') : result === 'wrong' ? t('quiz.yuck') : `${v.sound}!`;
+    box.add(pic(scene, -70, 0, face, 170));
     box.add(scene.add.rectangle(140, -90, 180, 90, COLORS.white).setRounded(40));
     box.add(text(scene, 140, -90, words, 40, COLORS.primary));
   },

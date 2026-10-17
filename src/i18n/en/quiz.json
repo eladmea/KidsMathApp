@@ -1,0 +1,29 @@
+{
+  "title": "{emoji} {title}",
+  "review": "⭐ Daily Review",
+  "mixed": "🔀 Mixed Practice",
+  "together": "👀 Let's try one together!",
+  "score": "⭐ {score}",
+  "answerIs": "The answer is {answer}.",
+  "blend": "{sounds}… {word}!",
+  "levelDown": "⬇️ Let's practice {emoji} {title} for a bit",
+  "levelUp": "⚡ Level up! {emoji} {title}",
+  "levelBack": "⬆️ Back to {emoji} {title}. Nice!",
+  "hint": "💡 Here's a hint",
+  "undo": "↩ Undo",
+  "spelled": "It's spelled {parts}",
+  "built": "{word}! 🎉",
+  "shouldBe": "should be {position}",
+  "goingUp": "⬆️ Going up",
+  "goingDown": "⬇️ Going down",
+  "step": "Step {number}",
+  "listen": "Listen!",
+  "yum": "Yum!",
+  "yuck": "Yuck!",
+  "numberLine": {
+    "praise": ["Great job!", "You got it!", "Awesome!", "Super tapping!"],
+    "bullseye": "Bullseye! {answer} is right there! 🎯",
+    "right": "{praise} {answer} lives right there! 🎉",
+    "wrong": "Good try! You tapped {guess}. {answer} lives here. 🎯"
+  }
+}

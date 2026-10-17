@@ -62,19 +62,27 @@ Two players (🦁 Player 1 and 🐸 Player 2) take turns flipping two cards from
 
 ## Project structure
 
+How to change pictures, add a language, record the voice, or add a screen or skill: see **[ARCHITECTURE.md](ARCHITECTURE.md)**.
+
 ```
 index.html                Page shell: full-screen canvas, notch insets, "turn your device" screen
 vite.config.js            Build (BASE_URL sets the GitHub Pages path) and test settings
 src/main.js               Phaser game config: Scale.EXPAND around a 1280 x 720 safe area, scene list
-src/curriculum/           Skill map, age bands, subjects, question generators, phonics, how-to texts (copied from the old app)
+src/curriculum/           Skill map, age bands, subjects and question generators: structure and logic, no words
+src/i18n/<language>/      Every word on screen, one JSON file per feature (+ _meta.json)
+src/content/<language>/   Question content per subject: word banks, stories, and how each question is said
+src/voice/<language>/     Recorded sentences that replace the device voice (optional; npm run voice:lines)
+src/assets/               Pictures (by key or emoji, optional) and sound effects, found by folder
 src/logic/                Game rules with no UI: progress/mastery/review, adaptive, adventure, sessions, tracing, writing games, memory game, ...
-src/services/             storage (localStorage), speech (Web Speech API, best natural voice, per-child narration on/off),
+src/services/             storage (localStorage), speech (recordings first, then the best device voice for the child's language,
+                          per-child narration on/off), voiceClips, assets (images and sounds by folder),
                           session (players, signed-in child, progress), router (back history), audio (sound effects), testBridge
 src/ui/                   BaseScene (safe-area camera, go/back/swap/reset, ← button), Button, Narrator, StarRow, Dialog,
                           ParentGate (keypad times-fact check), HintArrow + IdleHint, PaintLayer + DragSurface, theme,
                           QuestionVisual (all 11 picture types), QuizInputs (choices, number line, word builder, story strip)
 src/scenes/               Boot, Profiles ("Who's playing?"), CreateProfile, WorldMap, Island, Quiz, Results, StickerBook, Pizza
-public/                   Web app manifest, Home Screen icons, sounds
+                          (every *Scene.js registers itself via scenes/registry.js)
+public/                   Web app manifest and Home Screen icons
 tests/                    Vitest unit tests for curriculum and logic
 e2e/                      Playwright walkthroughs through the window.__mathplay test hook: players, games, learning (the learning
                           loop), quiz (every quiz skill once), smoke (a deployed site); run.mjs runs them all
@@ -101,6 +109,8 @@ One-time setup: make the repository public (or use a paid plan), set **Settings 
 npm install
 npm run dev        # http://localhost:5173, open it on a phone on the same Wi-Fi with --host
 npm test           # unit tests
+npm run lint       # ESLint
+npm run voice:lines -- en   # every line to record, with file names (voice-lines.en.csv)
 ```
 
 Browser walkthrough (needs a Playwright browser, e.g. `npx playwright install chromium`):

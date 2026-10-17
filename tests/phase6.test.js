@@ -13,7 +13,7 @@ import {
   subjectsForDay,
   weekdayOf,
 } from '../src/logic/adventure';
-import { COACH_INTRO, TALK_SUBJECTS, talkPrompt } from '../src/curriculum/talkPrompts';
+import { coachIntro, talkSubjects, talkPrompt } from '../src/curriculum/talkPrompts';
 import { applyRound, getRecord } from '../src/logic/progress';
 import { getSkill } from '../src/curriculum/skills';
 import { SUBJECTS } from '../src/curriculum/subjects';
@@ -123,12 +123,12 @@ describe("Today's Adventure plan", () => {
 describe('Play together prompts', () => {
   it('has right and wrong prompts for every subject', () => {
     SUBJECTS.forEach(({ id }) => {
-      expect(TALK_SUBJECTS).toContain(id);
+      expect(talkSubjects()).toContain(id);
       expect(talkPrompt(id, true)).toBeTruthy();
       expect(talkPrompt(id, false)).toBeTruthy();
       expect(talkPrompt(id, true, 0)).not.toBe(talkPrompt(id, true, 1));
     });
     expect(talkPrompt('unknown', true)).toBe(talkPrompt('math', true));
-    expect(COACH_INTRO).toBeTruthy();
+    expect(coachIntro()).toBeTruthy();
   });
 });

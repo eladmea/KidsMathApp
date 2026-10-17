@@ -16,7 +16,9 @@ const rotate = await page.locator('#rotate').isVisible();
 if (height > width) {
   check('portrait phone asks to turn the device', rotate);
   await t.shot(dir, 'rotate');
-  process.exit(await t.finish());
+  const voiced = await t.mp(() => window.__mathplay.voice);
+check('every sentence is voiced (no recordings yet: all by the device voice)', voiced.length > 0 && voiced.every((v) => v.source === 'device'), `${voiced.length} sentences`);
+process.exit(await t.finish());
 }
 check('landscape shows the game, not the turn message', !rotate);
 
@@ -26,6 +28,7 @@ await sleep(400);
 check('no players yet: the welcome screen opens', (await t.spoken()).some((line) => line.startsWith('Welcome')));
 check('the first player has no back button', !(await t.box('back')));
 check("can't save without a name", (await state()).canSave === false);
+check('no language picker while there is only one language', !(await t.box('language:en')));
 await tap('save');
 check('tapping save with no name does nothing', (await t.scene()) === 'CreateProfile');
 
@@ -128,4 +131,6 @@ await tap('player:Mia');
 await t.waitScene('WorldMap');
 check('Mia can still play', (await state()).player === 'Mia');
 
+const voiced = await t.mp(() => window.__mathplay.voice);
+check('every sentence is voiced (no recordings yet: all by the device voice)', voiced.length > 0 && voiced.every((v) => v.source === 'device'), `${voiced.length} sentences`);
 process.exit(await t.finish());

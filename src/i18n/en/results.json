@@ -1,0 +1,11 @@
+{
+  "lines": { "3": "Amazing job!", "2": "Great work!", "1": "Nice try! Keep practicing!" },
+  "score": "You got {score} out of {total}",
+  "sayScore": "You got {score} out of {total}.",
+  "mastered": "🏅 Mastered: {title}",
+  "passed": "✅ Passed: {title}",
+  "unlocked": "🔓 New: {emoji} {title}",
+  "stickers": { "one": "🌟 New sticker: {list}", "other": "🌟 New stickers: {list}" },
+  "sayMastered": "You mastered {titles}!",
+  "saySticker": "You got a new sticker!"
+}

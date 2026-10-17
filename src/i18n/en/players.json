@@ -1,0 +1,23 @@
+{
+  "whoIsPlaying": "Who's playing?",
+  "tapYourPicture": "Who's playing? Tap your picture.",
+  "newPlayer": "➕\nNew player",
+  "manage": "👪 Grown-ups: manage players",
+  "managePlayers": "Manage players",
+  "deleteTitle": "Delete {name}?",
+  "deleteNote": "All their stars and progress will be gone.",
+  "delete": "Delete",
+  "keep": "Keep",
+  "welcome": "👋 Welcome!",
+  "newPlayerTitle": "New player",
+  "grownUpHelp": "A grown-up can help set this up.",
+  "name": "Name",
+  "namePlaceholder": "Child's name",
+  "age": "Age",
+  "buddy": "Buddy",
+  "language": "Language",
+  "band": "{emoji} {band} (ages {min}-{max})",
+  "save": "Let's go! ▶",
+  "sayWelcome": "Welcome! Let's make your player.",
+  "sayNewPlayer": "A new player! What is their name?"
+}

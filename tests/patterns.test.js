@@ -1,5 +1,5 @@
 import { generateQuestion } from '../src/curriculum/generators';
-import { HOW_TO } from '../src/curriculum/howTo';
+import { howTo } from '../src/curriculum/howTo';
 import { getSkill, skillsFor } from '../src/curriculum/skills';
 
 const RUNS = 400;
@@ -31,7 +31,7 @@ describe('pattern ladder by age', () => {
     ];
     ladder.forEach(([id, band, generator]) => {
       expect(getSkill(id)).toMatchObject({ band, generator });
-      expect(HOW_TO[generator]).toBeTruthy();
+      expect(howTo(generator)).toBeTruthy();
     });
     expect(getSkill('logic-patterns-more').prereqs).toEqual(['logic-patterns']);
     ['sprouts', 'explorers', 'builders', 'masters'].forEach((band) => {

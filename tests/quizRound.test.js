@@ -1,5 +1,5 @@
-import { answerLabel, exampleSpeech, feedbackDelay, isCorrectAnswer, levelNote, RESULT_LINES } from '../src/logic/quizRound';
-import { GAME_SCENES, isAvailable, skillScene } from '../src/logic/skillRoutes';
+import { answerLabel, exampleSpeech, feedbackDelay, isCorrectAnswer, levelNote, resultLine } from '../src/logic/quizRound';
+import { GAME_SCENES, isAvailable, registerGameScene, skillScene } from '../src/logic/skillRoutes';
 import { GENERATORS, generateQuestion } from '../src/curriculum/generators';
 import { SKILLS, getSkill, isQuizSkill } from '../src/curriculum/skills';
 
@@ -59,7 +59,7 @@ describe('round pacing and notes', () => {
     expect(levelNote('up', skill, 0)).toContain('Back to');
     expect(levelNote('hint', skill, 0)).toContain('hint');
     expect(levelNote(null, skill, 0)).toBeNull();
-    [1, 2, 3].forEach((stars) => expect(RESULT_LINES[stars]).toBeTruthy());
+    [1, 2, 3].forEach((stars) => expect(resultLine(stars)).not.toMatch(/^results\./));
   });
 });
 
@@ -71,7 +71,8 @@ describe('which scene plays a skill', () => {
     });
   });
 
-  it('sends rebuilt games to their scene and the rest nowhere yet', () => {
+  it('sends rebuilt games to the scene that registered for them, and the rest nowhere yet', () => {
+    registerGameScene('PizzaShop', 'Pizza');
     expect(skillScene(getSkill('math-pizza'))).toEqual({ key: 'Pizza', data: { skillId: 'math-pizza' } });
     const notYet = SKILLS.filter((s) => s.screen && !GAME_SCENES[s.screen]);
     expect(notYet.length).toBeGreaterThan(0);
@@ -80,5 +81,14 @@ describe('which scene plays a skill', () => {
       expect(skillScene(skill)).toBeNull();
     });
     expect(skillScene(undefined)).toBeNull();
+  });
+});
+
+describe('skills in other languages', () => {
+  it('a quiz skill is only available where its content pack exists', () => {
+    const quiz = SKILLS.filter(isQuizSkill);
+    quiz.forEach((skill) => expect(isAvailable(skill, 'en')).toBe(true));
+    // A language with no packs yet offers none of them.
+    quiz.forEach((skill) => expect(isAvailable(skill, 'xx')).toBe(false));
   });
 });

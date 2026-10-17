@@ -1,5 +1,7 @@
 // Rules for a quiz round that don't depend on how it's drawn: checking an
 // answer of any type, the answer as text, and what a worked example says.
+import { skillTitle } from '../i18n/names';
+import { t } from '../i18n/index';
 
 export const MODES = { practice: 'practice', review: 'review', mixed: 'mixed' };
 
@@ -28,7 +30,7 @@ export function answerLabel(question) {
 // What the narrator says for a worked example: how to play, the question,
 // then why the answer is right.
 export function exampleSpeech(howTo, question) {
-  return [howTo, question.speech, question.explain || `The answer is ${answerLabel(question).replace(/ · /g, ', ')}.`]
+  return [howTo, question.speech, question.explain || t('quiz.answerIs', { answer: answerLabel(question).replace(/ · /g, ', ') })]
     .filter(Boolean)
     .join(' ');
 }
@@ -45,15 +47,12 @@ export function feedbackDelay(question, isCorrect) {
 
 // The note shown when a practice round changes level.
 export function levelNote(change, skill, level) {
-  if (change === 'down') return `⬇️ Let's practice ${skill.emoji} ${skill.title} for a bit`;
-  if (change === 'up') return level > 0 ? `⚡ Level up! ${skill.emoji} ${skill.title}` : `⬆️ Back to ${skill.emoji} ${skill.title}. Nice!`;
-  if (change === 'hint') return "💡 Here's a hint";
+  const names = { emoji: skill.emoji, title: skillTitle(skill) };
+  if (change === 'down') return t('quiz.levelDown', names);
+  if (change === 'up') return t(level > 0 ? 'quiz.levelUp' : 'quiz.levelBack', names);
+  if (change === 'hint') return t('quiz.hint');
   return null;
 }
 
 // What a finished round says, from its stars (see logic/scoring.js).
-export const RESULT_LINES = {
-  3: 'Amazing job!',
-  2: 'Great work!',
-  1: 'Nice try! Keep practicing!',
-};
+export const resultLine = (stars) => t(`results.lines.${stars}`);

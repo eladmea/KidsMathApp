@@ -4,56 +4,40 @@
 // - type 'build': spell a word from letter tiles   { word, tiles, answer }
 // - type 'order': put story panels in order        { items, answer: ids }
 import { pick, sample, shuffle } from './random';
-import {
-  COMPOUND_WORDS,
-  CVC_WORDS,
-  DIGRAPH_START_WORDS,
-  DIGRAPH_TILES,
-  DIGRAPH_WORDS,
-  FIRST_SOUND_WORDS,
-  FIRST_SOUNDS_ALL,
-  FIRST_SOUNDS_EARLY,
-  RHYME_FAMILIES,
-  SIGHT_WORDS,
-  STORIES,
-  WORD_PARTS,
-  soundSpeech,
-} from './phonics';
+import { content } from '../content/index';
 
-const ALPHABET = 'abcdefghijklmnopqrstuvwxyz'.split('');
-
-function listWords(words) {
-  if (words.length === 1) return words[0];
-  return `${words.slice(0, -1).join(', ')}, or ${words[words.length - 1]}`;
-}
+// The words come from the language's literacy pack (src/content/<language>/literacy.js).
+const words = () => content('literacy');
 
 // Picture choices + the sentence that names them, in on-screen order.
 function pictureChoices(entries) {
   const order = shuffle(entries);
-  return { choices: order.map(([emoji]) => emoji), names: listWords(order.map(([, word]) => word)) };
+  return { choices: order.map(([emoji]) => emoji), names: words().listWords(order.map(([, word]) => word)) };
 }
 
 function rhymes() {
+  const { RHYME_FAMILIES, say } = words();
   const familyIndex = Math.floor(Math.random() * RHYME_FAMILIES.length);
   const [target, match] = sample(RHYME_FAMILIES[familyIndex], 2);
   const others = RHYME_FAMILIES.filter((_, i) => i !== familyIndex);
   const distractors = sample(others, 2).map((family) => pick(family));
   const { choices, names } = pictureChoices([match, ...distractors]);
   return {
-    prompt: `What rhymes with ${target[1]}?`,
-    speech: `What rhymes with ${target[1]}? ${names}?`,
+    prompt: say.rhymes.prompt({ target: target[1] }),
+    speech: say.rhymes.speech({ target: target[1], names }),
     visual: { type: 'picture', emoji: target[0], caption: target[1] },
     answer: match[0],
-    explain: `${target[1]} and ${match[1]} rhyme: they end with the same sound.`,
+    explain: say.rhymes.explain({ target: target[1], match: match[1] }),
     choices,
     choiceStyle: 'picture',
     speakAlways: true,
   };
 }
 
-function soundSnack(sounds) {
+function soundSnack(soundsKey) {
   return () => {
-    const sound = pick(sounds);
+    const { FIRST_SOUND_WORDS, FIRST_SOUNDS_ALL, soundSpeech, say } = words();
+    const sound = pick(words()[soundsKey]);
     const [answer, example] = sample(FIRST_SOUND_WORDS[sound], 2);
     const distractors = sample(
       FIRST_SOUNDS_ALL.filter((s) => s !== sound),
@@ -62,11 +46,11 @@ function soundSnack(sounds) {
     const { choices, names } = pictureChoices([answer, ...distractors]);
     const spoken = soundSpeech(sound);
     return {
-      prompt: `Feed me ${spoken}!`,
-      speech: `Feed the monster something that starts with ${spoken}, like ${example[1]}. ${names}?`,
+      prompt: say.soundSnack.prompt({ sound: spoken }),
+      speech: say.soundSnack.speech({ sound: spoken, example: example[1], names }),
       visual: { type: 'snackMonster', sound: spoken },
       answer: answer[0],
-      explain: `${answer[1]} starts with ${spoken}!`,
+      explain: say.soundSnack.explain({ word: answer[1], sound: spoken }),
       choices,
       choiceStyle: 'picture',
       speakAlways: true,
@@ -75,16 +59,18 @@ function soundSnack(sounds) {
 }
 
 function letterChoices(answer) {
+  const { ALPHABET, FIRST_SOUND_WORDS } = words();
   return shuffle([answer, ...sample(ALPHABET.filter((l) => l !== answer && FIRST_SOUND_WORDS[l]), 3)]);
 }
 
 function letterSounds() {
+  const { FIRST_SOUND_WORDS, FIRST_SOUNDS_ALL, soundSpeech, say } = words();
   const letter = pick(FIRST_SOUNDS_ALL);
   if (Math.random() < 0.5) {
     const [, example] = pick(FIRST_SOUND_WORDS[letter]);
     return {
-      prompt: 'Which letter says…',
-      speech: `Which letter says ${soundSpeech(letter)}, like in ${example}?`,
+      prompt: say.letterSays.prompt(),
+      speech: say.letterSays.speech({ sound: soundSpeech(letter), example }),
       visual: { type: 'listen' },
       answer: letter,
       choices: letterChoices(letter),
@@ -94,8 +80,8 @@ function letterSounds() {
   }
   const [emoji, word] = pick(FIRST_SOUND_WORDS[letter]);
   return {
-    prompt: 'It starts with…',
-    speech: `What letter does ${word} start with?`,
+    prompt: say.startsWith.prompt(),
+    speech: say.startsWith.letterSpeech({ word }),
     visual: { type: 'picture', emoji, caption: null },
     answer: letter,
     choices: letterChoices(letter),
@@ -105,10 +91,11 @@ function letterSounds() {
 }
 
 function sightWords() {
+  const { SIGHT_WORDS, say } = words();
   const [answer, ...others] = sample(SIGHT_WORDS, 4);
   return {
-    prompt: 'Find the word',
-    speech: `Find the word: ${answer}.`,
+    prompt: say.sightWord.prompt(),
+    speech: say.sightWord.speech({ word: answer }),
     visual: { type: 'listen' },
     answer,
     choices: shuffle([answer, ...others]),
@@ -117,17 +104,18 @@ function sightWords() {
   };
 }
 
-function wordBuilder(words, distractorPool) {
+function wordBuilder(wordsKey, tilesKey) {
   return () => {
-    const entry = pick(words);
+    const pack = words();
+    const entry = pick(pack[wordsKey]);
     const extras = sample(
-      distractorPool.filter((tile) => !entry.tiles.includes(tile)),
+      pack[tilesKey].filter((tile) => !entry.tiles.includes(tile)),
       2
     );
     return {
       type: 'build',
-      prompt: 'Build the word',
-      speech: `Build the word: ${entry.word}.`,
+      prompt: pack.say.build.prompt(),
+      speech: pack.say.build.speech({ word: entry.word }),
       visual: { type: 'picture', emoji: entry.emoji, caption: null },
       word: entry.word,
       parts: entry.tiles,
@@ -140,11 +128,12 @@ function wordBuilder(words, distractorPool) {
 }
 
 function digraphStarts() {
+  const { DIGRAPH_START_WORDS, say } = words();
   const digraph = pick(Object.keys(DIGRAPH_START_WORDS));
   const [emoji, word] = pick(DIGRAPH_START_WORDS[digraph]);
   return {
-    prompt: 'It starts with…',
-    speech: `What sound does ${word} start with?`,
+    prompt: say.startsWith.prompt(),
+    speech: say.startsWith.soundSpeech({ word }),
     visual: { type: 'picture', emoji, caption: null },
     answer: digraph,
     choices: shuffle(Object.keys(DIGRAPH_START_WORDS)),
@@ -154,11 +143,12 @@ function digraphStarts() {
 }
 
 function storyStrip() {
+  const { STORIES, say } = words();
   const story = pick(STORIES);
   return {
     type: 'order',
-    prompt: 'Put the story in order',
-    speech: 'Put the story in order. Tap what happens first.',
+    prompt: say.story.prompt(),
+    speech: say.story.speech(),
     visual: null,
     items: shuffle(story.map(([emoji, caption], id) => ({ id, emoji, caption }))),
     answer: story.map((_, id) => id),
@@ -167,10 +157,11 @@ function storyStrip() {
 }
 
 function wordParts() {
+  const { WORD_PARTS, say } = words();
   const [word, meaning, distractors] = pick(WORD_PARTS);
   return {
-    prompt: `What does "${word}" mean?`,
-    speech: `What does ${word} mean?`,
+    prompt: say.wordParts.prompt({ word }),
+    speech: say.wordParts.speech({ word }),
     visual: null,
     answer: meaning,
     choices: shuffle([meaning, ...distractors]),
@@ -187,11 +178,12 @@ export function compoundSplits(word, splitAt) {
 }
 
 function compoundWords() {
+  const { COMPOUND_WORDS, say } = words();
   const [word, splitAt] = pick(COMPOUND_WORDS);
   const { correct, wrong } = compoundSplits(word, splitAt);
   return {
-    prompt: `Which two words make "${word}"?`,
-    speech: `Which two words make ${word}?`,
+    prompt: say.compound.prompt({ word }),
+    speech: say.compound.speech({ word }),
     visual: null,
     answer: correct,
     choices: shuffle([correct, ...sample(wrong, 3)]),
@@ -201,12 +193,12 @@ function compoundWords() {
 
 export const LITERACY_GENERATORS = {
   rhymes,
-  'sound-snack': soundSnack(FIRST_SOUNDS_EARLY),
+  'sound-snack': soundSnack('FIRST_SOUNDS_EARLY'),
   'letter-sounds': letterSounds,
   'sight-words': sightWords,
-  'word-builder': wordBuilder(CVC_WORDS, ALPHABET),
+  'word-builder': wordBuilder('CVC_WORDS', 'ALPHABET'),
   'digraph-starts': digraphStarts,
-  'digraph-builder': wordBuilder(DIGRAPH_WORDS, DIGRAPH_TILES),
+  'digraph-builder': wordBuilder('DIGRAPH_WORDS', 'DIGRAPH_TILES'),
   'story-strip': storyStrip,
   'word-parts': wordParts,
   'compound-words': compoundWords,

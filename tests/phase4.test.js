@@ -1,6 +1,7 @@
-import { FAIR_PLAY, FEELINGS, PERSPECTIVES, SEL_GENERATORS, SITUATIONS } from '../src/curriculum/selGenerators';
+import { SEL_GENERATORS } from '../src/curriculum/selGenerators';
+import { FAIR_PLAY, FEELINGS, PERSPECTIVES, SITUATIONS } from '../src/content/en/sel';
 import { generateQuestion } from '../src/curriculum/generators';
-import { HOW_TO } from '../src/curriculum/howTo';
+import { howTo } from '../src/curriculum/howTo';
 import { FRIENDS, POINTS_PER_FRIEND, makeFriendTurn, makeRound, roundTotal } from '../src/logic/feelingsFriends';
 import { BREATHS, IN_MS, MIN_IN_MS, MIN_SCALE, balloonScale, countdown, judgeBreath } from '../src/logic/balloonBreath';
 import {
@@ -40,7 +41,7 @@ describe('Feelings Garden questions', () => {
       expect(q.speech).toBeTruthy();
       expect(q.explain).toBeTruthy();
     }
-    expect(HOW_TO[id]).toBeTruthy();
+    expect(howTo(id)).toBeTruthy();
   });
 
   it('never offers a feeling that would also fit a situation as a wrong answer', () => {

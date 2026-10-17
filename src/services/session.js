@@ -5,6 +5,7 @@ import { applySession, toDayKey } from '../logic/progress';
 import { awardStickers, roundStickerEvents } from '../logic/stickers';
 import * as storage from './storage';
 import { setNarration } from './speech';
+import { FALLBACK, getLanguage, setLanguage } from '../i18n/index';
 
 export const session = {
   profiles: [],
@@ -23,12 +24,15 @@ export async function loadSession() {
 export async function selectProfile(id) {
   session.profile = session.profiles.find((p) => p.id === id) || null;
   session.progress = session.profile ? await storage.loadProgress(id) : {};
-  if (session.profile) setNarration(session.profile.narration !== false);
+  if (session.profile) {
+    setLanguage(session.profile.language || FALLBACK);
+    setNarration(session.profile.narration !== false);
+  }
   await storage.saveActiveProfileId(session.profile ? id : null);
 }
 
 export async function addProfile(fields) {
-  const profile = createProfile(fields);
+  const profile = createProfile({ language: getLanguage(), ...fields });
   session.profiles = [...session.profiles, profile];
   await storage.saveProfiles(session.profiles);
   await selectProfile(profile.id);

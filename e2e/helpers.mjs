@@ -24,7 +24,11 @@ export async function open({ width, height, label }) {
     };
     const synth = window.speechSynthesis;
     synth.getVoices = () => fake;
-    synth.speak = (u) => window.__utter.push({ text: u.text, voice: u.voice ? u.voice.voiceURI : null });
+    // Each utterance "finishes" right away, like a very fast voice.
+    synth.speak = (u) => {
+      window.__utter.push({ text: u.text, voice: u.voice ? u.voice.voiceURI : null, lang: u.lang });
+      setTimeout(() => u.onend && u.onend(), 0);
+    };
     synth.cancel = () => {};
   });
   const page = await context.newPage();

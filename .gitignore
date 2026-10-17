@@ -12,3 +12,6 @@ npm-debug.*
 
 # local env files
 .env*.local
+
+# voice line lists (npm run voice:lines)
+voice-lines.*.csv

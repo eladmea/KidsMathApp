@@ -2,7 +2,7 @@
 // feeling, then picks something that would help (CASEL self-awareness,
 // social awareness and relationship skills). Every friend has one helpful
 // choice per round; the others are clearly unkind or unhelpful.
-import { FEELINGS } from '../curriculum/selGenerators';
+import { FEELINGS } from '../content/en/sel';
 
 export const FRIENDS_PER_ROUND = 4;
 // Each friend scores a point for the feeling and a point for the helper.

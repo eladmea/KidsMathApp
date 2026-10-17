@@ -18,14 +18,14 @@ export const TOPPINGS = [
 ];
 
 export const CUSTOMERS = [
-  { emoji: '🐻', name: 'Bear' },
-  { emoji: '🐰', name: 'Bunny' },
-  { emoji: '🦊', name: 'Fox' },
-  { emoji: '🐼', name: 'Panda' },
-  { emoji: '🐸', name: 'Frog' },
-  { emoji: '🐵', name: 'Monkey' },
-  { emoji: '🦁', name: 'Lion' },
-  { emoji: '🐷', name: 'Pig' },
+  { id: 'bear', emoji: '🐻' },
+  { id: 'bunny', emoji: '🐰' },
+  { id: 'fox', emoji: '🦊' },
+  { id: 'panda', emoji: '🐼' },
+  { id: 'frog', emoji: '🐸' },
+  { id: 'monkey', emoji: '🐵' },
+  { id: 'lion', emoji: '🦁' },
+  { id: 'pig', emoji: '🐷' },
 ];
 
 export const VEHICLES = ['🚗', '🚕', '🚙', '🚌', '🏎️', '🚓', '🚑', '🚒', '🚜', '🛵'];

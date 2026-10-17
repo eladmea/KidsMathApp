@@ -1,4 +1,6 @@
-// Word banks and letter sounds for the literacy track (English).
+// Word Woods in English: word banks, letter sounds and how each reading
+// question is said. Another language brings its own pack (its own sounds,
+// words and, if its reading curriculum differs, its own `generators`).
 //
 // Sound order follows common systematic-phonics programmes: the first group
 // (s a t p i n) lets children build real words quickly, and continuous sounds
@@ -139,3 +141,54 @@ export const COMPOUND_WORDS = [
   ['butterfly', 6], ['backpack', 4], ['bedroom', 3], ['goldfish', 4],
   ['pancake', 3], ['firefly', 4], ['seashell', 3], ['doghouse', 3],
 ];
+
+const ALPHABET_LETTERS = 'abcdefghijklmnopqrstuvwxyz'.split('');
+export const ALPHABET = ALPHABET_LETTERS;
+
+// "cat, dog, or fish": how a spoken list of options ends.
+export function listWords(words) {
+  if (words.length === 1) return words[0];
+  return `${words.slice(0, -1).join(', ')}, or ${words[words.length - 1]}`;
+}
+
+export const say = {
+  rhymes: {
+    prompt: ({ target }) => `What rhymes with ${target}?`,
+    speech: ({ target, names }) => `What rhymes with ${target}? ${names}?`,
+    explain: ({ target, match }) => `${target} and ${match} rhyme: they end with the same sound.`,
+  },
+  soundSnack: {
+    prompt: ({ sound }) => `Feed me ${sound}!`,
+    speech: ({ sound, example, names }) => `Feed the monster something that starts with ${sound}, like ${example}. ${names}?`,
+    explain: ({ word, sound }) => `${word} starts with ${sound}!`,
+  },
+  letterSays: {
+    prompt: () => 'Which letter says…',
+    speech: ({ sound, example }) => `Which letter says ${sound}, like in ${example}?`,
+  },
+  startsWith: {
+    prompt: () => 'It starts with…',
+    letterSpeech: ({ word }) => `What letter does ${word} start with?`,
+    soundSpeech: ({ word }) => `What sound does ${word} start with?`,
+  },
+  sightWord: {
+    prompt: () => 'Find the word',
+    speech: ({ word }) => `Find the word: ${word}.`,
+  },
+  build: {
+    prompt: () => 'Build the word',
+    speech: ({ word }) => `Build the word: ${word}.`,
+  },
+  story: {
+    prompt: () => 'Put the story in order',
+    speech: () => 'Put the story in order. Tap what happens first.',
+  },
+  wordParts: {
+    prompt: ({ word }) => `What does "${word}" mean?`,
+    speech: ({ word }) => `What does ${word} mean?`,
+  },
+  compound: {
+    prompt: ({ word }) => `Which two words make "${word}"?`,
+    speech: ({ word }) => `Which two words make ${word}?`,
+  },
+};

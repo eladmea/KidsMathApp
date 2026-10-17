@@ -1,5 +1,5 @@
 import { generateQuestion } from '../src/curriculum/generators';
-import { ANIMAL_HOMES, FOOD_CHAINS, LIFE_CYCLES, MATTER, NOT_PLANT_NEEDS, PLANT_NEEDS, PUSH_PULL, WEATHER } from '../src/curriculum/scienceGenerators';
+import { ANIMAL_HOMES, FOOD_CHAINS, LIFE_CYCLES, MATTER, NOT_PLANT_NEEDS, PLANT_NEEDS, PUSH_PULL, WEATHER } from '../src/content/en/science';
 import { makeLogicGrid, solveLogicGrid } from '../src/curriculum/logicGenerators';
 
 const RUNS = 200;

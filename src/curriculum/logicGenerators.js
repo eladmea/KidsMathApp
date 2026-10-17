@@ -1,19 +1,15 @@
 // Puzzle Peak (logic) question generators: patterns and logic-grid puzzles.
 import { pick, sample, shuffle } from './random';
+import { content } from '../content/index';
+
+// The words come from the language's logic pack (src/content/<language>/logic.js).
+const logic = () => content('logic');
 
 // Patterns follow the patterning learning trajectory (Clements & Sarama;
 // Rittle-Johnson et al.): fill a gap in an AB pattern (age 3) -> extend AB,
 // AAB, ABB (4) -> longer cores (5) -> the same pattern in new things
 // (abstraction, 5-6) -> name the repeating part (unit, 6-7) -> growing
 // patterns (7-8) -> position and number rules (functional thinking, 9-10).
-export const PATTERN_SETS = [
-  [['🔴', 'red'], ['🔵', 'blue'], ['🟡', 'yellow']],
-  [['🍎', 'apple'], ['🍌', 'banana'], ['🍇', 'grapes']],
-  [['🐶', 'dog'], ['🐱', 'cat'], ['🐭', 'mouse']],
-  [['⭐', 'star'], ['🌙', 'moon'], ['☀️', 'sun']],
-  [['🟥', 'red square'], ['🟩', 'green square'], ['🟦', 'blue square']],
-];
-
 const UNITS_MORE = ['AB', 'AAB', 'ABB'];
 const UNITS_HARD = ['ABC', 'AABB', 'ABB', 'AAB', 'ABBC'];
 // Structures used for "same pattern, new look" and "which part repeats?".
@@ -27,26 +23,24 @@ function repeat(unit, length) {
   return Array.from({ length }, (_, i) => unit[i % unit.length]);
 }
 
-function listWords(words) {
-  return words.join(', ');
-}
-
 // Ages 3-4 (start): an AB pattern with 3 or more full repeats and one gap,
 // usually in the middle (filling a gap is easier than extending). Two
 // choices: the two things in the pattern.
 function patternsAB() {
+  const { PATTERN_SETS, say } = logic();
   const set = pick(PATTERN_SETS);
   const items = repeat(symbolsFor(set, 'AB'), 6 + (Math.random() < 0.5 ? 0 : 2));
   const atEnd = Math.random() < 0.3;
   const gap = atEnd ? items.length - 1 : 1 + Math.floor(Math.random() * (items.length - 2));
   const [answer, answerName] = items[gap];
-  const spoken = items.map(([, name], i) => (i === gap ? 'something' : name));
+  const names = items.map(([, name], i) => (i === gap ? say.gap : name));
+  const kind = atEnd ? say.next : say.missing;
   return {
-    prompt: atEnd ? 'What comes next?' : "What's missing?",
-    speech: `${listWords(spoken)}. ${atEnd ? 'What comes next?' : 'What goes in the gap?'}`,
+    prompt: kind.prompt(),
+    speech: say.pattern.speech({ names, question: kind.question() }),
     visual: { type: 'pattern', items: items.map(([emoji]) => emoji), gap },
     answer,
-    explain: `It goes ${set[0][1]}, ${set[1][1]}, ${set[0][1]}, ${set[1][1]}… so ${answerName} goes there!`,
+    explain: say.pattern.explainAB({ a: set[0][1], b: set[1][1], answer: answerName }),
     choices: shuffle([set[0][0], set[1][0]]),
     choiceStyle: 'picture',
     speakAlways: true,
@@ -56,6 +50,7 @@ function patternsAB() {
 // Extend a pattern: what comes next? Shows 2-3 full repeats.
 function extendPattern(units, { gapChance = 0 } = {}) {
   return () => {
+    const { PATTERN_SETS, say } = logic();
     const set = pick(PATTERN_SETS);
     const unit = pick(units);
     const symbols = symbolsFor(set, unit);
@@ -69,12 +64,13 @@ function extendPattern(units, { gapChance = 0 } = {}) {
     // Two-thing patterns get the third thing as an extra choice.
     const options = used.length >= 3 ? used : [...used, set.find((s) => !used.includes(s))];
     const core = symbols.map(([, name]) => name);
+    const kind = inMiddle ? say.missing : say.next;
     return {
-      prompt: inMiddle ? "What's missing?" : 'What comes next?',
-      speech: `${listWords(items.map(([, name], i) => (i === gap ? 'something' : name)))}. ${inMiddle ? 'What goes in the gap?' : 'What comes next?'}`,
+      prompt: kind.prompt(),
+      speech: say.pattern.speech({ names: items.map(([, name], i) => (i === gap ? say.gap : name)), question: kind.question() }),
       visual: { type: 'pattern', items: items.map(([emoji]) => emoji), gap, unitLength: unit.length },
       answer,
-      explain: `The part that repeats is ${listWords(core)}. So ${answerName} goes there.`,
+      explain: say.pattern.explainCore({ core, answer: answerName }),
       choices: shuffle(options.map(([emoji]) => emoji)),
       choiceStyle: 'picture',
     };
@@ -89,16 +85,17 @@ function rowOf(set, unit) {
 
 // Ages 5-6: abstraction. Which row has the same pattern, made of other things?
 function patternMatch() {
+  const { PATTERN_SETS, say } = logic();
   const [shown, other] = sample(PATTERN_SETS, 2);
   const unit = pick(UNITS_ABSTRACT);
   const wrongUnits = sample(UNITS_ABSTRACT.filter((u) => u !== unit), 2);
   const answer = rowOf(other, unit);
   return {
-    prompt: 'Find the same pattern!',
-    speech: 'Look at the pattern. Which row has the same pattern, made of different things?',
+    prompt: say.match.prompt(),
+    speech: say.match.speech(),
     visual: { type: 'pattern', items: repeat(symbolsFor(shown, unit), ROW_LENGTH).map(([e]) => e), gap: null },
     answer,
-    explain: `Both go ${unit.split('').join(' ')}, ${unit.split('').join(' ')}: the same pattern with new things.`,
+    explain: say.match.explain({ letters: unit.split('').join(' ') }),
     choices: shuffle([answer, ...wrongUnits.map((u) => rowOf(other, u))]),
     choiceStyle: 'pattern',
   };
@@ -107,6 +104,7 @@ function patternMatch() {
 // Ages 6-8: which part repeats? The answer is the smallest repeating part
 // from the start; the wrong ones are a shorter and a longer start.
 function patternUnit() {
+  const { PATTERN_SETS, say } = logic();
   const set = pick(PATTERN_SETS);
   const unit = pick(UNITS_ABSTRACT.filter((u) => u.length >= 3));
   // Three repeats (two for 4-long units), so it fits on one line.
@@ -115,11 +113,11 @@ function patternUnit() {
   const shorter = items.slice(0, unit.length - 1).join('');
   const longer = items.slice(0, unit.length + 1).join('');
   return {
-    prompt: 'Which part repeats?',
-    speech: 'Which part of the pattern keeps repeating?',
+    prompt: say.unit.prompt(),
+    speech: say.unit.speech(),
     visual: { type: 'pattern', items, gap: null, unitLength: unit.length, showUnits: false },
     answer,
-    explain: `${answer} repeats again and again.`,
+    explain: say.unit.explain({ unit: answer }),
     choices: shuffle([answer, shorter, longer]),
     choiceStyle: 'pattern',
   };
@@ -136,15 +134,16 @@ const GROWING_RULES = [
 
 // Ages 7-8: growing patterns. How many blocks in the next step?
 function growingPatterns() {
+  const { say } = logic();
   const { start, add } = pick(GROWING_RULES);
   const steps = [0, 1, 2].map((i) => start + i * add);
   const answer = start + 3 * add;
   return {
-    prompt: 'How many in the next step?',
-    speech: `Step one has ${steps[0]}, step two has ${steps[1]}, step three has ${steps[2]}. How many in step four?`,
+    prompt: say.growing.prompt(),
+    speech: say.growing.speech({ steps }),
     visual: { type: 'growing', steps, emoji: pick(['🟦', '🟧', '🟩', '⭐', '🍪']) },
     answer,
-    explain: `It grows by ${add} each step: ${steps[2]} + ${add} = ${answer}.`,
+    explain: say.growing.explain({ add, last: steps[2], answer }),
     choices: buildChoicesNear(answer, [steps[2] + 1, answer + add, steps[2]]),
   };
 }
@@ -162,6 +161,7 @@ function buildChoicesNear(answer, slips) {
 
 // Ages 9-10: position. Numbered ABC pattern: what is the Nth thing?
 function patternPosition() {
+  const { PATTERN_SETS, say } = logic();
   const set = pick(PATTERN_SETS);
   const unit = pick(['AB', 'ABC', 'AAB', 'ABB']);
   const symbols = symbolsFor(set, unit);
@@ -171,64 +171,63 @@ function patternPosition() {
   const used = [...new Set(symbols.map(([e]) => e))];
   const options = used.length >= 3 ? used : [...used, set.find(([e]) => !used.includes(e))[0]];
   return {
-    prompt: `What is number ${position}?`,
-    speech: `The pattern keeps going. What will be number ${position}?`,
+    prompt: say.position.prompt({ position }),
+    speech: say.position.speech({ position }),
     visual: { type: 'pattern', items: repeat(symbols, shownLength).map(([e]) => e), gap: null, numbered: true },
     answer,
-    explain: `The pattern repeats every ${unit.length}. Jump ${unit.length} at a time: number ${position} lands on ${answerName}.`,
+    explain: say.position.explain({ length: unit.length, position, answer: answerName }),
     choices: shuffle(options),
     choiceStyle: 'picture',
   };
 }
 
 const NUMBER_RULES = [
-  // [make terms, describe]
+  // Each makes { terms, next, rule: [phrase name, values] }.
   () => {
     const start = 1 + Math.floor(Math.random() * 3);
     const terms = [start, start * 2, start * 4, start * 8];
-    return { terms, next: start * 16, rule: 'doubles each time (× 2)' };
+    return { terms, next: start * 16, rule: ['double'] };
   },
   () => {
     const start = 1 + Math.floor(Math.random() * 5);
     // Five terms, so it can't also be read as "add the two before"
     // (2, 3, 5, 8 alone could be either).
     const terms = [start, start + 1, start + 3, start + 6, start + 10];
-    return { terms, next: start + 15, rule: 'adds 1, then 2, then 3, then 4, then 5' };
+    return { terms, next: start + 15, rule: ['growingSteps'] };
   },
   () => {
     const start = 2 + Math.floor(Math.random() * 6);
     const terms = [start, start + 3, start + 2, start + 5, start + 4];
-    return { terms, next: start + 7, rule: 'goes up 3, down 1, up 3, down 1' };
+    return { terms, next: start + 7, rule: ['zigzag'] };
   },
   () => {
     const n = 1 + Math.floor(Math.random() * 3);
     const terms = [n, n + 1, n + 2, n + 3].map((k) => k * k);
-    return { terms, next: (n + 4) * (n + 4), rule: 'is square numbers (1×1, 2×2, 3×3…)' };
+    return { terms, next: (n + 4) * (n + 4), rule: ['squares'] };
   },
   () => {
     const step = pick([4, 6, 7, 9, 11, 12]);
     const start = step + Math.floor(Math.random() * 10);
     const terms = [start, start + step, start + 2 * step, start + 3 * step];
-    return { terms, next: start + 4 * step, rule: `adds ${step} each time` };
+    return { terms, next: start + 4 * step, rule: ['addEach', { step }] };
   },
 ];
 
 // Ages 9-10: find the rule, then the next number.
 function numberRules() {
+  const { say } = logic();
   const { terms, next, rule } = pick(NUMBER_RULES)();
+  const [ruleName, values] = rule;
   const last = terms[terms.length - 1];
   return {
     prompt: `${terms.join(', ')}, ?`,
-    speech: `${terms.join(', ')}. What comes next?`,
+    speech: say.rules.speech({ terms }),
     visual: null,
     answer: next,
-    explain: `The pattern ${rule}, so next is ${next}.`,
+    explain: say.rules.explain({ rule: say.rules[ruleName](values || {}), next }),
     choices: buildChoicesNear(next, [next + 1, next - 1, last + (last - terms[terms.length - 2])]),
   };
 }
-
-const NAMES = ['Ana', 'Ben', 'Cal', 'Dee', 'Eli', 'Fay'];
-const PETS = [['🐶', 'dog'], ['🐱', 'cat'], ['🐟', 'fish'], ['🐰', 'rabbit'], ['🐢', 'turtle']];
 
 function permutations(items) {
   if (items.length <= 1) return [items];
@@ -275,15 +274,14 @@ export function makeLogicGrid(size = 3) {
 }
 
 function logicGrids() {
+  const { NAMES, PETS, say } = logic();
   const names = sample(NAMES, 3);
   const pets = sample(PETS, 3);
   const { truth, clues, ask } = makeLogicGrid(3);
-  const lines = clues.map(
-    ({ person, pet, has }) => `${names[person]} ${has ? 'has' : 'does not have'} the ${pets[pet][1]}.`
-  );
+  const lines = clues.map(({ person, pet, has }) => say.grid.clue({ name: names[person], has, pet: pets[pet][1] }));
   return {
-    prompt: `${lines.join('\n')}\nWhich pet is ${names[ask]}'s?`,
-    speech: `${lines.join(' ')} Which pet belongs to ${names[ask]}?`,
+    prompt: say.grid.prompt({ clues: lines, name: names[ask] }),
+    speech: say.grid.speech({ clues: lines, name: names[ask] }),
     visual: { type: 'picture', emoji: pets.map(([e]) => e).join(' '), caption: names.join(' · ') },
     answer: pets[truth[ask]][0],
     choices: pets.map(([e]) => e),
