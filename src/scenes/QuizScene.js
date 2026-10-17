@@ -2,7 +2,9 @@ import BaseScene, { SAFE } from '../ui/BaseScene';
 import Button from '../ui/Button';
 import Narrator from '../ui/Narrator';
 import { COLORS, textStyle } from '../ui/theme';
+import StarRow from '../ui/StarRow';
 import { session, recordRound } from '../services/session';
+import { play } from '../services/audio';
 import { buildSession, tallyBySkill } from '../logic/session';
 import { getRecord, hasPassed, skillStars } from '../logic/progress';
 import { getSkill } from '../curriculum/skills';
@@ -28,8 +30,7 @@ export default class QuizScene extends BaseScene {
     this.index = 0;
 
     this.bg = this.add.rectangle(0, 0, 10, 10, COLORS.cream).setOrigin(0, 0);
-    this.back = new Button(this, 0, 0, { label: '←', width: 84, height: 84, fontSize: 44, color: COLORS.white, textColor: COLORS.ink, onTap: () => this.go('Home') });
-    this.tag('back', this.back.box);
+    this.addBackButton();
     this.narrator = new Narrator(this, SAFE.width / 2, 70, { width: 860 });
     this.dots = this.questions.map((_, i) => this.add.circle(SAFE.width / 2 - 135 + i * 30, 138, 10, COLORS.gray, 0.35));
     this.picture = this.add.container(SAFE.width / 2, 330);
@@ -44,7 +45,6 @@ export default class QuizScene extends BaseScene {
   layout() {
     const v = this.view;
     this.bg.setPosition(v.x, v.y).setSize(v.width, v.height);
-    this.back.setPosition(v.x + 70, v.y + 70);
   }
 
   showHowTo(text) {
@@ -117,6 +117,7 @@ export default class QuizScene extends BaseScene {
     const right = choice === question.answer;
     this.results[this.index] = right;
     this.dots[this.index].setFillStyle(right ? COLORS.green : COLORS.orange, 1);
+    play(this, right ? 'correct' : 'wrong');
     if (right) {
       button.setColor(COLORS.green).pop();
       button.label.setColor('#ffffff');
@@ -146,10 +147,10 @@ export default class QuizScene extends BaseScene {
     const stars = skillStars(getRecord(session.progress, this.skill.id));
     const line = newlyPassed.length ? `You passed ${this.skill.title}!` : correct >= 8 ? 'Great playing!' : 'Good practice! Try again to get more stars.';
     this.narrator.say(`You got ${correct} out of ${this.questions.length}. ${line}`);
-    this.add.text(SAFE.width / 2, 300, '⭐'.repeat(stars) + '☆'.repeat(3 - stars), textStyle(110, COLORS.yellow)).setOrigin(0.5);
+    new StarRow(this, SAFE.width / 2, 300, stars, 110);
     this.add.text(SAFE.width / 2, 420, `${correct} / ${this.questions.length}`, textStyle(64)).setOrigin(0.5);
-    const again = new Button(this, SAFE.width / 2 - 170, 580, { label: '🔁 Again', width: 300, color: COLORS.primary, onTap: () => this.scene.restart({ skillId: this.skill.id }) });
-    const home = new Button(this, SAFE.width / 2 + 170, 580, { label: '🏠 Home', width: 300, color: COLORS.green, onTap: () => this.go('Home') });
+    const again = new Button(this, SAFE.width / 2 - 170, 580, { label: '🔁 Again', width: 300, color: COLORS.primary, onTap: () => this.replay() });
+    const home = new Button(this, SAFE.width / 2 + 170, 580, { label: '🏠 Home', width: 300, color: COLORS.green, onTap: () => this.back() });
     this.tag('again', again.box);
     this.tag('home', home.box);
     this.report({ step: 'results', correct, stars, passed: newlyPassed.includes(this.skill.id) });

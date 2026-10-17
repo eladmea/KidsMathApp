@@ -12,6 +12,8 @@ Before writing Phaser code, read the guides that ship with the installed version
 - Plan and phases: `PHASER_PLAN.md`. The research and design rules are in `PLAN.md`.
 - Game rules live in `src/curriculum/` and `src/logic/` and must stay free of Phaser, so `npm test` covers them.
 - Scenes extend `src/ui/BaseScene.js`: lay out in the 1280 x 720 safe area, and pin edges to `this.view` in `layout()`.
+  - Navigate with `go()` / `back()` / `reset()` / `replay()`, never `scene.start` directly, so ← keeps working.
   - `tag()` the objects a browser test needs to tap.
   - `report()` the scene's state.
+- After changing a scene, run `npm test` and the walkthroughs (`npm run e2e` against a build; see README), and add checks for new behaviour.
 - `legacy/` is the old Expo app, for reference only.

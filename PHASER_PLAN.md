@@ -134,8 +134,8 @@ Each phase ends with tests passing, a web build, a Playwright walkthrough and a 
 
 | Phase | Scope | Done when |
 |---|---|---|
-| **P0 Spike** 🔄 built, waiting for a real-device check | Move the Expo app to `legacy/`. Set up Vite + Phaser 4 at the root. Copy the logic into `src/logic/` with its tests. Build one quiz skill (Count to 5) and the Pizza sauce trace (PaintLayer + TraceLayer). Try it on a phone and a tablet | Drags, painting and TTS feel right on touch; layout and orientation confirmed |
-| **P1 Foundation** | Scale/safe area, storage, speech, audio, session, SceneRouter, UI kit, test bridge. Profiles and CreateProfile scenes. GitHub Pages deploy of the new build at `/KidsMathApp/`, replacing the old app | A child can pick a profile and hear the greeting |
+| **P0 Spike** ✅ built (#18), real-device check later | Move the Expo app to `legacy/`. Set up Vite + Phaser 4 at the root. Copy the logic into `src/logic/` with its tests. Build one quiz skill (Count to 5) and the Pizza sauce trace (PaintLayer + TraceLayer). Try it on a phone and a tablet | Drags, painting and TTS feel right on touch; layout and orientation confirmed |
+| **P1 Foundation** ✅ built | Scale/safe area, storage, speech, audio, session, SceneRouter, UI kit, test bridge. Profiles and CreateProfile scenes. GitHub Pages deploy of the new build at `/KidsMathApp/`, replacing the old app | A child can pick a profile and hear the greeting |
 | **P2 Core learning loop** | WorldMap and Island placeholders. The generic Quiz scene with every question visual and input type. Worked examples, Results, stars, stickers, adaptive steps, review and mixed rounds | Every quiz skill in all 5 subjects is playable and saves progress |
 | **P3 Writing & drag games** | TraceDigits, Bee Paths, Race Track, Pizza Shop (full flow: stations, oven drag, slices, feeding), Birthday Cake | The sprouts (3–4) math band is fully playable |
 | **P4 Remaining games** | Memory Chips (+ setup, buddy), Bunny Pop, Freeze Zoo, Robo Path, Push & Roll, Feelings Friends, Garden, Balloon Breath, Bubble Pop, Dance Tap, Chip Toss | Every skill and mini-game from the old app exists |
@@ -204,3 +204,28 @@ Old **Phase 5b** play-test rounds pause during P0–P5, then continue on the Pha
 - Phaser adds about 357 KB gzipped (in its own cached chunk). The game code is 26 KB.
 
 **Still to check before calling P0 done:** play it on a real phone and tablet (touch feel, voice quality, fullscreen and orientation lock).
+
+### P1 Foundation: built 2026-10-17 (branch `claude/phaser-p1`, on top of P0)
+
+**What was done**
+- **Players:**
+  - Boot opens "Who's playing?" each visit, or the welcome screen when there are no players.
+  - CreateProfile has a real text field over the canvas, so phones show their keyboard and Enter saves. Name is required; age 3–10 shows the band; buddy from 10 animals.
+  - Home has a player chip to switch players.
+  - Removing a player sits behind "Grown-ups: manage players": a keypad times-fact check (a wrong answer gets a new question), then a confirm. It deletes the player's progress, garden, log, adventure and play time.
+- **Narration on/off per child:** on by default for ages 3–6, off for readers. 🔊/🔇 on Home, saved with the player. The narrator's 🔊 always reads.
+- **Router:** `go()` / `back()` / `reset()` / `replay()` in BaseScene with a back history. The standard ← button comes from `addBackButton()`.
+- **Sound effects:** correct/wrong chimes through Phaser's sound manager, loaded in Boot.
+- **UI pieces:** StarRow, Dialog (a modal that blocks taps behind it), ParentGate.
+- **Tests:**
+  - Unit tests for the session service (on a stand-in localStorage) and the router: 296 in total.
+  - The walkthroughs share `e2e/helpers.mjs`. `npm run e2e` runs them all:
+
+    | Walkthrough | Phone | Tablet |
+    |---|---|---|
+    | `players.mjs` | 28/28 | 28/28 |
+    | `games.mjs` | 14/14 | 14/14 |
+
+    The portrait check passes 2/2.
+
+**Still to check on a device (later, as agreed):** the phone keyboard over the name field in landscape, and sound volume next to speech.

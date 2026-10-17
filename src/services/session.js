@@ -3,6 +3,7 @@
 import { createProfile, profileBand } from '../logic/profiles';
 import { applySession, toDayKey } from '../logic/progress';
 import * as storage from './storage';
+import { setNarration } from './speech';
 
 export const session = {
   profiles: [],
@@ -10,16 +11,18 @@ export const session = {
   progress: {},
 };
 
+// Loads the players. Each visit starts at "Who's playing?", so nobody is
+// signed in until a child picks themselves.
 export async function loadSession() {
   session.profiles = await storage.loadProfiles();
-  const activeId = await storage.loadActiveProfileId();
-  const profile = session.profiles.find((p) => p.id === activeId) || session.profiles[0] || null;
-  if (profile) await selectProfile(profile.id);
+  session.profile = null;
+  session.progress = {};
 }
 
 export async function selectProfile(id) {
   session.profile = session.profiles.find((p) => p.id === id) || null;
   session.progress = session.profile ? await storage.loadProgress(id) : {};
+  if (session.profile) setNarration(session.profile.narration !== false);
   await storage.saveActiveProfileId(session.profile ? id : null);
 }
 
@@ -31,9 +34,29 @@ export async function addProfile(fields) {
   return profile;
 }
 
-// P0 has no profile screens yet: make sure someone is signed in.
-export async function ensureProfile() {
-  if (!session.profile) await addProfile({ name: 'Mia', age: 4, avatar: '🦁' });
+// Deletes a player and everything saved for them.
+export async function removeProfile(id) {
+  session.profiles = session.profiles.filter((p) => p.id !== id);
+  await storage.saveProfiles(session.profiles);
+  await storage.deleteProgress(id);
+  const playTime = await storage.loadPlayTime();
+  if (playTime[id]) {
+    delete playTime[id];
+    await storage.savePlayTime(playTime);
+  }
+  if (session.profile && session.profile.id === id) {
+    session.profile = null;
+    session.progress = {};
+    await storage.saveActiveProfileId(null);
+  }
+}
+
+// Changes the signed-in child's settings, e.g. { narration: false }.
+export async function updateProfile(patch) {
+  session.profile = { ...session.profile, ...patch };
+  session.profiles = session.profiles.map((p) => (p.id === session.profile.id ? session.profile : p));
+  await storage.saveProfiles(session.profiles);
+  if ('narration' in patch) setNarration(patch.narration);
 }
 
 // Saves a finished round. tallies: { [skillId]: { correct, total } }.

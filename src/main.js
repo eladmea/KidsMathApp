@@ -3,8 +3,11 @@ import '@fontsource/fredoka/latin-600.css';
 import { SAFE } from './ui/BaseScene';
 import { COLORS } from './ui/theme';
 import { installBridge } from './services/testBridge';
-import { ensureProfile, loadSession } from './services/session';
+import { loadSession } from './services/session';
 import { initSpeech } from './services/speech';
+import BootScene from './scenes/BootScene';
+import ProfilesScene from './scenes/ProfilesScene';
+import CreateProfileScene from './scenes/CreateProfileScene';
 import HomeScene from './scenes/HomeScene';
 import QuizScene from './scenes/QuizScene';
 import PizzaScene from './scenes/PizzaScene';
@@ -17,7 +20,6 @@ async function start() {
     // Falls back to the system font.
   }
   await loadSession();
-  await ensureProfile();
   initSpeech();
 
   const game = new Phaser.Game({
@@ -33,7 +35,9 @@ async function start() {
     // Sharp text and shapes on high-density phone screens.
     resolution: Math.min(window.devicePixelRatio || 1, 2),
     input: { activePointers: 3 },
-    scene: [HomeScene, QuizScene, PizzaScene],
+    // Real HTML inputs (a child's name) float over the canvas.
+    dom: { createContainer: true },
+    scene: [BootScene, ProfilesScene, CreateProfileScene, HomeScene, QuizScene, PizzaScene],
   });
   installBridge(game);
 }

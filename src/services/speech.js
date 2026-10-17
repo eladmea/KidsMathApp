@@ -33,6 +33,9 @@ const state = {
   pendingText: null,
   token: 0,
   speaking: false,
+  // Read prompts aloud? Each child has their own setting (on by default for
+  // pre-readers); a 🔊 tap always speaks.
+  narration: true,
 };
 let readyPromise = null;
 
@@ -139,9 +142,19 @@ function speakSentences(sentences, token, voiceId, retried) {
   });
 }
 
-// Speaks `text`, replacing anything already being said.
-export function speak(text) {
-  if (!text) return;
+export function setNarration(enabled) {
+  state.narration = enabled;
+  if (!enabled) stop();
+}
+
+export function isNarrationOn() {
+  return state.narration;
+}
+
+// Speaks `text`, replacing anything already being said. Skipped when
+// narration is off, unless `force` (the child asked to hear it).
+export function speak(text, { force = false } = {}) {
+  if (!text || (!state.narration && !force)) return;
   bridge.spoken.push(text);
   if (!synth) return;
   const token = ++state.token;

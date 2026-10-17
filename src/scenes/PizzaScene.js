@@ -5,6 +5,7 @@ import PaintLayer, { DragSurface } from '../ui/PaintLayer';
 import { IdleHint } from '../ui/HintArrow';
 import { COLORS, textStyle } from '../ui/theme';
 import { recordRound } from '../services/session';
+import { play } from '../services/audio';
 import { BOX, digitCheckpoints, freeTraceAdd, freeTraceResult, freeTraceStart, numberPool, pickDistinct } from '../logic/tracing';
 import {
   CUSTOMERS,
@@ -51,8 +52,7 @@ export default class PizzaScene extends BaseScene {
 
     this.bg = this.add.rectangle(0, 0, 10, 10, 0xffe9c7).setOrigin(0, 0);
     this.counter = this.add.rectangle(0, 0, 10, 10, 0xc98b4f).setOrigin(0, 0);
-    this.back = new Button(this, 0, 0, { label: '←', width: 84, height: 84, fontSize: 44, color: COLORS.white, textColor: COLORS.ink, onTap: () => this.go('Home') });
-    this.tag('back', this.back.box);
+    this.addBackButton();
     this.narrator = new Narrator(this, SAFE.width / 2, 70, { width: 860 });
 
     // The order ticket.
@@ -94,7 +94,6 @@ export default class PizzaScene extends BaseScene {
     const v = this.view;
     this.bg.setPosition(v.x, v.y).setSize(v.width, v.height);
     this.counter.setPosition(v.x, v.bottom - 70).setSize(v.width, 70);
-    this.back.setPosition(v.x + 70, v.y + 70);
   }
 
   startPizza() {
@@ -202,6 +201,7 @@ export default class PizzaScene extends BaseScene {
     // Smooth out the last gaps.
     this.tweens.add({ targets: this.smooth, alpha: 1, duration: 500 });
     if (this.restarts <= 1) this.points += 1;
+    play(this, 'correct');
     this.narrator.say(`Yummy! ${this.friend.name} loves pizza number ${this.number}!`);
     this.tweens.add({ targets: this.customer, scale: 1.25, duration: 200, yoyo: true, repeat: 2 });
     this.time.delayedCall(2600, () => {
@@ -215,8 +215,8 @@ export default class PizzaScene extends BaseScene {
     await recordRound({ 'math-pizza': { correct: this.points, total: this.numbers.length } });
     this.narrator.say(`You made ${this.numbers.length} pizzas! Great job, chef!`);
     this.report({ step: 'results', points: this.points });
-    const again = new Button(this, 1110, 330, { label: '🔁 Again', width: 260, color: COLORS.primary, onTap: () => this.scene.restart() });
-    const home = new Button(this, 1110, 470, { label: '🏠 Home', width: 260, color: COLORS.green, onTap: () => this.go('Home') });
+    const again = new Button(this, 1110, 330, { label: '🔁 Again', width: 260, color: COLORS.primary, onTap: () => this.replay() });
+    const home = new Button(this, 1110, 470, { label: '🏠 Home', width: 260, color: COLORS.green, onTap: () => this.back() });
     this.tag('again', again.box);
     this.tag('home', home.box);
   }

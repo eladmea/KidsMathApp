@@ -1,8 +1,9 @@
 import BaseScene, { SAFE } from '../ui/BaseScene';
 import Button from '../ui/Button';
 import { COLORS, textStyle } from '../ui/theme';
-import { session } from '../services/session';
-import { currentVoiceName, initSpeech, speak } from '../services/speech';
+import StarRow from '../ui/StarRow';
+import { session, updateProfile } from '../services/session';
+import { currentVoiceName, initSpeech, isNarrationOn, speak } from '../services/speech';
 import { getRecord, skillStars } from '../logic/progress';
 import { getSkill } from '../curriculum/skills';
 
@@ -37,8 +38,23 @@ export default class HomeScene extends BaseScene {
         onTap: () => this.go(game.scene, { skillId: skill.id }),
       });
       this.tag(skill.id, button.box);
-      this.add.text(x, 520, '⭐'.repeat(stars) + '☆'.repeat(3 - stars), textStyle(40, COLORS.yellow)).setOrigin(0.5);
+      new StarRow(this, x, 520, stars, 40);
     });
+
+    // The player chip: tap to switch to someone else.
+    this.player = new Button(this, 0, 0, {
+      label: `${session.profile.avatar} ${session.profile.name}`,
+      width: 260,
+      height: 84,
+      fontSize: 34,
+      color: COLORS.white,
+      textColor: COLORS.ink,
+      onTap: () => this.reset('Profiles'),
+    });
+    this.tag('switch-player', this.player.box);
+    this.narration = new Button(this, 0, 0, { label: '', width: 84, height: 84, fontSize: 40, color: COLORS.white, onTap: () => this.toggleNarration() });
+    this.tag('narration', this.narration.box);
+    this.showNarration();
 
     this.fullscreen = new Button(this, 0, 0, { label: '⛶', width: 84, height: 84, fontSize: 44, color: COLORS.white, textColor: COLORS.ink, onTap: () => this.toggleFullscreen() });
     this.tag('fullscreen', this.fullscreen.box);
@@ -49,7 +65,7 @@ export default class HomeScene extends BaseScene {
       this.voice.setText(`Voice: ${currentVoiceName() || 'device default'}`);
     });
     speak(`Hi, ${session.profile.name}! What do you want to play?`);
-    this.report({ games: GAMES.map((g) => g.skillId) });
+    this.report({ games: GAMES.map((g) => g.skillId), player: session.profile.name });
   }
 
   layout() {
@@ -57,6 +73,19 @@ export default class HomeScene extends BaseScene {
     this.sky.setPosition(v.x, v.y).setSize(v.width, v.height);
     this.sea.setPosition(v.x, v.bottom - 90).setSize(v.width, 90);
     this.fullscreen.setPosition(v.right - 70, v.y + 70);
+    this.narration.setPosition(v.right - 170, v.y + 70);
+    this.player.setPosition(v.x + 160, v.y + 70);
+  }
+
+  showNarration() {
+    this.narration.setLabel(isNarrationOn() ? '🔊' : '🔇');
+    this.report({ narration: isNarrationOn() });
+  }
+
+  async toggleNarration() {
+    await updateProfile({ narration: !isNarrationOn() });
+    this.showNarration();
+    if (isNarrationOn()) speak('I will read to you.');
   }
 
   toggleFullscreen() {

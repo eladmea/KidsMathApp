@@ -1,6 +1,9 @@
 import Phaser from 'phaser';
 import { reportScene, reportState, tag } from '../services/testBridge';
 import { stop as stopSpeech } from '../services/speech';
+import * as router from '../services/router';
+import Button from './Button';
+import { COLORS } from './theme';
 
 // Every scene is laid out in a fixed 1280 x 720 "safe area" that is always
 // fully visible. The canvas grows (Scale.EXPAND) to fill wider phones or
@@ -13,6 +16,8 @@ export const SAFE = { width: 1280, height: 720 };
 export default class BaseScene extends Phaser.Scene {
   create(data) {
     this.built = false;
+    this.startData = data || {};
+    this.backButton = null;
     reportScene(this.scene.key);
     this.view = new Phaser.Geom.Rectangle(0, 0, SAFE.width, SAFE.height);
     this.scale.on('resize', this.fitCamera, this);
@@ -21,18 +26,21 @@ export default class BaseScene extends Phaser.Scene {
       stopSpeech();
     });
     this.fitCamera();
-    this.build(data || {});
+    this.build(this.startData);
     this.built = true;
-    this.layout();
+    this.fitCamera();
   }
 
+  // Fits the camera to the screen and re-pins the edge-anchored objects.
   fitCamera() {
     const { width, height } = this.scale;
     const camera = this.cameras.main;
     camera.setSize(width, height);
     camera.centerOn(SAFE.width / 2, SAFE.height / 2);
     this.view.setTo((SAFE.width - width) / 2, (SAFE.height - height) / 2, width, height);
-    if (this.built) this.layout();
+    if (!this.built) return;
+    if (this.backButton) this.backButton.setPosition(this.view.x + 70, this.view.y + 70);
+    this.layout();
   }
 
   // Scenes create their objects here (called once)...
@@ -50,7 +58,35 @@ export default class BaseScene extends Phaser.Scene {
     reportState(patch);
   }
 
-  go(key, data) {
+  // The round ← button in the top-left corner. Goes back by default.
+  addBackButton(onTap = () => this.back()) {
+    this.backButton = new Button(this, 0, 0, { label: '←', width: 84, height: 84, fontSize: 44, color: COLORS.white, textColor: COLORS.ink, onTap });
+    this.backButton.setDepth(40);
+    this.tag('back', this.backButton.box);
+    return this.backButton;
+  }
+
+  // Opens another scene; back() returns here with the same data.
+  go(key, data = {}) {
+    router.push({ key: this.scene.key, data: this.startData });
     this.scene.start(key, data);
+  }
+
+  // Back to the scene this one was opened from (Home if there is none).
+  back() {
+    const previous = router.pop();
+    if (previous) this.scene.start(previous.key, previous.data);
+    else this.scene.start('Home');
+  }
+
+  // Starts a scene with a fresh history (e.g. after picking a player).
+  reset(key, data = {}) {
+    router.clear();
+    this.scene.start(key, data);
+  }
+
+  // Plays this scene again from the start, keeping its place in the history.
+  replay(data = this.startData) {
+    this.scene.restart(data);
   }
 }

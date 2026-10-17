@@ -28,3 +28,6 @@ export const hex = (color) => `#${color.toString(16).padStart(6, '0')}`;
 export function textStyle(size, color = COLORS.ink, extra = {}) {
   return { fontFamily: FONT, fontSize: `${size}px`, fontStyle: '600', color: hex(color), align: 'center', ...extra };
 }
+
+// '#3DDC84' -> 0x3ddc84 (the curriculum stores colours as CSS strings).
+export const colorOf = (css) => parseInt(css.slice(1), 16);
