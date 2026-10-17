@@ -99,3 +99,47 @@ export function makeRound(level) {
 
 // A digit counts as written well with at most one restart.
 export const MAX_RESTARTS_FOR_POINT = 1;
+
+// ---- Pre-writing strokes (Bee Paths) ----
+// The strokes digits are built from, in the order children usually master
+// copying them (Beery VMI): vertical line (~2y10m), horizontal line (~3y),
+// circle (~3y), cross (~4y), diagonals (~4-5y). A gentle rainbow arc sits
+// between lines and the circle.
+function arc(cx, cy, r, fromDeg, toDeg, steps = 12) {
+  return Array.from({ length: steps + 1 }, (_, i) => {
+    const angle = ((fromDeg + ((toDeg - fromDeg) * i) / steps) * Math.PI) / 180;
+    return [Math.round(cx + r * Math.cos(angle)), Math.round(cy + r * Math.sin(angle))];
+  });
+}
+
+export const PREWRITING_PATHS = [
+  { id: 'down', name: 'straight down', strokes: [[[50, 14], [50, 126]]] },
+  { id: 'across', name: 'straight across', strokes: [[[12, 70], [88, 70]]] },
+  // Over the top from left to right, like a rainbow.
+  { id: 'rainbow', name: 'a rainbow', strokes: [arc(50, 92, 38, 180, 360)] },
+  // Counter-clockwise from the top, the way letters like c, o and a start.
+  { id: 'circle', name: 'a circle', strokes: [arc(50, 70, 36, 270, -90, 20)] },
+  { id: 'cross', name: 'a cross', strokes: [[[50, 20], [50, 120]], [[14, 70], [86, 70]]] },
+  { id: 'slide', name: 'a slide', strokes: [[[16, 22], [84, 118]]] },
+];
+
+export function pathCheckpoints(path) {
+  return path.strokes.map((stroke) => sampleStroke(stroke));
+}
+
+// ---- Number pools for the writing games ----
+// 1-5 to start; once Write 1 to 5 is passed, all digits (0 only where it
+// makes sense: you can't put 0 candles on a cake, but you can drive a 0).
+export function numberPool({ bigNumbers = false, allowZero = false } = {}) {
+  const pool = bigNumbers ? [1, 2, 3, 4, 5, 6, 7, 8, 9] : [1, 2, 3, 4, 5];
+  return allowZero && bigNumbers ? [...pool, 0] : pool;
+}
+
+export function pickDistinct(pool, count, rng = Math.random) {
+  const copy = [...pool];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy.slice(0, Math.min(count, copy.length));
+}
