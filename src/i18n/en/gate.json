@@ -1,0 +1,7 @@
+{
+  "title": "🔒 {title}",
+  "grownUpsOnly": "Grown-ups only",
+  "ask": "Please ask a grown-up:",
+  "question": "{question} = ?",
+  "wrong": "Not quite. Here's a new one."
+}

@@ -1,0 +1,7 @@
+{
+  "title": "📒 Sticker Book",
+  "count": { "one": "{count} sticker", "other": "{count} stickers" },
+  "page": "Page {page} of {pages}",
+  "sayCount": { "one": "You have {count} sticker!", "other": "You have {count} stickers!" },
+  "sayNone": "Pass a game to earn your first sticker!"
+}

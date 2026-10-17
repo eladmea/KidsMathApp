@@ -4,6 +4,8 @@
 //   scene            the active scene's key
 //   state            what that scene reports (its step, the question, ...)
 //   spoken           every line read aloud
+//   voice            each sentence and how it was voiced: { text, source:
+//                    'recording' | 'device' }
 //   box(name)        a tagged object's box in page pixels { x, y, width, height }
 //   names()          all tagged names in the active scene
 //   toPage(x, y)     a point in game coordinates -> page pixels
@@ -12,6 +14,7 @@ export const bridge = {
   scene: null,
   state: {},
   spoken: [],
+  voice: [],
   tags: new Map(),
 };
 
@@ -34,6 +37,7 @@ export function installBridge(game) {
       return bridge.state;
     },
     spoken: bridge.spoken,
+    voice: bridge.voice,
     names: () => [...bridge.tags.keys()],
     toPage,
     box(name) {

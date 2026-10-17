@@ -2,6 +2,7 @@ import Button from './Button';
 import Dialog from './Dialog';
 import { COLORS, textStyle } from './theme';
 import { checkGate, makeGateQuestion } from '../logic/parentGate';
+import { t } from '../i18n/index';
 
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '⌫', '0', '✓'];
 const MAX_DIGITS = 3;
@@ -9,18 +10,18 @@ const MAX_DIGITS = 3;
 // "Grown-ups only": type the answer to a times fact on the keypad to go on.
 // A wrong answer gets a new question. ✕ cancels.
 //   openParentGate(scene, { onPass, onCancel })
-export function openParentGate(scene, { title = 'Grown-ups only', onPass = () => {}, onCancel = () => {} } = {}) {
+export function openParentGate(scene, { title = t('gate.grownUpsOnly'), onPass = () => {}, onCancel = () => {} } = {}) {
   let question = makeGateQuestion();
   let input = '';
-  const dialog = new Dialog(scene, { width: 760, height: 560, title: `🔒 ${title}` });
-  const note = scene.add.text(-200, -170, 'Please ask a grown-up:', textStyle(26, COLORS.gray)).setOrigin(0.5);
+  const dialog = new Dialog(scene, { width: 760, height: 560, title: t('gate.title', { title }) });
+  const note = scene.add.text(-200, -170, t('gate.ask'), textStyle(26, COLORS.gray)).setOrigin(0.5);
   const asked = scene.add.text(-200, -90, '', textStyle(64)).setOrigin(0.5);
   const display = scene.add.rectangle(-200, 10, 260, 90, 0xf2f2f2).setRounded(20).setStrokeStyle(4, COLORS.gray);
   const typed = scene.add.text(-200, 10, '', textStyle(56)).setOrigin(0.5);
   const wrong = scene.add.text(-200, 100, '', textStyle(24, COLORS.red)).setOrigin(0.5);
   dialog.add([note, asked, display, typed, wrong]);
   const show = () => {
-    asked.setText(`${question.text} = ?`);
+    asked.setText(t('gate.question', { question: question.text }));
     typed.setText(input);
   };
 
@@ -58,7 +59,7 @@ export function openParentGate(scene, { title = 'Grown-ups only', onPass = () =>
         onPass();
         return;
       }
-      wrong.setText("Not quite. Here's a new one.");
+      wrong.setText(t('gate.wrong'));
       display.setStrokeStyle(4, COLORS.red);
       input = '';
       question = makeGateQuestion();

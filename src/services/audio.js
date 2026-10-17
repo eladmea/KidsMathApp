@@ -1,14 +1,6 @@
-// Short sound effects through Phaser's sound manager. BootScene loads them;
-// any scene plays one with play(scene, 'correct').
-export const SOUNDS = {
-  correct: 'sounds/correct.wav',
-  wrong: 'sounds/wrong.wav',
-};
-
-export function loadSounds(scene) {
-  Object.entries(SOUNDS).forEach(([key, url]) => scene.load.audio(key, url));
-}
-
+// Short sound effects through Phaser's sound manager, by file name in
+// src/assets/sounds (loaded with everything else in services/assets.js).
+//   play(scene, 'correct')
 export function play(scene, key, volume = 0.6) {
   if (!scene.cache.audio.exists(key)) return;
   try {

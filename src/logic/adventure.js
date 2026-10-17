@@ -8,6 +8,7 @@
 // Steps without anything to play are skipped. With a daily time limit, steps
 // are dropped from the end (never the cool-down) so the adventure fits the
 // time that's left.
+import { miniGameTitle, skillTitle } from '../i18n/names';
 import { MINI_GAMES } from '../curriculum/games';
 import { getSkill, isQuizSkill, skillsFor } from '../curriculum/skills';
 import { getDueReviews, getRecord, hasPassed, recommendNextSkill } from './progress';
@@ -72,7 +73,7 @@ export function planAdventure({ bandId, progress = {}, today, minutesLeft = null
   if (mixed.length >= 2) steps.push({ id: 'mixed', kind: 'mixed', skillIds: mixed });
 
   const game = MINI_GAME_ROTATION[weekdayOf(today) % MINI_GAME_ROTATION.length];
-  steps.push({ id: 'minigame', kind: 'minigame', route: game.route, title: game.title, emoji: game.emoji });
+  steps.push({ id: 'minigame', kind: 'minigame', route: game.route, gameId: game.id, emoji: game.emoji });
 
   const secondSkill =
     nextSkillIn(subjects.second, bandId, progress) ||
@@ -109,12 +110,12 @@ export function stepRoute(step) {
 
 // What the step plays, shown under its kind on the adventure path.
 export function stepTitle(step) {
-  if (step.kind === 'minigame') return `${step.emoji} ${step.title}`;
+  if (step.kind === 'minigame') return `${step.emoji} ${miniGameTitle(step.gameId)}`;
   if (step.kind === 'cooldown') return '🎈 Balloon Breath';
   if (step.kind === 'warmup') return `⭐ Review ${step.skillIds.length} skill${step.skillIds.length === 1 ? '' : 's'}`;
   if (step.kind === 'mixed') return `🔀 ${step.skillIds.map((id) => getSkill(id).emoji).join(' ')} mixed`;
   const skill = getSkill(step.skillIds[0]);
-  return `${skill.emoji} ${skill.title}`;
+  return `${skill.emoji} ${skillTitle(skill)}`;
 }
 
 // Today's adventure record: { day, steps, done: [stepId] }.

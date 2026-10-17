@@ -1,0 +1,8 @@
+{
+  "title": "{emoji} {name}",
+  "ages": "{emoji} {min}-{max}",
+  "soon": "🚧 Soon",
+  "next": "▶ Next",
+  "firstPlay": "First, play {skills}.",
+  "comingSoon": "{title} is coming soon!"
+}

@@ -12,7 +12,7 @@ import {
   STORIES,
   WORD_PARTS,
   soundSpeech,
-} from '../src/curriculum/phonics';
+} from '../src/content/en/literacy';
 import { createDeck, LETTER_PICTURES } from '../src/logic/memoryGame';
 
 const RUNS = 200;

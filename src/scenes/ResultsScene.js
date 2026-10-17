@@ -5,27 +5,28 @@ import { COLORS, textStyle } from '../ui/theme';
 import { recordRound } from '../services/session';
 import { speak } from '../services/speech';
 import { calculateStars } from '../logic/scoring';
-import { RESULT_LINES } from '../logic/quizRound';
+import { resultLine } from '../logic/quizRound';
 import { getSkill } from '../curriculum/skills';
+import { list, t } from '../i18n/index';
+import { skillTitle } from '../i18n/names';
 
 // The end of a quiz round: stars, the score, and anything new (a skill
 // passed or mastered, skills it unlocked, stickers). Saves the round.
 //   data: { skillIds, mode, score, total, tallies, replay } (replay = the
 //   quiz's own data, for "Again")
 export default class ResultsScene extends BaseScene {
-  constructor() {
-    super('Results');
-  }
+  static key = 'Results';
+
 
   build({ mode, score, total, tallies, replay }) {
     this.bg = this.add.rectangle(0, 0, 10, 10, COLORS.cream).setOrigin(0, 0);
     const stars = calculateStars(score, total);
-    this.add.text(SAFE.width / 2, 80, RESULT_LINES[stars], textStyle(56, COLORS.primary)).setOrigin(0.5);
+    this.add.text(SAFE.width / 2, 80, resultLine(stars), textStyle(56, COLORS.primary)).setOrigin(0.5);
     new StarRow(this, SAFE.width / 2, 190, stars, 100);
-    this.add.text(SAFE.width / 2, 290, `You got ${score} out of ${total}`, textStyle(40)).setOrigin(0.5);
+    this.add.text(SAFE.width / 2, 290, t('results.score', { score, total }), textStyle(40)).setOrigin(0.5);
     this.news = this.add.text(SAFE.width / 2, 340, '', textStyle(30, COLORS.ink, { lineSpacing: 10 })).setOrigin(0.5, 0);
-    const again = new Button(this, SAFE.width / 2 - 180, 620, { label: '🔁 Again', width: 320, color: COLORS.primary, onTap: () => this.swap('Quiz', replay) });
-    const map = new Button(this, SAFE.width / 2 + 180, 620, { label: '🗺️ Map', width: 320, color: COLORS.green, onTap: () => this.back() });
+    const again = new Button(this, SAFE.width / 2 - 180, 620, { label: t('common.again'), width: 320, color: COLORS.primary, onTap: () => this.swap('Quiz', replay) });
+    const map = new Button(this, SAFE.width / 2 + 180, 620, { label: t('common.map'), width: 320, color: COLORS.green, onTap: () => this.back() });
     this.tag('again', again.box);
     this.tag('map', map.box);
     if (stars === 3) this.celebrate();
@@ -34,14 +35,14 @@ export default class ResultsScene extends BaseScene {
     recordRound(tallies, mode).then((result) => {
       if (!this.sys.isActive()) return;
       const lines = [
-        ...result.newlyMastered.map((id) => `🏅 Mastered: ${getSkill(id).title}`),
-        ...result.newlyPassed.filter((id) => !result.newlyMastered.includes(id)).map((id) => `✅ Passed: ${getSkill(id).title}`),
-        ...(result.earnedStickers.length ? [`🌟 New sticker${result.earnedStickers.length > 1 ? 's' : ''}: ${result.earnedStickers.map((s) => s.emoji).join(' ')}`] : []),
-        ...result.newlyUnlocked.map((id) => `🔓 New: ${getSkill(id).emoji} ${getSkill(id).title}`),
+        ...result.newlyMastered.map((id) => t('results.mastered', { title: skillTitle(id) })),
+        ...result.newlyPassed.filter((id) => !result.newlyMastered.includes(id)).map((id) => t('results.passed', { title: skillTitle(id) })),
+        ...(result.earnedStickers.length ? [t('results.stickers', { count: result.earnedStickers.length, list: result.earnedStickers.map((s) => s.emoji).join(' ') })] : []),
+        ...result.newlyUnlocked.map((id) => t('results.unlocked', { emoji: getSkill(id).emoji, title: skillTitle(id) })),
       ];
       this.news.setText(lines.slice(0, 4).join('\n'));
-      const mastered = result.newlyMastered.map((id) => getSkill(id).title);
-      speak([RESULT_LINES[stars], `You got ${score} out of ${total}.`, mastered.length ? `You mastered ${mastered.join(' and ')}!` : '', result.earnedStickers.length ? 'You got a new sticker!' : ''].filter(Boolean).join(' '));
+      const mastered = result.newlyMastered.map(skillTitle);
+      speak([resultLine(stars), t('results.sayScore', { score, total }), mastered.length ? t('results.sayMastered', { titles: list(mastered) }) : '', result.earnedStickers.length ? t('results.saySticker') : ''].filter(Boolean).join(' '));
       this.report({
         step: 'results',
         newlyPassed: result.newlyPassed,

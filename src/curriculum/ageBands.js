@@ -3,7 +3,6 @@
 export const AGE_BANDS = [
   {
     id: 'sprouts',
-    label: 'Sprouts',
     emoji: '🌱',
     minAge: 3,
     maxAge: 4,
@@ -13,7 +12,6 @@ export const AGE_BANDS = [
   },
   {
     id: 'explorers',
-    label: 'Explorers',
     emoji: '🧭',
     minAge: 5,
     maxAge: 6,
@@ -23,7 +21,6 @@ export const AGE_BANDS = [
   },
   {
     id: 'builders',
-    label: 'Builders',
     emoji: '🧱',
     minAge: 7,
     maxAge: 8,
@@ -33,7 +30,6 @@ export const AGE_BANDS = [
   },
   {
     id: 'masters',
-    label: 'Masters',
     emoji: '🏆',
     minAge: 9,
     maxAge: 10,

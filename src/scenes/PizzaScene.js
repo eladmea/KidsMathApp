@@ -17,6 +17,7 @@ import {
   makeCoverage,
 } from '../logic/writingGames';
 import { pick } from '../curriculum/random';
+import { t } from '../i18n/index';
 
 // P0 spike of Pizza Shop: write the order's number in sauce on the dough (any
 // stroke order counts, judged by the result), then spread the rest of the
@@ -41,9 +42,10 @@ const toBox = (x, y) => [(x - BOX_LEFT) / BOX_SCALE, (y - BOX_TOP) / BOX_SCALE];
 const fromBox = ([x, y]) => [BOX_LEFT + x * BOX_SCALE, BOX_TOP + y * BOX_SCALE];
 
 export default class PizzaScene extends BaseScene {
-  constructor() {
-    super('Pizza');
-  }
+  static key = 'Pizza';
+  // The skills this scene plays (their `screen` in curriculum/skills.js).
+  static plays = ['PizzaShop'];
+
 
   build() {
     this.numbers = pickDistinct(numberPool(), PIZZAS_PER_ROUND);
@@ -84,7 +86,7 @@ export default class PizzaScene extends BaseScene {
       onEnd: () => this.lift(),
     });
     this.hint = new IdleHint(this, () => this.hintPoint(), {
-      onShow: () => this.narrator.say(this.step === 'trace' ? `Start at the green dot and write ${this.number}.` : 'Rub the sauce all over the pizza!'),
+      onShow: () => this.narrator.say(this.step === 'trace' ? t('pizza.startHere', { number: this.number }) : t('pizza.rub')),
     });
 
     this.startPizza();
@@ -94,6 +96,10 @@ export default class PizzaScene extends BaseScene {
     const v = this.view;
     this.bg.setPosition(v.x, v.y).setSize(v.width, v.height);
     this.counter.setPosition(v.x, v.bottom - 70).setSize(v.width, 70);
+  }
+
+  friendName() {
+    return t(`pizza.customers.${this.friend.id}`);
   }
 
   startPizza() {
@@ -112,7 +118,7 @@ export default class PizzaScene extends BaseScene {
     this.surface.setEnabled(true);
     this.drawGuide();
     this.setStep('trace');
-    this.narrator.say(`${this.friend.name} wants pizza number ${this.number}! Write ${this.number} with sauce.`, { show: `Write ${this.number} with sauce!` });
+    this.narrator.say(t('pizza.order', { friend: this.friendName(), number: this.number }), { show: t('pizza.orderShow', { number: this.number }) });
   }
 
   drawGuide() {
@@ -176,15 +182,15 @@ export default class PizzaScene extends BaseScene {
       this.free = freeTraceStart(this.strokes);
       this.written = [];
       this.report({ restarts: this.restarts });
-      this.narrator.say(`Oops, keep the sauce on the number. Let's write ${this.number} again!`);
+      this.narrator.say(t('pizza.messy', { number: this.number }));
     } else if (result.cover > 0.15) {
-      this.narrator.say(`Keep going! Cover the whole ${this.number}.`);
+      this.narrator.say(t('pizza.keepGoing', { number: this.number }));
     }
   }
 
   traceDone() {
     this.guide.clear();
-    this.narrator.say(`That's ${this.number}! Now spread the sauce all over the pizza.`, { show: 'Spread the sauce all over!' });
+    this.narrator.say(t('pizza.written', { number: this.number }), { show: t('pizza.writtenShow') });
     this.paint.setBrush(COLORS.sauce, SPREAD_BRUSH);
     // What's already written counts towards covering the pizza.
     this.coverage = this.written.reduce((cover, [x, y]) => coverAt(cover, x, y, TRACE_BRUSH), makeCoverage(SIZE));
@@ -202,7 +208,7 @@ export default class PizzaScene extends BaseScene {
     this.tweens.add({ targets: this.smooth, alpha: 1, duration: 500 });
     if (this.restarts <= 1) this.points += 1;
     play(this, 'correct');
-    this.narrator.say(`Yummy! ${this.friend.name} loves pizza number ${this.number}!`);
+    this.narrator.say(t('pizza.yummy', { friend: this.friendName(), number: this.number }));
     this.tweens.add({ targets: this.customer, scale: 1.25, duration: 200, yoyo: true, repeat: 2 });
     this.time.delayedCall(2600, () => {
       this.pizzaIndex += 1;
@@ -213,10 +219,10 @@ export default class PizzaScene extends BaseScene {
 
   async finish() {
     await recordRound({ 'math-pizza': { correct: this.points, total: this.numbers.length } });
-    this.narrator.say(`You made ${this.numbers.length} pizzas! Great job, chef!`);
+    this.narrator.say(t('pizza.done', { count: this.numbers.length }));
     this.report({ step: 'results', points: this.points });
-    const again = new Button(this, 1110, 330, { label: '🔁 Again', width: 260, color: COLORS.primary, onTap: () => this.replay() });
-    const home = new Button(this, 1110, 470, { label: '◀ Back', width: 260, color: COLORS.green, onTap: () => this.back() });
+    const again = new Button(this, 1110, 330, { label: t('common.again'), width: 260, color: COLORS.primary, onTap: () => this.replay() });
+    const home = new Button(this, 1110, 470, { label: t('common.back'), width: 260, color: COLORS.green, onTap: () => this.back() });
     this.tag('again', again.box);
     this.tag('home', home.box);
   }

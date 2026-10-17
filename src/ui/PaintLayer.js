@@ -1,5 +1,3 @@
-import Phaser from 'phaser';
-
 // A surface you paint on with a finger: a RenderTexture that stamps a round
 // brush along the stroke (filling the gaps between pointer events, so fast
 // strokes stay solid). The caller feeds it points in its own local

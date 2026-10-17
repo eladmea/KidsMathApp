@@ -16,7 +16,13 @@ export const SAFE = { width: 1280, height: 720 };
 // Browser tests open the game with ?fast: timers and tweens run 8x faster.
 const TEST_SPEED = typeof location !== 'undefined' && new URLSearchParams(location.search).has('fast') ? 8 : 1;
 
+// Each scene names itself with `static key = 'Quiz'` (the registry in
+// scenes/registry.js picks every scene up, so nothing else needs editing).
 export default class BaseScene extends Phaser.Scene {
+  constructor() {
+    super(new.target.key);
+  }
+
   create(data) {
     this.built = false;
     this.startData = data || {};

@@ -5,15 +5,8 @@ import { COLORS } from './ui/theme';
 import { installBridge } from './services/testBridge';
 import { loadSession } from './services/session';
 import { initSpeech } from './services/speech';
-import BootScene from './scenes/BootScene';
-import ProfilesScene from './scenes/ProfilesScene';
-import CreateProfileScene from './scenes/CreateProfileScene';
-import WorldMapScene from './scenes/WorldMapScene';
-import IslandScene from './scenes/IslandScene';
-import QuizScene from './scenes/QuizScene';
-import PizzaScene from './scenes/PizzaScene';
-import ResultsScene from './scenes/ResultsScene';
-import StickerBookScene from './scenes/StickerBookScene';
+import { t } from './i18n/index';
+import { SCENES } from './scenes/registry';
 
 async function start() {
   // Canvas text needs the font loaded before the first scene draws.
@@ -23,6 +16,7 @@ async function start() {
     // Falls back to the system font.
   }
   await loadSession();
+  document.querySelector('#rotate .text').textContent = t('common.turnDevice');
   initSpeech();
 
   const game = new Phaser.Game({
@@ -40,7 +34,7 @@ async function start() {
     input: { activePointers: 3 },
     // Real HTML inputs (a child's name) float over the canvas.
     dom: { createContainer: true },
-    scene: [BootScene, ProfilesScene, CreateProfileScene, WorldMapScene, IslandScene, QuizScene, ResultsScene, PizzaScene, StickerBookScene],
+    scene: SCENES,
   });
   installBridge(game);
   // The game is up: drop the loading / error message.

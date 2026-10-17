@@ -1,0 +1,13 @@
+{
+  "again": "🔁 Again",
+  "back": "◀ Back",
+  "map": "🗺️ Map",
+  "done": "✔ Done",
+  "letsPlay": "Got it! Let's play ▶",
+  "and": "and",
+  "list": "{a} and {b}",
+  "turnDevice": "Please turn your device sideways",
+  "voice": "Voice: {name}",
+  "deviceVoice": "device default",
+  "readToYou": "I will read to you."
+}

@@ -1,16 +1,18 @@
 import Phaser from 'phaser';
-import { loadSounds } from '../services/audio';
+import { loadAssets } from '../services/assets';
 import { session } from '../services/session';
 
-// Loads the shared sounds, then opens "Who's playing?" (or the welcome
-// screen when there are no players yet).
+// Loads every image and sound (services/assets.js), then opens "Who's
+// playing?" (or the welcome screen when there are no players yet).
 export default class BootScene extends Phaser.Scene {
+  static key = 'Boot';
+
   constructor() {
-    super('Boot');
+    super(BootScene.key);
   }
 
   preload() {
-    loadSounds(this);
+    loadAssets(this);
   }
 
   create() {

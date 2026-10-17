@@ -14,10 +14,15 @@ import { adapt, skillForLevel } from '../logic/adaptive';
 import { exampleSpeech, feedbackDelay, isCorrectAnswer, levelNote } from '../logic/quizRound';
 import { getSkill, isQuizSkill } from '../curriculum/skills';
 import { generateQuestion } from '../curriculum/generators';
-import { HOW_TO } from '../curriculum/howTo';
-import { soundSpeech } from '../curriculum/phonics';
+import { howTo } from '../curriculum/howTo';
+import { t } from '../i18n/index';
+import { skillTitle } from '../i18n/names';
+import { content } from '../content/index';
 
-const TITLES = { review: '⭐ Daily Review', mixed: '🔀 Mixed Practice' };
+// How the narrator says a letter tile's sound, in the current language.
+const sound = (grapheme) => (content('literacy').soundSpeech || ((g) => g))(grapheme);
+
+const titleOf = (mode, skill) => (mode === 'practice' ? t('quiz.title', { emoji: skill.emoji, title: skillTitle(skill) }) : t(`quiz.${mode}`));
 
 // Where the picture and the answers go, by question type (the picture on the
 // left and answers on the right when there's a picture; answers across the
@@ -37,9 +42,8 @@ function areas(question) {
 // row steps up. Ends on the Results scene.
 //   data: { skillIds, mode = 'practice', count }
 export default class QuizScene extends BaseScene {
-  constructor() {
-    super('Quiz');
-  }
+  static key = 'Quiz';
+
 
   build({ skillIds, mode = 'practice', count }) {
     // Phaser reuses the scene object between rounds: start every field fresh.
@@ -64,7 +68,7 @@ export default class QuizScene extends BaseScene {
     this.bg = this.add.rectangle(0, 0, 10, 10, COLORS.cream).setOrigin(0, 0);
     this.addBackButton(() => this.quit());
     this.narrator = new Narrator(this, 660, 70, { width: 800, fontSize: 30, onReplay: () => (this.replays += 1) });
-    this.title = this.add.text(30, 150, TITLES[mode] || `${this.baseSkill.emoji} ${this.baseSkill.title}`, textStyle(26, COLORS.gray)).setOrigin(0, 0.5);
+    this.title = this.add.text(30, 150, titleOf(mode, this.baseSkill), textStyle(26, COLORS.gray)).setOrigin(0, 0.5);
     this.score = this.add.text(1250, 150, '', textStyle(30, COLORS.ink)).setOrigin(1, 0.5);
     this.dots = this.questions.map((_, i) => this.add.circle(SAFE.width / 2 - ((this.questions.length - 1) * 30) / 2 + i * 30, 150, 10, COLORS.gray, 0.3));
     this.note = this.add.text(SAFE.width / 2, 196, '', textStyle(24, COLORS.primary)).setOrigin(0.5);
@@ -114,19 +118,19 @@ export default class QuizScene extends BaseScene {
     if (!skill.generator) return;
     this.clear();
     this.step = 'example';
-    const howTo = HOW_TO[skill.generator];
+    const howToLine = howTo(skill.generator);
     const question = { ...generateQuestion(skill.generator), id: 'example' };
     this.help.setVisible(false);
-    this.narrator.say(exampleSpeech(howTo, question), { show: [howTo, question.prompt].filter(Boolean).join('\n'), force: Boolean(question.speakAlways) });
+    this.narrator.say(exampleSpeech(howToLine, question), { show: [howToLine, question.prompt].filter(Boolean).join('\n'), force: Boolean(question.speakAlways) });
     this.placeRow();
     this.dots.forEach((dot) => dot.setVisible(false));
     this.score.setText('');
-    this.title.setText("👀 Let's try one together!").setColor('#FF9A3D');
+    this.title.setText(t('quiz.together')).setColor('#FF9A3D');
     const place = areas(question);
     if (place.visual) this.shown.push(drawVisual(this, place.visual.x, place.visual.y - 20, question.visual, { ...place.visual, reveal: question.answer, result: 'correct', showSteps: true }));
     this.answers = makeInput(this, { ...place.input, y: place.input.y - 20 }, question, { onSubmit: () => {}, onSound: (text) => speak(text, { force: true }) });
     this.answers.showSolution();
-    const go = new Button(this, SAFE.width / 2, 668, { label: "Got it! Let's play ▶", width: 420, height: 80, fontSize: 34, color: COLORS.green, onTap: () => this.showQuestion() });
+    const go = new Button(this, SAFE.width / 2, 668, { label: t('common.letsPlay'), width: 420, height: 80, fontSize: 34, color: COLORS.green, onTap: () => this.showQuestion() });
     go.setDepth(10);
     this.shown.push(go);
     this.tag('start', go.box);
@@ -141,10 +145,10 @@ export default class QuizScene extends BaseScene {
     this.locked = false;
     this.replays = 0;
     this.shownAt = Date.now();
-    this.title.setText(TITLES[this.mode] || `${this.currentSkill().emoji} ${this.currentSkill().title}`).setColor('#9E9E9E');
+    this.title.setText(titleOf(this.mode, this.currentSkill())).setColor('#9E9E9E');
     this.dots.forEach((dot, i) => dot.setVisible(true).setFillStyle(i < this.index ? (this.results[i] ? COLORS.green : COLORS.orange) : i === this.index ? COLORS.primary : COLORS.gray, i <= this.index ? 1 : 0.3));
-    this.score.setText(`⭐ ${this.results.filter(Boolean).length}`);
-    this.help.setVisible(this.adaptive && Boolean(HOW_TO[this.currentSkill().generator]));
+    this.score.setText(t('quiz.score', { score: this.results.filter(Boolean).length }));
+    this.help.setVisible(this.adaptive && Boolean(howTo(this.currentSkill().generator)));
     // Listening tasks are read aloud even with narration off.
     this.narrator.say(question.speech, { show: question.prompt, force: Boolean(question.speakAlways) });
     this.placeRow();
@@ -153,7 +157,7 @@ export default class QuizScene extends BaseScene {
     this.visual = this.place.visual ? drawVisual(this, this.place.visual.x, this.place.visual.y, question.visual, this.place.visual) : null;
     this.answers = makeInput(this, this.place.input, question, {
       onSubmit: (answer) => this.answer(answer),
-      onSound: (text) => speak(text.length <= 2 ? soundSpeech(text) : text, { force: true }),
+      onSound: (text) => speak(text.length <= 2 ? sound(text) : text, { force: true }),
     });
     this.report({
       step: 'question',
@@ -199,12 +203,12 @@ export default class QuizScene extends BaseScene {
     }
     if (question.type === 'build') {
       // Blend the sounds back into the word: "kuh, aah, tuh… cat!"
-      this.time.delayedCall(400, () => speak(`${question.parts.map(soundSpeech).join(', ')}… ${question.word}!`, { force: true }));
+      this.time.delayedCall(400, () => speak(t('quiz.blend', { sounds: question.parts.map(sound).join(', '), word: question.word }), { force: true }));
     } else if (!right && question.explain) {
       this.narrator.say(question.explain);
     }
     this.dots[this.index].setFillStyle(right ? COLORS.green : COLORS.orange, 1);
-    this.score.setText(`⭐ ${this.results.filter(Boolean).length}`);
+    this.score.setText(t('quiz.score', { score: this.results.filter(Boolean).length }));
     this.report({ step: 'feedback', right, change: adapted?.change || null });
     this.timer = this.time.delayedCall(feedbackDelay(question, right), () => this.next(adapted, nextSkill));
   }

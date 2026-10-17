@@ -1,5 +1,5 @@
 import { SKILLS } from '../src/curriculum/skills';
-import { HOW_TO } from '../src/curriculum/howTo';
+import { howTo } from '../src/curriculum/howTo';
 import { numberLineFeedback } from '../src/logic/numberLine';
 import { GENERATORS, buildChoices, generateQuestion } from '../src/curriculum/generators';
 
@@ -172,7 +172,7 @@ describe('number sequences (What Comes Next? / Skip Counting)', () => {
 
 describe('how-to lines', () => {
   it('every quiz skill has a how-to line for its worked example', () => {
-    SKILLS.filter((s) => s.generator).forEach((s) => expect(HOW_TO[s.generator]).toBeTruthy());
+    SKILLS.filter((s) => s.generator).forEach((s) => expect(howTo(s.generator)).toBeTruthy());
   });
 });
 
@@ -192,9 +192,11 @@ describe('number line feedback', () => {
 
 describe('counting explanations', () => {
   it('say "is" and the singular for one', async () => {
-    const { countSentence } = await import('../src/curriculum/generators');
-    expect(countSentence(1, 'stars')).toBe('There is 1 star!');
-    expect(countSentence(1, 'fish')).toBe('There is 1 fish!');
-    expect(countSentence(3, 'stars')).toBe('There are 3 stars!');
+    const { OBJECTS, say } = await import('../src/content/en/math');
+    const star = OBJECTS.find((o) => o.one === 'star');
+    const fish = OBJECTS.find((o) => o.one === 'fish');
+    expect(say.count.explain({ object: star, count: 1 })).toBe('Count them one by one: 1. There is 1 star!');
+    expect(say.count.explain({ object: fish, count: 1 })).toContain('There is 1 fish!');
+    expect(say.count.explain({ object: star, count: 3 })).toContain('There are 3 stars!');
   });
 });

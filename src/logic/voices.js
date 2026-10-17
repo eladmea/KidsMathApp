@@ -32,15 +32,19 @@ export function isOnlineVoice(voice) {
 }
 
 // Higher is better; below 0 means "don't pick automatically".
-// `online` is whether the device currently has a connection.
-export function rankVoice(voice, { online = true } = {}) {
+// `online` is whether the device currently has a connection; `language` is
+// the BCP 47 code to speak (from the language's _meta.json, e.g. 'en-US').
+// Other regions of the same language are fine, a little lower.
+export function rankVoice(voice, { online = true, language = 'en-US' } = {}) {
   const name = lower(voice.name);
   const id = lower(voice.identifier);
   const lang = lower(voice.language).replace('_', '-');
-  if (!lang.startsWith('en')) return -1000;
+  const want = lower(language);
+  const base = want.split('-')[0];
+  if (lang !== base && !lang.startsWith(`${base}-`)) return -1000;
   let score = 0;
-  if (lang === 'en-us') score += 30;
-  else if (lang === 'en-gb' || lang === 'en-au' || lang === 'en-ca') score += 20;
+  if (lang === want) score += 30;
+  else score += 20;
   // Neural voices (Edge "Natural"/"Neural", Google "WaveNet"/"Studio").
   if (/natural|neural|wavenet|studio/.test(name) || /natural|neural/.test(id)) score += 60;
   // Apple voice tiers: premium > enhanced/Siri > compact.
@@ -55,7 +59,7 @@ export function rankVoice(voice, { online = true } = {}) {
   return score;
 }
 
-// English voices, best first.
+// Voices for the language, best first.
 export function rankVoices(voices = [], context = {}) {
   return voices
     .map((voice) => ({ voice, score: rankVoice(voice, context) }))

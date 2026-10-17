@@ -4,6 +4,7 @@ import { COLORS, textStyle } from '../ui/theme';
 import { session } from '../services/session';
 import { speak } from '../services/speech';
 import { PAGE_SIZE, stickerPages } from '../logic/stickers';
+import { t } from '../i18n/index';
 
 const COLS = 6;
 
@@ -11,9 +12,8 @@ const COLS = 6;
 // of twelve at a time, with empty slots still to fill.
 //   data: { page }
 export default class StickerBookScene extends BaseScene {
-  constructor() {
-    super('StickerBook');
-  }
+  static key = 'StickerBook';
+
 
   build({ page }) {
     const stickers = session.profile.stickers || [];
@@ -21,8 +21,8 @@ export default class StickerBookScene extends BaseScene {
     this.page = Math.min(page ?? pages.length - 1, pages.length - 1);
     this.bg = this.add.rectangle(0, 0, 10, 10, 0xfff1c7).setOrigin(0, 0);
     this.addBackButton();
-    this.add.text(SAFE.width / 2, 60, '📒 Sticker Book', textStyle(48, COLORS.orange)).setOrigin(0.5);
-    this.add.text(SAFE.width / 2, 118, `${stickers.length} sticker${stickers.length === 1 ? '' : 's'}`, textStyle(26, COLORS.gray)).setOrigin(0.5);
+    this.add.text(SAFE.width / 2, 60, t('stickers.title'), textStyle(48, COLORS.orange)).setOrigin(0.5);
+    this.add.text(SAFE.width / 2, 118, t('stickers.count', { count: stickers.length }), textStyle(26, COLORS.gray)).setOrigin(0.5);
     pages[this.page].forEach((sticker, i) => {
       const x = SAFE.width / 2 + ((i % COLS) - (COLS - 1) / 2) * 160;
       const y = 280 + Math.floor(i / COLS) * 180;
@@ -36,9 +36,9 @@ export default class StickerBookScene extends BaseScene {
       next.setEnabled(this.page < pages.length - 1);
       this.tag('prev-page', prev.box);
       this.tag('next-page', next.box);
-      this.add.text(SAFE.width / 2, 650, `Page ${this.page + 1} of ${pages.length}`, textStyle(24, COLORS.gray)).setOrigin(0.5);
+      this.add.text(SAFE.width / 2, 650, t('stickers.page', { page: this.page + 1, pages: pages.length }), textStyle(24, COLORS.gray)).setOrigin(0.5);
     }
-    speak(stickers.length ? `You have ${stickers.length} sticker${stickers.length === 1 ? '' : 's'}!` : 'Pass a game to earn your first sticker!');
+    speak(stickers.length ? t('stickers.sayCount', { count: stickers.length }) : t('stickers.sayNone'));
     this.report({ count: stickers.length, page: this.page, pages: pages.length, perPage: PAGE_SIZE });
   }
 

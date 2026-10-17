@@ -3,6 +3,8 @@ import Button from './Button';
 import { COLORS, textStyle } from './theme';
 import { tag } from '../services/testBridge';
 import { numberLineFeedback } from '../logic/numberLine';
+import { t } from '../i18n/index';
+import { art, hasArt } from './Art';
 
 // The ways to answer a quiz question. Each one is laid out inside `area`
 // ({ x, y, width, height }, centred on x, y), calls onSubmit(answer) once, and
@@ -51,6 +53,11 @@ class ChoiceInput {
         },
       });
       if (question.choiceStyle === 'word') button.label.setWordWrapWidth(width - 24).setAlign('center');
+      // A picture answer with its own image shows the image instead of the emoji.
+      if (question.choiceStyle === 'picture' && hasArt(scene, choice)) {
+        button.label.setText('');
+        button.add(art(scene, 0, 0, { emoji: choice, size: Math.min(width, height) * 0.6 }));
+      }
       button.choice = choice;
       tag(`choice:${choice}`, button.box);
       return button;
@@ -182,7 +189,7 @@ class WordBuilderInput {
       tag(`tile:${tile.id}`, button.box);
       return button;
     });
-    this.undo = new Button(scene, area.x, area.y + area.height / 2 - 30, { label: '↩ Undo', width: 200, height: 64, fontSize: 28, color: COLORS.gray, onTap: () => this.removeFrom(this.placed.length - 1) });
+    this.undo = new Button(scene, area.x, area.y + area.height / 2 - 30, { label: t('quiz.undo'), width: 200, height: 64, fontSize: 28, color: COLORS.gray, onTap: () => this.removeFrom(this.placed.length - 1) });
     this.undo.setVisible(false);
     this.extra = [];
   }
@@ -216,7 +223,7 @@ class WordBuilderInput {
     this.undo.setVisible(false);
     const first = this.slots[0].box;
     const centre = (first.x + this.slots[this.slots.length - 1].box.x) / 2;
-    const line = isCorrect ? `${this.question.word}! 🎉` : `It's spelled ${this.question.parts.join(' · ')}`;
+    const line = isCorrect ? t('quiz.built', { word: this.question.word }) : t('quiz.spelled', { parts: this.question.parts.join(' · ') });
     this.extra.push(this.scene.add.text(centre, first.y - 90, line, textStyle(34, isCorrect ? COLORS.greenDark : COLORS.red)).setOrigin(0.5));
   }
 
@@ -291,7 +298,7 @@ class StoryStripInput {
       const color = right ? COLORS.green : COLORS.red;
       card.badge.setFillStyle(color);
       card.box.setStrokeStyle(6, color);
-      if (!right) card.fix.setText(`should be ${this.question.answer.indexOf(card.item.id) + 1}`);
+      if (!right) card.fix.setText(t('quiz.shouldBe', { position: this.question.answer.indexOf(card.item.id) + 1 }));
     });
   }
 

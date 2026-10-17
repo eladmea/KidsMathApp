@@ -13,6 +13,7 @@ import { LITERACY_GENERATORS } from './literacyGenerators';
 import { SCIENCE_GENERATORS } from './scienceGenerators';
 import { LOGIC_GENERATORS } from './logicGenerators';
 import { SEL_GENERATORS } from './selGenerators';
+import { content } from '../content/index';
 
 export { randInt, shuffle };
 
@@ -30,73 +31,53 @@ export function buildChoices(answer, { min = 0, max = Infinity, spread = 5, coun
   return shuffle([answer, ...shuffle(others).slice(0, count - 1)]);
 }
 
-const OBJECTS = [
-  { emoji: '🍎', name: 'apples' },
-  { emoji: '⭐', name: 'stars' },
-  { emoji: '🐟', name: 'fish' },
-  { emoji: '🎈', name: 'balloons' },
-  { emoji: '🐞', name: 'ladybugs' },
-  { emoji: '🌸', name: 'flowers' },
-  { emoji: '🚗', name: 'cars' },
-  { emoji: '🍪', name: 'cookies' },
-];
-
-const SHAPES = [
-  { emoji: '🔴', name: 'circle' },
-  { emoji: '🟦', name: 'square' },
-  { emoji: '🔺', name: 'triangle' },
-  { emoji: '⭐', name: 'star' },
-  { emoji: '❤️', name: 'heart' },
-  { emoji: '🔷', name: 'diamond' },
-];
-
-// "There is 1 star!" / "There are 3 stars!" (names are plural: 'stars').
-export function countSentence(count, plural) {
-  if (count !== 1) return `There are ${count} ${plural}!`;
-  return `There is 1 ${plural === 'fish' ? 'fish' : plural.replace(/s$/, '')}!`;
-}
+// The words for every math question come from the language's math pack
+// (src/content/<language>/math.js): things to count, shapes, and `say`.
+const math = () => content('math');
 
 function countObjects(min, max) {
   return () => {
+    const { OBJECTS, say } = math();
     const object = pick(OBJECTS);
     const count = randInt(min, max);
     return {
-      prompt: 'How many?',
-      speech: `How many ${object.name}?`,
+      prompt: say.count.prompt(),
+      speech: say.count.speech({ object }),
       visual: { type: 'objects', emoji: object.emoji, count },
       answer: count,
-      explain: `Count them one by one: ${Array.from({ length: count }, (_, i) => i + 1).join(', ')}. ${countSentence(count, object.name)}`,
+      explain: say.count.explain({ object, count }),
       choices: buildChoices(count, { min: 1, max: max + 2, spread: 3 }),
     };
   };
 }
 
 function findShape() {
+  const { SHAPES, say } = math();
   const options = shuffle(SHAPES).slice(0, CHOICES_PER_QUESTION);
-  const target = pick(options);
+  const shape = pick(options);
   return {
-    prompt: `Find the ${target.name}`,
-    speech: `Tap the ${target.name}.`,
+    prompt: say.shape.prompt({ shape }),
+    speech: say.shape.speech({ shape }),
     visual: null,
-    answer: target.emoji,
-    explain: `This is a ${target.name}.`,
-    choices: options.map((shape) => shape.emoji),
+    answer: shape.emoji,
+    explain: say.shape.explain({ shape }),
+    choices: options.map((option) => option.emoji),
   };
 }
 
 function whichHasMore(max) {
   return () => {
+    const { OBJECTS, say } = math();
     const object = pick(OBJECTS);
     const a = randInt(1, max - 2);
     const b = randInt(a + 2, max);
     const groups = shuffle([a, b]).map((count) => object.emoji.repeat(count));
-    const answer = object.emoji.repeat(b);
     return {
-      prompt: 'Which has more?',
-      speech: `Which group has more ${object.name}?`,
+      prompt: say.more.prompt(),
+      speech: say.more.speech({ object }),
       visual: null,
-      answer,
-      explain: `${b} ${object.name} is more than ${a} ${object.name}.`,
+      answer: object.emoji.repeat(b),
+      explain: say.more.explain({ object, more: b, less: a }),
       choices: groups,
     };
   };
@@ -106,6 +87,7 @@ function whichHasMore(max) {
 // (see QuestionVisual 'sequence') so the direction is visible at a glance.
 function numberSequence(steps, max) {
   return () => {
+    const { say } = math();
     const step = pick(steps);
     const direction = Math.random() < 0.5 ? 'up' : 'down';
     const delta = direction === 'up' ? step : -step;
@@ -122,27 +104,28 @@ function numberSequence(steps, max) {
       distractors = [...distractors, ...nearby].slice(0, CHOICES_PER_QUESTION - 1);
     }
     return {
-      prompt: 'What comes next?',
-      speech: `${numbers.join(', ')}. What comes next?`,
+      prompt: say.sequence.prompt(),
+      speech: say.sequence.speech({ numbers }),
       visual: { type: 'sequence', numbers, direction, step },
       answer,
       choices: shuffle([answer, ...distractors]),
-      explain: `The numbers go ${direction} by ${step} each time. ${numbers[2]} ${direction === 'up' ? 'plus' : 'minus'} ${step} is ${answer}!`,
+      explain: say.sequence.explain({ direction, step, last: numbers[2], answer }),
     };
   };
 }
 
 function biggerNumber(max) {
   return () => {
+    const { say } = math();
     const a = randInt(0, max);
     let b = randInt(0, max);
     while (b === a) b = randInt(0, max);
     return {
-      prompt: 'Which number is bigger?',
-      speech: `Which number is bigger, ${a} or ${b}?`,
+      prompt: say.bigger.prompt(),
+      speech: say.bigger.speech({ a, b }),
       visual: null,
       answer: Math.max(a, b),
-      explain: `${Math.max(a, b)} is bigger than ${Math.min(a, b)}.`,
+      explain: say.bigger.explain({ bigger: Math.max(a, b), smaller: Math.min(a, b) }),
       choices: [a, b],
     };
   };
@@ -150,15 +133,16 @@ function biggerNumber(max) {
 
 function addition(maxSum, { minAddend = 0, withPicture = false } = {}) {
   return () => {
+    const { OBJECTS, say } = math();
     const a = randInt(minAddend, maxSum - minAddend);
     const b = randInt(minAddend, maxSum - a);
     const object = pick(OBJECTS);
     return {
       prompt: `${a} + ${b} = ?`,
-      speech: `What is ${a} plus ${b}?`,
+      speech: say.add.speech({ a, b }),
       visual: withPicture ? { type: 'sum', emoji: object.emoji, a, b } : null,
       answer: a + b,
-      explain: `Start at ${a} and count on ${b} more: that makes ${a + b}.`,
+      explain: say.add.explain({ a, b, sum: a + b }),
       choices: buildChoices(a + b, { min: 0 }),
     };
   };
@@ -166,15 +150,16 @@ function addition(maxSum, { minAddend = 0, withPicture = false } = {}) {
 
 function subtraction(maxStart, { minStart = 0, withPicture = false } = {}) {
   return () => {
+    const { OBJECTS, say } = math();
     const a = randInt(minStart, maxStart);
     const b = randInt(0, a);
     const object = pick(OBJECTS);
     return {
       prompt: `${a} − ${b} = ?`,
-      speech: `What is ${a} minus ${b}?`,
+      speech: say.subtract.speech({ a, b }),
       visual: withPicture ? { type: 'takeAway', emoji: object.emoji, a, b } : null,
       answer: a - b,
-      explain: `Start with ${a} and take away ${b}: ${a - b} are left.`,
+      explain: say.subtract.explain({ a, b, left: a - b }),
       choices: buildChoices(a - b, { min: 0 }),
     };
   };
@@ -182,14 +167,15 @@ function subtraction(maxStart, { minStart = 0, withPicture = false } = {}) {
 
 function multiplication(factorsA, factorsB) {
   return () => {
+    const { say } = math();
     const a = pick(factorsA);
     const b = pick(factorsB);
     return {
       prompt: `${a} × ${b} = ?`,
-      speech: `What is ${a} times ${b}?`,
+      speech: say.multiply.speech({ a, b }),
       visual: null,
       answer: a * b,
-      explain: `${a} groups of ${b} make ${a * b}.`,
+      explain: say.multiply.explain({ a, b, product: a * b }),
       choices: buildChoices(a * b, { min: 0, spread: Math.max(5, a) }),
     };
   };
@@ -197,14 +183,16 @@ function multiplication(factorsA, factorsB) {
 
 function division(min, max) {
   return () => {
+    const { say } = math();
     const divisor = randInt(min, max);
     const quotient = randInt(min, max);
+    const total = divisor * quotient;
     return {
-      prompt: `${divisor * quotient} ÷ ${divisor} = ?`,
-      speech: `What is ${divisor * quotient} divided by ${divisor}?`,
+      prompt: `${total} ÷ ${divisor} = ?`,
+      speech: say.divide.speech({ total, divisor }),
       visual: null,
       answer: quotient,
-      explain: `Share ${divisor * quotient} into ${divisor} equal groups: ${quotient} in each, because ${divisor} × ${quotient} = ${divisor * quotient}.`,
+      explain: say.divide.explain({ total, divisor, quotient }),
       choices: buildChoices(quotient, { min: 0 }),
     };
   };
@@ -212,15 +200,16 @@ function division(min, max) {
 
 // Subitizing: dots flash briefly so children "see" the amount without counting.
 // `choiceMax` caps the answer buttons (3-4 year olds only ever see 1-5).
-function quickLook(min, max, layout, flashMs, { choiceMax = max + 1, speech = 'Quick! How many dots did you see?' } = {}) {
+function quickLook(min, max, layout, flashMs, { choiceMax = max + 1, small = false } = {}) {
   return () => {
+    const { say } = math();
     const count = randInt(min, max);
     return {
-      prompt: 'Quick look!',
-      speech,
+      prompt: say.quickLook.prompt(),
+      speech: small ? say.quickLook.speechSmall() : say.quickLook.speech(),
       visual: { type: 'dots', count, layout, flashMs },
       answer: count,
-      explain: `There were ${count} dots.`,
+      explain: say.quickLook.explain({ count }),
       choices: buildChoices(count, { min: 1, max: choiceMax, spread: 2 }),
     };
   };
@@ -229,14 +218,15 @@ function quickLook(min, max, layout, flashMs, { choiceMax = max + 1, speech = 'Q
 // Number-line estimation: place a number on an empty line.
 function numberLine(max, tolerance) {
   return () => {
+    const { say } = math();
     const target = randInt(1, max - 1);
     return {
       type: 'numberLine',
-      prompt: `Where does ${target} go?`,
-      speech: `Tap where ${target} goes on the line.`,
+      prompt: say.numberLine.prompt({ target }),
+      speech: say.numberLine.speech({ target }),
       visual: null,
       answer: target,
-      explain: `${target} goes here: the line runs from 0 to ${max}.`,
+      explain: say.numberLine.explain({ target, max }),
       choices: [],
       min: 0,
       max,
@@ -249,13 +239,13 @@ function range(min, max) {
   return Array.from({ length: max - min + 1 }, (_, i) => min + i);
 }
 
-export const GENERATORS = {
+const MATH_GENERATORS = {
   'count-5': countObjects(1, 5),
   'count-10': countObjects(3, 10),
   shapes: findShape,
   'more-less': whichHasMore(8),
   // Ages 3-4: up to 5 dots, shown longer. Ten frames up to 10 come in 5-6.
-  'quick-look-5': quickLook(1, 5, 'dice', 2500, { choiceMax: 5, speech: 'Look! How many dots?' }),
+  'quick-look-5': quickLook(1, 5, 'dice', 2500, { choiceMax: 5, small: true }),
   'quick-look-10': quickLook(3, 10, 'tenFrame', 2000),
   'number-line-10': numberLine(10, 1),
   'number-line-100': numberLine(100, 8),
@@ -274,16 +264,31 @@ export const GENERATORS = {
   'div-10': division(1, 10),
   'mult-12': multiplication(range(5, 12), range(5, 12)),
   'div-12': division(5, 12),
-  ...LITERACY_GENERATORS,
-  ...SCIENCE_GENERATORS,
-  ...LOGIC_GENERATORS,
-  ...SEL_GENERATORS,
 };
 
+// Generators by content pack (src/content/<language>/<pack>.js).
+const BY_PACK = {
+  math: MATH_GENERATORS,
+  literacy: LITERACY_GENERATORS,
+  science: SCIENCE_GENERATORS,
+  logic: LOGIC_GENERATORS,
+  sel: SEL_GENERATORS,
+};
+
+export const GENERATORS = Object.assign({}, ...Object.values(BY_PACK));
+
+// The content pack a generator's words come from.
+export const GENERATOR_PACK = Object.fromEntries(
+  Object.entries(BY_PACK).flatMap(([pack, generators]) => Object.keys(generators).map((id) => [id, pack]))
+);
+
+// A question in the current language. A language's pack can replace any
+// generator with its own (`generators` in the pack).
 export function generateQuestion(generatorId) {
-  const generator = GENERATORS[generatorId];
-  if (!generator) {
+  const pack = GENERATOR_PACK[generatorId];
+  if (!pack) {
     throw new Error(`Unknown generator: ${generatorId}`);
   }
+  const generator = (content(pack).generators || {})[generatorId] || GENERATORS[generatorId];
   return { type: 'choice', ...generator() };
 }

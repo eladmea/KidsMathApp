@@ -46,23 +46,29 @@ Phaser fixes these by design:
 
 ## 3. Target architecture
 
+The how-to for each kind of change lives in [ARCHITECTURE.md](ARCHITECTURE.md). The short version: everything is found by folder, so adding a scene, language, content pack, picture, sound or recording means adding files, not editing a shared list.
+
 ```
-(repo root)               new Vite + Phaser project
-  legacy/                 the old Expo app, moved here untouched (reference only, not built or deployed)
+(repo root)               Vite + Phaser project
+  legacy/                 the old Expo app (reference only, not built or deployed)
   index.html
   src/
-    main.js               Phaser.Game config, scale, scene list
-    logic/                ported curriculum/ + utils/ (unchanged, tested)
-    services/
-      storage.js          localStorage on web, Capacitor Preferences on native
-      speech.js           Web Speech API; native TTS plugin on device (port of speechEngine/voices)
-      audio.js            sound effects through Phaser's sound manager
-      session.js          active profile, progress cache, play-time limits
-    ui/                   Phaser UI kit (see 3.2)
-    scenes/               one file per scene (see 3.3)
-    parent/               HTML overlay for the grown-up area (see 3.4)
-  public/assets/          atlases, audio, fonts
-  tests/                  vitest unit tests + Playwright scene tests
+    main.js               Phaser.Game config (scenes come from scenes/registry.js)
+    scenes/               one file per screen; *Scene.js registers itself, games declare `static plays`
+    ui/                   Phaser UI kit (see 3.2), Art (image-or-emoji pictures)
+    services/             session, storage, speech (recordings first, then device voice), voiceClips,
+                          assets (images and sounds by folder), audio, router, testBridge
+    logic/                game rules with no Phaser (unit-tested)
+    curriculum/           skills, subjects, bands, question generators: structure and logic, no words
+    i18n/<language>/      every word on screen: one JSON file per feature, plus _meta.json
+    content/<language>/   question content per subject (math, literacy, science, logic, sel)
+    voice/<language>/     recorded sentences by clip id (optional)
+    assets/images/        pictures by key or emoji code point (optional; @<language>/ overrides)
+    assets/sounds/        sound effects by name
+    parent/               HTML overlay for the grown-up area (see 3.4, P5)
+  tests/                  Vitest unit tests (also checks language keys and content packs)
+  e2e/                    Playwright walkthroughs through the window.__mathplay test hook
+  scripts/voice-lines.mjs lists every line to record for a language
 ```
 
 ### 3.1 Core decisions
@@ -134,15 +140,24 @@ Each phase ends with tests passing, a web build, a Playwright walkthrough and a 
 
 | Phase | Scope | Done when |
 |---|---|---|
-| **P0 Spike** ✅ built (#18), real-device check later | Move the Expo app to `legacy/`. Set up Vite + Phaser 4 at the root. Copy the logic into `src/logic/` with its tests. Build one quiz skill (Count to 5) and the Pizza sauce trace (PaintLayer + TraceLayer). Try it on a phone and a tablet | Drags, painting and TTS feel right on touch; layout and orientation confirmed |
-| **P1 Foundation** ✅ built | Scale/safe area, storage, speech, audio, session, SceneRouter, UI kit, test bridge. Profiles and CreateProfile scenes. GitHub Pages deploy of the new build at `/KidsMathApp/`, replacing the old app | A child can pick a profile and hear the greeting |
-| **P2 Core learning loop** ✅ built | WorldMap and Island placeholders. The generic Quiz scene with every question visual and input type. Worked examples, Results, stars, stickers, adaptive steps, review and mixed rounds | Every quiz skill in all 5 subjects is playable and saves progress |
+| **P0 Spike** ✅ merged (#18), real-device check later | Move the Expo app to `legacy/`. Set up Vite + Phaser 4 at the root. Copy the logic into `src/logic/` with its tests. Build one quiz skill (Count to 5) and the Pizza sauce trace (PaintLayer + TraceLayer). Try it on a phone and a tablet | Drags, painting and TTS feel right on touch; layout and orientation confirmed |
+| **P1 Foundation** ✅ merged (#19) | Scale/safe area, storage, speech, audio, session, SceneRouter, UI kit, test bridge. Profiles and CreateProfile scenes. GitHub Pages deploy of the new build at `/KidsMathApp/`, replacing the old app | A child can pick a profile and hear the greeting |
+| **P2 Core learning loop** ✅ merged (#22) | WorldMap and Island placeholders. The generic Quiz scene with every question visual and input type. Worked examples, Results, stars, stickers, adaptive steps, review and mixed rounds | Every quiz skill in all 5 subjects is playable and saves progress |
+| **P2.5 Architecture for change** ✅ built | Assets by folder (images by key or emoji, per-language overrides, sounds). Every word in language files (`i18n/`) or per-language content packs (`content/`), with a language per child and a picker. Recorded voice by sentence with device-voice fallback, plus the `voice:lines` script. Scenes self-register, and games declare the skills they play. ESLint in CI. See ARCHITECTURE.md | A new language, picture or recording is just new files; tests catch missing words |
 | **P3 Writing & drag games** | TraceDigits, Bee Paths, Race Track, Pizza Shop (full flow: stations, oven drag, slices, feeding), Birthday Cake | The sprouts (3–4) math band is fully playable |
 | **P4 Remaining games** | Memory Chips (+ setup, buddy), Bunny Pop, Freeze Zoo, Robo Path, Push & Roll, Feelings Friends, Garden, Balloon Breath, Bubble Pop, Dance Tap, Chip Toss | Every skill and mini-game from the old app exists |
 | **P5 Sessions & grown-ups** | Today's Adventure + coach mode, soft time limits, TimeUp, parent overlay (dashboard, report, CSV, limits, voices) | Matches the old app feature for feature |
 | **P6 Clean-up** | Delete `legacy/` once nothing in it is needed as a reference. Update README, PLAYTEST.md, PLAN.md, AGENTS.md (Phaser docs instead of Expo) | One codebase |
 | **P7 Islands & art** | Design the islands in Phaser: tilemap or illustrated islands, camera scrolling, the stage path, avatar, chest. Plus the art pass, sound and music | Your island design, done properly |
 | **P8 Native apps** | Capacitor iOS/Android builds, native TTS and storage, app icon, store builds (the old Phase 8) | Installable apps |
+
+**From P3 on**, each rebuilt game follows ARCHITECTURE.md:
+- its text goes in its own `i18n/en/<game>.json`;
+- its names and word lists go in a content pack;
+- pictures go through `art()`;
+- it declares `static plays`.
+
+The old game logic in `src/logic/` still has English words in it (Memory Chips letters, Feelings Friends stories, Garden clues). Those move into content packs as each game is rebuilt.
 
 Old **Phase 5b** play-test rounds pause during P0–P5, then continue on the Phaser build. **Phase 7** (curriculum gaps) is mostly logic and generator work, so it can run alongside from P2.
 
@@ -269,3 +284,44 @@ Old **Phase 5b** play-test rounds pause during P0–P5, then continue on the Pha
 - `players.mjs` and `games.mjs` are updated for the map and islands.
 
 **Not in P2 (later phases):** coach / play-together mode (P5), Fun Break tickets (P4), recorded letter sounds.
+
+### P2.5 Architecture for change: built 2026-10-17 (branch `claude/architecture`)
+
+Asked for before moving on: change assets easily, add languages easily, replace the device voice with recordings (later in other languages too), and keep the code modular with few shared files to conflict on.
+
+**What was done**
+- **Assets** (`services/assets.js`, `ui/Art.js`):
+  - Images in `src/assets/images/` are keyed by path (`islands/math`, `skills/<id>`) or by emoji code point (`emoji/1f34e` replaces 🍎 everywhere), with `@<language>/` overrides.
+  - Sounds in `src/assets/sounds/` are found by name.
+  - Question pictures, picture answers, avatars, island and skill cards all draw through `art()` and fall back to the emoji.
+- **Languages** (`i18n/`):
+  - `t(key, values)` with plural forms (`Intl.PluralRules`), list joining (`Intl.ListFormat`) and English fallback.
+  - Languages are found by folder, with `_meta.json` giving the name, text direction and speech code.
+  - All UI text sits in per-feature JSON. Skill, island, band, game, how-to and coach words are in `curriculum.json`, and the curriculum data keeps only structure.
+  - Text is drawn right-to-left for `rtl` languages.
+  - Each child has a language; the picker appears on New Player once there are two or more.
+- **Question content** (`content/`):
+  - The five subject packs hold the word banks and `say` phrase functions, so each language handles its own grammar.
+  - The generators are language-neutral.
+  - A pack can replace generators; a language without a pack shows those skills as Soon.
+- **Voice** (`services/voiceClips.js`, `services/speech.js`):
+  - Sentences are spoken in a queue. A sentence with a recording (`src/voice/<language>/<clip id>.mp3`) plays the recording, and the rest use the device voice in the child's language (voice ranking now works for any language).
+  - A watchdog keeps a stuck utterance from stalling the queue.
+  - `npm run voice:lines -- <language>` writes a CSV of every line with its file name: 5,513 English lines, most common first.
+- **Fewer conflicts:**
+  - `scenes/registry.js` loads every `*Scene.js`; scenes name themselves with `static key`; games declare `static plays`.
+  - Nothing central is edited to add a scene, game, language, pack, picture, sound or recording.
+- **ESLint** (`npm run lint`), now also in CI.
+
+**Checked**
+- 328 unit tests, including:
+  - every `t()` key exists in English;
+  - other languages only use English keys, and their packs match English's;
+  - skills without a pack are unavailable;
+  - clip IDs, emoji keys, and voice ranking per language.
+- A temporary recording and island image, built and opened in the browser: the map showed the image instead of 🔢; "Who's playing?" used the device voice, then "Tap your picture." played the recording. Both were removed afterwards.
+
+**Not done yet**
+- Mirroring layouts for right-to-left languages (only the text direction flips): to do with the first RTL language.
+- Translating `index.html`'s loading and error messages (shown before the game loads).
+- The old game logic's words (see above): moved as each game is rebuilt.
