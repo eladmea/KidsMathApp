@@ -81,7 +81,11 @@ Publishing is automatic (`.github/workflows/deploy-pages.yml`):
 - every pull request runs the tests and checks the build;
 - every push to `main` (e.g. merging a PR) rebuilds and redeploys the site within a few minutes.
 
-One-time setup (already done for this repo): make the repository public (or use a paid plan), set **Settings → Pages → Source** to **GitHub Actions**, and make `main` the default branch.
+One-time setup: make the repository public (or use a paid plan), set **Settings → Pages → Build and deployment → Source** to **GitHub Actions**, and make `main` the default branch.
+
+⚠️ The Source must be **GitHub Actions**, not "Deploy from a branch". With "Deploy from a branch", GitHub also publishes the raw repository files on every push, and whichever deploy finishes last wins. The raw `index.html` points at `/src/main.js`, which only works on the dev server, so the live site shows just a blank page.
+
+`.github/workflows/smoke-live.yml` opens the live site in Chromium after every deploy. It fails, logging the broken download or script error, when the game doesn't start.
 
 ## Running the app
 
