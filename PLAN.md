@@ -4,7 +4,7 @@ This document describes where MathPlay is heading, why it is designed this way (
 
 - **Plan written:** 2026-10-15
 - **Language:** English (all content, narration and phonics)
-- **Last updated:** 2026-10-16 (Phase 5b round 6: writing games for ages 3–4)
+- **Last updated:** 2026-10-17 (Phase 5b round 7: Pizza Shop reworked from play-test feedback)
 
 ---
 
@@ -91,7 +91,7 @@ The variants also get a **solo mode against an AI buddy** and a post-game reflec
 | Number Tracing (write 0–9 with a finger) | Math | 3–5 | ✅ 5b |
 | Bee Paths (pre-writing strokes) | Math / writing | 3–4 | ✅ 5b |
 | Race Track Numbers (drive the digit) | Math / writing | 3–5 | ✅ 5b |
-| Pizza Shop (write a number in sauce, add that many toppings) | Math / writing | 3–5 | ✅ 5b |
+| Pizza Shop (the animal orders a number: write it in sauce, spread sauce and cheese, add that many toppings, bake, slice, feed) | Math / writing | 3–5 | ✅ 5b |
 | Birthday Cake (write the age in icing, candles, blow them out) | Math / writing | 3–5 | ✅ 5b |
 | Quick Look (subitizing flash) | Math | 3–6 | ✅ 1 |
 | Number Line Drop | Math | 5–10 | ✅ 1 |
@@ -681,6 +681,34 @@ All earlier walkthroughs (Phases 4–6, round 1) were re-run and pass. Real iOS 
 - Birthday Cake 3/3: icing, candles dragged, all blown out.
 
 All earlier walkthroughs pass.
+
+### Phase 5b, round 7: Pizza Shop rework (2026-10-17, commit `PIZZA2`)
+
+**Feedback:**
+1. The child shouldn't choose the number; it should be random.
+2. Sauce should spread freely once the number is written.
+3. The cheese looked like black dots, and should also be spread freely.
+4. Offer four toppings: olives (sliced, not whole), corn, mushrooms, pineapple.
+5. Afterwards: oven, slice, and give it to the animal to eat.
+
+**Changes:**
+
+| Step | Now |
+|---|---|
+| Order | The animal orders a random number of toppings (1–5, or 1–9 after *Write 1 to 5*), shown on an order ticket 🧾. The two pizzas in a round always get different numbers |
+| Dough | Rub to roll it out (as before) |
+| Sauce | Write the number in sauce. The written number stays on the pizza as sauce, then the child **spreads sauce freely** with a finger. A meter shows progress; once 80% is covered the sauce evens out |
+| Cheese | **Spread freely**: yellow shreds drawn as rounded strips, replacing the "▪" character that showed as black dots. Done at 70% covered, then it evens out |
+| Topping | Choose from four: **olive slices** (drawn as dark rings), corn 🌽, mushrooms 🍄, pineapple 🍍. Drag the ordered number from the tray; "Done" checks the count, "➖ Take one off" fixes too many |
+| Oven | "🔥 Put in the oven": the pizza bakes, and comes out with a golden crust and melted cheese |
+| Slice | Two swipes across the pizza cut it into 4 slices |
+| Eat | Drag each slice to the animal, counted aloud ("One slice! Yum!"); the animal looks happy 😋 |
+
+- A round is now **2 pizzas**, since each has many steps.
+- **Fixed while testing:** fast finger strokes send many move events before the screen updates. Building each one on the last *drawn* state lost most of the spreading, so coverage stalled around 50%. The latest coverage is now kept in a ref.
+- **Also fixed:** the "covered" area was larger than what's drawn, so the game moved on while bare dough still showed. Coverage now matches the brush, and the next layer starts on a new touch, not mid-swipe.
+- **Tests:** 298 unit tests, covering coverage counting (inside the circle only, no double counting), a full-pizza zig-zag finishing both layers, the swipe-to-cut rule, slice layout, exactly the four toppings, and 2 pizzas per round.
+- **Verification:** three full browser runs as a 3-year-old, each with two random orders and different numbers. Every step passed: dough, writing, sauce, cheese, the 4-topping choice, dragging, oven, two cuts, feeding 4 slices, Results 2/2. No page errors. All earlier walkthroughs pass.
 
 ---
 
