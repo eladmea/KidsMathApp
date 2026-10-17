@@ -77,11 +77,17 @@ export function fallbackVoice(voices = [], failedIds = [], context = {}) {
   return (local || remaining.find((voice) => rankVoice(voice, context) >= 0) || null)?.identifier ?? null;
 }
 
+// Splits at the spaces that follow any of `marks`, keeping the marks.
+// (No regex lookbehind: Safari before iOS 16.4 can't even load a script
+// that contains one.)
+function splitAfter(text, marks) {
+  return text.replace(new RegExp(`([${marks}])\\s+`, 'g'), '$1\u0000').split('\u0000');
+}
+
 // Splits text into sentences so long prompts are spoken as a queue of short
 // utterances (Chrome cuts off single utterances after about 15 seconds).
 export function splitSentences(text, maxLength = 180) {
-  const parts = String(text)
-    .split(/(?<=[.!?…])\s+/)
+  const parts = splitAfter(String(text), '.!?…')
     .map((part) => part.trim())
     .filter(Boolean);
   return parts.flatMap((part) => {
@@ -89,7 +95,7 @@ export function splitSentences(text, maxLength = 180) {
     // Very long sentences break at commas.
     const chunks = [];
     let current = '';
-    part.split(/(?<=,)\s+/).forEach((piece) => {
+    splitAfter(part, ',').forEach((piece) => {
       if (current && (current + ' ' + piece).length > maxLength) {
         chunks.push(current);
         current = piece;

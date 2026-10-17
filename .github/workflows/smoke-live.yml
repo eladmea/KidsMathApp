@@ -1,0 +1,37 @@
+# Checks the live GitHub Pages site in a real browser: did the game start,
+# and if not, which download or script failed. Runs after every deploy, on
+# branch pushes (to check the current live site), or by hand.
+name: Check the live site
+
+on:
+  workflow_run:
+    workflows: ['Test and deploy to GitHub Pages']
+    types: [completed]
+    branches: [main]
+  push:
+    branches-ignore: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - run: npx playwright install --with-deps chromium
+
+      - name: Open the live site
+        run: node e2e/smoke.mjs
+        env:
+          URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
