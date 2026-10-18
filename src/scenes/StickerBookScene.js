@@ -38,7 +38,7 @@ export default class StickerBookScene extends BaseScene {
       this.tag('next-page', next.box);
       this.add.text(SAFE.width / 2, 650, t('stickers.page', { page: this.page + 1, pages: pages.length }), textStyle(24, COLORS.gray)).setOrigin(0.5);
     }
-    speak(stickers.length ? t('stickers.sayCount', { count: stickers.length }) : t('stickers.sayNone'));
+    speak(stickers.length ? t('stickers.sayLook') : t('stickers.sayNone'));
     this.report({ count: stickers.length, page: this.page, pages: pages.length, perPage: PAGE_SIZE });
   }
 

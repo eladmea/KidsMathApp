@@ -117,7 +117,7 @@ function patternUnit() {
     speech: say.unit.speech(),
     visual: { type: 'pattern', items, gap: null, unitLength: unit.length, showUnits: false },
     answer,
-    explain: say.unit.explain({ unit: answer }),
+    explain: say.unit.explain({ unit: answer, names: symbolsFor(set, unit).map(([, name]) => name) }),
     choices: shuffle([answer, shorter, longer]),
     choiceStyle: 'pattern',
   };

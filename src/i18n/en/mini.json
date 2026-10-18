@@ -19,7 +19,8 @@
     "intro": "Tap the glowing animal to the beat!",
     "beat": "Beat {beat} / {total}",
     "end": "You danced {hits} of {total} beats!",
-    "best": "Best combo: 🔥 {combo}"
+    "best": "Best combo: 🔥 {combo}",
+    "sayEnd": "What great dancing!"
   },
   "breath": {
     "intro": "Let's fill the balloon with slow breaths. Hold the button and breathe in. Let go and breathe out.",

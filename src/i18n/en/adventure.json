@@ -9,7 +9,7 @@
   "sayNext": "Next: {kind}.",
   "sayNextSkill": "Next: {kind}. {title}.",
   "complete": "Adventure complete!",
-  "sayComplete": "Adventure complete! Great job, {name}. See you tomorrow!",
+  "sayComplete": "Adventure complete! Great job. See you tomorrow!",
   "newSticker": "New sticker: {list}",
   "todayStickers": "Today's stickers: {list}",
   "tomorrow": "See you tomorrow for a new adventure! 👋",

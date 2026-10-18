@@ -52,6 +52,12 @@ const upTo = (count) => Array.from({ length: count }, (_, i) => i + 1).join(', '
 const an = (word) => (/^[aeiou]/.test(word) ? `an ${word}` : `a ${word}`);
 const capital = (word) => word[0].toUpperCase() + word.slice(1);
 
+// Spoken counts shared by Pizza Shop and Birthday Cake: short sentences
+// without names, so each is recorded once.
+const toppingsPlease = ({ number, word }) => `${capital(word)} ${number === 1 ? 'topping' : 'toppings'}, please!`;
+const tooFew = ({ number, placed }) => `We need ${number}. We have ${placed}. Add ${number - placed} more!`;
+const tooMany = ({ number, placed }) => `Too many! We need ${number}. Take ${placed - number} off.`;
+
 export const say = {
   // Writing games (Write 1 to 5, Race Track, Bee Paths).
   write: {
@@ -73,19 +79,19 @@ export const say = {
   // Pizza Shop. `word` is the number's word, `friend` the customer's name,
   // `topping` a TOPPING_NAMES entry.
   pizza: {
-    order: ({ friend, number, word }) => `${friend} wants a pizza with ${word} ${number === 1 ? 'topping' : 'toppings'}! First, rub the dough to roll it out.`,
+    order: ({ friend, number, word }) => `${friend} wants a pizza! ${toppingsPlease({ number, word })} First, rub the dough to roll it out.`,
     rolled: ({ word }) => `Great rolling! Now write ${word} with the sauce. Follow the dots.`,
     more: ({ word }) => `Keep going! Cover the whole ${word}.`,
     messy: ({ word }) => `Oops, the sauce went everywhere! Try to stay on the ${word}.`,
     written: ({ word }) => `${capital(word)}! Now spread the sauce all over the pizza with your finger.`,
     sauced: () => 'Saucy! Now sprinkle the cheese all over.',
-    cheesed: ({ friend, word }) => `Cheesy! Now pick a topping. ${friend} wants ${word}.`,
+    cheesed: ({ number, word }) => `Cheesy! Now pick a topping. ${toppingsPlease({ number, word })}`,
     picked: ({ number, word, topping }) => `Put ${word} ${noun(topping, number)} on the pizza. Drag them from the tray.`,
     right: ({ number, topping }) => `${number} ${noun(topping, number)}! Now drag the pizza into the oven.`,
     tooFewShow: ({ friend, number, placed }) => `${friend} wants ${number}. We have ${placed}. Add more!`,
-    tooFew: ({ friend, number, placed }) => `${friend} wants ${number}. We have ${placed}. Add ${number - placed} more!`,
+    tooFew: ({ number, placed }) => tooFew({ number, placed }),
     tooManyShow: ({ friend, number }) => `Too many! ${friend} wants ${number}. Take one off.`,
-    tooMany: ({ friend, number, placed }) => `Too many! ${friend} wants ${number}. Take ${placed - number} off.`,
+    tooMany: ({ number, placed }) => tooMany({ number, placed }),
     ovenMiss: () => 'Drag the pizza all the way into the oven!',
     baking: () => 'Into the oven! It is getting hot…',
     ready: () => 'Ding! The pizza is ready. Swipe across it to cut it into slices.',
@@ -155,17 +161,20 @@ export const say = {
     right: ({ cost, name }) => `Correct! 🎉 ${cost} chips go to ${name}.`,
     wrong: ({ cost, name }) => `Not quite! It was ${cost}. ${name} loses ${cost} chips and the pair goes back.`,
     tooFew: ({ cost, name, chips }) => `It takes 🪙 ${cost} chips, but ${name} only has ${chips}.`,
+    // Read aloud (without names, so they can be recorded).
+    sayRight: () => 'Correct! The chips go to the other player.',
+    sayWrong: ({ cost }) => `Not quite! It was ${cost}. The pair goes back.`,
     pairs: ({ name, count }) => `${name}: ${count} ${count === 1 ? 'pair' : 'pairs'}`,
   },
   // Birthday Cake.
   cake: {
-    intro: ({ friend, word }) => `It's ${friend}'s birthday! ${friend} is ${word} today. Write ${word} on the cake with icing.`,
+    intro: ({ friend, number, word }) => `It's ${friend}'s birthday! ${capital(word)} ${number === 1 ? 'candle' : 'candles'} today! Write ${word} on the cake with icing.`,
     iced: ({ number, word }) => `Beautiful! Now put ${word} ${number === 1 ? 'candle' : 'candles'} on the cake. Drag them from the tray.`,
     right: ({ number }) => `${number} ${number === 1 ? 'candle' : 'candles'}! Now blow them out. Tap each candle!`,
     tooFewShow: ({ friend, number, placed }) => `${friend} is ${number}. We have ${placed}. Add more!`,
-    tooFew: ({ friend, number, placed }) => `${friend} is ${number}. We have ${placed} ${placed === 1 ? 'candle' : 'candles'}. Add ${number - placed} more!`,
+    tooFew: ({ number, placed }) => tooFew({ number, placed }),
     tooManyShow: ({ friend, number }) => `Too many! ${friend} is ${number}. Take one off.`,
-    tooMany: ({ friend, number, placed }) => `Too many! ${friend} is ${number}. Take ${placed - number} off.`,
+    tooMany: ({ number, placed }) => tooMany({ number, placed }),
     party: ({ friend }) => `Zero! Happy birthday, ${friend}!`,
     show: {
       icing: ({ friend, number }) => `${friend} is ${number}! Write ${number} in icing`,
@@ -191,14 +200,14 @@ export const say = {
   },
   sequence: {
     prompt: () => 'What comes next?',
-    speech: ({ numbers }) => `${numbers.join(', ')}. What comes next?`,
+    speech: ({ numbers }) => `${numbers.join('. ')}. What comes next?`,
     explain: ({ direction, step, last, answer }) =>
       `The numbers go ${direction} by ${step} each time. ${last} ${direction === 'up' ? 'plus' : 'minus'} ${step} is ${answer}!`,
   },
   bigger: {
     prompt: () => 'Which number is bigger?',
-    speech: ({ a, b }) => `Which number is bigger, ${a} or ${b}?`,
-    explain: ({ bigger, smaller }) => `${bigger} is bigger than ${smaller}.`,
+    speech: ({ a, b }) => `Which number is bigger? ${a}. Or ${b}?`,
+    explain: ({ bigger }) => `${bigger} is the bigger number.`,
   },
   add: {
     speech: ({ a, b }) => `What is ${a} plus ${b}?`,

@@ -1,0 +1,4 @@
+# Kokoro through ONNX Runtime: no PyTorch, about 100 MB installed.
+kokoro-onnx>=0.4
+soundfile
+numpy

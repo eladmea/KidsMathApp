@@ -113,6 +113,6 @@ export default class BubblePopScene extends BaseScene {
     this.spawner.remove();
     [...this.bubbles.keys()].forEach((id) => this.remove(id));
     this.report({ step: 'over', popped: this.popped });
-    showGameEnd(this, { emoji: '🎉', headline: t('mini.bubble.end', { count: this.popped }), detail: t('mini.bubble.endDetail') });
+    showGameEnd(this, { emoji: '🎉', headline: t('mini.bubble.end', { count: this.popped }), detail: t('mini.bubble.endDetail'), say: t('mini.bubble.endDetail') });
   }
 }

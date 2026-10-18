@@ -71,6 +71,12 @@ export async function open({ width, height, label }) {
     },
     shot: (dir, name) => page.screenshot({ path: `${dir}/${label}-${name}.png` }),
     async finish() {
+      // VOICE_DUMP=<file>: every sentence read aloud and whether a recording
+      // or the device voice said it, for checking the recordings.
+      if (process.env.VOICE_DUMP) {
+        const voice = await mp(() => window.__mathplay.voice.slice()).catch(() => []);
+        (await import('fs')).appendFileSync(process.env.VOICE_DUMP, voice.map((entry) => JSON.stringify(entry)).join('\n') + '\n');
+      }
       t.check('no page errors', errors.length === 0, errors.join(' | '));
       await browser.close();
       return checks.some((c) => c.startsWith('FAIL')) ? 1 : 0;

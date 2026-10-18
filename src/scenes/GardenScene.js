@@ -109,6 +109,7 @@ export default class GardenScene extends BaseScene {
     const say = this.words.say.garden;
     const reason = this.choiceWords(choice) && this.choiceWords(choice).reason;
     let line;
+    let shown = null;
     if (result === 'grew') {
       line = say.grew({ reason, stage: this.words.GARDEN.stages[garden.stage] });
       play(this, 'correct');
@@ -116,7 +117,8 @@ export default class GardenScene extends BaseScene {
       line = say.bloomed({ flowers: garden.flowers });
       play(this, 'correct');
       const earned = await earnStickers([{ kind: 'bloomed', ref: garden.flowers }]);
-      if (earned.length) line += ` ${say.sticker({ emoji: earned[0].emoji })}`;
+      // Shown with the sticker; spoken without the picture.
+      if (earned.length) shown = `${line} ${say.sticker({ emoji: earned[0].emoji })}`;
     } else if (result === 'wrong') {
       line = say.wrong({ reason });
       play(this, 'wrong');
@@ -127,7 +129,7 @@ export default class GardenScene extends BaseScene {
     }
     if (!this.sys.isActive()) return;
     this.message.setText('');
-    this.narrator.say(line.replace(/[🌙🌻🌰]/gu, ''), { show: line, force: true });
+    this.narrator.say(line.replace(/[🌙🌻🌰]/gu, ''), { show: shown || line, force: true });
     this.show();
     this.report({ result });
   }

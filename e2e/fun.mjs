@@ -120,7 +120,7 @@ await step('hop');
 for (const square of (await state()).pending) await tap(`square:${square}`);
 await waitFor(() => window.__mathplay.state.current === 2 && window.__mathplay.state.step === 'spin', null, 8000);
 s = await state();
-check('with a friend, player 2 takes their own turn', !s.buddyTurn && (await t.spoken()).at(-1).startsWith('Player 2, spin'));
+check('with a friend, player 2 takes their own turn', !s.buddyTurn && s.current === 2 && (await t.spoken()).at(-1) === 'Your turn. Spin!');
 await tap('back');
 await t.waitScene('GameSetup');
 await tap('back');
@@ -158,11 +158,20 @@ await sleep(200);
 await t.shot(dir, 'f9-fun-break');
 await tap('mini:bubble-pop');
 await t.waitScene('BubblePop');
-for (let i = 0; i < 4; i++) {
+for (let i = 0; i < 8 && (await state()).popped < 3; i++) {
   await waitFor(() => window.__mathplay.state.bubbles && window.__mathplay.state.bubbles.length > 0, null, 5000);
   s = await state();
-  const id = s.bubbles[0].id;
-  await tap(`bubble:${id}`).catch(() => {});
+  // A bubble that is on screen now (they float up and off the top).
+  let id = null;
+  for (const bubble of s.bubbles) {
+    const box = await t.box(`bubble:${bubble.id}`);
+    if (box && box.y > 20 && box.y + box.height < height - 20) {
+      id = bubble.id;
+      break;
+    }
+  }
+  if (id !== null) await tap(`bubble:${id}`).catch(() => {});
+  else await sleep(150);
 }
 check('bubble pop: tapping pops bubbles', (await state()).popped >= 2, String((await state()).popped));
 await t.shot(dir, 'f10-bubbles');

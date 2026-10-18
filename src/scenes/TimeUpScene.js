@@ -37,7 +37,7 @@ export default class TimeUpScene extends BaseScene {
       const button = new Button(this, SAFE.width / 2 + (i - 1) * 400, 560, { label, width: 370, height: 96, fontSize: 30, color, onTap });
       this.tag(name, button.box);
     });
-    speak(t('timeUp.say', { name: profile.name }));
+    speak(t('timeUp.say'));
     this.report({ step: 'time-up', stickers: stickers.length });
   }
 

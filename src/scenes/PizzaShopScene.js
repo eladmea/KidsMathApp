@@ -520,7 +520,7 @@ export default class PizzaShopScene extends BaseScene {
     meltedCheese().forEach(({ dx, dy, angle }) => this.cheese.stamp('cheese-shred', null, SIZE / 2 + dx * SIZE, SIZE / 2 + dy * SIZE, { angle }));
     this.cheese.render();
     this.setStep('topping');
-    this.say(this.words.say.pizza.cheesed({ friend: this.friendName, word: this.numberWord }));
+    this.say(this.words.say.pizza.cheesed({ number: this.number, word: this.numberWord }));
   }
 
   // ---- the oven ----

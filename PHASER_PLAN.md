@@ -453,3 +453,25 @@ A first take on the island design, drawn in code so it can be reviewed and steer
 - Real art (a CC0 pack or custom), sound effects and music.
 - Your feedback on this layout: island shapes and places, the road, how stops and the chest look.
 
+### Recorded voice: built 2026-10-18 (branch `claude/voice-recordings`)
+
+The device's robotic text-to-speech is replaced by recordings made with Kokoro, a free AI voice (`af_heart`, speed 0.9). The device voice remains the fallback.
+
+**What was done**
+- **`voice-generator/`**, a separate folder that isn't built into the game. `generate.py` reads `sentences_english.txt` (line 1 is the voice settings), records each sentence with kokoro-onnx (no PyTorch), and writes 32 kbit/s MP3s to `voices_export/`. `--install` copies them into `src/voice/en/` and removes old ones. `--samples` makes voice samples, and `--part 1/2` splits the work over two windows.
+- **Fewer, reusable sentences:**
+  - Spoken lines have no names (the screen still shows them).
+  - Choices, patterns and number lists are read as one short sentence each ("Ring. Tree. Or goat?", "Which number is bigger? 81. Or 64?").
+  - Pizza and cake counts are shared, name-free sentences.
+  - Mini-game end cards and the sticker book speak praise, not scores.
+  - Pieces that are only emoji are never spoken.
+- **The list is complete.** `src/services/voiceLines.js` lists every sentence: the spoken language-file lines (found where scenes speak), every value of spoken templates, every game phrase, the ages 3-6 questions, older skills with few sentences, and the numbers 0-20. That's 3,392 sentences, down from the 5,690 of the old, less complete list. `npm run voice:lines -- en --txt` writes the sentence file.
+- **3,392 recordings** in `src/voice/en/` (25 MB). They are never inlined into the game's script, so each is fetched when it is spoken. The list of recordings adds about 80 KB, compressed, to the first download.
+
+**Checked**
+- 344 unit tests. A new one checks that every spoken template has its values listed, that the key lines are in the list, that there are no names or template gaps, and that the list stays under 4,000.
+- With every walkthrough run at phone size, 99.5% of spoken sentences (805 of 809) played from a recording. The rest were age 7-8 sums, which keep the device voice by design (read-aloud is off by default for readers). `players.mjs` now checks that every sentence on its path is a recording.
+
+**Not done yet**
+- Hebrew: Kokoro has no Hebrew voice, so it needs another free engine. The game side is ready (`src/voice/he/`).
+

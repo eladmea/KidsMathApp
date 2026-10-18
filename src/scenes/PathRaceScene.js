@@ -126,7 +126,7 @@ export default class PathRaceScene extends BaseScene {
     this.spun = null;
     this.pending = [];
     this.hint = null;
-    this.narrator.say(t('pathRace.saySpin', { name: this.players[this.current].name }), { show: t('twoPlayer.turn', { name: this.players[this.current].name }), force: true });
+    this.narrator.say(t('pathRace.saySpin'), { show: t('twoPlayer.turn', { name: this.players[this.current].name }), force: true });
     this.refresh();
   }
 
@@ -186,7 +186,7 @@ export default class PathRaceScene extends BaseScene {
   showWinner() {
     const { icon, name } = this.players[this.winner];
     const title = t('twoPlayer.wins', { name: `${icon} ${name}` });
-    speak(t('twoPlayer.wins', { name }), { force: true });
+    speak(t('twoPlayer.sayWin'), { force: true });
     const dialog = new Dialog(this, { width: 620, height: 380, title });
     dialog.add(glyph(this, 0, -30, '🏆', 90));
     const again = new Button(this, -140, 110, { label: t('twoPlayer.playAgain'), width: 250, height: 84, fontSize: 30, color: COLORS.green, onTap: () => this.replay() });

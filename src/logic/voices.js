@@ -90,10 +90,11 @@ function splitAfter(text, marks) {
 
 // Splits text into sentences so long prompts are spoken as a queue of short
 // utterances (Chrome cuts off single utterances after about 15 seconds).
+// Pieces with no letters or digits ("🎉") aren't spoken.
 export function splitSentences(text, maxLength = 180) {
   const parts = splitAfter(String(text), '.!?…')
     .map((part) => part.trim())
-    .filter(Boolean);
+    .filter((part) => /[\p{L}\p{N}]/u.test(part));
   return parts.flatMap((part) => {
     if (part.length <= maxLength) return [part];
     // Very long sentences break at commas.

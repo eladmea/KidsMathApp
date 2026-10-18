@@ -145,10 +145,11 @@ export const COMPOUND_WORDS = [
 const ALPHABET_LETTERS = 'abcdefghijklmnopqrstuvwxyz'.split('');
 export const ALPHABET = ALPHABET_LETTERS;
 
-// "cat, dog, or fish": how a spoken list of options ends.
+// "Cat. Dog. Or fish": a spoken list of options, one short sentence per
+// option, so each can be recorded once and reused in every question.
 export function listWords(words) {
   if (words.length === 1) return words[0];
-  return `${words.slice(0, -1).join(', ')}, or ${words[words.length - 1]}`;
+  return words.map((word, i) => (i === words.length - 1 ? `Or ${word}` : word[0].toUpperCase() + word.slice(1))).join('. ');
 }
 
 // Memory Chips' Letter Chips: letter value (a = 1) -> the letter and

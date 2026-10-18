@@ -234,7 +234,7 @@ export default class MemoryScene extends BaseScene {
     const line = right ? this.words.right({ cost, name: `${other.icon} ${other.name}` }) : this.words.wrong({ cost, name: me.name });
     this.dialogFeedback(line, right);
     play(this, right ? 'correct' : 'wrong');
-    if (!this.buddyTurn) this.narrator.say(line.replace(/[🎉🪙]/gu, ''), { show: this.narrator.text.text, force: true });
+    if (!this.buddyTurn) this.narrator.say(right ? this.words.sayRight() : this.words.sayWrong({ cost }), { show: this.narrator.text.text, force: true });
     this.report({ guess, right });
     this.time.delayedCall(GUESS_FEEDBACK_DELAY_MS, () => {
       if (right) {
@@ -459,7 +459,7 @@ export default class MemoryScene extends BaseScene {
     this.dialogButton('again', -140, 190, t('twoPlayer.playAgain'), COLORS.primary, () => this.replay(), 250, 84);
     this.dialogButton('map', 140, 190, t('common.map'), COLORS.gray, () => this.back(), 250, 84);
     play(this, 'correct');
-    speak(title, { force: true });
+    speak(t(winner ? 'twoPlayer.sayWin' : 'twoPlayer.sayTie'), { force: true });
     this.report({ step: 'over', winner, stuck });
   }
 }

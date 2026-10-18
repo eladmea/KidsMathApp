@@ -104,7 +104,7 @@ export default class BirthdayCakeScene extends BaseScene {
       onTouch: () => this.hint.reset(),
     });
     this.setStep('icing');
-    this.say(this.words.say.cake.intro({ friend: this.friendName, word: this.numberWord }));
+    this.say(this.words.say.cake.intro({ friend: this.friendName, number: this.number, word: this.numberWord }));
   }
 
   setStep(step) {

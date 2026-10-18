@@ -17,7 +17,7 @@ const view = await t.mp(() => {
   return { w: rect.width, h: rect.height };
 });
 check('canvas fills the screen (no black bars)', Math.abs(view.w - width) < 2 && Math.abs(view.h - height) < 2, JSON.stringify(view));
-check('greeting spoken', (await t.spoken()).some((line) => line.startsWith('Hi, Mia')));
+check('greeting spoken (no name, so it can be recorded)', (await t.spoken()).some((line) => line === 'Hi! Pick an island to play.'));
 
 // ---- Count to 5 ----
 await tap('island:math');
