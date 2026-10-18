@@ -1,5 +1,4 @@
 // Colours and type shared by every scene.
-import { isRtl } from '../i18n/index';
 
 export const FONT = 'Fredoka, system-ui, sans-serif';
 
@@ -28,7 +27,7 @@ export const hex = (color) => `#${color.toString(16).padStart(6, '0')}`;
 
 // Text style helper: text(48) is a big bold dark label.
 export function textStyle(size, color = COLORS.ink, extra = {}) {
-  return { fontFamily: FONT, fontSize: `${size}px`, fontStyle: '600', color: hex(color), align: 'center', rtl: isRtl(), ...extra };
+  return { fontFamily: FONT, fontSize: `${size}px`, fontStyle: '600', color: hex(color), align: 'center', ...extra };
 }
 
 // '#3DDC84' -> 0x3ddc84 (the curriculum stores colours as CSS strings).

@@ -3,7 +3,7 @@ import Button from './Button';
 import { COLORS, textStyle } from './theme';
 import { tag } from '../services/testBridge';
 import { numberLineFeedback } from '../logic/numberLine';
-import { t } from '../i18n/index';
+import { isRtl, t } from '../i18n/index';
 import { art, hasArt } from './Art';
 
 // The ways to answer a quiz question. Each one is laid out inside `area`
@@ -15,6 +15,10 @@ export function makeInput(scene, area, question, handlers) {
   const Input = { numberLine: NumberLineInput, build: WordBuilderInput, order: StoryStripInput }[question.type] || ChoiceInput;
   return new Input(scene, area, question, handlers);
 }
+
+// Rows of choices, letter slots and story panels run the way the language
+// reads: right to left in Hebrew, so the first one read aloud is on the right.
+const side = () => (isRtl() ? -1 : 1);
 
 const glyphs = (value) => Array.from(String(value)).filter((c) => !/[\u{FE0F}\u{200D}]/u.test(c)).length;
 
@@ -37,7 +41,7 @@ class ChoiceInput {
       const col = i % cols;
       const row = Math.floor(i / cols);
       const inRow = Math.min(cols, n - row * cols);
-      const x = area.x + (col - (inRow - 1) / 2) * (width + gap);
+      const x = area.x + side() * (col - (inRow - 1) / 2) * (width + gap);
       const y = area.y + (row - (rows - 1) / 2) * (height + gap);
       const button = new Button(scene, x, y, {
         label: String(choice),
@@ -170,7 +174,7 @@ class WordBuilderInput {
     const slots = question.parts.length;
     const slotSize = Math.min(110, (area.width - 20) / slots - 16);
     this.slots = question.parts.map((_, i) => {
-      const x = area.x + (i - (slots - 1) / 2) * (slotSize + 16);
+      const x = area.x + side() * (i - (slots - 1) / 2) * (slotSize + 16);
       const box = scene.add.rectangle(x, area.y - 110, slotSize, slotSize, COLORS.white).setRounded(18).setStrokeStyle(5, COLORS.primary);
       const label = scene.add.text(x, box.y, '', textStyle(slotSize * 0.5)).setOrigin(0.5);
       box.setInteractive({ useHandCursor: true }).on('pointerup', () => this.removeFrom(i));
@@ -183,7 +187,7 @@ class WordBuilderInput {
     this.tiles = question.tiles.map((tile, i) => {
       const row = Math.floor(i / perRow);
       const inRow = Math.min(perRow, tiles - row * perRow);
-      const x = area.x + ((i % perRow) - (inRow - 1) / 2) * (tileSize + 16);
+      const x = area.x + side() * ((i % perRow) - (inRow - 1) / 2) * (tileSize + 16);
       const y = area.y + 40 + row * (tileSize + 16);
       const button = new Button(scene, x, y, { label: tile.text, width: tileSize, height: tileSize, fontSize: tileSize * 0.48, color: 0xfff1c7, textColor: COLORS.ink, onTap: () => this.place(tile, button) });
       tag(`tile:${tile.id}`, button.box);
@@ -253,7 +257,7 @@ class StoryStripInput {
     const width = Math.min(270, (area.width - gap * (n - 1)) / n);
     const height = Math.min(300, area.height);
     this.cards = question.items.map((item, i) => {
-      const x = area.x + (i - (n - 1) / 2) * (width + gap);
+      const x = area.x + side() * (i - (n - 1) / 2) * (width + gap);
       const button = new Button(scene, x, area.y, { label: '', width, height, color: COLORS.white, onTap: () => this.press(item) });
       button.add(scene.add.text(0, -height / 2 + 70, item.emoji, textStyle(80)).setOrigin(0.5));
       button.add(scene.add.text(0, 40, item.caption, textStyle(22, COLORS.ink, { wordWrap: { width: width - 30 } })).setOrigin(0.5, 0));

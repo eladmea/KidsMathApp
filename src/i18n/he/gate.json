@@ -1,0 +1,7 @@
+{
+  "title": "🔒 {title}",
+  "grownUpsOnly": "למבוגרים בלבד",
+  "ask": "נא לבקש עזרה ממבוגר:",
+  "question": "{question} = ?",
+  "wrong": "לא בדיוק. הנה שאלה חדשה."
+}

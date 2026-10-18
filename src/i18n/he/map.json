@@ -1,0 +1,12 @@
+{
+  "greeting": "היי, {name}! בואו נבחר אי.",
+  "sayGreeting": "היי! בואו נבחר אי ונשחק.",
+  "passed": "✅ {passed} / {total}",
+  "mastered": "  🏅 {mastered}",
+  "review": "⭐ חזרה יומית",
+  "stickers": "📒 מדבקות ({count})",
+  "games": "🎲 משחקים",
+  "funBreak": "🎈 הפסקת כיף · 🎟️ {count}",
+  "coachOn": "👪 משחק משותף: פועל",
+  "coachOff": "👪 משחק משותף: כבוי"
+}

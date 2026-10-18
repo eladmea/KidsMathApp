@@ -1,0 +1,35 @@
+{
+  "title": "{emoji} {title}",
+  "review": "⭐ חזרה יומית",
+  "mixed": "🔀 תרגול מעורב",
+  "together": "👀 בואו ננסה אחת ביחד!",
+  "score": "⭐ {score}",
+  "answerIs": "התשובה היא {answer}.",
+  "blend": "{sounds}… {word}!",
+  "levelDown": "⬇️ בואו נתרגל קצת {emoji} {title}",
+  "levelUp": "⚡ עלינו רמה! {emoji} {title}",
+  "levelBack": "⬆️ חוזרים אל {emoji} {title}. יפה!",
+  "hint": "💡 הנה רמז",
+  "undo": "↩ ביטול",
+  "spelled": "כותבים כך: {parts}",
+  "built": "{word}! 🎉",
+  "shouldBe": "המקום הנכון: {position}",
+  "goingUp": "⬆️ בסדר עולה",
+  "goingDown": "⬇️ בסדר יורד",
+  "step": "שלב {number}",
+  "listen": "הקשיבו!",
+  "yum": "יאמי!",
+  "yuck": "איכס!",
+  "numberLine": {
+    "praise": [
+      "כל הכבוד!",
+      "הצלחתם!",
+      "מדהים!",
+      "לחיצה מעולה!"
+    ],
+    "bullseye": "בול! המספר {answer} בדיוק שם! 🎯",
+    "right": "{praise} המספר {answer} נמצא בדיוק שם! 🎉",
+    "wrong": "ניסיון יפה! לחצתם על {guess}. המספר {answer} נמצא כאן. 🎯"
+  },
+  "coachNext": "הבא ▶"
+}
