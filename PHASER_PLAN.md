@@ -147,7 +147,7 @@ Each phase ends with tests passing, a web build, a Playwright walkthrough and a 
 | **P4 Remaining games** ✅ built | Memory Chips (+ setup, buddy), Bunny Pop, Freeze Zoo, Robo Path, Push & Roll, Feelings Friends, Garden, Balloon Breath, Bubble Pop, Dance Tap, Chip Toss | Every skill and mini-game from the old app exists |
 | **P5 Sessions & grown-ups** ✅ built | Today's Adventure + coach mode, soft time limits, TimeUp, parent overlay (dashboard, report, CSV, limits, voices) | Matches the old app feature for feature |
 | **P6 Clean-up** | `legacy/` was deleted in P5 (asked for), and README, PLAYTEST.md, PLAN.md and AGENTS.md updated. Left: real-device checks, the island designs and art | One codebase ✅ |
-| **P7 Islands & art** | Design the islands in Phaser: tilemap or illustrated islands, camera scrolling, the stage path, avatar, chest. Plus the art pass, sound and music | Your island design, done properly |
+| **P7 Islands & art** 🟡 first version built (islands and map; art, sound and music still to come) | Design the islands in Phaser: tilemap or illustrated islands, camera scrolling, the stage path, avatar, chest. Plus the art pass, sound and music | Your island design, done properly |
 | **P8 Native apps** | Capacitor iOS/Android builds, native TTS and storage, app icon, store builds (the old Phase 8) | Installable apps |
 
 **From P3 on**, each rebuilt game follows ARCHITECTURE.md:
@@ -420,4 +420,36 @@ Asked for before moving on: change assets easily, add languages easily, replace 
   - Play together's prompt and Next;
   - a child out of time getting TimeUp, then a grown-up adding 10 minutes;
   - the dashboard: setting a limit, turning read-aloud off, another child's minutes, the report with a "played together" answer, adding a note, the CSV download, clearing the log, and picking a voice.
+
+### P7 Islands, first version: built 2026-10-17 (branch `claude/phaser-p6`)
+
+A first take on the island design, drawn in code so it can be reviewed and steered before any real art.
+
+**What was done**
+- **World map:**
+  - The sea with a sky band, drifting clouds and waves that come and go.
+  - Each subject is a drawn island with its picture, a name ribbon and progress (passed, mastered). Each island keeps its own outline (`logic/islandPath.js` `islandOutline`) and bobs gently.
+  - The child's avatar hops on the island they last opened.
+  - The adventure, Play together, read-aloud and bottom-row buttons stay where they were.
+- **Island:**
+  - The subject's island fills the screen, with a sandy road winding through one stop per skill of the age band: one row for a few stops, two rows (there and back) for more. Every band fits with no scrolling; the most is 11 stops.
+  - A stop shows its skill and title, and whether it is locked 🔒, ready, passed (filled, with stars) or mastered (gold ring, 🏅).
+  - The next stop pulses, with the child's avatar beside it.
+  - At the end of the road is a treasure chest. It opens once every stop is passed, with a burst of sparkles and a new kind of sticker (`chest`, once per island band); until then it says to finish every stop.
+- **Art stays swappable:** `islands/<subject>.png` replaces an island's picture, `skills/<id>.png` a stop's, as before (ARCHITECTURE.md).
+
+**Checked**
+- 340 unit tests, including the path layout (every band on screen, stops apart, the second row coming back), stable island outlines, stop states, and the chest sticker given once.
+- New walkthrough `e2e/islands.mjs` covers:
+  - the avatar on the map;
+  - stop states;
+  - a passed stop still opening its game;
+  - the chest locked, then opened with a sticker, then giving it only once;
+  - the avatar moving to the island visited last;
+  - the sticker in the book.
+- Every earlier walkthrough still passes on the new map and islands.
+
+**Still to come in P7**
+- Real art (a CC0 pack or custom), sound effects and music.
+- Your feedback on this layout: island shapes and places, the road, how stops and the chest look.
 

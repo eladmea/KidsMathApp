@@ -15,6 +15,8 @@ export const STICKER_POOL = [
 export const GOLD_STICKERS = ['🏅', '🏆', '👑', '💎', '🥇', '⭐', '🌟', '🎖️'];
 export const FLOWER_STICKERS = ['🌻', '🌷', '🌹', '🌸', '🌼', '💐', '🪷', '🌺'];
 export const ADVENTURE_STICKERS = ['🗺️', '🧭', '⛰️', '🏝️', '🗻', '🏕️', '🌋', '🛶'];
+// For opening an island's treasure chest (every stop in a band passed).
+export const CHEST_STICKERS = ['🗝️', '💰', '👑', '💎', '⚓', '🐚', '🦀', '🧜'];
 export const PAGE_SIZE = 12;
 
 function stickerKey(event) {
@@ -26,10 +28,11 @@ function nextEmoji(stickers, kind) {
   if (kind === 'mastered') return GOLD_STICKERS[count % GOLD_STICKERS.length];
   if (kind === 'bloomed') return FLOWER_STICKERS[count % FLOWER_STICKERS.length];
   if (kind === 'adventure') return ADVENTURE_STICKERS[count % ADVENTURE_STICKERS.length];
+  if (kind === 'chest') return CHEST_STICKERS[count % CHEST_STICKERS.length];
   return STICKER_POOL[count % STICKER_POOL.length];
 }
 
-// events: [{ kind: 'passed' | 'mastered' | 'bloomed' | 'adventure', ref }]
+// events: [{ kind: 'passed' | 'mastered' | 'bloomed' | 'adventure' | 'chest', ref }]
 // Returns the profile's new sticker list and just the new stickers.
 export function awardStickers(stickers = [], events, day) {
   const owned = new Set(stickers.map((s) => s.key));

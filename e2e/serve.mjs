@@ -22,7 +22,9 @@ const TYPES = {
   '.webmanifest': 'application/manifest+json',
 };
 
-export function serve(root, { port = 8765, base = '/KidsMathApp/' } = {}) {
+// Resolves to { url, close }. Port 0 picks any free port, so two runs never
+// clash.
+export function serve(root, { port = 0, base = '/KidsMathApp/' } = {}) {
   const server = createServer(async (request, response) => {
     const path = decodeURIComponent(new URL(request.url, 'http://x').pathname);
     if (!path.startsWith(base)) {
@@ -38,5 +40,11 @@ export function serve(root, { port = 8765, base = '/KidsMathApp/' } = {}) {
       response.writeHead(404).end();
     }
   });
-  return new Promise((resolve) => server.listen(port, () => resolve(() => new Promise((done) => server.close(done)))));
+  return new Promise((resolve, reject) => {
+    server.once('error', reject);
+    server.listen(port, () => {
+      const url = `http://localhost:${server.address().port}${base}`;
+      resolve({ url, close: () => new Promise((done) => server.close(done)) });
+    });
+  });
 }

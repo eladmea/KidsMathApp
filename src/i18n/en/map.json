@@ -3,8 +3,6 @@
   "sayGreeting": "Hi, {name}! Pick an island to play.",
   "passed": "✅ {passed} / {total}",
   "mastered": "  🏅 {mastered}",
-  "next": "▶ {emoji} {title}",
-  "allDone": "🎉 All done!",
   "review": "⭐ Daily Review",
   "stickers": "📒 Stickers ({count})",
   "games": "🎲 Games",

@@ -4,5 +4,9 @@
   "soon": "🚧 Soon",
   "next": "▶ Next",
   "firstPlay": "First, play {skills}.",
-  "comingSoon": "{title} is coming soon!"
+  "comingSoon": "{title} is coming soon!",
+  "chestLocked": "Finish every stop to open the treasure chest!",
+  "chestOpened": "You found the treasure! 🎉",
+  "chestSticker": "You found the treasure! A new sticker: {emoji}",
+  "chestSay": "You found the treasure!"
 }

@@ -24,6 +24,8 @@ export const session = {
   // "Play together": a grown-up talk prompt after each answer, until the
   // player changes.
   coaching: false,
+  // The island the child last opened (their avatar waits there on the map).
+  lastIsland: null,
 };
 
 // Loads the players. Each visit starts at "Who's playing?", so nobody is
@@ -39,6 +41,7 @@ export async function selectProfile(id) {
   session.profile = session.profiles.find((p) => p.id === id) || null;
   session.progress = session.profile ? await storage.loadProgress(id) : {};
   session.coaching = false;
+  session.lastIsland = null;
   const adventure = session.profile ? await storage.loadAdventure(id) : null;
   // An adventure from an earlier day is never shown.
   session.adventure = adventure && adventure.day === toDayKey() ? adventure : null;
