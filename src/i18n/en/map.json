@@ -1,6 +1,6 @@
 {
   "greeting": "Hi, {name}! Pick an island.",
-  "sayGreeting": "Hi, {name}! Pick an island to play.",
+  "sayGreeting": "Hi! Pick an island to play.",
   "passed": "✅ {passed} / {total}",
   "mastered": "  🏅 {mastered}",
   "review": "⭐ Daily Review",

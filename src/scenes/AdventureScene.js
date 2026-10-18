@@ -80,6 +80,6 @@ export default class AdventureScene extends BaseScene {
     this.add.text(SAFE.width / 2 + 30, 545, t('adventure.complete'), textStyle(36, COLORS.primary)).setOrigin(0.5);
     if (today.length) this.add.text(SAFE.width / 2 + 30, 595, t('adventure.todayStickers', { list: today.map((s) => s.emoji).join(' ') }), textStyle(24)).setOrigin(0.5);
     this.add.text(SAFE.width / 2 + 30, 640, t('adventure.tomorrow'), textStyle(22, COLORS.gray)).setOrigin(0.5);
-    this.narrator.say(t('adventure.sayComplete', { name: session.profile.name }), { show: t('adventure.complete') });
+    this.narrator.say(t('adventure.sayComplete'), { show: t('adventure.complete') });
   }
 }

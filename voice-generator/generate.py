@@ -10,6 +10,10 @@ kokoro-onnx (no PyTorch needed). The first run downloads the model files
     python generate.py --samples           the first sentence in several voices,
                                            to pick one (voices_export/_samples/)
     python generate.py --voice af_bella    another voice than line 1 says
+    python generate.py --part 1/2          half of them (run --part 2/2 at the same
+                                           time in another window: faster)
+    python generate.py --install           then copy them into the game
+                                           (../src/voice/en/), removing old ones
 
 Reads sentences_english.txt:
     line 1    the settings, e.g.  VOICE=af_heart SPEED=0.9 LANG=a  # why
@@ -42,6 +46,10 @@ LANGUAGES = {'a': 'en-us', 'b': 'en-gb'}
 RATE = 24000
 # A little silence before and after each sentence, in seconds.
 PAD = 0.08
+# The game's folder of recordings for each sentence file.
+GAME_VOICE = {'sentences_english.txt': HERE.parent / 'src' / 'voice' / 'en'}
+# Emoji are shown on screen but not read aloud.
+EMOJI = re.compile('[\U0001F000-\U0001FAFF\u2600-\u27BF\u2B00-\u2BFF\uFE0F\u200D]+')
 # Voices worth comparing for a children's game (see --samples).
 SAMPLE_VOICES = ['af_heart', 'af_bella', 'af_nicole', 'af_sarah', 'af_sky', 'bf_emma', 'am_michael', 'am_puck']
 
@@ -118,7 +126,8 @@ def download(name):
 def synthesize(kokoro, text, voice, speed, language):
     import numpy as np
 
-    audio, rate = kokoro.create(text, voice=voice, speed=speed, lang=language)
+    spoken = re.sub(r'\s+', ' ', EMOJI.sub('', text)).strip()
+    audio, rate = kokoro.create(spoken, voice=voice, speed=speed, lang=language)
     if rate != RATE:
         raise RuntimeError(f'unexpected sample rate {rate}')
     return trim(np.asarray(audio, dtype='float32'))
@@ -147,6 +156,8 @@ def main():
     parser.add_argument('--limit', type=int, help='record at most this many')
     parser.add_argument('--samples', action='store_true', help='the first sentence in several voices, to choose one')
     parser.add_argument('--wav', action='store_true', help='keep WAV files instead of MP3')
+    parser.add_argument('--install', action='store_true', help="copy the recordings into the game's voice folder")
+    parser.add_argument('--part', help='record only part of the list, e.g. 1/2 and 2/2 in two windows at once')
     args = parser.parse_args()
 
     settings, sentences = read_sentences(args.file)
@@ -182,6 +193,9 @@ def main():
 
     EXPORT.mkdir(exist_ok=True)
     todo = [(n, t) for n, t in sentences if args.force or not any((EXPORT / f'{n}{ext}').exists() for ext in ('.mp3', '.wav'))]
+    if args.part:
+        part, parts = (int(n) for n in args.part.split('/'))
+        todo = todo[part - 1 :: parts]
     if args.limit:
         todo = todo[: args.limit]
     print(f'Voice {voice}, speed {speed}: {len(todo)} to record ({len(sentences) - len(todo)} already done).')
@@ -194,6 +208,31 @@ def main():
             failed += 1
             print(f'  [{i}/{len(todo)}] FAILED "{text}": {error}')
     print(f'Done: {len(todo) - failed} recorded{f", {failed} failed" if failed else ""}, in {EXPORT.relative_to(HERE)}/.')
+    if args.install:
+        install(sentences, GAME_VOICE.get(args.file.name))
+
+
+# Copies the recording of every listed sentence into the game, and removes
+# recordings there whose sentence is no longer in the list.
+def install(sentences, folder):
+    if folder is None:
+        sys.exit('No game folder known for this sentence file.')
+    folder.mkdir(parents=True, exist_ok=True)
+    wanted = set()
+    for name, _ in sentences:
+        for ext in ('.mp3', '.wav'):
+            source = EXPORT / f'{name}{ext}'
+            if source.exists():
+                shutil.copy2(source, folder / source.name)
+                wanted.add(source.name)
+                break
+    removed = 0
+    for old in folder.iterdir():
+        if old.suffix in ('.mp3', '.wav', '.ogg', '.m4a') and old.name not in wanted:
+            old.unlink()
+            removed += 1
+    size = sum((folder / name).stat().st_size for name in wanted) / 1e6
+    print(f'Installed {len(wanted)} recordings ({size:.1f} MB) in {folder}{f", removed {removed} old" if removed else ""}.')
 
 
 if __name__ == '__main__':

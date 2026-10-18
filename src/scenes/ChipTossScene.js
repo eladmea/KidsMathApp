@@ -106,6 +106,6 @@ export default class ChipTossScene extends BaseScene {
     this.over = true;
     if (this.sweepTween) this.sweepTween.remove();
     this.report({ step: 'over', score: this.score });
-    showGameEnd(this, { emoji: '🏆', headline: t('mini.toss.end', { score: this.score, total: TOTAL_CHIPS }), detail: t(this.score >= 7 ? 'mini.toss.super' : 'mini.toss.great') });
+    showGameEnd(this, { emoji: '🏆', headline: t('mini.toss.end', { score: this.score, total: TOTAL_CHIPS }), detail: t(this.score >= 7 ? 'mini.toss.super' : 'mini.toss.great'), say: t(this.score >= 7 ? 'mini.toss.super' : 'mini.toss.great') });
   }
 }

@@ -60,8 +60,10 @@ export const BODY = [
   ['What covers and protects your whole body?', 'skin', ['bones', 'heart', 'brain']],
 ];
 
+// "A cap. An umbrella. Or gloves": one short sentence per option, so each
+// can be recorded once and reused.
 export function listWords(words) {
-  return `${words.slice(0, -1).join(', ')}, or ${words[words.length - 1]}`;
+  return words.map((word, i) => (i === words.length - 1 ? `Or ${word}` : word[0].toUpperCase() + word.slice(1))).join('. ');
 }
 
 export const CHOICES = { push: 'push', pull: 'pull', solid: 'solid', liquid: 'liquid', gas: 'gas' };
@@ -104,15 +106,15 @@ export const say = {
   },
   weather: {
     prompt: ({ weather }) => `It's ${weather.label}!`,
-    speech: ({ weather, options }) => `It's ${weather.label} today! What should we take: ${listWords(options)}?`,
+    speech: ({ weather, options }) => `It's ${weather.label} today! What should we take? ${listWords(options)}?`,
   },
   homes: {
     prompt: () => 'Where do I live?',
-    speech: ({ animal, homes }) => `Where does the ${animal} live: ${listWords(homes)}?`,
+    speech: ({ animal, homes }) => `Where does the ${animal} live? ${listWords(homes)}?`,
   },
   plants: {
     prompt: () => 'What does a plant need?',
-    speech: ({ options }) => `What does a plant need to grow: ${listWords(options)}?`,
+    speech: ({ options }) => `What does a plant need to grow? ${listWords(options)}?`,
   },
   pushPull: {
     prompt: () => 'Push or pull?',

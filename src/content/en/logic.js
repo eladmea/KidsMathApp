@@ -13,7 +13,9 @@ export const PATTERN_SETS = [
 export const NAMES = ['Ana', 'Ben', 'Cal', 'Dee', 'Eli', 'Fay'];
 export const PETS = [['🐶', 'dog'], ['🐱', 'cat'], ['🐟', 'fish'], ['🐰', 'rabbit'], ['🐢', 'turtle']];
 
-const spoken = (names) => names.join(', ');
+// One short sentence per thing ("Dog. Cat. Something."), so each word is
+// recorded once and reused in every pattern.
+const spoken = (names) => names.map((name) => name[0].toUpperCase() + name.slice(1)).join('. ');
 
 // Bunny Pop and Freeze Zoo's animals, by emoji.
 export const ANIMAL_NAMES = {

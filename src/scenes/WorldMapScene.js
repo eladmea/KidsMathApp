@@ -108,7 +108,7 @@ export default class WorldMapScene extends BaseScene {
     this.voice = this.add.text(SAFE.width / 2, 700, '', textStyle(18, COLORS.ink)).setOrigin(0.5).setAlpha(0.6);
     initSpeech().then(() => this.sys.isActive() && this.voice.setText(t('common.voice', { name: currentVoiceName() || t('common.deviceVoice') })));
 
-    speak(t('map.sayGreeting', { name: profile.name }));
+    speak(t('map.sayGreeting'));
     this.showNarration();
     this.report({ player: profile.name, band: band.id, home, islands, reviews: this.reviews, stickers: (profile.stickers || []).length, tickets: profile.funTickets || 0, minutesLeft: left, adventureDone });
   }

@@ -110,6 +110,6 @@ export default class DanceTapScene extends BaseScene {
     this.over = true;
     this.light(null);
     this.report({ step: 'over', hits: this.hits, bestCombo: this.bestCombo });
-    showGameEnd(this, { emoji: '🪩', headline: t('mini.dance.end', { hits: this.hits, total: TOTAL_BEATS }), detail: t('mini.dance.best', { combo: this.bestCombo }) });
+    showGameEnd(this, { emoji: '🪩', headline: t('mini.dance.end', { hits: this.hits, total: TOTAL_BEATS }), detail: t('mini.dance.best', { combo: this.bestCombo }), say: t('mini.dance.sayEnd') });
   }
 }
