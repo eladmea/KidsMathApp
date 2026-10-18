@@ -17,7 +17,7 @@ if (height > width) {
   check('portrait phone asks to turn the device', rotate);
   await t.shot(dir, 'rotate');
   const voiced = await t.mp(() => window.__mathplay.voice);
-check('every sentence is voiced (no recordings yet: all by the device voice)', voiced.length > 0 && voiced.every((v) => v.source === 'device'), `${voiced.length} sentences`);
+check('every sentence is spoken from a recording', voiced.length > 0 && voiced.every((v) => v.source === 'recording'), voiced.filter((v) => v.source !== 'recording').map((v) => v.text).join(' | '));
 process.exit(await t.finish());
 }
 check('landscape shows the game, not the turn message', !rotate);
@@ -132,5 +132,5 @@ await t.waitScene('WorldMap');
 check('Mia can still play', (await state()).player === 'Mia');
 
 const voiced = await t.mp(() => window.__mathplay.voice);
-check('every sentence is voiced (no recordings yet: all by the device voice)', voiced.length > 0 && voiced.every((v) => v.source === 'device'), `${voiced.length} sentences`);
+check('every sentence is spoken from a recording', voiced.length > 0 && voiced.every((v) => v.source === 'recording'), voiced.filter((v) => v.source !== 'recording').map((v) => v.text).join(' | '));
 process.exit(await t.finish());
