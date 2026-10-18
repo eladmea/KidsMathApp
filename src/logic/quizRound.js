@@ -29,8 +29,15 @@ export function answerLabel(question) {
 
 // What the narrator says for a worked example: how to play, the question,
 // then why the answer is right.
+// "The answer is 7." for a question without its own explanation; null when
+// the answer is only pictures (nothing to say).
+export function answerLine(question) {
+  const label = answerLabel(question).replace(/ · /g, ', ');
+  return /[\p{L}\p{N}]/u.test(label) ? t('quiz.answerIs', { answer: label }) : null;
+}
+
 export function exampleSpeech(howTo, question) {
-  return [howTo, question.speech, question.explain || t('quiz.answerIs', { answer: answerLabel(question).replace(/ · /g, ', ') })]
+  return [howTo, question.speech, question.explain || answerLine(question)]
     .filter(Boolean)
     .join(' ');
 }

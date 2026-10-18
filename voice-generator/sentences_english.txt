@@ -93,24 +93,30 @@ add-3-more-d8d309e9 | Add 3 more!
 take-5-off-c91b9316 | Take 5 off.
 we-have-2-200de203 | We have 2.
 add-4-more-0d8f9988 | Add 4 more!
+cat-d25960ab | Cat.
+dog-44c15b85 | Dog.
 start-at-the-honey-pot-4b4cc01f | Start at the honey pot.
 take-6-off-71f56695 | Take 6 off.
 we-have-3-fe0b6de6 | We have 3.
 add-5-more-afd310df | Add 5 more!
-cat-d25960ab | Cat.
-dog-44c15b85 | Dog.
+banana-76b3e7fa | Banana.
 good-soil-gives-plants-nutrients-1717a64d | Good soil gives plants nutrients.
 help-the-robot-reach-the-cookie-e60bda01 | Help the robot reach the cookie.
 hmm-not-that-f1d1a543 | Hmm, not that.
+moon-73d919ca | Moon.
 plants-drink-water-through-their-roots-169d94d0 | Plants drink water through their roots.
 plants-use-sunlight-to-make-their-food-ddce15a1 | Plants use sunlight to make their food.
 read-the-clue-again-60d71c86 | Read the clue again!
+star-e4e7cdad | Star.
 take-7-off-6ce16d44 | Take 7 off.
 we-have-4-200964d5 | We have 4.
 add-6-more-287f7c86 | Add 6 more!
-banana-76b3e7fa | Banana.
-moon-73d919ca | Moon.
-star-e4e7cdad | Star.
+apple-af4b45e3 | Apple.
+blue-ea18fff9 | Blue.
+green-square-c92261e7 | Green square.
+mouse-299b757e | Mouse.
+red-square-4698f487 | Red square.
+red-b3134916 | Red.
 take-8-off-cfc6248b | Take 8 off.
 we-have-5-fe06f0b8 | We have 5.
 what-comes-next-bd78f6d8 | What comes next?
@@ -122,20 +128,16 @@ yum-a34e27c1 | Yum!
 5-300ca0d0 | 5
 6-330ca589 | 6
 add-7-more-651948f5 | Add 7 more!
-apple-af4b45e3 | Apple.
-blue-ea18fff9 | Blue.
-green-square-c92261e7 | Green square.
+grapes-4a48d4b5 | Grapes.
 it-grew-into-a-bud-deb93e94 | It grew into a bud!
 it-grew-into-a-leafy-plant-9804bd6b | It grew into a leafy plant!
 it-grew-into-a-sprout-6927c002 | It grew into a sprout!
 it-grew-into-a-young-plant-9b5421b2 | It grew into a young plant!
 kuh-593cc03f | kuh
 look-at-your-plant-f483e647 | Look at your plant.
-mouse-299b757e | Mouse.
 one-d9bab4ea | One!
-red-square-4698f487 | Red square.
-red-b3134916 | Red.
 something-cfc7b03f | Something.
+sun-6a5abefd | Sun.
 take-9-off-9f1bd0fa | Take 9 off.
 tap-the-line-where-the-number-belongs-762ef3d4 | Tap the line where the number belongs.
 we-have-6-a0041e27 | We have 6.
@@ -193,6 +195,7 @@ big-division-29329eb6 | Big Division.
 big-times-tables-c50232da | Big Times Tables.
 bigger-number-7c514b08 | Bigger Number.
 birthday-cake-59645e4a | Birthday Cake.
+blue-square-b7fef50a | Blue square.
 boop-the-bunny-792f2839 | Boop the bunny!
 bunny-feels-scared-5d9e5378 | Bunny feels scared.
 bunny-pop-22961a22 | Bunny Pop.
@@ -221,7 +224,6 @@ freeze-zoo-98fc21ec | Freeze Zoo.
 frog-feels-scared-ce7a0460 | Frog feels scared.
 frog-19ff6d8b | Frog.
 goat-4f092c70 | Goat.
-grapes-4a48d4b5 | Grapes.
 growing-patterns-413d9f4d | Growing Patterns.
 hat-8efef4a4 | Hat.
 hi-325d0001 | Hi!
@@ -259,7 +261,6 @@ how-many-ladybugs-e14f0104 | How many ladybugs?
 how-many-stars-89467392 | How many stars?
 how-would-you-feel-9559543c | How Would You Feel?.
 in-their-shoes-e9dfdb0c | In Their Shoes.
-just-right-b6077014 | Just right!
 letter-sounds-db0e15db | Letter Sounds.
 life-cycles-58e50f40 | Life Cycles.
 lion-feels-angry-4358550f | Lion feels angry.
@@ -329,12 +330,10 @@ sss-c33f0730 | sss
 story-strip-528daa0a | Story Strip.
 subtract-within-100-53c11bd7 | Subtract within 100.
 subtract-within-20-e3ec3a8c | Subtract within 20.
-sun-6a5abefd | Sun.
 switch-cadfb010 | Switch!
 take-10-off-c127d9f8 | Take 10 off.
 take-away-within-10-7e1b1446 | Take Away within 10.
 tap-the-animals-726447a3 | Tap the animals!
-the-answer-is-a5c2c0b2 | The answer is 🥚 → 🐣 → 🐥 → 🐔.
 the-dots-only-show-for-a-moment-ec286ed1 | The dots only show for a moment.
 the-part-that-repeats-is-apple-efe378f0 | The part that repeats is Apple.
 the-part-that-repeats-is-dog-fcf1da72 | The part that repeats is Dog.
@@ -387,6 +386,7 @@ word-parts-6ba3463f | Word Parts.
 write-1-to-5-127b18a7 | Write 1 to 5.
 write-6-to-9-and-0-4637f441 | Write 6 to 9 and 0.
 wuh-25b13cc3 | wuh
+yellow-262af3c5 | Yellow.
 you-found-the-treasure-b3fd40db | You found the treasure!
 ask-monkey-to-play-would-help-a7e6c1d2 | "Ask Monkey to play" would help.
 build-it-again-together-would-help-7ca855aa | "Build it again together" would help.
@@ -414,39 +414,13 @@ take-slow-breaths-together-would-help-a0ad2a5a | "Take slow breaths together" wo
 take-turns-being-captain-fits-best-64ccab83 | "Take turns being captain" fits best.
 tell-a-grown-up-how-you-feel-would-help-9730597d | "Tell a grown-up how you feel" would help.
 use-words-to-say-how-you-feel-would-help-34336674 | "Use words to say how you feel" would help.
-almost-b30642c6 | ✏️ Almost!
-repeats-again-and-again-3a4c7941 | ⭐⭐🌙 repeats again and again.
-repeats-again-and-again-a7e77f78 | ⭐⭐🌙🌙 repeats again and again.
-repeats-again-and-again-8d82389c | ⭐🌙☀️ repeats again and again.
-repeats-again-and-again-90e202c6 | ⭐🌙🌙 repeats again and again.
-repeats-again-and-again-9ffb2c3d | 🍎🍌🍇 repeats again and again.
-repeats-again-and-again-1cb4d076 | 🍎🍌🍌 repeats again and again.
-repeats-again-and-again-4211e034 | 🍎🍎🍌 repeats again and again.
-repeats-again-and-again-b85d9dba | 🍎🍎🍌🍌 repeats again and again.
-repeats-again-and-again-77d09f58 | 🐶🐱🐭 repeats again and again.
-repeats-again-and-again-cae975ec | 🐶🐱🐱 repeats again and again.
-repeats-again-and-again-95262d69 | 🐶🐶🐱 repeats again and again.
-repeats-again-and-again-ac7368b8 | 🐶🐶🐱🐱 repeats again and again.
-now-the-next-line-from-the-green-dot-3c87485c | 👍 Now the next line, from the green dot!
-now-the-next-line-52ef5305 | 👍 Now the next line!
-hold-to-push-207aadef | 👐 Hold to push
-pushing-94a57059 | 💪 Pushing…
-repeats-again-and-again-95828fdd | 🔴🔴🔵 repeats again and again.
-repeats-again-and-again-9455a6c8 | 🔴🔴🔵🔵 repeats again and again.
-repeats-again-and-again-a16b8812 | 🔴🔵🔵 repeats again and again.
-repeats-again-and-again-d13cdcee | 🔴🔵🟡 repeats again and again.
-your-plant-is-resting-56e2326b | 😴 Your plant is resting.
-start-at-the-green-dot-a5434b08 | 🟢 Start at the green dot!
-repeats-again-and-again-f7bad7a3 | 🟥🟥🟩 repeats again and again.
-repeats-again-and-again-d889cf76 | 🟥🟥🟩🟩 repeats again and again.
-repeats-again-and-again-bb90e960 | 🟥🟩🟦 repeats again and again.
-repeats-again-and-again-938fbd1f | 🟥🟩🟩 repeats again and again.
 0-350ca8af | 0
 0-is-at-the-start-and-the-end-is-the-big-9c1c7466 | 0 is at the start and the end is the biggest.
 1-candle-d03c52d0 | 1 candle!
 1-corn-ea6995bd | 1 corn!
 1-dot-e4a5f8fb | 1 dot
 1-goes-here-the-line-runs-from-0-to-10-646ccf4d | 1 goes here: the line runs from 0 to 10.
+1-is-the-bigger-number-87614d68 | 1 is the bigger number.
 1-minus-1-is-0-560066ec | 1 minus 1 is 0!
 1-mushroom-4691ff55 | 1 mushroom!
 1-olive-slice-35006e64 | 1 olive slice!
@@ -728,6 +702,7 @@ repeats-again-and-again-938fbd1f | 🟥🟩🟩 repeats again and again.
 6-flowers-is-more-than-3-flowers-adf4e474 | 6 flowers is more than 3 flowers.
 6-flowers-is-more-than-4-flowers-7aaafe17 | 6 flowers is more than 4 flowers.
 6-goes-here-the-line-runs-from-0-to-10-885fcd5a | 6 goes here: the line runs from 0 to 10.
+6-is-the-bigger-number-43f51ac1 | 6 is the bigger number.
 6-ladybugs-is-more-than-1-ladybug-5390a19d | 6 ladybugs is more than 1 ladybug.
 6-ladybugs-is-more-than-2-ladybugs-bacb183d | 6 ladybugs is more than 2 ladybugs.
 6-ladybugs-is-more-than-3-ladybugs-22e2d36e | 6 ladybugs is more than 3 ladybugs.
@@ -1035,7 +1010,6 @@ ben-has-the-fish-255a48e5 | Ben has the fish.
 ben-has-the-rabbit-938b1003 | Ben has the rabbit.
 ben-has-the-turtle-72637045 | Ben has the turtle.
 ben-worked-hard-on-a-drawing-but-it-isn-3246a516 | Ben worked hard on a drawing, but it isn't very neat.
-blue-square-b7fef50a | Blue square.
 boat-and-coat-rhyme-they-end-with-the-sa-3401368f | boat and coat rhyme: they end with the same sound.
 boat-and-goat-rhyme-they-end-with-the-sa-db3b5163 | boat and goat rhyme: they end with the same sound.
 boat-4e84892e | boat!
@@ -1138,7 +1112,6 @@ clock-ca57cc29 | Clock.
 coat-and-boat-rhyme-they-end-with-the-sa-79855555 | coat and boat rhyme: they end with the same sound.
 coat-and-goat-rhyme-they-end-with-the-sa-d0f865ae | coat and goat rhyme: they end with the same sound.
 coat-90565a14 | Coat.
-come-back-tomorrow-to-help-it-grow-c6e23b9a | Come back tomorrow to help it grow!
 come-back-tomorrow-746fa686 | Come back tomorrow!
 correct-eb5de810 | Correct!
 count-the-pictures-one-by-one-then-tap-h-2dfb81c8 | Count the pictures one by one, then tap how many there are.
@@ -1342,7 +1315,6 @@ fish-afad8963 | fish
 fish-starts-with-fff-3e79895d | fish starts with fff!
 fish-d02f12e6 | fish!
 fish-00eb5f57 | Fish.
-follow-the-dots-all-the-way-to-the-end-2c315a9d | Follow the dots all the way to the end.
 follow-the-dots-all-the-way-83f15950 | Follow the dots all the way.
 fox-b6f3934e | fox
 fox-and-box-rhyme-they-end-with-the-same-9493b1e6 | fox and box rhyme: they end with the same sound.
@@ -1407,7 +1379,6 @@ high-five-your-team-9f08196a | High-five your team.
 hold-the-button-and-breathe-in-670ca3ae | Hold the button and breathe in.
 hold-the-button-to-push-the-ball-88fd1700 | Hold the button to push the ball.
 hold-to-breathe-in-da095157 | Hold to breathe in
-hold-to-push-dbf9b2cb | Hold to push.
 honey-never-goes-bad-3733c7bb | Honey never goes bad.
 hooray-b991dd1a | Hooray!
 hop-2-squares-0e6a6b40 | Hop 2 squares.
@@ -1822,6 +1793,7 @@ it-s-sunny-today-695f599f | It's sunny today!
 it-s-time-for-a-break-3437d09e | It's time for a break.
 juh-dbbc27d0 | juh
 jump-that-many-at-a-time-to-reach-the-nu-555db62e | Jump that many at a time to reach the number.
+just-right-b6077014 | Just right!
 kai-and-mia-both-want-to-be-the-team-cap-7fb0263f | Kai and Mia both want to be the team captain.
 keep-going-all-the-way-to-the-end-ffd69e8e | Keep going all the way to the end.
 keep-practicing-6c02c3c9 | Keep practicing!
@@ -2430,7 +2402,6 @@ step-one-has-2-step-two-has-4-step-three-3bb88969 | Step one has 2, step two has
 step-one-has-2-step-two-has-5-step-three-d7872c6e | Step one has 2, step two has 5, step three has 8.
 step-one-has-3-step-two-has-6-step-three-12c597c9 | Step one has 3, step two has 6, step three has 9.
 stop-it-on-the-target-d52664fc | Stop it on the target!
-stop-the-ball-on-the-4c8f7df9 | Stop the ball on the 🎯!
 sun-starts-with-sss-f9877030 | sun starts with sss!
 sun-5b2d91c0 | sun!
 sunglasses-9fd4cc6b | Sunglasses.
@@ -2482,6 +2453,7 @@ tent-30207fea | Tent.
 th-41454691 | th
 thank-you-for-being-kind-f0c4ca9c | Thank you for being kind.
 thank-you-that-was-yummy-4017f1a6 | Thank you, that was yummy!
+that-part-repeats-again-and-again-47293c66 | That part repeats again and again.
 that-way-everyone-gets-a-fair-chance-2eae9f16 | That way everyone gets a fair chance.
 that-would-help-31a1daef | That would help!
 that-s-the-cat-c20e6e71 | That's the cat.
@@ -2493,41 +2465,6 @@ that-s-the-monkey-e7f884bc | That's the monkey.
 that-s-the-panda-c40f8a25 | That's the panda.
 that-s-the-pig-261aeed1 | That's the pig.
 the-adult-grows-old-50181a45 | The adult grows old.
-the-answer-is-befef43c | The answer is ☀️ → 🌿 → 🐰 → 🦊.
-the-answer-is-d3eb8e9f | The answer is ☀️.
-the-answer-is-9f4d298f | The answer is ☁️ → 🌧️ → ☀️ → 🌈.
-the-answer-is-2e0f26a9 | The answer is ☂️.
-the-answer-is-3d4eff97 | The answer is ❄️ → ⛄ → ☀️ → 💧.
-the-answer-is-21d6a1eb | The answer is ❄️.
-the-answer-is-84cc428b | The answer is 🌊 → 🦐 → 🐟 → 🦈.
-the-answer-is-6b88a3a2 | The answer is 🌊.
-the-answer-is-7cb6e2de | The answer is 🌰 → 🌱 → 🌳 → 🍎.
-the-answer-is-a7703133 | The answer is 🌰 → 🌱 → 🌿 → 🌻.
-the-answer-is-5585be8f | The answer is 🌱 → 🐛 → 🐦 → 🦅.
-the-answer-is-4d501bd7 | The answer is 🌳.
-the-answer-is-3fb853f1 | The answer is 🌾 → 🐭 → 🐍 → 🦉.
-the-answer-is-c5ff9381 | The answer is 🍞 → 🧈 → 🥪 → 😋.
-the-answer-is-b53f3473 | The answer is 🏜️.
-the-answer-is-d52c544b | The answer is 🐟.
-the-answer-is-d2953c2a | The answer is 🐢.
-the-answer-is-72c1c4a8 | The answer is 🐰.
-the-answer-is-54c3d405 | The answer is 🐱.
-the-answer-is-72c641d6 | The answer is 🐶.
-the-answer-is-8b1492c4 | The answer is 👶 → 🧒 → 🧑 → 🧓.
-the-answer-is-73643fa3 | The answer is 💧.
-the-answer-is-f1703ef0 | The answer is 💨.
-the-answer-is-b9b572e5 | The answer is 🕶️.
-the-answer-is-82692c6f | The answer is 🥚 → 🐛 → 🍃 → 🦋.
-the-answer-is-c254e7cc | The answer is 🥚 → 🐛 → 💤 → 🦋.
-the-answer-is-1c65aad2 | The answer is 🥚 → 🐟 → 🦵 → 🐸.
-the-answer-is-fdb13deb | The answer is 🥣 → 🔥 → 🎂 → 🎉.
-the-answer-is-3082186a | The answer is 🧢.
-the-answer-is-52848c87 | The answer is 🧣.
-the-answer-is-d0908bd4 | The answer is 🧤.
-the-answer-is-329364b1 | The answer is 🧥.
-the-answer-is-bb58a297 | The answer is 🩳.
-the-answer-is-708e6824 | The answer is 🛁 → 🪥 → 📖 → 😴.
-the-answer-is-55499fdf | The answer is 🟫.
 the-answer-is-a-person-who-plays-eca31c01 | The answer is a person who plays.
 the-answer-is-a-person-who-teaches-b18d2eb3 | The answer is a person who teaches.
 the-answer-is-a-b5ebbf35 | The answer is a.
@@ -3242,7 +3179,6 @@ write-the-six-with-your-finger-709ce2e9 | Write the six with your finger.
 write-the-three-with-your-finger-659d2f31 | Write the three with your finger.
 write-the-two-with-your-finger-7888b6b7 | Write the two with your finger.
 wuh-eh-buh-a61c0b0d | wuh, eh, buh…
-yellow-262af3c5 | Yellow.
 you-both-want-the-red-crayon-1f1ef2eb | You both want the red crayon.
 you-can-do-this-any-time-you-need-to-fee-9f37d729 | You can do this any time you need to feel calm.
 you-drove-a-five-b63e7296 | You drove a five!

@@ -20,7 +20,7 @@ import { OTHERS } from '../logic/bunnyPop';
 import { createDeck, getVariant } from '../logic/memoryGame';
 import { PREWRITING_PATHS } from '../logic/tracing';
 import { STEP_INFO } from '../logic/adventure';
-import { answerLabel } from '../logic/quizRound';
+import { answerLine } from '../logic/quizRound';
 import { splitSentences } from '../logic/voices';
 import { content, hasContent } from '../content/index';
 import { has, keysOf, list, raw, setLanguage, t } from '../i18n/index';
@@ -49,6 +49,15 @@ const SHOWN = new Set([
   'mini.dance.best',
   'twoPlayer.turn',
   'tracing.startMarker',
+  'tracing.startDot',
+  'tracing.nextLine',
+  'tracing.nextLineShort',
+  'tracing.almostDigit',
+  'garden.resting',
+  'pushRoll.instructions',
+  'pushRoll.hold',
+  'pushRoll.pushing',
+  'pushRoll.hit',
   // Built from each question's letters (see the questions below).
   'quiz.blend',
 ]);
@@ -153,7 +162,8 @@ export function voiceLines(language, { samples = SAMPLES } = {}) {
     for (let i = 0; i < samples; i++) {
       const question = generateQuestion(id);
       take(question.speech, `question: ${id}`);
-      take(question.explain || t('quiz.answerIs', { answer: answerLabel(question).replace(/ · /g, ', ') }), `explanation: ${id}`);
+      const explanation = question.explain || answerLine(question);
+      if (explanation) take(explanation, `explanation: ${id}`);
       (question.items || []).forEach((item) => take(item.caption, `caption: ${id}`));
       if (question.type === 'build' && literacy) take(t('quiz.blend', { sounds: question.parts.map((p) => literacy.SOUND_SPEECH[p] || p).join(', '), word: question.word }), `blend: ${id}`);
     }
