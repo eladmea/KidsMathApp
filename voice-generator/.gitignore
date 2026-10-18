@@ -1,0 +1,5 @@
+# Recordings are copied into ../src/voice/en/ for the game; the exports and
+# the Python environment stay out of the repository.
+voices_export/
+.venv/
+__pycache__/
