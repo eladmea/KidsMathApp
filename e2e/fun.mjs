@@ -158,20 +158,23 @@ await sleep(200);
 await t.shot(dir, 'f9-fun-break');
 await tap('mini:bubble-pop');
 await t.waitScene('BubblePop');
-for (let i = 0; i < 8 && (await state()).popped < 3; i++) {
-  await waitFor(() => window.__mathplay.state.bubbles && window.__mathplay.state.bubbles.length > 0, null, 5000);
-  s = await state();
-  // A bubble that is on screen now (they float up and off the top).
-  let id = null;
-  for (const bubble of s.bubbles) {
-    const box = await t.box(`bubble:${bubble.id}`);
-    if (box && box.y > 20 && box.y + box.height < height - 20) {
-      id = bubble.id;
-      break;
+// Bubbles rise fast at test speed, faster than a click from here arrives, so
+// each try finds a bubble on screen and clicks it from inside the page, in
+// the same moment. Keeps trying until 3 are popped.
+for (let i = 0; i < 40 && (await state()).popped < 3 && (await state()).step !== 'over'; i++) {
+  await t.mp((h) => {
+    for (const bubble of window.__mathplay.state.bubbles || []) {
+      const box = window.__mathplay.box(`bubble:${bubble.id}`);
+      if (box && box.y > 20 && box.y + box.height < h - 20) {
+        const at = { clientX: box.x + box.width / 2, clientY: box.y + box.height / 2, bubbles: true, button: 0 };
+        const canvas = document.querySelector('canvas');
+        canvas.dispatchEvent(new MouseEvent('mousedown', at));
+        canvas.dispatchEvent(new MouseEvent('mouseup', at));
+        return;
+      }
     }
-  }
-  if (id !== null) await tap(`bubble:${id}`).catch(() => {});
-  else await sleep(150);
+  }, height);
+  await sleep(150);
 }
 check('bubble pop: tapping pops bubbles', (await state()).popped >= 2, String((await state()).popped));
 await t.shot(dir, 'f10-bubbles');
@@ -196,17 +199,31 @@ await t.waitScene('FunBreak');
 
 await tap('mini:dance-tap');
 await t.waitScene('DanceTap');
-let lastBeat = 0;
-while (true) {
-  await waitFor((b) => window.__mathplay.state.step === 'over' || (window.__mathplay.state.beat > b && window.__mathplay.state.lit !== null), lastBeat, 5000);
-  s = await state();
-  if (s.step === 'over') break;
-  lastBeat = s.beat;
-  await tap(`pad:${s.lit}`).catch(() => {});
-  if (lastBeat === 3) await t.shot(dir, 'f12-dance');
-}
+// A beat lasts ~150 ms at test speed, so the page itself taps the glowing
+// pad as soon as it lights up, until the game is over.
+await t.page.evaluate(
+  () =>
+    new Promise((done) => {
+      let tapped = null;
+      const frame = () => {
+        const { state } = window.__mathplay;
+        if (state.step === 'over') return done();
+        if (state.lit !== null && state.lit !== undefined && state.beat !== tapped) {
+          tapped = state.beat;
+          const box = window.__mathplay.box(`pad:${state.lit}`);
+          if (box) {
+            const at = { clientX: box.x + box.width / 2, clientY: box.y + box.height / 2, bubbles: true, button: 0 };
+            const canvas = document.querySelector('canvas');
+            canvas.dispatchEvent(new MouseEvent('mousedown', at));
+            canvas.dispatchEvent(new MouseEvent('mouseup', at));
+          }
+        }
+        requestAnimationFrame(frame);
+      };
+      frame();
+    })
+);
 s = await state();
-// At test speed a beat lasts ~150 ms, faster than the test taps.
 check('dance tap: tapping the glowing pad scores', s.hits >= 5, String(s.hits));
 await tap('done');
 await t.waitScene('FunBreak');

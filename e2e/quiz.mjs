@@ -56,7 +56,13 @@ for (const band of BANDS) {
             await t.shot(dir, `q-${id}`);
           }
           await answerQuestion(t, { wrong: i === 1 });
-          await waitFor(() => window.__mathplay.state.step === 'feedback', null, 4000);
+          // On a slow machine a tap can land just before the answers take
+          // input: answer once more if nothing happened.
+          const answered = () => waitFor((i) => window.__mathplay.state.step === 'feedback' || window.__mathplay.state.index !== i, i, 2500);
+          await answered().catch(async () => {
+            await answerQuestion(t, { wrong: i === 1 });
+            await answered();
+          });
           if (i === 1) {
             await sleep(120);
             await t.shot(dir, `q-${id}-wrong`);
