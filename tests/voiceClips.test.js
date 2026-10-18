@@ -15,8 +15,10 @@ describe('voice clips', () => {
     expect(clipId('Count them one by one: 1, 2, 3, 4, 5. There are 5 cookies!').length).toBeLessThanOrEqual(49);
   });
 
-  it('has no recordings yet, so everything uses the device voice', () => {
-    expect(clipUrl('How many apples?', 'en')).toBeNull();
+  it('finds the recording of a sentence, and none for one never recorded', () => {
+    expect(clipUrl('How many apples?', 'en')).toMatch(/how-many-apples-[0-9a-f]{8}\.mp3$/);
+    expect(clipUrl('What is 55 plus 37?', 'en')).toBeNull();
+    expect(clipUrl('How many apples?', 'xx')).toBeNull();
     expect(normalize(' a  b ')).toBe('a b');
   });
 });
