@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Records MathPlay's sentences with Kokoro, a free AI voice that runs on
-your own computer (https://huggingface.co/hexgrad/Kokoro-82M).
+your own computer (https://huggingface.co/hexgrad/Kokoro-82M), through
+kokoro-onnx (no PyTorch needed). The first run downloads the model files
+(about 340 MB) into models/.
 
     python generate.py                     every sentence not recorded yet
     python generate.py --force             record them all again
@@ -21,6 +23,7 @@ the files there is all it takes.
 """
 import argparse
 import re
+import urllib.request
 import shutil
 import subprocess
 import sys
@@ -30,6 +33,12 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 SENTENCES = HERE / 'sentences_english.txt'
 EXPORT = HERE / 'voices_export'
+MODELS = HERE / 'models'
+RELEASE = 'https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/'
+MODEL = 'kokoro-v1.0.onnx'
+VOICES = 'voices-v1.0.bin'
+# Kokoro's languages by LANG on line 1.
+LANGUAGES = {'a': 'en-us', 'b': 'en-gb'}
 RATE = 24000
 # A little silence before and after each sentence, in seconds.
 PAD = 0.08
@@ -94,17 +103,25 @@ def trim(audio, threshold=0.01):
     return audio[max(0, loud[0] - pad) : loud[-1] + pad]
 
 
-def synthesize(pipeline, text, voice, speed):
+def download(name):
+    MODELS.mkdir(exist_ok=True)
+    target = MODELS / name
+    if target.exists():
+        return target
+    print(f'Downloading {name} (once)...')
+    partial = target.with_suffix('.part')
+    urllib.request.urlretrieve(RELEASE + name, partial)
+    partial.rename(target)
+    return target
+
+
+def synthesize(kokoro, text, voice, speed, language):
     import numpy as np
 
-    chunks = []
-    for _, _, audio in pipeline(text, voice=voice, speed=speed):
-        if audio is None:
-            continue
-        chunks.append(audio.numpy() if hasattr(audio, 'numpy') else np.asarray(audio))
-    if not chunks:
-        raise RuntimeError('no audio came back')
-    return trim(np.concatenate(chunks).astype('float32'))
+    audio, rate = kokoro.create(text, voice=voice, speed=speed, lang=language)
+    if rate != RATE:
+        raise RuntimeError(f'unexpected sample rate {rate}')
+    return trim(np.asarray(audio, dtype='float32'))
 
 
 def save(audio, target_without_extension, use_mp3):
@@ -137,6 +154,7 @@ def main():
     speed = args.speed or float(settings.get('SPEED', '0.9'))
     # Kokoro's language: 'a' American English, 'b' British English.
     lang = settings.get('LANG', voice[0])
+    language = LANGUAGES.get(lang, 'en-us')
     use_mp3 = not args.wav and shutil.which('ffmpeg') is not None
     if not args.wav and not use_mp3:
         print('ffmpeg not found: saving WAV files (bigger). Install ffmpeg for MP3.')
@@ -144,20 +162,20 @@ def main():
         sys.exit('No sentences to record.')
 
     try:
-        from kokoro import KPipeline
+        from kokoro_onnx import Kokoro
     except ImportError:
         sys.exit('Kokoro is not installed. Run:  pip install -r requirements.txt')
 
-    print(f'Loading Kokoro (the first run downloads the model, about 330 MB)...')
-    pipeline = KPipeline(lang_code=lang, repo_id='hexgrad/Kokoro-82M')
+    kokoro = Kokoro(str(download(MODEL)), str(download(VOICES)))
+    if voice not in kokoro.get_voices():
+        sys.exit(f'No voice "{voice}". Voices: {", ".join(sorted(kokoro.get_voices()))}')
 
     if args.samples:
         folder = EXPORT / '_samples'
         folder.mkdir(parents=True, exist_ok=True)
         text = sentences[0][1]
         for name in SAMPLE_VOICES:
-            sample_pipeline = pipeline if name[0] == lang else KPipeline(lang_code=name[0], repo_id='hexgrad/Kokoro-82M')
-            path = save(synthesize(sample_pipeline, text, name, speed), folder / name, use_mp3)
+            path = save(synthesize(kokoro, text, name, speed, LANGUAGES.get(name[0], language)), folder / name, use_mp3)
             print(f'  {path.relative_to(HERE)}')
         print(f'Listen, then put the voice you like on line 1 of {args.file.name} (VOICE=...).')
         return
@@ -170,7 +188,7 @@ def main():
     failed = 0
     for i, (name, text) in enumerate(todo, start=1):
         try:
-            path = save(synthesize(pipeline, text, voice, speed), EXPORT / name, use_mp3)
+            path = save(synthesize(kokoro, text, voice, speed, language), EXPORT / name, use_mp3)
             print(f'  [{i}/{len(todo)}] {path.name}  "{text}"')
         except Exception as error:  # keep going: one bad sentence shouldn't stop the rest
             failed += 1

@@ -1,8 +1,8 @@
 # Voice generator
 
-Records the game's sentences with **[Kokoro](https://huggingface.co/hexgrad/Kokoro-82M)**, a free AI voice that runs on your own computer. The game then plays these recordings instead of the device's robotic text-to-speech. Any sentence without a recording still uses the device voice, so recordings can be added a few at a time.
+Records the game's sentences with **[Kokoro](https://huggingface.co/hexgrad/Kokoro-82M)**, a free AI voice that runs on your own computer, through [kokoro-onnx](https://github.com/thewh1teagle/kokoro-onnx). It's the same voices without PyTorch, so the install is about 100 MB instead of several GB. The game then plays these recordings instead of the device's robotic text-to-speech. Any sentence without a recording still uses the device voice, so recordings can be added a few at a time.
 
-This folder is separate from the game: nothing in it is built into the app. Only the finished `.mp3` files are copied into the game, into `src/voice/en/`. The Python packages and the Kokoro model (about 330 MB, downloaded on the first run) stay on your computer.
+This folder is separate from the game: nothing in it is built into the app. Only the finished `.mp3` files are copied into the game, into `src/voice/en/`. The Python packages and the Kokoro model files stay on your computer. The model files are downloaded into `models/` on the first run: `kokoro-v1.0.onnx` (325 MB) and `voices-v1.0.bin` (28 MB).
 
 ## Files
 
@@ -11,21 +11,20 @@ This folder is separate from the game: nothing in it is built into the app. Only
 | `generate.py` | The script |
 | `sentences_english.txt` | Line 1: the voice settings. Then one sentence per line, as `file name \| sentence` |
 | `voices_export/` | The recordings it makes (not committed to git) |
+| `models/` | The Kokoro model, downloaded on the first run (not committed to git) |
 
 ## Set up (once)
 
-You need **Python 3.10, 3.11 or 3.12** (Kokoro doesn't support 3.13 yet), and preferably **ffmpeg** (for small MP3 files; without it you get WAV files, about 8× bigger).
+You need **Python 3.10 or newer**, and preferably **ffmpeg**. ffmpeg makes small MP3 files, about 6 KB a sentence; without it you get WAV files, about 8× bigger.
 
 ```bash
 cd voice-generator
-python3.12 -m venv .venv
+python3 -m venv .venv
 source .venv/bin/activate          # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
 Install ffmpeg: Mac `brew install ffmpeg`, Windows `winget install ffmpeg`, Linux `sudo apt install ffmpeg`.
-
-If Kokoro complains about **espeak-ng**, install that too (Mac `brew install espeak-ng`, Windows: the installer from github.com/espeak-ng/espeak-ng/releases, Linux `sudo apt install espeak-ng`). Kokoro uses it only for unusual words.
 
 ## Run
 
@@ -50,6 +49,8 @@ VOICE=af_heart SPEED=0.9 LANG=a  # ...why...
 ## Put the recordings in the game
 
 Copy the `.mp3` files from `voices_export/` into `src/voice/en/`. Each file is named after its sentence's id, which is how the game finds it. Then run the game (`npm run dev`): those sentences now use the recording.
+
+Tested: with the two sample sentences copied in, the "Who's playing?" screen played both recordings instead of the device voice.
 
 ## The sentence list
 

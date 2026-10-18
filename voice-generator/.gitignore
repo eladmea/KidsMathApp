@@ -3,3 +3,4 @@
 voices_export/
 .venv/
 __pycache__/
+models/
