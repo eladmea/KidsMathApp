@@ -44,6 +44,7 @@ VOICES = 'voices-v1.0.bin'
 # Kokoro's languages by LANG on line 1.
 LANGUAGES = {'a': 'en-us', 'b': 'en-gb'}
 RATE = 24000
+BITRATE = '32k'
 # A little silence before and after each sentence, in seconds.
 PAD = 0.08
 # The game's folder of recordings for each sentence file.
@@ -143,8 +144,8 @@ def save(audio, target_without_extension, use_mp3):
     if not use_mp3:
         return wav
     mp3 = target_without_extension.with_suffix('.mp3')
-    # Mono, 48 kbit/s: clear speech at about 6 KB a second.
-    subprocess.run(['ffmpeg', '-y', '-loglevel', 'error', '-i', str(wav), '-ac', '1', '-b:a', '48k', str(mp3)], check=True)
+    # Mono, 32 kbit/s: clear speech at about 4 KB a second.
+    subprocess.run(['ffmpeg', '-y', '-loglevel', 'error', '-i', str(wav), '-ac', '1', '-b:a', BITRATE, str(mp3)], check=True)
     wav.unlink()
     return mp3
 

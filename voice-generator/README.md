@@ -15,7 +15,7 @@ This folder is separate from the game: nothing in it is built into the app. Only
 
 ## Set up (once)
 
-You need **Python 3.10 or newer**, and preferably **ffmpeg**. ffmpeg makes small MP3 files, about 6 KB a sentence; without it you get WAV files, about 8× bigger.
+You need **Python 3.10 or newer**, and preferably **ffmpeg**. ffmpeg makes small MP3 files, about 7 KB a sentence; without it you get WAV files, about 8× bigger.
 
 ```bash
 cd voice-generator
@@ -37,7 +37,7 @@ python generate.py --limit 5    # just the first 5
 python generate.py --part 1/2   # half the list; run --part 2/2 in a second window at the same time
 ```
 
-The whole list is about 2,900 sentences. It takes 1–2 hours on a laptop CPU, and the result is about 18 MB of MP3s. Sentences already recorded are skipped, so a run can be stopped and started again.
+The whole list is about 3,400 sentences. It takes 1–2 hours on a laptop CPU, and the result is about 22 MB of MP3s. Sentences already recorded are skipped, so a run can be stopped and started again.
 
 The **first line** of `sentences_english.txt` chooses the voice:
 
