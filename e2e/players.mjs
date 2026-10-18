@@ -49,7 +49,7 @@ await t.shot(dir, 'p1-create');
 await tap('save');
 await t.waitScene('WorldMap');
 await sleep(300);
-check('the map greets the new player', (await t.spoken()).at(-1).startsWith('Hi, Mia'));
+check('the map greets the new player', (await t.spoken()).at(-1) === 'Hi! Pick an island to play.');
 check('narration is on for a 4-year-old', (await state()).narration === true);
 await t.shot(dir, 'p2-home');
 

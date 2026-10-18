@@ -120,7 +120,7 @@ await step('hop');
 for (const square of (await state()).pending) await tap(`square:${square}`);
 await waitFor(() => window.__mathplay.state.current === 2 && window.__mathplay.state.step === 'spin', null, 8000);
 s = await state();
-check('with a friend, player 2 takes their own turn', !s.buddyTurn && (await t.spoken()).at(-1).startsWith('Player 2, spin'));
+check('with a friend, player 2 takes their own turn', !s.buddyTurn && s.current === 2 && (await t.spoken()).at(-1) === 'Your turn. Spin!');
 await tap('back');
 await t.waitScene('GameSetup');
 await tap('back');
