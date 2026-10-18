@@ -473,5 +473,30 @@ The device's robotic text-to-speech is replaced by recordings made with Kokoro, 
 - With every walkthrough run at phone size, 99.5% of spoken sentences (805 of 809) played from a recording. The rest were age 7-8 sums, which keep the device voice by design (read-aloud is off by default for readers). `players.mjs` now checks that every sentence on its path is a recording.
 
 **Not done yet**
-- Hebrew: Kokoro has no Hebrew voice, so it needs another free engine. The game side is ready (`src/voice/he/`).
+- Hebrew: see "Hebrew" below.
+
+## Hebrew
+
+- **Text.** Every screen (`src/i18n/he/`) and every content pack (`src/content/he/`) is in Hebrew.
+  - The child is addressed in the plural ("בחרו", "בואו נספור"), so no line is only for boys or only for girls.
+  - Numbers agree with what they count ("שלושה תפוחים", "שלוש מכוניות").
+- **Reading (Word Woods)** is adapted to Hebrew, not translated:
+  - first sounds and rhymes use Hebrew words;
+  - letter names are said with nikud;
+  - final letters (ך ם ן ף ץ) replace the English digraphs;
+  - the prefix letters and plural endings replace English word parts;
+  - Hebrew compound words (כדורגל, רמזור) replace English ones.
+- **Setting.** The language picker is on "New player", and the Language row is on the Parent Dashboard, per child.
+- **Right to left.**
+  - `ui/rtlText.js` draws every text right to left, and sums stay left to right.
+  - Quiz answer rows, Word Builder slots and story panels run right to left.
+  - Pictures, number lines and the rest of the layout are not mirrored.
+- **Voice.**
+  - `voice-generator/` records Hebrew with the Kokoro Hebrew model, with renikud adding the vowels: `sentences_hebrew.txt`, 3,400 sentences.
+  - The model files are on Hugging Face, which this build environment can't reach, so the Hebrew recordings are made on a local machine with `python generate.py --file sentences_hebrew.txt --install`.
+  - Until then Hebrew uses the device's he-IL voice.
+- **Later:**
+  - mirror whole layouts if play-testers want it;
+  - a female Hebrew voice under a permissive licence (Chatterbox) if CPU time allows;
+  - a Hebrew icon for the Word Woods island (it shows 🔤 "abc").
 

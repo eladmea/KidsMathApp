@@ -88,7 +88,7 @@ npm run voice:lines -- en --txt            # every sentence to record -> voice-g
 cd voice-generator && python generate.py --install   # records the new ones, copies them into src/voice/en/
 ```
 
-See `voice-generator/README.md` for setup.
+Hebrew works the same way with `he` and `sentences_hebrew.txt`, using a Hebrew Kokoro model (`--file sentences_hebrew.txt`). See `voice-generator/README.md` for setup.
 
 `npm run voice:lines -- en` (without `--txt`) writes a CSV instead, with where each line is used. `--missing` lists only what isn't recorded yet.
 

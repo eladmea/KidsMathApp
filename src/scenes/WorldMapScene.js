@@ -120,8 +120,9 @@ export default class WorldMapScene extends BaseScene {
     this.fullscreen.setPosition(v.right - 70, v.y + 60);
     this.narration.setPosition(v.right - 170, v.y + 60);
     this.player.setPosition(v.x + 160, v.y + 60);
-    this.adventure.setPosition(SAFE.width / 2, v.y + 60);
     this.coach.setPosition(v.right - 380, v.y + 60);
+    // Between the player button and "Play together", so they never overlap.
+    this.adventure.setPosition((v.x + 290 + v.right - 530) / 2, v.y + 60);
   }
 
   // Little white waves that come and go across the sea.

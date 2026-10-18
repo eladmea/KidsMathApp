@@ -3,6 +3,7 @@
 // מכוניות), so every counted noun here has `gender` ('m' or 'f'), and the
 // helpers below put the number in the right form and place ("תפוח אחד",
 // "שני תפוחים", "שתי מכוניות"). Numbers above 10 are written as digits.
+import { soundSpeech } from './literacy';
 
 // Things to count. `one` / `many` are the word for 1 and for more.
 export const OBJECTS = [
@@ -188,7 +189,8 @@ export const say = {
         case 'whole':
           return 'שלם אחד';
         case 'letter':
-          return `האות ${face.letter}`;
+          // The letter's name with nikud (אָלֶף, בֵּית), so the voice says it right.
+          return `האות ${soundSpeech(face.letter)}`;
         case 'picture':
           return face.word;
         default:
