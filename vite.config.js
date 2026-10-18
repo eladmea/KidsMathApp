@@ -10,6 +10,9 @@ export default defineConfig({
     // Phaser is big; keep it in its own cached chunk.
     rollupOptions: { output: { manualChunks: (id) => (id.includes('node_modules/phaser') ? 'phaser' : undefined) } },
     chunkSizeWarningLimit: 1600,
+    // Recordings stay separate files, fetched only when spoken (small ones
+    // would otherwise be inlined into the game's script).
+    assetsInlineLimit: (file) => (file.includes('/voice/') ? false : undefined),
   },
   test: {
     globals: true,
