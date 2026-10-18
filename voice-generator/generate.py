@@ -43,12 +43,23 @@ MODEL = 'kokoro-v1.0.onnx'
 VOICES = 'voices-v1.0.bin'
 # Kokoro's languages by LANG on line 1.
 LANGUAGES = {'a': 'en-us', 'b': 'en-gb'}
+# Hebrew (ENGINE=kokoro-hebrew on line 1): a Kokoro model trained on Hebrew,
+# plus renikud, which works out the vowels (nikud) and the sounds of
+# unvocalized Hebrew. Free for non-commercial use (see README).
+HEBREW_FILES = {
+    'kokoro-hebrew.onnx': 'https://huggingface.co/thewh1teagle/kokoro-hebrew-nc/resolve/main/kokoro.onnx',
+    'voices-hebrew.bin': 'https://huggingface.co/thewh1teagle/kokoro-hebrew-nc/resolve/main/voices-hebrew.bin',
+    'renikud.onnx': 'https://huggingface.co/thewh1teagle/renikud/resolve/neobert-130m/model.onnx',
+}
 RATE = 24000
 BITRATE = '32k'
 # A little silence before and after each sentence, in seconds.
 PAD = 0.08
 # The game's folder of recordings for each sentence file.
-GAME_VOICE = {'sentences_english.txt': HERE.parent / 'src' / 'voice' / 'en'}
+GAME_VOICE = {
+    'sentences_english.txt': HERE.parent / 'src' / 'voice' / 'en',
+    'sentences_hebrew.txt': HERE.parent / 'src' / 'voice' / 'he',
+}
 # Emoji are shown on screen but not read aloud.
 EMOJI = re.compile('[\U0001F000-\U0001FAFF\u2600-\u27BF\u2B00-\u2BFF\uFE0F\u200D]+')
 # Voices worth comparing for a children's game (see --samples).
@@ -112,25 +123,70 @@ def trim(audio, threshold=0.01):
     return audio[max(0, loud[0] - pad) : loud[-1] + pad]
 
 
-def download(name):
+def download(name, url=None):
     MODELS.mkdir(exist_ok=True)
     target = MODELS / name
     if target.exists():
         return target
     print(f'Downloading {name} (once)...')
     partial = target.with_suffix('.part')
-    urllib.request.urlretrieve(RELEASE + name, partial)
+    urllib.request.urlretrieve(url or RELEASE + name, partial)
     partial.rename(target)
     return target
 
 
-def synthesize(kokoro, text, voice, speed, language):
+# ---- Hebrew numbers ----
+# Digits are said as words before the vowels are worked out, in the counting
+# (feminine) form a teacher uses for sums: "3 ועוד 4" -> "שלוש ועוד ארבע".
+# Numbers that count a thing ("שלושה תפוחים") are already words in the game.
+UNITS = ['אפס', 'אחת', 'שתיים', 'שלוש', 'ארבע', 'חמש', 'שש', 'שבע', 'שמונה', 'תשע']
+TEENS = ['עשר', 'אחת עשרה', 'שתים עשרה', 'שלוש עשרה', 'ארבע עשרה', 'חמש עשרה', 'שש עשרה', 'שבע עשרה', 'שמונה עשרה', 'תשע עשרה']
+TENS = ['', '', 'עשרים', 'שלושים', 'ארבעים', 'חמישים', 'שישים', 'שבעים', 'שמונים', 'תשעים']
+HUNDREDS = ['', 'מאה', 'מאתיים', 'שלוש מאות', 'ארבע מאות', 'חמש מאות', 'שש מאות', 'שבע מאות', 'שמונה מאות', 'תשע מאות']
+
+
+def hebrew_number(n):
+    if n >= 1000:
+        return str(n)
+    if n < 10:
+        return UNITS[n]
+    parts = []
+    if n >= 100:
+        parts.append(HUNDREDS[n // 100])
+        n %= 100
+    if 10 <= n < 20:
+        parts.append(TEENS[n - 10])
+    elif n >= 20:
+        parts.append(TENS[n // 10])
+        if n % 10:
+            parts.append(UNITS[n % 10])
+    elif n:
+        parts.append(UNITS[n])
+    # "and" goes on the last part: מאה עשרים ושלוש, עשרים ואחת.
+    if len(parts) > 1:
+        parts[-1] = 'ו' + parts[-1]
+    return ' '.join(parts)
+
+
+def hebrew_numbers(text):
+    # A prefix letter before a number ("מ-3", "ב-5") joins the word: "משלוש".
+    text = re.sub(r'(?<![\u0590-\u05FF])([מבלהוכש])-(\d+)', lambda m: m.group(1) + hebrew_number(int(m.group(2))), text)
+    return re.sub(r'\d+', lambda m: hebrew_number(int(m.group())), text)
+
+
+def synthesize(kokoro, text, voice, speed, language, g2p=None):
     import numpy as np
 
     spoken = re.sub(r'\s+', ' ', EMOJI.sub('', text)).strip()
     if not re.search(r'\w', spoken):
         raise RuntimeError('nothing to say (only emoji)')
-    audio, rate = kokoro.create(spoken, voice=voice, speed=speed, lang=language)
+    if g2p is not None:
+        # Hebrew: words -> sounds (with the vowels worked out), then speak the sounds.
+        spoken = spoken.replace('+', ' ועוד ').replace('−', ' פחות ').replace('×', ' כפול ').replace('=', ' שווה ')
+        phonemes = g2p.phonemize(hebrew_numbers(spoken))
+        audio, rate = kokoro.create(phonemes, voice=voice, speed=speed, is_phonemes=True)
+    else:
+        audio, rate = kokoro.create(spoken, voice=voice, speed=speed, lang=language)
     if rate != RATE:
         raise RuntimeError(f'unexpected sample rate {rate}')
     return trim(np.asarray(audio, dtype='float32'))
@@ -164,7 +220,8 @@ def main():
     args = parser.parse_args()
 
     settings, sentences = read_sentences(args.file)
-    voice = args.voice or settings.get('VOICE', 'af_heart')
+    hebrew = settings.get('ENGINE') == 'kokoro-hebrew'
+    voice = args.voice or settings.get('VOICE', 'he_shaul' if hebrew else 'af_heart')
     speed = args.speed or float(settings.get('SPEED', '0.9'))
     # Kokoro's language: 'a' American English, 'b' British English.
     lang = settings.get('LANG', voice[0])
@@ -180,7 +237,17 @@ def main():
     except ImportError:
         sys.exit('Kokoro is not installed. Run:  pip install -r requirements.txt')
 
-    kokoro = Kokoro(str(download(MODEL)), str(download(VOICES)))
+    g2p = None
+    if hebrew:
+        try:
+            from renikud_onnx import G2P
+        except ImportError:
+            sys.exit('The Hebrew engine needs renikud. Run:  pip install -r requirements.txt')
+        paths = {name: download(name, url) for name, url in HEBREW_FILES.items()}
+        kokoro = Kokoro(str(paths['kokoro-hebrew.onnx']), str(paths['voices-hebrew.bin']))
+        g2p = G2P(str(paths['renikud.onnx']))
+    else:
+        kokoro = Kokoro(str(download(MODEL)), str(download(VOICES)))
     if voice not in kokoro.get_voices():
         sys.exit(f'No voice "{voice}". Voices: {", ".join(sorted(kokoro.get_voices()))}')
 
@@ -188,8 +255,9 @@ def main():
         folder = EXPORT / '_samples'
         folder.mkdir(parents=True, exist_ok=True)
         text = sentences[0][1]
-        for name in SAMPLE_VOICES:
-            path = save(synthesize(kokoro, text, name, speed, LANGUAGES.get(name[0], language)), folder / name, use_mp3)
+        # Hebrew: every voice its model has.
+        for name in sorted(kokoro.get_voices()) if hebrew else SAMPLE_VOICES:
+            path = save(synthesize(kokoro, text, name, speed, LANGUAGES.get(name[0], language), g2p), folder / name, use_mp3)
             print(f'  {path.relative_to(HERE)}')
         print(f'Listen, then put the voice you like on line 1 of {args.file.name} (VOICE=...).')
         return
@@ -205,7 +273,7 @@ def main():
     failed = 0
     for i, (name, text) in enumerate(todo, start=1):
         try:
-            path = save(synthesize(kokoro, text, voice, speed, language), EXPORT / name, use_mp3)
+            path = save(synthesize(kokoro, text, voice, speed, language, g2p), EXPORT / name, use_mp3)
             print(f'  [{i}/{len(todo)}] {path.name}  "{text}"')
         except Exception as error:  # keep going: one bad sentence shouldn't stop the rest
             failed += 1

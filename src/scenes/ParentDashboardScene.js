@@ -169,15 +169,6 @@ export default class ParentDashboardScene extends BaseScene {
     this.text(LEFT, TOP + 487, t('parents.readAloud'), 22);
     const narration = profile.narration !== false;
     this.button('narration', LEFT + 300, TOP + 487, t(narration ? 'parents.on' : 'parents.off'), () => this.change(profile, { narration: !narration }), { width: 160 });
-    const language = profile.language || FALLBACK;
-    if (languages().length > 1) {
-      this.text(LEFT, TOP + 547, t('parents.language'), 22);
-      languages().forEach((option, i) => {
-        const on = option.id === language;
-        this.button(`language:${option.id}`, LEFT + 300 + i * 170, TOP + 547, option.name, () => this.change(profile, { language: option.id }), { width: 160, color: on ? COLORS.primary : COLORS.white, textColor: on ? COLORS.white : COLORS.ink });
-      });
-    }
-
     // Progress in their band, by subject.
     const skills = skillsFor({ band: band.id }).filter(isPlayable);
     this.text(RIGHT, TOP + 8, t('parents.progress', { min: band.minAge, max: band.maxAge }), 22, COLORS.gray);
@@ -204,7 +195,16 @@ export default class ParentDashboardScene extends BaseScene {
       const names = practicing.slice(0, 3).map((skill) => `${skill.emoji} ${skillTitle(skill)}`).join(', ');
       this.text(RIGHT, TOP + 335, t('parents.practicing', { skills: names }), 18, COLORS.ink, { wordWrap: { width: 540 } });
     }
-    this.button('report', RIGHT + 270, TOP + 440, t('parents.report'), () => this.openReport(), { width: 360, height: 70, fontSize: 24, color: COLORS.primary, textColor: COLORS.white });
+    // The child's language.
+    const language = profile.language || FALLBACK;
+    if (languages().length > 1) {
+      this.text(RIGHT, TOP + 400, t('parents.language'), 22);
+      languages().forEach((option, i) => {
+        const on = option.id === language;
+        this.button(`language:${option.id}`, RIGHT + 250 + i * 170, TOP + 400, option.name, () => this.change(profile, { language: option.id }), { width: 160, height: 50, color: on ? COLORS.primary : COLORS.white, textColor: on ? COLORS.white : COLORS.ink });
+      });
+    }
+    this.button('report', RIGHT + 270, TOP + 470, t('parents.report'), () => this.openReport(), { width: 360, height: 60, fontSize: 24, color: COLORS.primary, textColor: COLORS.white });
 
     this.report({
       step: 'child',

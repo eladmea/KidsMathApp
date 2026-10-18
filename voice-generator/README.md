@@ -10,6 +10,7 @@ This folder is separate from the game: nothing in it is built into the app. Only
 |---|---|
 | `generate.py` | The script |
 | `sentences_english.txt` | Line 1: the voice settings. Then one sentence per line, as `file name \| sentence` |
+| `sentences_hebrew.txt` | The same for Hebrew (see "Hebrew" below) |
 | `voices_export/` | The recordings it makes (not committed to git) |
 | `models/` | The Kokoro model, downloaded on the first run (not committed to git) |
 
@@ -68,4 +69,25 @@ The list holds every sentence the game says to a child:
 
 To keep it small, spoken lines have no names, and choices and numbers are read as short sentences of their own, so one recording serves many questions. See "Record the voice" in `ARCHITECTURE.md`.
 
-Kokoro has no Hebrew voice, so Hebrew will need a different engine when it comes. The game side already supports it: recordings go in `src/voice/he/`.
+## Hebrew
+
+`sentences_hebrew.txt` holds the Hebrew sentences (made with `npm run voice:lines -- he --txt`). Its line 1 picks the Hebrew engine:
+
+```
+ENGINE=kokoro-hebrew VOICE=he_shaul SPEED=0.9
+```
+
+```bash
+python generate.py --file sentences_hebrew.txt --samples     # hear the voices first
+python generate.py --file sentences_hebrew.txt --install     # record them all, copy them into src/voice/he/
+```
+
+- **The engine.** [Kokoro Hebrew](https://huggingface.co/thewh1teagle/kokoro-hebrew-nc) is a Kokoro model trained on Hebrew, so it runs through the same `kokoro-onnx` as English. Hebrew is written without vowels, so [renikud](https://huggingface.co/thewh1teagle/renikud) first works out the vowels (nikud) and the sounds. It was the best free Hebrew voice we found that runs on a laptop CPU.
+- **Downloads.** The first run downloads three files into `models/` from Hugging Face: `kokoro-hebrew.onnx`, `voices-hebrew.bin` and `renikud.onnx`, about 330 MB in all.
+- **Numbers.** Digits are turned into Hebrew words first, in the counting form used for sums ("3 ועוד 4" is read "שלוש ועוד ארבע"). Numbers that count something ("שלושה תפוחים") are already written as words by the game.
+- **The voice.** `he_shaul` is a calm, clear male voice. It is trained on a public Hebrew speech corpus (SASPEECH). Run `--samples` to hear every voice the model has, then put the one you like in `VOICE=`.
+- **The licence.** The Hebrew model is free for **non-commercial** use only (see its model page). That's fine for a free game. If the game is ever sold, record Hebrew with another engine: the game only needs MP3 files named the same way.
+- **Other engines we looked at:**
+  - Chatterbox Multilingual: MIT licence and can copy a female voice from a sample, but it needs about 3 GB of PyTorch and is slow on CPU.
+  - Meta's MMS-TTS: non-commercial, and its voice sounds like a Bible reading.
+  - phonikud-tts (Piper): non-commercial, research and education use only.

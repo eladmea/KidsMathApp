@@ -13,6 +13,11 @@ const language = args.find((a) => !a.startsWith('--')) || 'en';
 const missingOnly = args.includes('--missing');
 const asText = args.includes('--txt');
 const LANGUAGE_NAMES = { en: 'english', he: 'hebrew' };
+// Line 1 of a new sentence file: the voice settings (generate.py reads them).
+const HEADERS = {
+  en: 'VOICE=af_heart SPEED=0.9 LANG=a',
+  he: 'ENGINE=kokoro-hebrew VOICE=he_shaul SPEED=0.9',
+};
 
 const server = await createServer({ server: { middlewareMode: true }, appType: 'custom', logLevel: 'error' });
 try {
@@ -22,7 +27,7 @@ try {
   if (all.missingTemplates.length) console.warn(`Spoken templates with no values listed (src/services/voiceLines.js templateValues): ${all.missingTemplates.join(', ')}`);
   if (asText) {
     const out = `voice-generator/sentences_${LANGUAGE_NAMES[language] || language}.txt`;
-    const header = fs.existsSync(out) ? fs.readFileSync(out, 'utf8').split('\n')[0] : 'VOICE=af_heart SPEED=0.9 LANG=a';
+    const header = fs.existsSync(out) ? fs.readFileSync(out, 'utf8').split('\n')[0] : HEADERS[language] || HEADERS.en;
     fs.writeFileSync(out, [header, ...lines.map((l) => `${l.id} | ${l.text}`)].join('\n') + '\n');
     console.log(`${out}: ${lines.length} sentences.`);
   } else {

@@ -38,3 +38,24 @@ describe('sentences to record', () => {
     expect(lines.length).toBeLessThan(4000);
   });
 });
+
+describe('Hebrew sentences to record', () => {
+  const hebrew = voiceLines('he', { samples: 400 });
+  const spoken = new Set(hebrew.map((line) => line.text));
+  afterAll(() => setLanguage('en'));
+
+  it('lists every spoken template, in Hebrew, without gaps', () => {
+    expect(hebrew.missingTemplates).toEqual([]);
+    hebrew.forEach((line) => {
+      expect(line.text).not.toMatch(/[{}]|undefined|NaN/);
+      expect(line.text).not.toMatch(/[A-Za-z]/);
+    });
+  });
+
+  it('has the lines every child hears', () => {
+    setLanguage('he');
+    [t('map.sayGreeting'), t('timeUp.say'), t('adventure.sayComplete'), t('pathRace.saySpin')].forEach((line) =>
+      expect(splitSentences(line).every((sentence) => spoken.has(sentence))).toBe(true)
+    );
+  });
+});
