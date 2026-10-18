@@ -30,6 +30,8 @@ import { clipId, clipUrl } from './voiceClips';
 // Bands whose questions are read aloud by default (narration is on for ages 3-6).
 const READ_ALOUD_BANDS = ['sprouts', 'explorers'];
 const SAMPLES = 3000;
+// An older children's skill saying at most this many sentences is recorded too.
+const FEW_SENTENCES = 80;
 const range = (from, to) => Array.from({ length: to - from + 1 }, (_, i) => from + i);
 // Round sizes of every game and quiz (for "You got 3 out of 5.").
 const ROUND_TOTALS = [2, 3, 5, 6, 8, 10, 16, 24];
@@ -45,7 +47,6 @@ const SHOWN = new Set([
   'mini.toss.end',
   'mini.dance.end',
   'mini.dance.best',
-  'hubs.earn',
   'twoPlayer.turn',
   'tracing.startMarker',
   // Built from each question's letters (see the questions below).
@@ -61,6 +62,7 @@ function templateValues() {
     'adventure.sayNext': kinds.map((kind) => ({ kind })),
     'adventure.sayNextSkill': ['new', 'second'].flatMap((kind) => titles.map((title) => ({ kind: t(`adventure.kinds.${kind}`), title }))),
     'hubs.sayEarn': range(1, 2).map((count) => ({ count })),
+    'hubs.earn': range(1, 2).map((count) => ({ count })),
     'mini.bubble.fact': (content('science').FUN_FACTS || []).map((fact) => ({ fact })),
     'pathRace.hop': range(1, 3).map((count) => ({ count })),
     'pathRace.hopTo': range(1, 20).map((square) => ({ square })),
@@ -84,8 +86,9 @@ function spokenKeys(language) {
   Object.values(SOURCES).forEach((source) => {
     source.split('\n').forEach((line) => {
       if (!/speak\(|\.say\(|\bsay:|resultLine|exampleSpeech/.test(line)) return;
-      for (const [, key] of line.matchAll(/\bt\('([\w.]+)'/g)) found.add(key);
-      for (const [, template] of line.matchAll(/\bt\(`([\w.${}]+)`/g)) {
+      // Any key on the line, also those picked by a condition: t(ok ? 'a.b' : 'a.c').
+      for (const [, key] of line.matchAll(/'(\w+\.[\w.]+)'/g)) if (has(key)) found.add(key);
+      for (const [, template] of line.matchAll(/`(\w+\.[\w.]*\$\{[^}]+\}[\w.]*)`/g)) {
         const pattern = new RegExp(`^${template.replace(/\./g, '\\.').replace(/\$\{[^}]+\}/g, '[\\w]+')}$`);
         keys.filter((key) => pattern.test(key)).forEach((key) => found.add(key));
       }
@@ -137,17 +140,24 @@ export function voiceLines(language, { samples = SAMPLES } = {}) {
   if (literacy && literacy.SOUND_SPEECH) Object.values(literacy.SOUND_SPEECH).forEach((sound) => add(sound, 'letter sound'));
   if (hasContent('math', language)) memoryPhrases(content('math', language), literacy, add);
 
-  // ---- questions read aloud ----
+  // ---- questions ----
+  // Ages 3-6 hear every question; older children's skills are recorded only
+  // when they say few different sentences (stories, body parts, fair play),
+  // not when every question has new numbers in it.
   const readAloud = new Set(SKILLS.filter((skill) => skill.generator && READ_ALOUD_BANDS.includes(skill.band)).map((skill) => skill.generator));
+  const used = new Set(SKILLS.filter((skill) => skill.generator).map((skill) => skill.generator));
   Object.keys(GENERATORS).forEach((id) => {
-    if (!readAloud.has(id) || !hasContent(GENERATOR_PACK[id], language)) return;
+    if (!used.has(id) || !hasContent(GENERATOR_PACK[id], language)) return;
+    const found = new Map();
+    const take = (text, source) => splitSentences(text).forEach((sentence) => found.set(sentence, found.get(sentence) || source));
     for (let i = 0; i < samples; i++) {
       const question = generateQuestion(id);
-      add(question.speech, `question: ${id}`);
-      add(question.explain || t('quiz.answerIs', { answer: answerLabel(question).replace(/ · /g, ', ') }), `explanation: ${id}`);
-      (question.items || []).forEach((item) => add(item.caption, `caption: ${id}`));
-      if (question.type === 'build' && literacy) add(t('quiz.blend', { sounds: question.parts.map((p) => literacy.SOUND_SPEECH[p] || p).join(', '), word: question.word }), `blend: ${id}`);
+      take(question.speech, `question: ${id}`);
+      take(question.explain || t('quiz.answerIs', { answer: answerLabel(question).replace(/ · /g, ', ') }), `explanation: ${id}`);
+      (question.items || []).forEach((item) => take(item.caption, `caption: ${id}`));
+      if (question.type === 'build' && literacy) take(t('quiz.blend', { sounds: question.parts.map((p) => literacy.SOUND_SPEECH[p] || p).join(', '), word: question.word }), `blend: ${id}`);
     }
+    if (readAloud.has(id) || found.size <= FEW_SENTENCES) found.forEach((source, sentence) => add(sentence, source));
   });
 
   const result = [...lines.values()]
@@ -208,7 +218,7 @@ function memoryPhrases({ say }, literacy, add) {
     // Several decks, so every picture a letter can have turns up.
     const faces = new Map();
     for (let i = 0; i < 30; i++) {
-      createDeck(variantId, { letters: literacy && literacy.MEMORY_LETTERS }).forEach((card) => faces.set(`${card.value}:${card.face.label}`, card));
+      createDeck(variantId, { letters: literacy && literacy.MEMORY_LETTERS }).forEach((card) => faces.set(`${card.value}:${card.face.kind}:${card.face.label}`, card));
     }
     const cards = [...faces.values()];
     cards.forEach((card) => add(memory.face(card.face), `game: memory ${variantId}`));
