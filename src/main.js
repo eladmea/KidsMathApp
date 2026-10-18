@@ -1,23 +1,34 @@
 import Phaser from 'phaser';
 import '@fontsource/fredoka/latin-600.css';
+import '@fontsource/fredoka/hebrew-600.css';
 import { SAFE } from './ui/BaseScene';
 import { COLORS } from './ui/theme';
 import { installBridge } from './services/testBridge';
 import { loadSession } from './services/session';
 import { initSpeech } from './services/speech';
-import { t } from './i18n/index';
+import { languageInfo, onLanguageChange, t } from './i18n/index';
 import { SCENES } from './scenes/registry';
+import { installRtlText } from './ui/rtlText';
 
 async function start() {
   // Canvas text needs the font loaded before the first scene draws.
   try {
-    await document.fonts.load('600 40px Fredoka');
+    // Both letter sets, so Hebrew is ready too (each loads only its own file).
+    await Promise.all([document.fonts.load('600 40px Fredoka', 'Aa'), document.fonts.load('600 40px Fredoka', 'אב')]);
   } catch (e) {
     // Falls back to the system font.
   }
   await loadSession();
   document.querySelector('#rotate .text').textContent = t('common.turnDevice');
   initSpeech();
+  installRtlText();
+  // Name fields and notes (HTML inputs) follow the language too.
+  const pageLanguage = () => {
+    document.documentElement.lang = languageInfo().id;
+    document.documentElement.dir = languageInfo().dir;
+  };
+  pageLanguage();
+  onLanguageChange(pageLanguage);
 
   const game = new Phaser.Game({
     type: Phaser.AUTO,

@@ -88,6 +88,7 @@ export async function updateProfileById(id, patch) {
   if (session.profile && session.profile.id === id) {
     session.profile = session.profiles.find((p) => p.id === id);
     if ('narration' in patch) setNarration(patch.narration);
+    if ('language' in patch) setLanguage(patch.language);
   }
   await storage.saveProfiles(session.profiles);
 }

@@ -16,6 +16,7 @@
   "limitMinutes": "{minutes}m",
   "limitHint": "When time is up, {name} can finish the current round, then gets a goodbye screen.",
   "readAloud": "Read aloud",
+  "language": "Language",
   "on": "🔊 On",
   "off": "🔇 Off",
   "progress": "Progress ({min}–{max} skills)",

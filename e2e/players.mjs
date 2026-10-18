@@ -28,7 +28,7 @@ await sleep(400);
 check('no players yet: the welcome screen opens', (await t.spoken()).some((line) => line.startsWith('Welcome')));
 check('the first player has no back button', !(await t.box('back')));
 check("can't save without a name", (await state()).canSave === false);
-check('no language picker while there is only one language', !(await t.box('language:en')));
+check('the welcome screen offers every language, English first', Boolean(await t.box('language:en')) && Boolean(await t.box('language:he')));
 await tap('save');
 check('tapping save with no name does nothing', (await t.scene()) === 'CreateProfile');
 

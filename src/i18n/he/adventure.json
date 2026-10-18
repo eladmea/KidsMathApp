@@ -1,0 +1,29 @@
+{
+  "title": "🗺️ ההרפתקה של היום",
+  "kinds": {
+    "warmup": "חימום",
+    "new": "מיומנות חדשה",
+    "mixed": "תרגול מעורב",
+    "minigame": "הפסקת כיף",
+    "second": "גילוי",
+    "cooldown": "הרגעה"
+  },
+  "review": {
+    "one": "⭐ חזרה על מיומנות אחת",
+    "two": "⭐ חזרה על שתי מיומנויות",
+    "other": "⭐ חזרה על {count} מיומנויות"
+  },
+  "mixed": "🔀 {emoji} מעורב",
+  "about": "בערך {minutes} דק׳ · {main} + {second}",
+  "start": "▶ התחלה: {kind}",
+  "next": "▶ הבא: {kind}",
+  "sayNext": "עכשיו: {kind}.",
+  "sayNextSkill": "עכשיו: {kind}. {title}.",
+  "complete": "סיימנו את ההרפתקה!",
+  "sayComplete": "סיימנו את ההרפתקה! כל הכבוד. נתראה מחר!",
+  "newSticker": "מדבקה חדשה: {list}",
+  "todayStickers": "המדבקות של היום: {list}",
+  "tomorrow": "נתראה מחר בהרפתקה חדשה! 👋",
+  "mapButton": "🗺️ ההרפתקה של היום",
+  "mapDone": "✓ ההרפתקה של היום הושלמה!"
+}

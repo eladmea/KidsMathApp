@@ -15,7 +15,7 @@ import { daysPlayed, notesOf, skillReport, toCsv } from '../logic/playLog';
 import { SUBJECTS } from '../curriculum/subjects';
 import { isPlayable, skillsFor } from '../curriculum/skills';
 import { bandName, skillTitle, subjectName } from '../i18n/names';
-import { getLanguage, t } from '../i18n/index';
+import { FALLBACK, getLanguage, languages, t } from '../i18n/index';
 
 // The grown-ups' dashboard (opened from "Who's playing?" behind the
 // grown-up check): for each child, today's play time and the last week,
@@ -32,9 +32,9 @@ const MAX_VOICES = 7;
 export default class ParentDashboardScene extends BaseScene {
   static key = 'ParentDashboard';
 
-  build() {
+  build({ tab } = {}) {
     this.today = toDayKey();
-    this.tab = session.profiles[0] ? session.profiles[0].id : 'voice';
+    this.tab = tab || (session.profiles[0] ? session.profiles[0].id : 'voice');
     this.showingReport = false;
     this.content = [];
     this.tabs = [];
@@ -169,6 +169,14 @@ export default class ParentDashboardScene extends BaseScene {
     this.text(LEFT, TOP + 487, t('parents.readAloud'), 22);
     const narration = profile.narration !== false;
     this.button('narration', LEFT + 300, TOP + 487, t(narration ? 'parents.on' : 'parents.off'), () => this.change(profile, { narration: !narration }), { width: 160 });
+    const language = profile.language || FALLBACK;
+    if (languages().length > 1) {
+      this.text(LEFT, TOP + 547, t('parents.language'), 22);
+      languages().forEach((option, i) => {
+        const on = option.id === language;
+        this.button(`language:${option.id}`, LEFT + 300 + i * 170, TOP + 547, option.name, () => this.change(profile, { language: option.id }), { width: 160, color: on ? COLORS.primary : COLORS.white, textColor: on ? COLORS.white : COLORS.ink });
+      });
+    }
 
     // Progress in their band, by subject.
     const skills = skillsFor({ band: band.id }).filter(isPlayable);
@@ -205,6 +213,7 @@ export default class ParentDashboardScene extends BaseScene {
       allowed,
       limit,
       narration,
+      language,
       week: week.map((d) => d.minutes),
       adventures,
       subjects,
@@ -213,8 +222,11 @@ export default class ParentDashboardScene extends BaseScene {
   }
 
   async change(profile, patch) {
+    const before = getLanguage();
     await updateProfileById(profile.id, patch);
-    this.show();
+    // The signed-in child's language is the dashboard's too: draw it again.
+    if (getLanguage() !== before) this.swap(ParentDashboardScene.key, { tab: this.tab });
+    else this.show();
   }
 
   async moreTime(profile) {

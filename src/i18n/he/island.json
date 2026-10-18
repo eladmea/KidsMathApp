@@ -1,0 +1,12 @@
+{
+  "title": "{emoji} {name}",
+  "ages": "{emoji} {min}-{max}",
+  "soon": "🚧 בקרוב",
+  "next": "▶ הבא",
+  "firstPlay": "קודם משחקים ב{skills}.",
+  "comingSoon": "{title}: בקרוב!",
+  "chestLocked": "סיימו את כל התחנות כדי לפתוח את תיבת האוצר!",
+  "chestOpened": "מצאתם את האוצר! 🎉",
+  "chestSticker": "מצאתם את האוצר! מדבקה חדשה: {emoji}",
+  "chestSay": "מצאתם את האוצר!"
+}

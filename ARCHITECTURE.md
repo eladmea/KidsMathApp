@@ -61,14 +61,19 @@ Colours and the font live in `ui/theme.js`.
    - Phrase functions are plain JavaScript, so each language handles its own grammar (plural nouns, Hebrew number gender, word order).
    - A pack can also export `generators` to replace a question generator for that language, for example a different reading curriculum. Then it doesn't need to match English's data.
    - A subject without a pack shows its quiz skills as 🚧 Soon in that language. A question never comes out in the wrong language.
-3. **That's all.** The language picker appears on "New player" once there's more than one language, and each child keeps their own.
+3. **That's all.** The language picker appears on "New player" once there's more than one language, and each child keeps their own. Grown-ups can change a child's language on the Parent Dashboard.
 
 `npm test` checks the language files:
 - every key the code uses exists in English;
 - other languages only use keys English has;
 - other packs offer what English's do.
 
-Right-to-left: text is drawn right-to-left when `dir` is `rtl`. Mirroring whole layouts is not done yet (see the plan).
+Right-to-left (`dir: "rtl"`, e.g. Hebrew):
+- Every Phaser text is drawn right to left by `ui/rtlText.js` (rules in `logic/bidi.js`). Don't use Phaser's own `rtl` style: it right-aligns every line.
+- Sums stay left to right inside a sentence ("כמה זה 5 − 2?"), and lines with no Hebrew letters are untouched.
+- The page's `lang` and `dir` follow the language, so name fields and notes type right to left.
+- Layouts are not mirrored: pictures, number lines and sums read left to right in Hebrew too. Rows the child reads in order (quiz answers, Word Builder slots and tiles, story panels) run right to left, so the first one read aloud is on the right (`side()` in `ui/QuizInputs.js`).
+- Hebrew text addresses the child in the plural ("בחרו", "בואו נספור"), so it is never only for boys or only for girls.
 
 ---
 

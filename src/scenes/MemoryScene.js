@@ -27,7 +27,6 @@ const BUDDY_FIRST_FLIP_MS = 900;
 const BUDDY_SECOND_FLIP_MS = 800;
 const BUDDY_THINK_MS = 1500;
 const GRID = { left: 330, top: 185, width: 920, height: 520, gap: 12 };
-const ALPHABET_HELPER = ['a', 'b', 'c', 'd', 'e', 'f'];
 
 // How a card's face is drawn: dice dots, a picture, or its label.
 function drawFace(scene, container, face, size, color) {
@@ -332,7 +331,7 @@ export default class MemoryScene extends BaseScene {
       y += 30;
     }
     if (this.variant.helper === 'alphabet') {
-      dialog.add(this.add.text(0, y, ALPHABET_HELPER.join('  '), textStyle(30, COLORS.primary)).setOrigin(0.5));
+      dialog.add(this.add.text(0, y, Object.values(content('literacy').MEMORY_LETTERS).map(([letter]) => letter).join('  '), textStyle(30, COLORS.primary)).setOrigin(0.5));
       y += 36;
     }
     if (this.buddyTurn) dialog.add(this.add.text(0, y + 10, t('memory.thinking', { name: player.name }), textStyle(24, COLORS.gray)).setOrigin(0.5));
