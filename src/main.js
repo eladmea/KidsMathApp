@@ -9,6 +9,7 @@ import { initSpeech } from './services/speech';
 import { languageInfo, onLanguageChange, t } from './i18n/index';
 import { SCENES } from './scenes/registry';
 import { installRtlText } from './ui/rtlText';
+import { installStrokeFix } from './ui/strokeFix';
 
 async function start() {
   // Canvas text needs the font loaded before the first scene draws.
@@ -22,6 +23,7 @@ async function start() {
   document.querySelector('#rotate .text').textContent = t('common.turnDevice');
   initSpeech();
   installRtlText();
+  installStrokeFix();
   // Name fields and notes (HTML inputs) follow the language too.
   const pageLanguage = () => {
     document.documentElement.lang = languageInfo().id;

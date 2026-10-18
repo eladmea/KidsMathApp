@@ -2,7 +2,7 @@ import PaintLayer, { DragSurface } from './PaintLayer';
 import HintArrow from './HintArrow';
 import { glyph } from './Art';
 import { COLORS, textStyle } from './theme';
-import { BOX, advance, freeTraceAdd, freeTraceResult, freeTraceStart, isStrokeDone, startsAtDot } from '../logic/tracing';
+import { BOX, HIT_RADIUS, advance, freeTraceAdd, freeTraceResult, freeTraceStart, isStrokeDone, startsAtDot } from '../logic/tracing';
 
 const DEMO_STEP_MS = 30;
 const MAX_TRAIL_STAMPS = 160;
@@ -16,6 +16,9 @@ export const DEFAULT_LOOK = {
   trailSize: 18,
   trailEmoji: null,
   follower: null,
+  // A colour here draws each stroke as a thick road under the dots, as wide
+  // as the finger may stray, so young children see a fat number to follow.
+  road: null,
   demo: '✏️',
 };
 
@@ -107,6 +110,17 @@ export default class TraceLayer {
   redraw() {
     const { look } = this;
     this.guide.clear();
+    if (look.road) {
+      const radius = HIT_RADIUS * this.scale * 0.8;
+      this.strokes.forEach((stroke, s) => {
+        const current = this.freeOrder || s === this.strokeIndex;
+        this.guide.fillStyle(look.road, current || this.finished ? 1 : 0.55);
+        stroke.forEach((point) => {
+          const [px, py] = this.toScene(point);
+          this.guide.fillCircle(px, py, radius);
+        });
+      });
+    }
     this.strokes.forEach((stroke, s) => {
       stroke.forEach((point, i) => {
         const done = this.finished || (this.freeOrder ? this.free.covered[s][i] : s < this.strokeIndex || (s === this.strokeIndex && i < this.reached));

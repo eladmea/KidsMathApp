@@ -37,6 +37,21 @@ export function checkCount(placed, target) {
   return placed < target ? 'more' : 'fewer';
 }
 
+// Where the candles stand on a cake `width` wide: evenly spaced, never on
+// top of each other, so each one can be tapped. Up to `perRow` fit in one
+// row; more make a second row behind (row 1), between the front ones.
+// [{ x, row, spacing }] with x from the cake's left edge, in placing order.
+export function candleSlots(count, width, perRow = 8) {
+  if (count <= 0) return [];
+  const rows = count <= perRow ? [count] : [Math.ceil(count / 2), Math.floor(count / 2)];
+  const slots = [];
+  rows.forEach((inRow, row) => {
+    const spacing = width / inRow;
+    for (let i = 0; i < inRow; i++) slots.push({ x: (i + 0.5) * spacing, row, spacing });
+  });
+  return slots;
+}
+
 // A drop lands on a round target (pizza, cake top) if it's inside the circle.
 // x, y are relative to the target's top-left; size is its diameter.
 export function insideCircle(x, y, size, margin = 0.08) {
