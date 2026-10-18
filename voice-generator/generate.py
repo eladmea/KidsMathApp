@@ -127,6 +127,8 @@ def synthesize(kokoro, text, voice, speed, language):
     import numpy as np
 
     spoken = re.sub(r'\s+', ' ', EMOJI.sub('', text)).strip()
+    if not re.search(r'\w', spoken):
+        raise RuntimeError('nothing to say (only emoji)')
     audio, rate = kokoro.create(spoken, voice=voice, speed=speed, lang=language)
     if rate != RATE:
         raise RuntimeError(f'unexpected sample rate {rate}')

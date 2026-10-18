@@ -423,8 +423,6 @@ repeats-again-and-again-9ffb2c3d | 🍎🍌🍇 repeats again and again.
 repeats-again-and-again-1cb4d076 | 🍎🍌🍌 repeats again and again.
 repeats-again-and-again-4211e034 | 🍎🍎🍌 repeats again and again.
 repeats-again-and-again-b85d9dba | 🍎🍎🍌🍌 repeats again and again.
-8d54a1a4 | 🎉
-ab54d0de | 🎯
 repeats-again-and-again-77d09f58 | 🐶🐱🐭 repeats again and again.
 repeats-again-and-again-cae975ec | 🐶🐱🐱 repeats again and again.
 repeats-again-and-again-95262d69 | 🐶🐶🐱 repeats again and again.
@@ -464,6 +462,7 @@ repeats-again-and-again-938fbd1f | 🟥🟩🟩 repeats again and again.
 10-groups-of-7-make-70-e9bff31d | 10 groups of 7 make 70.
 10-groups-of-8-make-80-3f4ac6c3 | 10 groups of 8 make 80.
 10-groups-of-9-make-90-660bce99 | 10 groups of 9 make 90.
+10-is-the-bigger-number-cd355430 | 10 is the bigger number.
 10-minus-1-is-9-408d88c9 | 10 minus 1 is 9!
 10-plus-1-is-11-685d22a8 | 10 plus 1 is 11!
 100-is-the-bigger-number-3e166ee8 | 100 is the bigger number.
@@ -516,7 +515,6 @@ repeats-again-and-again-938fbd1f | 🟥🟩🟩 repeats again and again.
 2-groups-of-7-make-14-2f2de404 | 2 groups of 7 make 14.
 2-groups-of-8-make-16-170a2df5 | 2 groups of 8 make 16.
 2-groups-of-9-make-18-9c2d06c2 | 2 groups of 9 make 18.
-2-is-the-bigger-number-167bf93d | 2 is the bigger number.
 2-minus-1-is-1-bb89a0ac | 2 minus 1 is 1!
 2-mushrooms-cdea3195 | 2 mushrooms!
 2-olive-slices-312ce45c | 2 olive slices!
@@ -669,6 +667,7 @@ repeats-again-and-again-938fbd1f | 🟥🟩🟩 repeats again and again.
 5-groups-of-7-make-35-da5bf51c | 5 groups of 7 make 35.
 5-groups-of-8-make-40-abd37e03 | 5 groups of 8 make 40.
 5-groups-of-9-make-45-2509afef | 5 groups of 9 make 45.
+5-is-the-bigger-number-7eb983cc | 5 is the bigger number.
 5-ladybugs-is-more-than-1-ladybug-9b35b9a2 | 5 ladybugs is more than 1 ladybug.
 5-ladybugs-is-more-than-2-ladybugs-b1776618 | 5 ladybugs is more than 2 ladybugs.
 5-ladybugs-is-more-than-3-ladybugs-e476d0c7 | 5 ladybugs is more than 3 ladybugs.
@@ -729,7 +728,6 @@ repeats-again-and-again-938fbd1f | 🟥🟩🟩 repeats again and again.
 6-flowers-is-more-than-3-flowers-adf4e474 | 6 flowers is more than 3 flowers.
 6-flowers-is-more-than-4-flowers-7aaafe17 | 6 flowers is more than 4 flowers.
 6-goes-here-the-line-runs-from-0-to-10-885fcd5a | 6 goes here: the line runs from 0 to 10.
-6-is-the-bigger-number-43f51ac1 | 6 is the bigger number.
 6-ladybugs-is-more-than-1-ladybug-5390a19d | 6 ladybugs is more than 1 ladybug.
 6-ladybugs-is-more-than-2-ladybugs-bacb183d | 6 ladybugs is more than 2 ladybugs.
 6-ladybugs-is-more-than-3-ladybugs-22e2d36e | 6 ladybugs is more than 3 ladybugs.
