@@ -149,7 +149,8 @@ async function bake(i, { mistakes = false } = {}) {
   const want = s.number - (mistakes ? 1 : 0);
   const tray = await t.box('tray');
   for (let n = 0; n < want; n++) {
-    const p = await t.mp(([x, y]) => window.__mathplay.toPage(x, y), [s.cake.x - 140 + n * 56, s.cake.y]);
+    // Cake 2 drops every candle on the same spot: they still line up.
+    const p = await t.mp(([x, y]) => window.__mathplay.toPage(x, y), [i === 1 ? s.cake.x : s.cake.x - 140 + n * 56, s.cake.y]);
     await t.page.mouse.move(tray.x + 40, tray.y + tray.height / 2);
     await t.page.mouse.down();
     await t.page.mouse.move(p.x, p.y, { steps: 5 });
@@ -167,12 +168,16 @@ async function bake(i, { mistakes = false } = {}) {
     await sleep(100);
   }
   check(`cake ${i + 1}: candles on the cake`, (await state()).candles === s.number);
+  const spots = (await state()).spots;
+  const apart = spots.every(([x, y], a) => spots.every(([x2, y2], b) => a === b || y !== y2 || Math.abs(x - x2) >= 40));
+  check(`cake ${i + 1}: candles stand apart, never on top of each other`, apart, JSON.stringify(spots));
   if (i === 0) await t.shot(dir, 'c2-candles');
   await tap('done');
   await step('blow');
   check(`cake ${i + 1}: all candles lit`, (await state()).lit === s.number);
   if (i === 0) await t.shot(dir, 'c3-lit');
-  for (let n = 0; n < s.number; n++) await tap(`candle:${n}`);
+  // Cake 2 is blown by tapping the cake itself (the nearest lit candle goes out).
+  for (let n = 0; n < s.number; n++) await tap(i === 1 ? 'cake' : `candle:${n}`);
   await step('party');
   if (i === 0) await t.shot(dir, 'c4-party');
 }

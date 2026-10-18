@@ -500,3 +500,16 @@ The device's robotic text-to-speech is replaced by recordings made with Kokoro, 
   - a female Hebrew voice under a permissive licence (Chatterbox) if CPU time allows;
   - a Hebrew icon for the Word Woods island (it shows 🔤 "abc").
 
+## Play-test fixes (Pizza Shop, Birthday Cake)
+
+- **Stray lines from the top-left corner** on a tablet. Phaser 4.2.1 outlines rounded boxes with zero-length segments, and `DrawLine` divides by zero. Some GPUs draw the NaN corners at (0, 0). `ui/strokeFix.js` stretches those segments by a hair. Verified: one outlined box made 456 NaN vertex values a frame, and 0 with the fix.
+- **Tracing was too hard for small fingers.**
+  - The numbers are bigger.
+  - Each is drawn as a thick "road" as wide as the area that counts (`road` in a TraceLayer look).
+  - The trail is thicker.
+  - The finger may stray further: `HIT_RADIUS` is 18 (was 14) and `START_RADIUS` is 26 (was 20), and it may skip ahead 4 checkpoints (was 3).
+- **Candles piled up and couldn't be blown out one by one.**
+  - Candles now line up evenly on the cake (`candleSlots`), in two rows above 8.
+  - Each candle has a wide tap area.
+  - Tapping the cake blows out the nearest lit candle.
+

@@ -207,3 +207,19 @@ describe('free-order writing on the pizza', () => {
     expect(result.messy).toBe(true);
   });
 });
+
+describe('candles on the cake', () => {
+  it('spaces candles evenly so none sit on top of each other', async () => {
+    const { candleSlots } = await import('../src/logic/writingGames');
+    expect(candleSlots(0, 360)).toEqual([]);
+    expect(candleSlots(3, 360).map((s) => s.x)).toEqual([60, 180, 300]);
+    const many = candleSlots(12, 360);
+    expect(many.filter((s) => s.row === 0)).toHaveLength(6);
+    expect(many.filter((s) => s.row === 1)).toHaveLength(6);
+    // In each row, neighbours are at least a candle's width apart.
+    [0, 1].forEach((row) => {
+      const xs = many.filter((s) => s.row === row).map((s) => s.x);
+      xs.slice(1).forEach((x, i) => expect(x - xs[i]).toBeGreaterThanOrEqual(40));
+    });
+  });
+});

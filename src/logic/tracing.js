@@ -28,14 +28,15 @@ export const DIGIT_STROKES = {
 export const COUNT_EMOJI = ['🐞', '🍓', '⭐', '🐟', '🎈', '🍪', '🐥', '🌸', '🚗', '🦋'];
 
 export const STEP = 6;
-// How close (in box units) the finger must pass to a checkpoint.
-export const HIT_RADIUS = 14;
+// How close (in box units) the finger must pass to a checkpoint. Generous:
+// small fingers on a tablet wobble (about a third of a stroke's box width).
+export const HIT_RADIUS = 18;
 // How close the first touch must be to the green start dot.
-export const START_RADIUS = 20;
+export const START_RADIUS = 26;
 // A stroke counts once this share of its checkpoints were reached in order.
 export const COMPLETE_RATIO = 0.9;
 // Checkpoints the finger may skip ahead (a quick swipe still counts).
-const LOOKAHEAD = 3;
+const LOOKAHEAD = 4;
 export const DIGITS_PER_ROUND = 5;
 
 function distance(a, b) {
