@@ -76,14 +76,24 @@ Right-to-left: text is drawn right-to-left when `dir` is `rtl`. Mirroring whole 
 
 The game speaks sentence by sentence. Each sentence has a **clip ID** made from its text. A recording saved as `src/voice/<language>/<clip id>.mp3` (or `.m4a`, `.ogg`, `.wav`) plays instead of the device's text-to-speech. Anything not recorded still uses the device voice, so recordings can be added a few at a time.
 
+English recordings are made with a free AI voice (Kokoro) by **`voice-generator/`**, a separate folder that isn't part of the game. Use it like this:
+
 ```bash
-npm run voice:lines -- en            # writes voice-lines.en.csv: file name, text, where it's used, how common
-npm run voice:lines -- en --missing  # only what isn't recorded yet
+npm run voice:lines -- en --txt            # every sentence to record -> voice-generator/sentences_english.txt
+cd voice-generator && python generate.py --install   # records the new ones, copies them into src/voice/en/
 ```
 
-Record from the top of the list, the most common sentences first. Sentences with a child's name or a random number are listed too, but there are too many to record them all; those simply keep the device voice. If a recording fails to load, that sentence falls back to the device voice.
+See `voice-generator/README.md` for setup.
 
-Letter sounds for Word Builder (`soundSpeech` in the literacy pack: "mmm", "buh") are sentences too, so recording them works the same way.
+`npm run voice:lines -- en` (without `--txt`) writes a CSV instead, with where each line is used. `--missing` lists only what isn't recorded yet.
+
+**Writing text that is spoken.** Recordings are per sentence, so spoken text should reuse sentences:
+- **No names in spoken lines.** "Hi! Pick an island to play.", not "Hi, Mia!". The screen can still show the name: `narrator.say(spoken, { show: shown })`.
+- **Put what varies in its own short sentence.** "Bear wants a pizza! Three toppings, please!" rather than one sentence with both. Read choices as one sentence each ("Ring. Tree. Or goat?") and numbers on their own ("Which number is bigger? 81. Or 64?").
+- **A new spoken template** (`{count}` and so on) needs its values listed in `templateValues()` in `src/services/voiceLines.js`. Game phrases from a content pack are listed in the same file. `npm test` fails if a spoken template has no values.
+- **Questions for ages 7-10 aren't recorded.** Those children read for themselves (read-aloud is off by default), so their questions use the device voice when 🔊 is tapped.
+
+Letter sounds for Word Builder (`soundSpeech` in the literacy pack: "mmm", "buh") are sentences too, so they are recorded the same way.
 
 ---
 

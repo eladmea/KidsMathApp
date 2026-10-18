@@ -31,9 +31,13 @@ Install ffmpeg: Mac `brew install ffmpeg`, Windows `winget install ffmpeg`, Linu
 ```bash
 python generate.py --samples    # the first sentence in 8 voices: voices_export/_samples/
 python generate.py              # every sentence that has no recording yet
+python generate.py --install    # ...and copy them into the game (src/voice/en/)
 python generate.py --force      # record them all again (e.g. after changing the voice)
 python generate.py --limit 5    # just the first 5
+python generate.py --part 1/2   # half the list; run --part 2/2 in a second window at the same time
 ```
+
+The whole list is about 2,900 sentences. It takes 1–2 hours on a laptop CPU, and the result is about 18 MB of MP3s. Sentences already recorded are skipped, so a run can be stopped and started again.
 
 The **first line** of `sentences_english.txt` chooses the voice:
 
@@ -48,12 +52,20 @@ VOICE=af_heart SPEED=0.9 LANG=a  # ...why...
 
 ## Put the recordings in the game
 
-Copy the `.mp3` files from `voices_export/` into `src/voice/en/`. Each file is named after its sentence's id, which is how the game finds it. Then run the game (`npm run dev`): those sentences now use the recording.
+Run `python generate.py --install`. It copies the recording of every sentence in the list into `src/voice/en/`, where the game finds them by file name, and removes recordings whose sentence is no longer in the list. Then run the game (`npm run dev`): those sentences use the recording.
 
 Tested: with the two sample sentences copied in, the "Who's playing?" screen played both recordings instead of the device voice.
 
 ## The sentence list
 
-Every sentence the game can say is listed with its file name by `npm run voice:lines -- en` in the game's folder. That list will fill `sentences_english.txt` (step 2 of the plan).
+`sentences_english.txt` is made by the game: run `npm run voice:lines -- en --txt` in the game's folder after changing any spoken text. It keeps line 1 (your voice settings). Then run `generate.py --install` to record the new sentences.
+
+The list holds every sentence the game says to a child:
+- the spoken lines of the menus and games;
+- every game phrase with each of its numbers and characters;
+- the questions of the ages 3-6 skills;
+- the numbers 0-20.
+
+To keep it small, spoken lines have no names, and choices and numbers are read as short sentences of their own, so one recording serves many questions. See "Record the voice" in `ARCHITECTURE.md`.
 
 Kokoro has no Hebrew voice, so Hebrew will need a different engine when it comes. The game side already supports it: recordings go in `src/voice/he/`.
