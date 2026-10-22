@@ -25,6 +25,8 @@ await sleep(400);
 check('the page is Hebrew, right to left', (await t.mp(() => [document.documentElement.lang, document.documentElement.dir].join())) === 'he,rtl');
 let lines = await t.spoken();
 check('the map greets in Hebrew', HEBREW.test(lines.at(-1)) && !LATIN.test(lines.at(-1)), lines.at(-1));
+const greetingVoice = await t.mp(() => window.__mathplay.voice.filter((v) => /[\u0590-\u05FF]/.test(v.text)));
+check('Hebrew is spoken from the Hebrew recordings', greetingVoice.length > 0 && greetingVoice.every((v) => v.source === 'recording'), JSON.stringify(greetingVoice.filter((v) => v.source !== 'recording')));
 await t.shot(dir, 'h1-map');
 
 // ---- Every quiz skill, in every band: the first question is Hebrew ----
