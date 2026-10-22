@@ -493,8 +493,13 @@ The device's robotic text-to-speech is replaced by recordings made with Kokoro, 
   - Pictures, number lines and the rest of the layout are not mirrored.
 - **Voice.**
   - `voice-generator/` records Hebrew with the Kokoro Hebrew model, with renikud adding the vowels: `sentences_hebrew.txt`, 3,400 sentences.
-  - The model files are on Hugging Face, which this build environment can't reach, so the Hebrew recordings are made on a local machine with `python generate.py --file sentences_hebrew.txt --install`.
-  - Until then Hebrew uses the device's he-IL voice.
+  - All 3,399 Hebrew sentences are recorded (31 MB, `src/voice/he/`), with the `he_shaul` voice.
+  - In the Hebrew walkthrough, 84 of 96 spoken sentences played from recordings. The rest are questions for ages 7-10, which are not recorded on purpose.
+  - HebTTS (a VALL-E model from the Hebrew University) was tried too:
+    - about 5 minutes a sentence on CPU;
+    - it drops punctuation;
+    - it has no license.
+    - Kokoro was kept for now and can be swapped later.
 - **Later:**
   - mirror whole layouts if play-testers want it;
   - a female Hebrew voice under a permissive licence (Chatterbox) if CPU time allows;

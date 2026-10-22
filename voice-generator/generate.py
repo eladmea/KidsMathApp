@@ -37,6 +37,9 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 SENTENCES = HERE / 'sentences_english.txt'
 EXPORT = HERE / 'voices_export'
+# Each language records into its own folder: a sentence with no words
+# ("7", "3 + 4") has the same file name in every language.
+EXPORT_FOLDERS = {'sentences_english.txt': EXPORT, 'sentences_hebrew.txt': EXPORT / 'he'}
 MODELS = HERE / 'models'
 RELEASE = 'https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/'
 MODEL = 'kokoro-v1.0.onnx'
@@ -220,6 +223,7 @@ def main():
     args = parser.parse_args()
 
     settings, sentences = read_sentences(args.file)
+    export = EXPORT_FOLDERS.get(args.file.name, EXPORT / args.file.stem)
     hebrew = settings.get('ENGINE') == 'kokoro-hebrew'
     voice = args.voice or settings.get('VOICE', 'he_shaul' if hebrew else 'af_heart')
     speed = args.speed or float(settings.get('SPEED', '0.9'))
@@ -252,7 +256,7 @@ def main():
         sys.exit(f'No voice "{voice}". Voices: {", ".join(sorted(kokoro.get_voices()))}')
 
     if args.samples:
-        folder = EXPORT / '_samples'
+        folder = export / '_samples'
         folder.mkdir(parents=True, exist_ok=True)
         text = sentences[0][1]
         # Hebrew: every voice its model has.
@@ -262,8 +266,8 @@ def main():
         print(f'Listen, then put the voice you like on line 1 of {args.file.name} (VOICE=...).')
         return
 
-    EXPORT.mkdir(exist_ok=True)
-    todo = [(n, t) for n, t in sentences if args.force or not any((EXPORT / f'{n}{ext}').exists() for ext in ('.mp3', '.wav'))]
+    export.mkdir(parents=True, exist_ok=True)
+    todo = [(n, t) for n, t in sentences if args.force or not any((export / f'{n}{ext}').exists() for ext in ('.mp3', '.wav'))]
     if args.part:
         part, parts = (int(n) for n in args.part.split('/'))
         todo = todo[part - 1 :: parts]
@@ -273,26 +277,26 @@ def main():
     failed = 0
     for i, (name, text) in enumerate(todo, start=1):
         try:
-            path = save(synthesize(kokoro, text, voice, speed, language, g2p), EXPORT / name, use_mp3)
+            path = save(synthesize(kokoro, text, voice, speed, language, g2p), export / name, use_mp3)
             print(f'  [{i}/{len(todo)}] {path.name}  "{text}"')
         except Exception as error:  # keep going: one bad sentence shouldn't stop the rest
             failed += 1
             print(f'  [{i}/{len(todo)}] FAILED "{text}": {error}')
-    print(f'Done: {len(todo) - failed} recorded{f", {failed} failed" if failed else ""}, in {EXPORT.relative_to(HERE)}/.')
+    print(f'Done: {len(todo) - failed} recorded{f", {failed} failed" if failed else ""}, in {export.relative_to(HERE)}/.')
     if args.install:
-        install(sentences, GAME_VOICE.get(args.file.name))
+        install(sentences, export, GAME_VOICE.get(args.file.name))
 
 
 # Copies the recording of every listed sentence into the game, and removes
 # recordings there whose sentence is no longer in the list.
-def install(sentences, folder):
+def install(sentences, export, folder):
     if folder is None:
         sys.exit('No game folder known for this sentence file.')
     folder.mkdir(parents=True, exist_ok=True)
     wanted = set()
     for name, _ in sentences:
         for ext in ('.mp3', '.wav'):
-            source = EXPORT / f'{name}{ext}'
+            source = export / f'{name}{ext}'
             if source.exists():
                 shutil.copy2(source, folder / source.name)
                 wanted.add(source.name)
