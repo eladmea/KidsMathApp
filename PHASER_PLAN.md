@@ -518,3 +518,16 @@ The device's robotic text-to-speech is replaced by recordings made with Kokoro, 
   - Each candle has a wide tap area.
   - Tapping the cake blows out the nearest lit candle.
 
+
+## Robo Path levels (play-test: a 6-year-old wanted more)
+
+- **8 levels** (`STAGES` in `logic/roboPath.js`).
+  - The board grows from 4×4 to 7×7, the path from 2 to 6 turns, and the rocks from 2 to 14.
+  - Rocks go beside the path first, so going straight bumps into them.
+- **⭐ Stars** from level 4 (1 to 3 per puzzle). They sit on the path, and the robot must collect them all before the cookie; missing one is a failed run.
+- **Level changes:**
+  - a first-run win goes up a level;
+  - 2 failed runs go down a level;
+  - the level is saved on the player (`roboLevel`), so the next round starts there.
+- **Program panel:** in steps mode it shows smaller blocks, 9 to a row, so the longest programs fit.
+- Robot Loops (ages 7-8) is unchanged.
