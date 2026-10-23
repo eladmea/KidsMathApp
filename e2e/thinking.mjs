@@ -88,11 +88,20 @@ check('freeze: 23 of 24 (one wrong tap)', s.score === 23 && s.total === 24, `${s
 await toMap();
 
 // ---- Robo Path: one short run on the first puzzle, then right ----
+// It climbs a level after each first-run win: 1, 1, 2, 3, 4 (stars), 5.
 await openSkill('logic', 'logic-robo-path');
 await t.waitScene('RoboPath');
+const stages = [];
 for (let i = 0; i < 6; i++) {
   await waitFor((n) => window.__mathplay.state.step === 'edit' && window.__mathplay.state.index === n, i, 8000);
   s = await state();
+  stages.push(s.stage);
+  if (s.puzzle.stars.length && !(await t.mp(() => window.__shotStars))) {
+    await t.mp(() => (window.__shotStars = true));
+    check('robo: from level 4 there are stars to collect', s.stage >= 4 && s.puzzle.stars.length >= 1, JSON.stringify({ stage: s.stage, stars: s.puzzle.stars }));
+    check('robo: a star level says to collect them', (await t.spoken()).at(-1).startsWith('Collect every star'), (await t.spoken()).at(-1));
+    await t.shot(dir, 't4b-robo-stars');
+  }
   const moves = s.puzzle.solution.flatMap(({ dir: d, times }) => Array(times).fill(d));
   if (i === 0) {
     for (const move of moves.slice(0, -1)) await tap(`arrow:${move}`);
@@ -108,10 +117,14 @@ for (let i = 0; i < 6; i++) {
   check(`robo ${i + 1}: program built`, (await state()).blocks.length === moves.length);
   await tap('run');
   await waitFor(() => window.__mathplay.state.step === 'goal', null, 8000);
+  if (i === 1) check('robo: a first-run win levels up', (await t.spoken()).at(-1).includes('Level up!'), (await t.spoken()).at(-1));
 }
 await results();
 s = await state();
 check('robo: 5 of 6 (one failed run)', s.score === 5 && s.total === 6, `${s.score}/${s.total}`);
+check('robo: levels climb after first-run wins', stages.join() === '1,1,2,3,4,5', stages.join());
+const saved = await t.mp(() => JSON.parse(localStorage.getItem('mathplay2:profiles'))[0].roboLevel);
+check("robo: the player's level is saved for next time", saved === 6, String(saved));
 await toMap();
 
 // ---- Robot Loops: repeat blocks, limited ----

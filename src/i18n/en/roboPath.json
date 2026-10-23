@@ -1,5 +1,6 @@
 {
   "intro": "Help the robot reach the cookie!",
+  "introStars": "Collect every star, then get the cookie!",
   "introLoops": "Help the robot reach the cookie. Use repeat blocks: you can use {limit} blocks.",
   "programHint": "Tap arrows to build a program",
   "blocks": "Blocks: {count} / {limit}",
@@ -11,5 +12,9 @@
   "bonk": "Bonk! The robot bumped into something.",
   "bonkFix": "Bonk! Fix your program and try again.",
   "short": "The robot stopped before the cookie.",
+  "stars": "Oops! The robot missed a star.",
+  "starsFix": "Collect every ⭐ on the way!",
+  "level": "Level {level} of 8",
+  "levelUp": "Level up!",
   "shortFix": "Not there yet! Add more steps."
 }

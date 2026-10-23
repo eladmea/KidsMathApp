@@ -1112,6 +1112,7 @@ clock-ca57cc29 | Clock.
 coat-and-boat-rhyme-they-end-with-the-sa-79855555 | coat and boat rhyme: they end with the same sound.
 coat-and-goat-rhyme-they-end-with-the-sa-d0f865ae | coat and goat rhyme: they end with the same sound.
 coat-90565a14 | Coat.
+collect-every-star-then-get-the-cookie-c06c245f | Collect every star, then get the cookie!
 come-back-tomorrow-746fa686 | Come back tomorrow!
 correct-eb5de810 | Correct!
 count-the-pictures-one-by-one-then-tap-h-2dfb81c8 | Count the pictures one by one, then tap how many there are.
@@ -1837,6 +1838,7 @@ let-s-write-six-b875a8e2 | Let's write six!
 let-s-write-three-680aacd2 | Let's write three!
 let-s-write-two-334a5a14 | Let's write two!
 let-s-write-zero-9dc2e8d2 | Let's write zero!
+level-up-e1948a89 | Level up!
 lion-says-my-little-brother-broke-my-fav-9f8a4d51 | Lion says: My little brother broke my favorite toy!
 lion-cb4711a3 | Lion.
 listen-for-the-feeling-then-tap-the-face-6788009a | Listen for the feeling, then tap the face that shows it.
@@ -1934,6 +1936,7 @@ oh-67343942 | oh
 one-more-cut-a6319892 | One more cut.
 one-slice-adf3cfc8 | One slice!
 oo-62343163 | oo
+oops-29d2a17d | Oops!
 or-0-468f02d1 | Or 0?
 or-1-c6920ae8 | Or 1?
 or-10-6ee4d1de | Or 10?
@@ -2616,6 +2619,7 @@ the-ocean-bd6ec874 | The ocean.
 the-pizza-is-ready-e048e351 | The pizza is ready.
 the-robot-bumped-into-something-a57cc3b9 | The robot bumped into something.
 the-robot-found-the-cookie-8131394e | The robot found the cookie!
+the-robot-missed-a-star-d5a2d110 | The robot missed a star.
 the-robot-stopped-before-the-cookie-c42b3a2f | The robot stopped before the cookie.
 the-snowman-melts-d25614ec | The snowman melts.
 the-soil-is-dry-and-the-leaves-are-flopp-7c80723c | The soil is dry and the leaves are floppy.
