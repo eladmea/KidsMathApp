@@ -531,3 +531,15 @@ The device's robotic text-to-speech is replaced by recordings made with Kokoro, 
   - the level is saved on the player (`roboLevel`), so the next round starts there.
 - **Program panel:** in steps mode it shows smaller blocks, 9 to a row, so the longest programs fit.
 - Robot Loops (ages 7-8) is unchanged.
+
+## Settings menu (Parent Dashboard)
+
+- **⚙️ Settings tab** in the Parent Dashboard, which is behind the grown-up check. It's a menu of pages:
+  - **🌐 Language:** each child's text language, with a Voice column showing that the voice follows the text. This replaces the Language row that was on each child's page.
+  - **🗣️ Read-aloud voice:** the device voice picker, which was the Voice tab before.
+- **Changing languages:**
+  - Changing the signed-in child's language redraws the dashboard in that language and stays on the page.
+  - Changing another child's language leaves the dashboard as it is.
+- **A separate voice language** (e.g. Hebrew text, English voice) is left for later. Every spoken line, questions included, would have to be produced in both languages. The reading island can't be matched across languages at all.
+- **Hebrew text** reads right to left everywhere (`ui/rtlText.js`). Numbers and sums stay left to right.
+

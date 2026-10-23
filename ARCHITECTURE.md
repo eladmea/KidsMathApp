@@ -61,7 +61,7 @@ Colours and the font live in `ui/theme.js`.
    - Phrase functions are plain JavaScript, so each language handles its own grammar (plural nouns, Hebrew number gender, word order).
    - A pack can also export `generators` to replace a question generator for that language, for example a different reading curriculum. Then it doesn't need to match English's data.
    - A subject without a pack shows its quiz skills as 🚧 Soon in that language. A question never comes out in the wrong language.
-3. **That's all.** The language picker appears on "New player" once there's more than one language, and each child keeps their own. Grown-ups can change a child's language on the Parent Dashboard.
+3. **That's all.** The language picker appears on "New player" once there's more than one language, and each child keeps their own. Grown-ups can change each child's language in the Parent Dashboard under ⚙️ Settings → 🌐 Language. The voice speaks the text's language. A separate voice language would mean producing every spoken line, questions included, in a second language, so it isn't built yet.
 
 `npm test` checks the language files:
 - every key the code uses exists in English;
