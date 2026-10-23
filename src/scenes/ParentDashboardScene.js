@@ -32,9 +32,11 @@ const MAX_VOICES = 7;
 export default class ParentDashboardScene extends BaseScene {
   static key = 'ParentDashboard';
 
-  build({ tab } = {}) {
+  build({ tab, page = 'menu' } = {}) {
     this.today = toDayKey();
-    this.tab = tab || (session.profiles[0] ? session.profiles[0].id : 'voice');
+    this.tab = tab || (session.profiles[0] ? session.profiles[0].id : 'settings');
+    // In the Settings tab: the menu, or one of its pages ('language', 'voice').
+    this.page = page;
     this.showingReport = false;
     this.content = [];
     this.tabs = [];
@@ -62,10 +64,10 @@ export default class ParentDashboardScene extends BaseScene {
     this.bg.setPosition(v.x, v.y).setSize(v.width, v.height);
   }
 
-  // ---- tabs: each child, the voice, and the export ----
+  // ---- tabs: each child, the settings, and the export ----
   drawTabs() {
     this.tabs.forEach((tab) => tab.destroy());
-    const items = [...session.profiles.map((p) => ({ id: p.id, label: `${p.avatar} ${p.name}` })), { id: 'voice', label: t('parents.voiceTab') }];
+    const items = [...session.profiles.map((p) => ({ id: p.id, label: `${p.avatar} ${p.name}` })), { id: 'settings', label: t('parents.settingsTab') }];
     const width = Math.min(200, 820 / items.length - 10);
     this.tabs = items.map(({ id, label }, i) => {
       const on = id === this.tab;
@@ -82,6 +84,7 @@ export default class ParentDashboardScene extends BaseScene {
 
   pickTab(id) {
     this.tab = id;
+    this.page = 'menu';
     this.showingReport = false;
     this.drawTabs();
     this.show();
@@ -110,11 +113,11 @@ export default class ParentDashboardScene extends BaseScene {
 
   show() {
     this.clear();
-    if (!session.profiles.length && this.tab !== 'voice') {
+    if (!session.profiles.length && this.tab !== 'settings') {
       this.text(LEFT, TOP + 40, t('parents.noPlayers'), 26);
       return;
     }
-    if (this.tab === 'voice') this.showVoices();
+    if (this.tab === 'settings') this.showSettings();
     else if (this.showingReport) this.showReport(this.child());
     else this.showChild(this.child());
   }
@@ -195,15 +198,6 @@ export default class ParentDashboardScene extends BaseScene {
       const names = practicing.slice(0, 3).map((skill) => `${skill.emoji} ${skillTitle(skill)}`).join(', ');
       this.text(RIGHT, TOP + 335, t('parents.practicing', { skills: names }), 18, COLORS.ink, { wordWrap: { width: 540 } });
     }
-    // The child's language.
-    const language = profile.language || FALLBACK;
-    if (languages().length > 1) {
-      this.text(RIGHT, TOP + 400, t('parents.language'), 22);
-      languages().forEach((option, i) => {
-        const on = option.id === language;
-        this.button(`language:${option.id}`, RIGHT + 250 + i * 170, TOP + 400, option.name, () => this.change(profile, { language: option.id }), { width: 160, height: 50, color: on ? COLORS.primary : COLORS.white, textColor: on ? COLORS.white : COLORS.ink });
-      });
-    }
     this.button('report', RIGHT + 270, TOP + 470, t('parents.report'), () => this.openReport(), { width: 360, height: 60, fontSize: 24, color: COLORS.primary, textColor: COLORS.white });
 
     this.report({
@@ -213,7 +207,7 @@ export default class ParentDashboardScene extends BaseScene {
       allowed,
       limit,
       narration,
-      language,
+      language: profile.language || FALLBACK,
       week: week.map((d) => d.minutes),
       adventures,
       subjects,
@@ -225,7 +219,7 @@ export default class ParentDashboardScene extends BaseScene {
     const before = getLanguage();
     await updateProfileById(profile.id, patch);
     // The signed-in child's language is the dashboard's too: draw it again.
-    if (getLanguage() !== before) this.swap(ParentDashboardScene.key, { tab: this.tab });
+    if (getLanguage() !== before) this.swap(ParentDashboardScene.key, { tab: this.tab, page: this.page });
     else this.show();
   }
 
@@ -312,12 +306,54 @@ export default class ParentDashboardScene extends BaseScene {
     this.tag('clear-no', no.box);
   }
 
+  // ---- settings: a menu of pages ----
+  showSettings() {
+    if (this.page === 'language') return this.showLanguages();
+    if (this.page === 'voice') return this.showVoices();
+    this.text(LEFT, TOP + 10, t('parents.settingsTitle'), 26);
+    [['language', 'parents.menuLanguage'], ['voice', 'parents.menuVoice']].forEach(([page, key], i) => {
+      this.button(`settings:${page}`, LEFT + 230, TOP + 90 + i * 90, t(key), () => this.openPage(page), { width: 460, height: 72, fontSize: 26 });
+    });
+    this.report({ step: 'settings', page: 'menu' });
+  }
+
+  openPage(page) {
+    this.page = page;
+    this.show();
+  }
+
+  // The page's title, with a way back to the settings menu.
+  pageTitle(key) {
+    this.button('settings:back', LEFT + 80, TOP + 10, t('parents.backToSettings'), () => this.openPage('menu'), { width: 160, height: 50 });
+    this.text(LEFT + 190, TOP + 10, t(key), 26);
+  }
+
+  // ---- each child's language: text and voice (the same, for now) ----
+  showLanguages() {
+    this.pageTitle('parents.languageTitle');
+    this.text(LEFT, TOP + 65, t('parents.languageIntro'), 18, COLORS.gray, { wordWrap: { width: 1150 } });
+    this.text(LEFT + 330, TOP + 115, t('parents.textLanguage'), 20, COLORS.gray);
+    this.text(LEFT + 720, TOP + 115, t('parents.voiceLanguage'), 20, COLORS.gray);
+    session.profiles.forEach((profile, row) => {
+      const y = TOP + 170 + row * 70;
+      const language = profile.language || FALLBACK;
+      this.text(LEFT, y, `${profile.avatar} ${profile.name}`, 24);
+      languages().forEach((option, i) => {
+        const on = option.id === language;
+        this.button(`language:${profile.id}:${option.id}`, LEFT + 410 + i * 170, y, option.name, () => this.change(profile, { language: option.id }), { width: 160, height: 54, color: on ? COLORS.primary : COLORS.white, textColor: on ? COLORS.white : COLORS.ink });
+      });
+      // The voice speaks the text's language until a separate voice language comes.
+      this.text(LEFT + 720, y, t('parents.sameAsText', { language: languages().find((l) => l.id === language).name }), 20, COLORS.gray);
+    });
+    this.report({ step: 'settings', page: 'language', languages: Object.fromEntries(session.profiles.map((p) => [p.id, p.language || FALLBACK])) });
+  }
+
   // ---- the read-aloud voice ----
   showVoices() {
-    this.text(LEFT, TOP + 10, t('parents.voiceTitle'), 26);
+    this.pageTitle('parents.voiceTitle');
     const looking = this.text(LEFT, TOP + 60, t('parents.lookingForVoices'), 20, COLORS.gray);
     listVoices().then((voices) => {
-      if (!this.sys.isActive() || this.tab !== 'voice') return;
+      if (!this.sys.isActive() || this.tab !== 'settings' || this.page !== 'voice') return;
       looking.setText('');
       if (!voices.length) {
         looking.setText(t('parents.noVoices'));
