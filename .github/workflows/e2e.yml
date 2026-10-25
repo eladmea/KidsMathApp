@@ -1,0 +1,87 @@
+# Browser walkthroughs (e2e/): builds the game once, then runs each
+# walkthrough at the same time on its own machine, so the whole check takes
+# about as long as the slowest one (Quiz) instead of every one in a row.
+# The list comes from `node e2e/run.mjs --list`. A failed walkthrough uploads
+# its screenshots.
+name: Browser walkthroughs
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# A newer push to the same branch replaces a run in progress.
+concurrency:
+  group: e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    # ubuntu-latest (26.04) has no Chromium for Playwright 1.56.
+    runs-on: ubuntu-24.04
+    outputs:
+      walkthroughs: ${{ steps.list.outputs.walkthroughs }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build (under the GitHub Pages path, like npm run e2e:local)
+        run: npx vite build --outDir dist-e2e --emptyOutDir
+        env:
+          BASE_URL: /KidsMathApp/
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: dist-e2e
+          path: dist-e2e
+          retention-days: 1
+
+      - id: list
+        run: echo "walkthroughs=$(node e2e/run.mjs --list)" >> "$GITHUB_OUTPUT"
+
+  walkthrough:
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.build.outputs.walkthroughs) }}
+    name: ${{ matrix.name }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - run: npx playwright install --with-deps chromium
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: dist-e2e
+          path: dist-e2e
+
+      - name: Run ${{ matrix.name }}
+        run: node e2e/run.mjs e2e-shots --serve dist-e2e --only "${{ matrix.name }}"
+
+      - name: Screenshots of the failed run
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: shots-${{ strategy.job-index }}
+          path: e2e-shots
+          retention-days: 7

@@ -99,6 +99,8 @@ One-time setup: make the repository public (or use a paid plan), set **Settings 
 
 ⚠️ The Source must be **GitHub Actions**, not "Deploy from a branch". With "Deploy from a branch", GitHub also publishes the raw repository files on every push, and whichever deploy finishes last wins. The raw `index.html` points at `/src/main.js`, which only works on the dev server, so the live site shows just a blank page.
 
+`.github/workflows/e2e.yml` runs every browser walkthrough on pull requests and on main, each on its own machine at the same time (about as long as the slowest one, Quiz). A failed walkthrough uploads its screenshots to the run.
+
 `.github/workflows/smoke-live.yml` opens the live site in Chromium after every deploy. It fails, logging the broken download or script error, when the game doesn't start.
 
 ## Running the app
@@ -115,7 +117,10 @@ Browser walkthrough (needs a Playwright browser, e.g. `npx playwright install ch
 
 ```bash
 npm run e2e:local                       # builds, serves the build itself, runs every walkthrough at phone,
-                                        # tablet and portrait sizes (~25 min), then stops the server
+                                        # tablet and portrait sizes, then stops the server. Runs several at
+                                        # once (half the CPUs, up to 4; E2E_JOBS=n to change): ~22 min on
+                                        # 4 CPUs, ~35 min with E2E_JOBS=1
+npm run e2e:local -- --only quiz.mjs:laptop   # just one (node e2e/run.mjs --list shows the names)
 node e2e/players.mjs shots 844 390 phone    # or one walkthrough at one size, against a server you run
                                             # (npx vite preview --port 8765 after a BASE_URL=/KidsMathApp/ build)
 ```
