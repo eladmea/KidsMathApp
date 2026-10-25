@@ -44,6 +44,8 @@ Emoji file names are the emoji's code points in hex, joined with `-`. Variation 
 
 In code, draw pictures with `art(scene, x, y, { key, emoji, size })` or `glyph(scene, x, y, emoji, size)` from `ui/Art.js`, never with `add.text(emoji)`. That way a picture can be swapped without a code change.
 
+A picture from `art()` / `glyph()` may already be scaled to fit its `size`, so grow or shrink it relative to its own `.scale` (`setScale(item.scale * 1.2)`, or tween to the scale it started with), never to a fixed `1`.
+
 For a line of text with emoji in it (a counter like "2 / 5 ⭐ 3", a star row, a header), use `new IconText(scene, x, y, text, style)` from `ui/IconText.js` instead of `add.text`. Each emoji that has a picture is drawn as that picture, and the rest stays text. It takes one line (no word wrap) and has `setText()` and `setOrigin()` like a Text. In Hebrew, the pictures follow the text's right-to-left order.
 
 Sound effects go in `src/assets/sounds/<name>.wav|mp3|ogg`, and you play them with `play(scene, '<name>')`.

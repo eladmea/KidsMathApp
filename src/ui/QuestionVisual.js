@@ -36,8 +36,10 @@ function emojiGrid(scene, box, emoji, count, { size, cx = 0, cy = 0, perRow = 5,
     const item = pic(scene, cx + ((i % perRow) - (inRow - 1) / 2) * gap, cy + (row - (rows - 1) / 2) * gap, emoji, size);
     if (i >= fadedFrom) item.setAlpha(0.22);
     if (pop) {
+      // A picture's own scale fits it to `size`, so grow back to that, not 1.
+      const full = item.scale;
       item.setScale(0);
-      scene.tweens.add({ targets: item, scale: 1, duration: 220, delay: i * 60, ease: 'Back.easeOut' });
+      scene.tweens.add({ targets: item, scale: full, duration: 220, delay: i * 60, ease: 'Back.easeOut' });
     }
     box.add(item);
   }

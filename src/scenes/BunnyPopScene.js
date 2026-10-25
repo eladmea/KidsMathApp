@@ -76,8 +76,10 @@ export default class BunnyPopScene extends BaseScene {
     this.feedback.setText('');
     this.setCounter(this.index + 1, POPS, this.score);
     const { x, y } = HOLE_AT(pop.hole);
-    this.animal = glyph(this, x, y - 50, pop.animal, 100).setScale(0.2);
-    this.tweens.add({ targets: this.animal, scale: 1, duration: 260, ease: 'Back.easeOut' });
+    this.animal = glyph(this, x, y - 50, pop.animal, 100);
+    const full = this.animal.scale;
+    this.animal.setScale(full * 0.2);
+    this.tweens.add({ targets: this.animal, scale: full, duration: 260, ease: 'Back.easeOut' });
     this.report({ step: 'play', index: this.index, hole: pop.hole, animal: pop.animal, target: isTarget(pop), up: true, score: this.score });
     this.time.delayedCall(SHOW_MS, () => this.hide());
   }
