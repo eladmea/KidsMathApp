@@ -48,7 +48,10 @@ for (let i = 0; i < 10; i++) {
 await waitFor(() => window.__mathplay.scene === 'Results' && window.__mathplay.state.step === 'results', null, 10000);
 const result = await state();
 check('9 of 10 recorded: 3 stars, passed', result.score === 9 && result.stars === 3 && result.newlyPassed.includes('math-count-5'));
-await sleep(500);
+// "Yaaay!", then the stars fill in one at a time.
+await waitFor(() => window.__mathplay.state.shownStars === 3, null, 5000).catch(() => {});
+check('Results fills in all 3 stars', (await state()).shownStars === 3, JSON.stringify(await state()));
+await sleep(400);
 await t.shot(dir, 'g5-results');
 await tap('map');
 await t.waitScene('Island');
