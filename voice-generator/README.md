@@ -84,6 +84,7 @@ python generate.py --file sentences_hebrew.txt --install     # record them all, 
 
 - **The engine.** [Kokoro Hebrew](https://huggingface.co/thewh1teagle/kokoro-hebrew-nc) is a Kokoro model trained on Hebrew, so it runs through the same `kokoro-onnx` as English. Hebrew is written without vowels, so [renikud](https://huggingface.co/thewh1teagle/renikud) first works out the vowels (nikud) and the sounds. It was the best free Hebrew voice we found that runs on a laptop CPU.
 - **Downloads.** The first run downloads three files into `models/` from Hugging Face: `kokoro-hebrew.onnx`, `voices-hebrew.bin` and `renikud.onnx`, about 330 MB in all.
+- **Words renikud reads wrong.** `HEBREW_SOUNDS` in `generate.py` gives the sounds for a whole sentence instead, e.g. "יששש!" (a stretched "יש!" on screen) is said `jˈeʃ!`; renikud reads it as a word, "yishashesh".
 - **Numbers.** Digits are turned into Hebrew words first, in the counting form used for sums ("3 ועוד 4" is read "שלוש ועוד ארבע"). Numbers that count something ("שלושה תפוחים") are already written as words by the game.
 - **Recorded.** All 3,399 Hebrew sentences are recorded and in the game: 31 MB in `src/voice/he/`. With 4 parts at once (`--part 1/4` … `4/4`), it took about 50 minutes on a 4-core CPU.
 - **The voice.** `he_shaul` is a calm, clear male voice, and the only voice the model has. It is trained on a public Hebrew speech corpus (SASPEECH).

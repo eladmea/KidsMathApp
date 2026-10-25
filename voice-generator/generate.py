@@ -177,6 +177,11 @@ def hebrew_numbers(text):
     return re.sub(r'\d+', lambda m: hebrew_number(int(m.group())), text)
 
 
+# Hebrew sentences renikud reads wrong, and the sounds to say instead.
+# "יששש!" is a stretched "יש!" (yes!) on screen; renikud reads it as a word.
+HEBREW_SOUNDS = {'יששש!': 'jˈeʃ!'}
+
+
 def synthesize(kokoro, text, voice, speed, language, g2p=None):
     import numpy as np
 
@@ -186,7 +191,7 @@ def synthesize(kokoro, text, voice, speed, language, g2p=None):
     if g2p is not None:
         # Hebrew: words -> sounds (with the vowels worked out), then speak the sounds.
         spoken = spoken.replace('+', ' ועוד ').replace('−', ' פחות ').replace('×', ' כפול ').replace('=', ' שווה ')
-        phonemes = g2p.phonemize(hebrew_numbers(spoken))
+        phonemes = HEBREW_SOUNDS.get(spoken) or g2p.phonemize(hebrew_numbers(spoken))
         audio, rate = kokoro.create(phonemes, voice=voice, speed=speed, is_phonemes=True)
     else:
         audio, rate = kokoro.create(spoken, voice=voice, speed=speed, lang=language)
