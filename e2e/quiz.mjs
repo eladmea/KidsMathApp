@@ -57,11 +57,14 @@ for (const band of BANDS) {
           }
           await answerQuestion(t, { wrong: i === 1 });
           // On a slow machine a tap can land just before the answers take
-          // input: answer once more if nothing happened.
-          const answered = () => waitFor((i) => window.__mathplay.state.step === 'feedback' || window.__mathplay.state.index !== i, i, 2500);
-          await answered().catch(async () => {
-            await answerQuestion(t, { wrong: i === 1 });
-            await answered();
+          // input: answer once more if nothing happened. A busy machine can
+          // also just be slow to react, so only while this question still
+          // waits for an answer (or the second answer lands on the next one).
+          const answered = (timeout) => waitFor((i) => window.__mathplay.state.step === 'feedback' || window.__mathplay.state.index !== i, i, timeout);
+          await answered(4000).catch(async () => {
+            const now = await state();
+            if (now.step === 'question' && now.index === i) await answerQuestion(t, { wrong: i === 1 });
+            await answered(6000);
           });
           if (i === 1) {
             await sleep(120);

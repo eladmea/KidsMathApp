@@ -1,6 +1,7 @@
 // Runs every walkthrough at phone, tablet and portrait sizes against a
 // build, and exits non-zero if any check fails. Each walkthrough has its own
-// browser, so several run at once: E2E_JOBS (default: up to 4, one per CPU).
+// browser, so several run at once: E2E_JOBS, by default half the CPUs (up to
+// 4). More than that and timing-sensitive checks (Pizza, Quiz) start to fail.
 //   node e2e/run.mjs <screenshotDir>                  against a running server (URL)
 //   node e2e/run.mjs <screenshotDir> --serve <dir>    serves <dir> itself, then stops
 import { execFile } from 'child_process';
@@ -26,7 +27,7 @@ const runs = [
   ...SIZES.flatMap((size) => [['writing.mjs', ...size], ['thinking.mjs', ...size], ['pizza.mjs', ...size], ['hebrew.mjs', ...size], ['learning.mjs', ...size], ['grownups.mjs', ...size], ['fun.mjs', ...size], ['games.mjs', ...size], ['players.mjs', ...size], ['islands.mjs', ...size]]),
   ['players.mjs', 390, 844, 'portrait'],
 ];
-const jobs = Number(process.env.E2E_JOBS) || Math.min(4, availableParallelism());
+const jobs = Number(process.env.E2E_JOBS) || Math.max(1, Math.min(4, Math.floor(availableParallelism() / 2)));
 let failed = 0;
 
 async function runOne([script, width, height, label]) {

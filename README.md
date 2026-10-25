@@ -115,7 +115,9 @@ Browser walkthrough (needs a Playwright browser, e.g. `npx playwright install ch
 
 ```bash
 npm run e2e:local                       # builds, serves the build itself, runs every walkthrough at phone,
-                                        # tablet and portrait sizes (~25 min), then stops the server
+                                        # tablet and portrait sizes, then stops the server. Runs several at
+                                        # once (half the CPUs, up to 4; E2E_JOBS=n to change): ~22 min on
+                                        # 4 CPUs, ~35 min with E2E_JOBS=1
 node e2e/players.mjs shots 844 390 phone    # or one walkthrough at one size, against a server you run
                                             # (npx vite preview --port 8765 after a BASE_URL=/KidsMathApp/ build)
 ```
