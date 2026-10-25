@@ -34,6 +34,8 @@ const MODES = {
           prompt: say.drive.prompt({ digit }),
           intro: say.drive.intro({ word }),
           praise: say.drive.praise({ word }),
+          // A real engine rev instead of the narrator saying "Vroom!".
+          sound: 'vroom',
         };
       });
     },

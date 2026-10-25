@@ -556,7 +556,8 @@ export default class PizzaShopScene extends BaseScene {
     meltedCheese().forEach(({ dx, dy, angle }) => this.cheese.stamp('cheese-melted', null, SIZE / 2 + dx * SIZE, SIZE / 2 + dy * SIZE, { angle }));
     this.cheese.render();
     this.pizza.setPosition(CX, CY).setScale(1).setDepth(0).setVisible(true);
-    play(this, 'correct');
+    // An oven bell instead of the narrator saying "Ding!".
+    play(this, 'ding');
     this.setStep('slice');
     this.say(this.words.say.pizza.ready());
   }

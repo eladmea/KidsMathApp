@@ -69,7 +69,7 @@ export const say = {
   drive: {
     prompt: ({ digit }) => `Drive the ${digit}!`,
     intro: ({ word }) => `Let's drive the number ${word}! Start at the traffic light.`,
-    praise: ({ word }) => `Vroom! You drove ${an(word)}!`,
+    praise: ({ word }) => `You drove ${an(word)}!`,
   },
   fly: {
     prompt: ({ name }) => `Fly ${name}!`,
@@ -94,7 +94,7 @@ export const say = {
     tooMany: ({ number, placed }) => tooMany({ number, placed }),
     ovenMiss: () => 'Drag the pizza all the way into the oven!',
     baking: () => 'Into the oven! It is getting hot…',
-    ready: () => 'Ding! The pizza is ready. Swipe across it to cut it into slices.',
+    ready: () => 'The pizza is ready. Swipe across it to cut it into slices.',
     cutMiss: () => 'Swipe all the way across the pizza!',
     cutOne: () => 'Chop! One more cut.',
     cutTwo: ({ friend }) => `Four slices! Give the slices to ${friend}. Drag them one by one.`,

@@ -94,7 +94,7 @@ export default class TraceRound extends BaseScene {
     this.celebrating = true;
     if (this.idle) this.idle.remove();
     if (restarts <= MAX_RESTARTS_FOR_POINT) this.points += 1;
-    play(this, 'correct');
+    play(this, item.sound || 'correct');
     this.narrator.say(item.praise, { force: true });
     this.message.setText(item.celebrate || item.praise).setColor('#2e7d32');
     this.tweens.add({ targets: this.message, scale: { from: 1.25, to: 1 }, duration: 300, ease: 'Back.easeOut' });
