@@ -5,6 +5,7 @@ import * as router from '../services/router';
 import { enterScene } from '../services/playClock';
 import { isTimeUp } from '../services/session';
 import Button from './Button';
+import IconText from './IconText';
 import { COLORS, textStyle } from './theme';
 import { skillTitle } from '../i18n/names';
 import { t } from '../i18n/index';
@@ -102,8 +103,8 @@ export default class BaseScene extends Phaser.Scene {
   // The same for anything else (a mini-game): headerCounter.setText() shows
   // its counter.
   addHeader(emoji, title) {
-    this.headerTitle = this.add.text(30, 150, t('quiz.title', { emoji, title }), textStyle(24, COLORS.gray)).setOrigin(0, 0.5);
-    this.headerCounter = this.add.text(1250, 150, '', textStyle(28)).setOrigin(1, 0.5);
+    this.headerTitle = new IconText(this, 30, 150, t('quiz.title', { emoji, title }), textStyle(24, COLORS.gray)).setOrigin(0, 0.5);
+    this.headerCounter = new IconText(this, 1250, 150, '', textStyle(28)).setOrigin(1, 0.5);
   }
 
   // `index` counts from 1.
