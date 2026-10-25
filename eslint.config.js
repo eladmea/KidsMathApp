@@ -4,7 +4,7 @@ import js from '@eslint/js';
 import globals from 'globals';
 
 export default [
-  { ignores: ['dist/', 'dist-e2e/', 'node_modules/'] },
+  { ignores: ['dist/', 'dist-e2e/', 'node_modules/', 'voice-generator/.venv/'] },
   js.configs.recommended,
   {
     files: ['src/**/*.js'],
