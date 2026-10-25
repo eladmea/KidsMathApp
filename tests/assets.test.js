@@ -9,6 +9,6 @@ describe('assets by folder', () => {
   });
 
   it('finds the sound effects by file name', () => {
-    expect(Object.keys(SOUNDS).sort()).toEqual(['cheer', 'correct', 'star', 'wrong']);
+    expect(Object.keys(SOUNDS).sort()).toEqual(['cheer', 'correct', 'ding', 'star', 'vroom', 'wrong']);
   });
 });
