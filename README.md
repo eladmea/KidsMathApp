@@ -111,7 +111,7 @@ npm run lint       # ESLint
 npm run voice:lines -- en   # every line to record, with file names (voice-lines.en.csv)
 ```
 
-Browser walkthrough (needs a Playwright browser, e.g. `npx playwright install chromium`):
+Browser walkthrough (needs a Playwright browser, e.g. `npx playwright install chromium`, or an installed Chromium named by `CHROMIUM=/path/to/chromium`):
 
 ```bash
 npm run e2e:local                       # builds, serves the build itself, runs every walkthrough at phone,

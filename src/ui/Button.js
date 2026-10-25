@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import IconText from './IconText';
 import { COLORS, textStyle } from './theme';
 
 // A big, squishy button: a rounded box with a label. It shrinks while pressed
@@ -12,7 +13,8 @@ export default class Button extends Phaser.GameObjects.Container {
     this.shadow = scene.add.rectangle(0, 8, width, height, 0x000000, 0.18).setRounded(radius ?? Math.min(28, height / 2));
     this.box = scene.add.rectangle(0, 0, width, height, color).setRounded(radius ?? Math.min(28, height / 2));
     this.box.setStrokeStyle(4, COLORS.white);
-    this.label = scene.add.text(0, 0, label, textStyle(fontSize, textColor)).setOrigin(0.5);
+    // Emoji in the label are drawn as pictures once one is added (IconText).
+    this.label = new IconText(scene, 0, 0, label, textStyle(fontSize, textColor));
     this.add([this.shadow, this.box, this.label]);
     this.setSize(width, height);
     this.box.setInteractive({ useHandCursor: true });

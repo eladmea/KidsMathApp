@@ -5,6 +5,10 @@ import { open, seedPlayers, sleep } from './helpers.mjs';
 const [dir, width, height, label] = [process.argv[2] || '.', Number(process.argv[3] || 844), Number(process.argv[4] || 390), process.argv[5] || 'phone'];
 const t = await open({ width, height, label });
 const { check, state, waitFor, tap } = t;
+// No recordings in this walkthrough, so every line goes to the device voice
+// and the voice check at the end always has lines to look at (otherwise it
+// depends on the browser blocking the first recording before a tap).
+await t.page.route('**/*.{mp3,m4a,ogg}', (route) => route.fulfill({ status: 200, contentType: 'audio/mpeg', body: '' }));
 
 await seedPlayers(t, [{ name: 'Mia', age: 4, avatar: '🦁' }]);
 await t.waitScene('Profiles');
