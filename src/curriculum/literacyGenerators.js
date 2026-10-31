@@ -9,10 +9,11 @@ import { content } from '../content/index';
 // The words come from the language's literacy pack (src/content/<language>/literacy.js).
 const words = () => content('literacy');
 
-// Picture choices + the sentence that names them, in on-screen order.
+// Picture choices, the sentence that names them, and each one's word (its
+// 🔊 button says it), in on-screen order.
 function pictureChoices(entries) {
   const order = shuffle(entries);
-  return { choices: order.map(([emoji]) => emoji), names: words().listWords(order.map(([, word]) => word)) };
+  return { choices: order.map(([emoji]) => emoji), names: words().listWords(order.map(([, word]) => word)), choiceWords: order.map(([, word]) => words().listWords([word])) };
 }
 
 function rhymes() {
@@ -21,7 +22,7 @@ function rhymes() {
   const [target, match] = sample(RHYME_FAMILIES[familyIndex], 2);
   const others = RHYME_FAMILIES.filter((_, i) => i !== familyIndex);
   const distractors = sample(others, 2).map((family) => pick(family));
-  const { choices, names } = pictureChoices([match, ...distractors]);
+  const { choices, names, choiceWords } = pictureChoices([match, ...distractors]);
   return {
     prompt: say.rhymes.prompt({ target: target[1] }),
     speech: say.rhymes.speech({ target: target[1], names }),
@@ -29,6 +30,7 @@ function rhymes() {
     answer: match[0],
     explain: say.rhymes.explain({ target: target[1], match: match[1] }),
     choices,
+    choiceWords,
     choiceStyle: 'picture',
     speakAlways: true,
   };
@@ -38,20 +40,21 @@ function soundSnack(soundsKey) {
   return () => {
     const { FIRST_SOUND_WORDS, FIRST_SOUNDS_ALL, soundSpeech, say } = words();
     const sound = pick(words()[soundsKey]);
-    const [answer, example] = sample(FIRST_SOUND_WORDS[sound], 2);
+    const answer = pick(FIRST_SOUND_WORDS[sound]);
     const distractors = sample(
       FIRST_SOUNDS_ALL.filter((s) => s !== sound),
       2
     ).map((s) => pick(FIRST_SOUND_WORDS[s]));
-    const { choices, names } = pictureChoices([answer, ...distractors]);
+    const { choices, names, choiceWords } = pictureChoices([answer, ...distractors]);
     const spoken = soundSpeech(sound);
     return {
       prompt: say.soundSnack.prompt({ sound: spoken }),
-      speech: say.soundSnack.speech({ sound: spoken, example: example[1], names }),
+      speech: say.soundSnack.speech({ sound: spoken, names }),
       visual: { type: 'snackMonster', sound: spoken },
       answer: answer[0],
       explain: say.soundSnack.explain({ word: answer[1], sound: spoken }),
       choices,
+      choiceWords,
       choiceStyle: 'picture',
       speakAlways: true,
     };

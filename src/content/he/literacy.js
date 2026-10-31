@@ -191,7 +191,7 @@ export const say = {
   },
   soundSnack: {
     prompt: ({ sound }) => `תנו לי ${sound}!`,
-    speech: ({ sound, example, names }) => `האכילו את המפלצת במשהו שמתחיל באות ${sound}. כמו ${example}. ${names}?`,
+    speech: ({ sound, names }) => `האכילו את המפלצת במשהו שמתחיל באות ${sound}. ${names}?`,
     explain: ({ word, sound }) => `המילה ${word} מתחילה באות ${sound}!`,
   },
   letterSays: {

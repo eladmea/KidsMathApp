@@ -177,6 +177,38 @@ def hebrew_numbers(text):
     return re.sub(r'\d+', lambda m: hebrew_number(int(m.group())), text)
 
 
+# Letter sounds as the literacy pack spells them (SOUND_SPEECH: "mmm",
+# "buh"), and how to say each one. Kokoro reads "mmm" as the letters
+# "M M M", "eh" as "ay" and "th" as "T H", so these become sounds and the
+# rest of the sentence is read as usual.
+ENGLISH_SOUNDS = {
+    'mmm': 'ˈmːː', 'sss': 'ˈsːː', 'fff': 'ˈfːː', 'nnn': 'ˈnːː', 'lll': 'ˈlːː', 'rrr': 'ˈɹːː',
+    'zzz': 'ˈzːː', 'vvv': 'ˈvːː', 'shh': 'ˈʃːː', 'ch': 'ˈʧ', 'th': 'ˈθ', 'ks': 'ks',
+    'eh': 'ˈɛ', 'ih': 'ˈɪ', 'sh': 'ˈʃ', 'wh': 'ˈw',
+}
+# A whole word, not part of a spelled-out word ("b-a-th" keeps its letters).
+SOUND_WORD = re.compile(r'(?<![\w-])(' + '|'.join(ENGLISH_SOUNDS) + r')(?![\w-])', re.IGNORECASE)
+
+
+# A word spelled out letter by letter ("The answer is b, a, th."): its parts
+# are read as letters, so none of them becomes a sound.
+SPELLED = re.compile(r'(?<![\w-])[b-z](?![\w-])')
+
+
+# English with letter sounds in it -> phonemes, or None to read it as usual.
+def english_sounds(kokoro, text, language):
+    parts = SOUND_WORD.split(text)
+    if len(parts) == 1 or SPELLED.search(text):
+        return None
+    out = []
+    for i, part in enumerate(parts):
+        if i % 2:
+            out.append(ENGLISH_SOUNDS[part.lower()])
+        elif part.strip():
+            out.append(kokoro.tokenizer.phonemize(part, language))
+    return ' '.join(out)
+
+
 # Hebrew sentences renikud reads wrong, and the sounds to say instead.
 # "יששש!" is a stretched "יש!" (yes!) on screen; renikud reads it as a word.
 HEBREW_SOUNDS = {'יששש!': 'jˈeʃ!'}
@@ -192,6 +224,8 @@ def synthesize(kokoro, text, voice, speed, language, g2p=None):
         # Hebrew: words -> sounds (with the vowels worked out), then speak the sounds.
         spoken = spoken.replace('+', ' ועוד ').replace('−', ' פחות ').replace('×', ' כפול ').replace('=', ' שווה ')
         phonemes = HEBREW_SOUNDS.get(spoken) or g2p.phonemize(hebrew_numbers(spoken))
+        audio, rate = kokoro.create(phonemes, voice=voice, speed=speed, is_phonemes=True)
+    elif (phonemes := english_sounds(kokoro, spoken, language)) is not None:
         audio, rate = kokoro.create(phonemes, voice=voice, speed=speed, is_phonemes=True)
     else:
         audio, rate = kokoro.create(spoken, voice=voice, speed=speed, lang=language)
