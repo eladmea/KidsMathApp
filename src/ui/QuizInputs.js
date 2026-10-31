@@ -24,6 +24,10 @@ const side = () => (isRtl() ? -1 : 1);
 const glyphs = (value) => Array.from(String(value)).filter((c) => !/[\u{FE0F}\u{200D}]/u.test(c)).length;
 
 // ---- Tap one of 2-4 answers ----
+// A picture answer's 🔊: its size, and how far below the button it sits.
+const SPEAKER_RADIUS = 28;
+const SPEAKER_BELOW = 44;
+
 class ChoiceInput {
   constructor(scene, area, question, { onSubmit, onWord }) {
     this.scene = scene;
@@ -40,13 +44,16 @@ class ChoiceInput {
     // Two answers across the screen get wide buttons (rows of pictures to compare).
     const widest = wide ? (n <= 2 ? 460 : 250) : 270;
     const width = Math.min(widest, (area.width - gap * (cols - 1)) / cols);
-    const height = Math.min(question.choiceStyle === 'word' ? 120 : 150, (area.height - gap * (rows - 1)) / rows);
+    // Room under each picture for its 🔊, outside the answer button.
+    const speakers = Boolean(onWord && question.choiceWords);
+    const below = speakers ? SPEAKER_BELOW + SPEAKER_RADIUS : 0;
+    const height = Math.min(question.choiceStyle === 'word' ? 120 : 150, (area.height - below - gap * (rows - 1)) / rows);
     this.buttons = question.choices.map((choice, i) => {
       const col = i % cols;
       const row = Math.floor(i / cols);
       const inRow = Math.min(cols, n - row * cols);
       const x = area.x + side() * (col - (inRow - 1) / 2) * (width + gap);
-      const y = area.y + (row - (rows - 1) / 2) * (height + gap);
+      const y = area.y - below / 2 + (row - (rows - 1) / 2) * (height + gap);
       const button = new Button(scene, x, y, {
         label: String(choice),
         width,
@@ -66,13 +73,14 @@ class ChoiceInput {
         button.label.setText('');
         button.add(art(scene, 0, 0, { emoji: choice, size: Math.min(width, height) * 0.6 }));
       }
-      // 🔊 in the corner says the picture's word, so a child can listen to
-      // each answer before choosing one.
-      if (onWord && question.choiceWords && question.choiceWords[i]) {
-        const corner = scene.add.circle(side() * (width / 2 - 30), -height / 2 + 30, 24, COLORS.sky);
-        corner.setInteractive({ useHandCursor: true }).on('pointerup', () => onWord(question.choiceWords[i]));
-        button.add([corner, glyph(scene, corner.x, corner.y, '🔊', 26)]);
-        tag(`say:${i}`, corner);
+      // 🔊 under the picture says its word, so a child can listen to each
+      // answer before choosing one. It sits outside the button, so a tap on
+      // it never answers.
+      if (speakers && question.choiceWords[i]) {
+        const speaker = scene.add.circle(0, height / 2 + SPEAKER_BELOW, SPEAKER_RADIUS, COLORS.sky);
+        speaker.setInteractive({ useHandCursor: true }).on('pointerup', () => onWord(question.choiceWords[i]));
+        button.add([speaker, glyph(scene, speaker.x, speaker.y, '🔊', 30)]);
+        tag(`say:${i}`, speaker);
       }
       button.choice = choice;
       tag(`choice:${choice}`, button.box);
