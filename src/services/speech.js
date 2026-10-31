@@ -169,7 +169,8 @@ function fetchClip(url) {
   if (!clips.has(url)) {
     const download = fetch(url)
       .then((response) => (response.ok ? response.blob() : Promise.reject(new Error(String(response.status)))))
-      .then((blob) => URL.createObjectURL(blob))
+      // An empty file counts as a failed download.
+      .then((blob) => (blob.size ? URL.createObjectURL(blob) : url))
       .catch(() => url);
     clips.set(url, download);
     if (clips.size > MAX_CLIPS) {
