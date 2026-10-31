@@ -5,7 +5,7 @@ import { drawVisual } from '../ui/QuestionVisual';
 import { makeInput } from '../ui/QuizInputs';
 import { COLORS, textStyle } from '../ui/theme';
 import { logEvents, session } from '../services/session';
-import { speak, stop as stopSpeech } from '../services/speech';
+import { preload, speak, stop as stopSpeech } from '../services/speech';
 import { play } from '../services/audio';
 import { buildSession, replaceRemaining, tallyBySkill } from '../logic/session';
 import { getRecord, hasPassed, toDayKey } from '../logic/progress';
@@ -151,6 +151,9 @@ export default class QuizScene extends BaseScene {
     this.help.setVisible(this.adaptive && Boolean(howTo(this.currentSkill().generator)));
     // Listening tasks are read aloud even with narration off.
     this.narrator.say(question.speech, { show: question.prompt, force: Boolean(question.speakAlways) });
+    // The next question's recordings download while this one is answered.
+    const next = this.questions[this.index + 1];
+    if (next) preload(next.speech);
     this.placeRow();
 
     this.place = areas(question);
@@ -158,6 +161,7 @@ export default class QuizScene extends BaseScene {
     this.answers = makeInput(this, this.place.input, question, {
       onSubmit: (answer) => this.answer(answer),
       onSound: (text) => speak(text.length <= 2 ? sound(text) : text, { force: true }),
+      onWord: (text) => speak(text, { force: true }),
     });
     this.report({
       step: 'question',
@@ -168,6 +172,7 @@ export default class QuizScene extends BaseScene {
       prompt: question.prompt,
       answer: question.answer,
       choices: question.choices,
+      choiceWords: question.choiceWords || null,
       parts: question.parts,
       tiles: question.tiles,
       items: question.items,

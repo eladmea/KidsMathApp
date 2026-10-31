@@ -4,13 +4,14 @@ import { COLORS, textStyle } from './theme';
 import { tag } from '../services/testBridge';
 import { numberLineFeedback } from '../logic/numberLine';
 import { isRtl, t } from '../i18n/index';
-import { art, hasArt } from './Art';
+import { art, glyph, hasArt } from './Art';
 
 // The ways to answer a quiz question. Each one is laid out inside `area`
 // ({ x, y, width, height }, centred on x, y), calls onSubmit(answer) once, and
 // then shows the result with showResult(answer, isCorrect).
-//   makeInput(scene, area, question, { onSubmit, onSound })
-// onSound(text) reads something aloud on request (a tile's sound, a caption).
+//   makeInput(scene, area, question, { onSubmit, onSound, onWord })
+// onSound(text) reads something aloud on request (a tile's sound, a caption);
+// onWord(text) reads a word as it is (a picture answer's 🔊).
 export function makeInput(scene, area, question, handlers) {
   const Input = { numberLine: NumberLineInput, build: WordBuilderInput, order: StoryStripInput }[question.type] || ChoiceInput;
   return new Input(scene, area, question, handlers);
@@ -24,13 +25,16 @@ const glyphs = (value) => Array.from(String(value)).filter((c) => !/[\u{FE0F}\u{
 
 // ---- Tap one of 2-4 answers ----
 class ChoiceInput {
-  constructor(scene, area, question, { onSubmit }) {
+  constructor(scene, area, question, { onSubmit, onWord }) {
     this.scene = scene;
     this.question = question;
     this.locked = false;
     const n = question.choices.length;
     const wide = area.width > 900;
-    const cols = wide || n <= 2 ? n : 2;
+    // Pictures stand in one row, in the order they are read out, so "first",
+    // "second" and "third" are plain to see.
+    const oneRow = question.choiceStyle === 'picture' && n <= 4;
+    const cols = wide || oneRow || n <= 2 ? n : 2;
     const rows = Math.ceil(n / cols);
     const gap = 22;
     // Two answers across the screen get wide buttons (rows of pictures to compare).
@@ -61,6 +65,14 @@ class ChoiceInput {
       if (question.choiceStyle === 'picture' && hasArt(scene, choice)) {
         button.label.setText('');
         button.add(art(scene, 0, 0, { emoji: choice, size: Math.min(width, height) * 0.6 }));
+      }
+      // 🔊 in the corner says the picture's word, so a child can listen to
+      // each answer before choosing one.
+      if (onWord && question.choiceWords && question.choiceWords[i]) {
+        const corner = scene.add.circle(side() * (width / 2 - 30), -height / 2 + 30, 24, COLORS.sky);
+        corner.setInteractive({ useHandCursor: true }).on('pointerup', () => onWord(question.choiceWords[i]));
+        button.add([corner, glyph(scene, corner.x, corner.y, '🔊', 26)]);
+        tag(`say:${i}`, corner);
       }
       button.choice = choice;
       tag(`choice:${choice}`, button.box);

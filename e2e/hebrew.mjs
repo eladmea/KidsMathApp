@@ -60,6 +60,13 @@ for (const subject of ['math', 'literacy', 'science', 'logic', 'sel']) {
       const bad = latinLines([...shown, ...(await spokenSince(from))]);
       if (bad.length) english.push(`${skill.id}: ${bad.join(' | ')}`);
       if (['math-count-5', 'lit-rhymes', 'lit-word-builder', 'sci-weather', 'sel-faces', 'logic-patterns', 'math-add-10', 'lit-story-strip'].includes(skill.id)) await t.shot(dir, `h3-${skill.id}`);
+      if (skill.id === 'lit-rhymes') {
+        const before = (await t.spoken()).length;
+        await tap('say:0');
+        await sleep(150);
+        const said = (await t.spoken()).slice(before);
+        check('Rhyme Time: a picture\'s 🔊 says its Hebrew word', said.includes(s.choiceWords[0]) && (await state()).step === 'question', JSON.stringify({ said, word: s.choiceWords[0] }));
+      }
       // One answer, to see the feedback is Hebrew too.
       const before = (await t.spoken()).length;
       await answerQuestion(t);

@@ -10,6 +10,10 @@
 //   retries once with the best on-device voice and remembers the failure.
 // - iOS Safari only allows sound after a user gesture: the first tap unlocks
 //   speech and recordings, then replays whatever was asked before.
+// - Recordings are downloaded whole before they play (one that starts while
+//   still downloading stutters the first time it is heard), all the
+//   sentences of a line at once, and kept for next time. preload(text) fetches
+//   a line that is about to be said (the next question).
 // - Stops talking when the tab is hidden.
 import { fallbackVoice, isOnlineVoice, pickBestVoice, rankVoices, splitSentences } from '../logic/voices';
 import { getLanguage, languageInfo, onLanguageChange } from '../i18n/index';
@@ -156,12 +160,45 @@ function playQueue(sentences, index, token) {
   else sayWithDevice(sentence, token, next);
 }
 
+// Downloaded recordings: url -> a promise of a blob: URL (or the url itself
+// if the download failed, so the element can still try). The oldest are let
+// go after MAX_CLIPS.
+const MAX_CLIPS = 300;
+const clips = new Map();
+function fetchClip(url) {
+  if (!clips.has(url)) {
+    const download = fetch(url)
+      .then((response) => (response.ok ? response.blob() : Promise.reject(new Error(String(response.status)))))
+      .then((blob) => URL.createObjectURL(blob))
+      .catch(() => url);
+    clips.set(url, download);
+    if (clips.size > MAX_CLIPS) {
+      const [oldest, src] = clips.entries().next().value;
+      clips.delete(oldest);
+      src.then((value) => value.startsWith('blob:') && URL.revokeObjectURL(value));
+    }
+  }
+  return clips.get(url);
+}
+
+// Starts downloading the recordings of a line (each sentence's, at once).
+export function preload(text) {
+  if (!text) return;
+  splitSentences(text).forEach((sentence) => {
+    const url = clipUrl(sentence, getLanguage());
+    if (url) fetchClip(url);
+  });
+}
+
 function playRecording(url, token, onDone, onFail) {
-  const element = audio();
-  element.onended = () => token === state.token && onDone();
-  element.onerror = () => token === state.token && onFail();
-  element.src = url;
-  element.play().catch(() => token === state.token && onFail());
+  fetchClip(url).then((src) => {
+    if (token !== state.token) return;
+    const element = audio();
+    element.onended = () => token === state.token && onDone();
+    element.onerror = () => token === state.token && onFail();
+    element.src = src;
+    element.play().catch(() => token === state.token && onFail());
+  });
 }
 
 // Some browsers now and then never say an utterance ended; don't wait for
@@ -224,6 +261,7 @@ export function speak(text, { force = false } = {}) {
     state.pendingText = text;
     return;
   }
+  preload(text);
   initSpeech().then(() => playQueue(splitSentences(text), 0, token));
 }
 

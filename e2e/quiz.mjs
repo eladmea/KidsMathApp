@@ -54,6 +54,15 @@ for (const band of BANDS) {
             seen.add(id);
             await sleep(150);
             await t.shot(dir, `q-${id}`);
+            // A picture answer's 🔊 says its word and doesn't answer.
+            if (s.choiceWords) {
+              const before = (await t.spoken()).length;
+              await tap('say:0');
+              await sleep(150);
+              const said = (await t.spoken()).slice(before);
+              if (!said.includes(s.choiceWords[0])) failures.push(`${id}: 🔊 said ${JSON.stringify(said)}, not "${s.choiceWords[0]}"`);
+              if ((await state()).step !== 'question') failures.push(`${id}: 🔊 answered the question`);
+            }
           }
           await answerQuestion(t, { wrong: i === 1 });
           // On a slow machine a tap can land just before the answers take

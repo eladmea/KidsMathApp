@@ -102,6 +102,18 @@ describe('literacy questions', () => {
       expect(sounds.filter((s) => s === target)).toHaveLength(1);
       expect(q.speech).toContain(soundSpeech(target));
       expect(q.choices).toHaveLength(3);
+      // No example word: only the three pictures are named.
+      expect(q.speech).not.toMatch(/\blike\b/);
+    }
+  });
+
+  it('picture answers carry their words, in on-screen order, for the 🔊 buttons', () => {
+    const wordOf = (emoji) => [...Object.values(FIRST_SOUND_WORDS).flat(), ...RHYME_FAMILIES.flat()].find(([e]) => e === emoji)[1];
+    for (let i = 0; i < RUNS; i++) {
+      ['sound-snack', 'rhymes'].forEach((id) => {
+        const q = generateQuestion(id);
+        expect(q.choiceWords).toEqual(q.choices.map(wordOf));
+      });
     }
   });
 

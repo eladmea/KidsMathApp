@@ -147,6 +147,11 @@ export function voiceLines(language, { samples = SAMPLES } = {}) {
   }
   const literacy = hasContent('literacy', language) ? content('literacy', language) : null;
   if (literacy && literacy.SOUND_SPEECH) Object.values(literacy.SOUND_SPEECH).forEach((sound) => add(sound, 'letter sound'));
+  // Each picture answer's word, said by its 🔊 (Sound Snack, Rhyme Time).
+  if (literacy && literacy.listWords) {
+    const pictures = [...Object.values(literacy.FIRST_SOUND_WORDS || {}).flat(), ...(literacy.RHYME_FAMILIES || []).flat()];
+    pictures.forEach(([, word]) => add(literacy.listWords([word]), 'answer word'));
+  }
   if (hasContent('math', language)) memoryPhrases(content('math', language), literacy, add);
 
   // ---- questions ----
