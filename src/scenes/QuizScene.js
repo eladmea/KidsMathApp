@@ -157,7 +157,7 @@ export default class QuizScene extends BaseScene {
     this.placeRow();
 
     this.place = areas(question);
-    this.visual = this.place.visual ? drawVisual(this, this.place.visual.x, this.place.visual.y, question.visual, this.place.visual) : null;
+    this.visual = this.place.visual ? drawVisual(this, this.place.visual.x, this.place.visual.y, question.visual, { ...this.place.visual, onSay: (text) => speak(text, { force: true }) }) : null;
     this.answers = makeInput(this, this.place.input, question, {
       onSubmit: (answer) => this.answer(answer),
       onSound: (text) => speak(text.length <= 2 ? sound(text) : text, { force: true }),
@@ -173,6 +173,7 @@ export default class QuizScene extends BaseScene {
       answer: question.answer,
       choices: question.choices,
       choiceWords: question.choiceWords || null,
+      sayTarget: (question.visual && question.visual.say) || null,
       parts: question.parts,
       tiles: question.tiles,
       items: question.items,

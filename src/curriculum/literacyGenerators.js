@@ -26,7 +26,7 @@ function rhymes() {
   return {
     prompt: say.rhymes.prompt({ target: target[1] }),
     speech: say.rhymes.speech({ target: target[1], names }),
-    visual: { type: 'picture', emoji: target[0], caption: target[1] },
+    visual: { type: 'picture', emoji: target[0], caption: target[1], say: words().listWords([target[1]]) },
     answer: match[0],
     explain: say.rhymes.explain({ target: target[1], match: match[1] }),
     choices,
@@ -50,7 +50,7 @@ function soundSnack(soundsKey) {
     return {
       prompt: say.soundSnack.prompt({ sound: spoken }),
       speech: say.soundSnack.speech({ sound: spoken, names }),
-      visual: { type: 'snackMonster', sound: spoken },
+      visual: { type: 'snackMonster', sound: spoken, say: spoken },
       answer: answer[0],
       explain: say.soundSnack.explain({ word: answer[1], sound: spoken }),
       choices,

@@ -5,6 +5,7 @@ import { tag } from '../services/testBridge';
 import { numberLineFeedback } from '../logic/numberLine';
 import { isRtl, t } from '../i18n/index';
 import { art, hasArt } from './Art';
+import { playButton } from './PlayButton';
 
 // The ways to answer a quiz question. Each one is laid out inside `area`
 // ({ x, y, width, height }, centred on x, y), calls onSubmit(answer) once, and
@@ -78,15 +79,9 @@ class ChoiceInput {
       // each answer before choosing one. It sits outside the button, so a
       // tap on it never answers.
       if (speakers && question.choiceWords[i]) {
-        const y = height / 2 + SPEAKER_BELOW;
-        const r = SPEAKER_RADIUS;
-        const play = scene.add.circle(0, y, r, COLORS.primary).setStrokeStyle(4, COLORS.white);
-        // A triangle pointing right (its corners from its top-left, centred by
-        // its origin), nudged right so it looks centred in the circle.
-        const arrow = scene.add.triangle(r * 0.08, y, 0, 0, 0, r * 0.84, r * 0.76, r * 0.42, COLORS.white);
-        play.setInteractive({ useHandCursor: true }).on('pointerup', () => onWord(question.choiceWords[i]));
-        button.add([play, arrow]);
-        tag(`say:${i}`, play);
+        const parts = playButton(scene, 0, height / 2 + SPEAKER_BELOW, () => onWord(question.choiceWords[i]), SPEAKER_RADIUS);
+        button.add(parts);
+        tag(`say:${i}`, parts[0]);
       }
       button.choice = choice;
       tag(`choice:${choice}`, button.box);

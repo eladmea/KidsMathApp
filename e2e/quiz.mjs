@@ -63,6 +63,14 @@ for (const band of BANDS) {
               if (!said.includes(s.choiceWords[0])) failures.push(`${id}: 🔊 said ${JSON.stringify(said)}, not "${s.choiceWords[0]}"`);
               if ((await state()).step !== 'question') failures.push(`${id}: 🔊 answered the question`);
             }
+            // So does the ▶ on the word or sound being asked about.
+            if (s.sayTarget) {
+              const before = (await t.spoken()).length;
+              await tap('say:target');
+              await sleep(150);
+              const said = (await t.spoken()).slice(before);
+              if (!said.includes(s.sayTarget)) failures.push(`${id}: ▶ said ${JSON.stringify(said)}, not "${s.sayTarget}"`);
+            }
           }
           await answerQuestion(t, { wrong: i === 1 });
           // On a slow machine a tap can land just before the answers take
