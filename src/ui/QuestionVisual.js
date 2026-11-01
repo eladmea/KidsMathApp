@@ -1,6 +1,8 @@
 import { COLORS, textStyle } from './theme';
 import { t } from '../i18n/index';
 import { glyph } from './Art';
+import { playButton } from './PlayButton';
+import { tag } from '../services/testBridge';
 
 // Pictures that let pre-readers count, listen and look instead of reading.
 // drawVisual() builds one inside a box of `width` x `height` centred on
@@ -9,14 +11,26 @@ import { glyph } from './Art';
 //              worked example)
 //   result     'correct' | 'wrong' | null once the child has answered
 //   showSteps  label the jumps between numbers (worked examples)
-export function drawVisual(scene, x, y, visual, { width = 600, height = 420, reveal = null, result = null, showSteps = false } = {}) {
+//   onSay      say(text) reads aloud: a visual with `say` (the word or sound
+//              being asked about) gets a ▶ that says it
+export function drawVisual(scene, x, y, visual, { width = 600, height = 420, reveal = null, result = null, showSteps = false, onSay = null } = {}) {
   if (!visual) return null;
   const box = scene.add.container(x, y);
   const draw = DRAW[visual.type];
   if (!draw) return null;
   draw(scene, box, visual, { width, height, reveal, result, showSteps });
+  const at = PLAY_AT[visual.type];
+  if (onSay && visual.say && at) {
+    const parts = playButton(scene, at.x, at.y, () => onSay(visual.say));
+    box.add(parts);
+    tag('say:target', parts[0]);
+  }
   return box;
 }
+
+// Where a visual's ▶ goes: beside the picture card's word, under the
+// monster's speech bubble.
+const PLAY_AT = { picture: { x: 160, y: 110 }, snackMonster: { x: 140, y: 20 } };
 
 const text = (scene, x, y, value, size, color = COLORS.ink, extra) => scene.add.text(x, y, String(value), textStyle(size, color, extra)).setOrigin(0.5);
 // Pictures (emoji, or their image from src/assets/images/emoji/ when added).

@@ -66,6 +66,11 @@ for (const subject of ['math', 'literacy', 'science', 'logic', 'sel']) {
         await sleep(150);
         const said = (await t.spoken()).slice(before);
         check('Rhyme Time: a picture\'s 🔊 says its Hebrew word', said.includes(s.choiceWords[0]) && (await state()).step === 'question', JSON.stringify({ said, word: s.choiceWords[0] }));
+        const from = (await t.spoken()).length;
+        await tap('say:target');
+        await sleep(150);
+        const target = (await t.spoken()).slice(from);
+        check('Rhyme Time: the ▶ on the big picture says its word', target.includes(s.sayTarget), JSON.stringify({ target, word: s.sayTarget }));
       }
       // One answer, to see the feedback is Hebrew too.
       const before = (await t.spoken()).length;

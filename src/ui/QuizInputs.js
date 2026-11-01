@@ -4,7 +4,8 @@ import { COLORS, textStyle } from './theme';
 import { tag } from '../services/testBridge';
 import { numberLineFeedback } from '../logic/numberLine';
 import { isRtl, t } from '../i18n/index';
-import { art, glyph, hasArt } from './Art';
+import { art, hasArt } from './Art';
+import { playButton } from './PlayButton';
 
 // The ways to answer a quiz question. Each one is laid out inside `area`
 // ({ x, y, width, height }, centred on x, y), calls onSubmit(answer) once, and
@@ -24,9 +25,10 @@ const side = () => (isRtl() ? -1 : 1);
 const glyphs = (value) => Array.from(String(value)).filter((c) => !/[\u{FE0F}\u{200D}]/u.test(c)).length;
 
 // ---- Tap one of 2-4 answers ----
-// A picture answer's 🔊: its size, and how far below the button it sits.
-const SPEAKER_RADIUS = 28;
-const SPEAKER_BELOW = 44;
+// A picture answer's ▶ (says its word): its size, and how far below the
+// button it sits.
+const SPEAKER_RADIUS = 40;
+const SPEAKER_BELOW = 56;
 
 class ChoiceInput {
   constructor(scene, area, question, { onSubmit, onWord }) {
@@ -73,14 +75,13 @@ class ChoiceInput {
         button.label.setText('');
         button.add(art(scene, 0, 0, { emoji: choice, size: Math.min(width, height) * 0.6 }));
       }
-      // 🔊 under the picture says its word, so a child can listen to each
-      // answer before choosing one. It sits outside the button, so a tap on
-      // it never answers.
+      // A big ▶ under the picture says its word, so a child can listen to
+      // each answer before choosing one. It sits outside the button, so a
+      // tap on it never answers.
       if (speakers && question.choiceWords[i]) {
-        const speaker = scene.add.circle(0, height / 2 + SPEAKER_BELOW, SPEAKER_RADIUS, COLORS.sky);
-        speaker.setInteractive({ useHandCursor: true }).on('pointerup', () => onWord(question.choiceWords[i]));
-        button.add([speaker, glyph(scene, speaker.x, speaker.y, '🔊', 30)]);
-        tag(`say:${i}`, speaker);
+        const parts = playButton(scene, 0, height / 2 + SPEAKER_BELOW, () => onWord(question.choiceWords[i]), SPEAKER_RADIUS);
+        button.add(parts);
+        tag(`say:${i}`, parts[0]);
       }
       button.choice = choice;
       tag(`choice:${choice}`, button.box);
