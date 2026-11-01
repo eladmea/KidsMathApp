@@ -178,105 +178,36 @@ def hebrew_numbers(text):
 
 
 # Letter sounds as the literacy pack spells them (SOUND_SPEECH: "mmm",
-# "buh"). Kokoro reads "mmm" as the letters "M M M", "eh" as "ay" and "th"
-# as "T H", and says a consonant on its own with a vowel either side ("nnn"
-# comes out "eh-n-eh"). So:
-# - HELD sounds are said before "ah" ("nnnah"), where Kokoro says them
-#   cleanly, cut where the vowel starts and held a little longer (m n l r s f
-#   z v sh th keep sounding; ch and ks are short).
-# - SAID sounds (vowels, the w glide) are said from their phonemes.
-# The rest of the sentence is read as usual, and the parts are joined.
-HELD = {
-    'mmm': 'm', 'nnn': 'n', 'lll': 'l', 'rrr': 'ɹ', 'sss': 's', 'fff': 'f', 'zzz': 'z',
-    'vvv': 'v', 'shh': 'ʃ', 'sh': 'ʃ', 'th': 'θ', 'ch': 'ʧ', 'ks': 'ks',
+# "buh"), and how to say each one. Kokoro reads "mmm" as the letters
+# "M M M", "eh" as "ay" and "th" as "T H", and says a consonant on its own
+# with a vowel either side ("nnn" came out "eh-n-eh"). So each is said with
+# a short "uh", like "buh" and "tuh" ("nuh", "shuh"): Kokoro says that
+# cleanly, and play-testing chose it over a held "nnn". The screen still
+# shows "mmm". The rest of the sentence is read as usual.
+ENGLISH_SOUNDS = {
+    'mmm': 'mˈʌ', 'nnn': 'nˈʌ', 'lll': 'lˈʌ', 'rrr': 'ɹˈʌ', 'sss': 'sˈʌ', 'fff': 'fˈʌ',
+    'zzz': 'zˈʌ', 'vvv': 'vˈʌ', 'shh': 'ʃˈʌ', 'sh': 'ʃˈʌ', 'th': 'θˈʌ', 'ch': 'ʧˈʌ',
+    'ks': 'ks', 'eh': 'ˈɛ', 'ih': 'ˈɪ', 'wh': 'wˈʌ',
 }
-SHORT = {'ch', 'ks'}
-SAID = {'eh': 'ˈɛ', 'ih': 'ˈɪ', 'wh': 'ˈwʌ'}
 # A whole word, not part of a spelled-out word ("b-a-th" keeps its letters).
-SOUND_WORD = re.compile(r'(?<![\w-])(' + '|'.join([*HELD, *SAID]) + r')(?![\w-])', re.IGNORECASE)
+SOUND_WORD = re.compile(r'(?<![\w-])(' + '|'.join(ENGLISH_SOUNDS) + r')(?![\w-])', re.IGNORECASE)
 # A word spelled out letter by letter ("The answer is b, a, th."): its parts
 # are read as letters, so none of them becomes a sound.
 SPELLED = re.compile(r'(?<![\w-])[b-z](?![\w-])')
-GAP = 0.12  # seconds of quiet between a sound and the words around it
-HOLD = 0.45  # how long a held sound lasts
 
 
-# Where the vowel after a consonant starts: the first 10 ms frame (after the
-# first 30 ms of sound) with most of its energy in the vowel band
-# (500-2500 Hz) and little hiss.
-def vowel_start(audio):
-    import numpy as np
-
-    step = RATE // 100
-    loud = np.where(np.abs(audio) > 0.02)[0]
-    begin = loud[0] if len(loud) else 0
-    for i in range(begin + 3 * step, len(audio) - step, step):
-        frame = audio[i : i + step] * np.hanning(step)
-        spec = np.abs(np.fft.rfft(frame)) ** 2
-        f = np.fft.rfftfreq(step, 1 / RATE)
-        total = spec[f > 80].sum() + 1e-12
-        if spec[(f > 500) & (f < 2500)].sum() / total > 0.3 and spec[f > 3000].sum() / total < 0.3:
-            return begin, i
-    raise RuntimeError('no vowel found after the sound')
-
-
-# Lengthens a hum or a hiss by repeating its steady middle with cross-fades.
-def hold(audio, seconds):
-    import numpy as np
-
-    want = int(seconds * RATE)
-    if len(audio) >= want:
-        return audio
-    middle = audio[len(audio) // 4 : len(audio) * 3 // 4]
-    fade = min(int(0.02 * RATE), len(middle) // 3)
-    if fade < int(0.004 * RATE):
-        return audio
-    ramp = np.linspace(0, 1, fade, dtype='float32')
-    out = audio[: len(audio) * 3 // 4]
-    while len(out) < want - len(audio) // 4:
-        out = np.concatenate([out[:-fade], out[-fade:] * ramp[::-1] + middle[:fade] * ramp, middle[fade:]])
-    tail = audio[len(audio) * 3 // 4 :]
-    return np.concatenate([out[:-fade], out[-fade:] * ramp[::-1] + tail[:fade] * ramp, tail[fade:]])
-
-
-def letter_sound(kokoro, sound, voice, speed):
-    import numpy as np
-
-    sound = sound.lower()
-    if sound in SAID:
-        audio, _ = kokoro.create(SAID[sound], voice=voice, speed=speed, is_phonemes=True)
-        return trim(np.asarray(audio, dtype='float32'))
-    audio, _ = kokoro.create(HELD[sound] + 'ːːˈɑː', voice=voice, speed=speed, is_phonemes=True)
-    audio = np.asarray(audio, dtype='float32')
-    begin, end = vowel_start(audio)
-    clip = audio[begin : end - RATE // 25]
-    if sound not in SHORT:
-        clip = hold(clip, HOLD)
-    fade = min(len(clip) // 4, int(0.015 * RATE))
-    clip[:fade] *= np.linspace(0, 1, fade, dtype='float32')
-    clip[-fade:] *= np.linspace(1, 0, fade, dtype='float32')
-    return clip
-
-
-# English with letter sounds in it -> audio, or None to read it as usual.
-def english_sounds(kokoro, text, voice, speed, language):
-    import numpy as np
-
+# English with letter sounds in it -> phonemes, or None to read it as usual.
+def english_sounds(kokoro, text, language):
     parts = SOUND_WORD.split(text)
     if len(parts) == 1 or SPELLED.search(text):
         return None
-    gap = np.zeros(int(GAP * RATE), dtype='float32')
-    pieces = []
+    out = []
     for i, part in enumerate(parts):
         if i % 2:
-            pieces.append(letter_sound(kokoro, part, voice, speed))
-        elif re.search(r'\w', part):
-            audio, _ = kokoro.create(part.strip(' ,'), voice=voice, speed=speed, lang=language)
-            pieces.append(trim(np.asarray(audio, dtype='float32')))
-    joined = [pieces[0]]
-    for piece in pieces[1:]:
-        joined += [gap, piece]
-    return np.concatenate(joined)
+            out.append(ENGLISH_SOUNDS[part.lower()])
+        elif part.strip():
+            out.append(kokoro.tokenizer.phonemize(part, language))
+    return ' '.join(out)
 
 
 # Hebrew sentences renikud reads wrong, and the sounds to say instead.
@@ -295,8 +226,8 @@ def synthesize(kokoro, text, voice, speed, language, g2p=None):
         spoken = spoken.replace('+', ' ועוד ').replace('−', ' פחות ').replace('×', ' כפול ').replace('=', ' שווה ')
         phonemes = HEBREW_SOUNDS.get(spoken) or g2p.phonemize(hebrew_numbers(spoken))
         audio, rate = kokoro.create(phonemes, voice=voice, speed=speed, is_phonemes=True)
-    elif (sounds := english_sounds(kokoro, spoken, voice, speed, language)) is not None:
-        audio, rate = sounds, RATE
+    elif (phonemes := english_sounds(kokoro, spoken, language)) is not None:
+        audio, rate = kokoro.create(phonemes, voice=voice, speed=speed, is_phonemes=True)
     else:
         audio, rate = kokoro.create(spoken, voice=voice, speed=speed, lang=language)
     if rate != RATE:
