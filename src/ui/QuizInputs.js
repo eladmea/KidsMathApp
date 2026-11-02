@@ -6,11 +6,14 @@ import { numberLineFeedback } from '../logic/numberLine';
 import { isRtl, t } from '../i18n/index';
 import { art, hasArt } from './Art';
 import { playButton } from './PlayButton';
+import { bob, fadeIn, popIn, settle } from './Juice';
 
 // The ways to answer a quiz question. Each one is laid out inside `area`
 // ({ x, y, width, height }, centred on x, y), calls onSubmit(answer) once, and
 // then shows the result with showResult(answer, isCorrect).
 //   makeInput(scene, area, question, { onSubmit, onSound, onWord })
+// appear() animates it in (a question, not a worked example), and
+// buttonFor(answer) is where an answer sits, for effects drawn on it.
 // onSound(text) reads something aloud on request (a tile's sound, a caption);
 // onWord(text) reads a word as it is (a picture answer's 🔊).
 export function makeInput(scene, area, question, handlers) {
@@ -99,7 +102,17 @@ class ChoiceInput {
     return Math.max(22, Math.min(84, (width - 30) / (length * 1.15)));
   }
 
+  // The answers pop in one after another, then float gently while waiting.
+  appear() {
+    popIn(this.scene, this.buttons, { onComplete: (button, i) => !this.locked && bob(this.scene, button, { delay: i * 180 }) });
+  }
+
+  buttonFor(choice) {
+    return this.buttons.find((button) => button.choice === choice) || null;
+  }
+
   showResult(choice, isCorrect) {
+    this.buttons.forEach((button) => settle(this.scene, button));
     this.buttons.forEach((button) => {
       if (button.choice === this.question.answer) {
         button.setColor(COLORS.green).pop();
@@ -120,7 +133,10 @@ class ChoiceInput {
   }
 
   destroy() {
-    this.buttons.forEach((button) => button.destroy());
+    this.buttons.forEach((button) => {
+      this.scene.tweens.killTweensOf(button);
+      button.destroy();
+    });
   }
 }
 
@@ -160,6 +176,14 @@ class NumberLineInput {
     this.geometry = { left: this.left, right: this.right, y: this.y, min, max };
   }
 
+  appear() {
+    fadeIn(this.scene, this.objects.filter((object) => object !== this.zone));
+  }
+
+  buttonFor(value) {
+    return { x: this.toX(value), y: this.y };
+  }
+
   showResult(guess, isCorrect) {
     const { scene, question } = this;
     const color = isCorrect ? COLORS.greenDark : COLORS.red;
@@ -177,7 +201,10 @@ class NumberLineInput {
   }
 
   destroy() {
-    this.objects.forEach((object) => object.destroy());
+    this.objects.forEach((object) => {
+      this.scene.tweens.killTweensOf(object);
+      object.destroy();
+    });
   }
 }
 
@@ -242,7 +269,18 @@ class WordBuilderInput {
     this.undo.setVisible(!this.locked && this.placed.length > 0);
   }
 
+  appear() {
+    fadeIn(this.scene, this.slots.flatMap((slot) => [slot.box, slot.label]));
+    popIn(this.scene, this.tiles, { stagger: 50 });
+  }
+
+  buttonFor() {
+    const first = this.slots[0].box;
+    return { x: (first.x + this.slots[this.slots.length - 1].box.x) / 2, y: first.y };
+  }
+
   showResult(_, isCorrect) {
+    this.tiles.forEach((tile) => settle(this.scene, tile));
     const color = isCorrect ? COLORS.green : COLORS.red;
     this.slots.forEach((slot) => slot.box.setStrokeStyle(6, color));
     this.undo.setVisible(false);
@@ -260,7 +298,10 @@ class WordBuilderInput {
   }
 
   destroy() {
-    [...this.slots.flatMap((s) => [s.box, s.label]), ...this.tiles, this.undo, ...this.extra].forEach((o) => o.destroy());
+    [...this.slots.flatMap((s) => [s.box, s.label]), ...this.tiles, this.undo, ...this.extra].forEach((o) => {
+      this.scene.tweens.killTweensOf(o);
+      o.destroy();
+    });
   }
 }
 
@@ -327,7 +368,17 @@ class StoryStripInput {
     });
   }
 
+  appear() {
+    popIn(this.scene, this.cards, { stagger: 90 });
+  }
+
+  buttonFor() {
+    const first = this.cards[0];
+    return { x: (first.x + this.cards[this.cards.length - 1].x) / 2, y: first.y };
+  }
+
   showResult() {
+    this.cards.forEach((card) => settle(this.scene, card));
     this.refresh('shown');
   }
 
@@ -338,6 +389,9 @@ class StoryStripInput {
   }
 
   destroy() {
-    this.cards.forEach((card) => card.destroy());
+    this.cards.forEach((card) => {
+      this.scene.tweens.killTweensOf(card);
+      card.destroy();
+    });
   }
 }

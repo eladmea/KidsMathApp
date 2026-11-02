@@ -88,6 +88,11 @@ for (const band of BANDS) {
             await t.shot(dir, `q-${id}-wrong`);
             const fb = await state();
             if (fb.right !== false) failures.push(`${id}: the wrong answer counted as right (${s.type})`);
+            if (fb.juice?.index !== i || fb.juice.effect !== 'oops') failures.push(`${id}: no shake and puff on the wrong answer (${JSON.stringify(fb.juice)})`);
+          } else {
+            // The effect stays reported until the next answer.
+            const fb = await state();
+            if (fb.juice?.index === i && fb.juice.effect !== 'celebrate') failures.push(`${id}: no sparkles on a right answer (${fb.juice.effect})`);
           }
         }
         await waitFor(() => window.__mathplay.scene === 'Results' && window.__mathplay.state.step === 'results', null, 8000);

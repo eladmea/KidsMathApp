@@ -30,5 +30,16 @@ export function textStyle(size, color = COLORS.ink, extra = {}) {
   return { fontFamily: FONT, fontSize: `${size}px`, fontStyle: '600', color: hex(color), align: 'center', ...extra };
 }
 
+// Text that has to stand out on any background (a score, a number flying up):
+// a dark outline and a soft drop shadow.
+export function popStyle(size, color = COLORS.white, extra = {}) {
+  return textStyle(size, color, {
+    stroke: hex(COLORS.ink),
+    strokeThickness: Math.max(3, Math.round(size / 7)),
+    shadow: { offsetX: 0, offsetY: 3, color: 'rgba(0,0,0,0.35)', blur: 4, fill: true, stroke: true },
+    ...extra,
+  });
+}
+
 // '#3DDC84' -> 0x3ddc84 (the curriculum stores colours as CSS strings).
 export const colorOf = (css) => parseInt(css.slice(1), 16);
