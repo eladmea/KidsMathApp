@@ -3,7 +3,8 @@ import Button from '../ui/Button';
 import Narrator from '../ui/Narrator';
 import { drawVisual } from '../ui/QuestionVisual';
 import { makeInput } from '../ui/QuizInputs';
-import { COLORS, textStyle } from '../ui/theme';
+import { COLORS, popStyle, textStyle } from '../ui/theme';
+import { celebrate, oops, pulse } from '../ui/Juice';
 import { logEvents, session } from '../services/session';
 import { preload, speak, stop as stopSpeech } from '../services/speech';
 import { play } from '../services/audio';
@@ -69,7 +70,7 @@ export default class QuizScene extends BaseScene {
     this.addBackButton(() => this.quit());
     this.narrator = new Narrator(this, 660, 70, { width: 800, fontSize: 30, onReplay: () => (this.replays += 1) });
     this.title = this.add.text(30, 150, titleOf(mode, this.baseSkill), textStyle(26, COLORS.gray)).setOrigin(0, 0.5);
-    this.score = this.add.text(1250, 150, '', textStyle(30, COLORS.ink)).setOrigin(1, 0.5);
+    this.score = this.add.text(1250, 150, '', popStyle(32, COLORS.yellow)).setOrigin(1, 0.5);
     this.dots = this.questions.map((_, i) => this.add.circle(SAFE.width / 2 - ((this.questions.length - 1) * 30) / 2 + i * 30, 150, 10, COLORS.gray, 0.3));
     this.note = this.add.text(SAFE.width / 2, 196, '', textStyle(24, COLORS.primary)).setOrigin(0.5);
     this.help = new Button(this, 1200, 70, { label: '❓', width: 84, height: 84, fontSize: 40, color: COLORS.white, onTap: () => this.showExample(false) });
@@ -163,6 +164,7 @@ export default class QuizScene extends BaseScene {
       onSound: (text) => speak(text.length <= 2 ? sound(text) : text, { force: true }),
       onWord: (text) => speak(text, { force: true }),
     });
+    this.answers.appear();
     this.report({
       step: 'question',
       index: this.index,
@@ -202,6 +204,7 @@ export default class QuizScene extends BaseScene {
     stopSpeech();
     play(this, right ? 'correct' : 'wrong');
     this.answers.showResult(choice, right);
+    this.juice(question, choice, right);
     // Redraw the picture with the answer filled in (and the monster's face).
     if (this.visual) {
       this.visual.destroy();
@@ -218,6 +221,22 @@ export default class QuizScene extends BaseScene {
     this.report({ step: 'feedback', right, change: adapted?.change || null });
     if (session.coaching) this.showTalkPrompt(question, right, () => this.next(adapted, nextSkill));
     else this.timer = this.time.delayedCall(feedbackDelay(question, right), () => this.next(adapted, nextSkill));
+  }
+
+  // Sparkles from the right answer (and its number rising), or a gentle shake
+  // and a puff on the wrong one.
+  juice(question, choice, right) {
+    const middle = { x: this.place.input.x, y: this.place.input.y };
+    const at = (value) => (this.answers.buttonFor && this.answers.buttonFor(value)) || middle;
+    if (right) {
+      const spot = at(question.answer);
+      celebrate(this, spot.x, spot.y, { number: question.answer });
+      pulse(this, this.score);
+    } else {
+      const spot = at(choice);
+      oops(this, spot.x, spot.y);
+    }
+    this.report({ juice: { index: this.index, effect: right ? 'celebrate' : 'oops' } });
   }
 
   // "Play together": a prompt for the grown-up to talk about the answer; the

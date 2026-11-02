@@ -50,7 +50,9 @@ For a line of text with emoji in it (a counter like "2 / 5 ⭐ 3", a star row, a
 
 Sound effects go in `src/assets/sounds/<name>.wav|mp3|ogg`, and you play them with `play(scene, '<name>')`.
 
-Colours and the font live in `ui/theme.js`.
+Colours and the font live in `ui/theme.js`. Text that must stand out on any background (a score, a number flying up) uses `popStyle(size, color)`, which adds an outline and a drop shadow.
+
+Feedback animations live in `ui/Juice.js`, so every game feels the same: `celebrate(scene, x, y, { number })` on a right answer (sparkles, and the number rising), `oops(scene, x, y)` on a wrong one (a small camera shake and a fading puff, gentle on purpose), `popIn()` / `fadeIn()` for things arriving, `bob()` for a slow idle float, and `settle()` to stop those before a result animation. They follow `?fast`, and skip shaking and floating when the device asks for reduced motion.
 
 ---
 
