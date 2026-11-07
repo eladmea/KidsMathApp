@@ -9,6 +9,9 @@ import { addDays } from './progress';
 export const LIMIT_OPTIONS = [0, 10, 15, 20, 30, 45, 60];
 export const BONUS_MINUTES = 10;
 export const WARN_MINUTES = 5;
+// With no tap or key for this long the game is left open, not played, and
+// the clock stops (a tablet left on the map overnight is not 8 hours of play).
+export const IDLE_MS = 3 * 60 * 1000;
 const KEEP_DAYS = 14;
 
 export function defaultDailyLimit(age) {
@@ -49,10 +52,20 @@ export function isTimeUp(profile, days, day) {
   return minutesLeft(profile, days, day) === 0;
 }
 
-// Profile changes that give `minutes` more time today.
-export function grantBonus(profile, day, minutes = BONUS_MINUTES) {
+// Milliseconds of the stretch [start, end] that count as play: the time up
+// to IDLE_MS after the last tap or key press (`lastInput`).
+export function activeMs(start, end, lastInput, idleMs = IDLE_MS) {
+  return Math.max(0, Math.min(end, lastInput + idleMs) - start);
+}
+
+// Profile changes that give `minutes` more time today, counted from now: a
+// child already past the limit (played `seconds` today) gets `minutes` from
+// where they are, not on top of a limit they passed long ago.
+export function grantBonus(profile, day, { minutes = BONUS_MINUTES, seconds = 0 } = {}) {
   const current = profile.bonus && profile.bonus.day === day ? profile.bonus.minutes : 0;
-  return { bonus: { day, minutes: current + minutes } };
+  const allowed = allowedMinutes(profile, day);
+  const over = allowed === null ? 0 : Math.max(0, Math.ceil(seconds / 60) - allowed);
+  return { bonus: { day, minutes: current + over + minutes } };
 }
 
 // The last `count` days, oldest first: [{ day, minutes }].

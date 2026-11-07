@@ -104,14 +104,26 @@ export const DIGRAPH_START_WORDS = {
 
 // Story Strip: events in order (emoji + caption).
 export const STORIES = [
-  [['🥚', 'An egg sits in a nest.'], ['🐣', 'The egg cracks open.'], ['🐥', 'A chick says peep!'], ['🐔', 'The chick grows into a hen.']],
-  [['🌰', 'Plant a seed in the soil.'], ['🌱', 'A tiny sprout pops up.'], ['🌿', 'Leaves grow bigger.'], ['🌻', 'A flower blooms.']],
   [['🛁', 'Take a bath.'], ['🪥', 'Brush your teeth.'], ['📖', 'Read a story.'], ['😴', 'Go to sleep.']],
   [['🍞', 'Get two slices of bread.'], ['🧈', 'Spread the butter.'], ['🥪', 'Make a sandwich.'], ['😋', 'Eat it up!']],
-  [['☁️', 'Dark clouds fill the sky.'], ['🌧️', 'Rain falls down.'], ['☀️', 'The sun comes out.'], ['🌈', 'A rainbow appears!']],
-  [['🥚', 'A tiny egg sits on a leaf.'], ['🐛', 'A caterpillar hatches.'], ['🍃', 'It munches lots of leaves.'], ['🦋', 'It turns into a butterfly.']],
-  [['❄️', 'Snow falls all night.'], ['⛄', 'We build a snowman.'], ['☀️', 'The sun shines warm.'], ['💧', 'The snowman melts.']],
   [['🥣', 'Mix the flour and eggs.'], ['🔥', 'Bake it in the oven.'], ['🎂', 'Put candles on the cake.'], ['🎉', 'Have a party!']],
+  [['🎒', 'Pack a bag for the beach.'], ['🏖️', 'Arrive at the beach.'], ['🏰', 'Build a sandcastle.'], ['🌅', 'The sun goes down.']],
+  [['⏰', 'The alarm rings.'], ['👕', 'Get dressed.'], ['🥣', 'Eat breakfast.'], ['🚌', 'Ride the bus to school.']],
+  [['🪁', 'Take the kite to the park.'], ['🏃', 'Run into the wind.'], ['🌬️', 'The wind lifts the kite.'], ['😄', 'It flies high in the sky!']],
+  [['📝', 'Write a shopping list.'], ['🛒', 'Fill the cart.'], ['💳', 'Pay at the checkout.'], ['🛍️', 'Carry the bags home.']],
+  [['🐶', 'The dog rolls in the mud.'], ['🛁', 'Give the dog a bath.'], ['💦', 'The dog shakes off the water.'], ['😴', 'The clean dog takes a nap.']],
+  [['✏️', 'Write a letter.'], ['✉️', 'Put it in an envelope.'], ['📮', 'Drop it in the mailbox.'], ['📬', 'A friend opens the letter.']],
+  [['⚽', 'Kick the ball.'], ['🥅', 'It flies into the goal.'], ['🙌', 'Goal! Everyone cheers.'], ['🏆', 'The team wins a cup.']],
+  [['🚚', 'The ice cream truck arrives.'], ['💰', 'Pay with some coins.'], ['🍦', 'Get a big ice cream.'], ['😋', 'Lick it before it drips!']],
+  [['🤒', 'You feel hot and sick.'], ['🩺', 'The doctor listens to your chest.'], ['💊', 'Take the medicine.'], ['🛌', 'Rest until you feel better.']],
+  [['🍋', 'Cut the lemons.'], ['✊', 'Squeeze out the juice.'], ['🧊', 'Add water and ice.'], ['🥤', 'Drink the cold lemonade.']],
+  [['⛑️', 'Put on your helmet.'], ['🚲', 'Ride your bike.'], ['💥', 'Bump! You fall off.'], ['🩹', 'Put on a bandage.']],
+  [['🎟️', 'Buy the tickets.'], ['🍿', 'Get some popcorn.'], ['🎬', 'The movie starts.'], ['👏', 'Clap at the end.']],
+  [['🧳', 'Pack a suitcase.'], ['🚕', 'Take a taxi to the airport.'], ['✈️', 'The plane takes off.'], ['🏝️', 'Land on a sunny island.']],
+  [['😢', 'Your teddy bear is lost.'], ['🔍', 'Look under the bed.'], ['🧸', 'There it is!'], ['🤗', 'Give it a big hug.']],
+  [['🎨', 'Get out the paints.'], ['🖌️', 'Paint a picture.'], ['⏳', 'Wait for the paint to dry.'], ['🖼️', 'Hang it on the wall.']],
+  [['⛺', 'Put up the tent.'], ['🔥', 'Light a campfire.'], ['🌭', 'Cook hot dogs on the fire.'], ['🌙', 'Sleep under the stars.']],
+  [['🦷', 'A tooth feels wobbly.'], ['🍎', 'Bite into an apple.'], ['😁', 'The tooth comes out!'], ['🛏️', 'Put it under your pillow.']],
 ];
 
 // Word parts: prefixes and suffixes change meaning.

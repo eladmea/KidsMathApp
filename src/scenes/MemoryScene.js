@@ -4,7 +4,7 @@ import Dialog from '../ui/Dialog';
 import Narrator from '../ui/Narrator';
 import { DICE } from '../ui/QuestionVisual';
 import { glyph } from '../ui/Art';
-import { COLORS, colorOf, textStyle } from '../ui/theme';
+import { COLORS, colorOf, hex, textStyle } from '../ui/theme';
 import { session } from '../services/session';
 import { speak } from '../services/speech';
 import { play } from '../services/audio';
@@ -455,8 +455,9 @@ export default class MemoryScene extends BaseScene {
       dialog.add(this.add.text(0, y, this.words.pairs({ name: `${icon} ${name}`, count: this.scores[n] }), textStyle(28)).setOrigin(0.5));
       y += 44;
     });
-    this.dialogButton('again', -140, 190, t('twoPlayer.playAgain'), COLORS.primary, () => this.replay(), 250, 84);
-    this.dialogButton('map', 140, 190, t('common.map'), COLORS.gray, () => this.back(), 250, 84);
+    // The map is the way on; playing again is the smaller choice.
+    this.dialogButton('again', -170, 190, t('twoPlayer.playAgain'), COLORS.white, () => this.replay(), 200, 70).label.setColor(hex(COLORS.ink));
+    this.dialogButton('map', 110, 190, t('common.map'), COLORS.green, () => this.back(), 300, 92);
     play(this, 'correct');
     speak(t(winner ? 'twoPlayer.sayWin' : 'twoPlayer.sayTie'), { force: true });
     this.report({ step: 'over', winner, stuck });

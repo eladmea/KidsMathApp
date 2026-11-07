@@ -189,8 +189,9 @@ export default class PathRaceScene extends BaseScene {
     speak(t('twoPlayer.sayWin'), { force: true });
     const dialog = new Dialog(this, { width: 620, height: 380, title });
     dialog.add(glyph(this, 0, -30, '🏆', 90));
-    const again = new Button(this, -140, 110, { label: t('twoPlayer.playAgain'), width: 250, height: 84, fontSize: 30, color: COLORS.green, onTap: () => this.replay() });
-    const map = new Button(this, 140, 110, { label: t('common.map'), width: 250, height: 84, fontSize: 30, color: COLORS.primary, onTap: () => this.back() });
+    // The map is the way on; playing again is the smaller choice.
+    const again = new Button(this, -165, 115, { label: t('twoPlayer.playAgain'), width: 200, height: 70, fontSize: 26, color: COLORS.white, textColor: COLORS.ink, onTap: () => this.replay() });
+    const map = new Button(this, 105, 110, { label: t('common.map'), width: 300, height: 92, fontSize: 38, color: COLORS.green, onTap: () => this.back() });
     dialog.add([again, map]);
     this.tag('again', again.box);
     this.tag('map', map.box);

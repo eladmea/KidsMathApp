@@ -116,7 +116,9 @@ export async function addPlaySeconds(seconds) {
 // A grown-up gives a child 10 more minutes today.
 export async function grantMoreTime(id = session.profile.id) {
   const profile = session.profiles.find((p) => p.id === id);
-  await updateProfileById(id, grantBonus(profile, toDayKey()));
+  const day = toDayKey();
+  const seconds = (session.playTime[id] || {})[day] || 0;
+  await updateProfileById(id, grantBonus(profile, day, { seconds }));
 }
 
 // ---- Today's Adventure (logic/adventure.js) ----
