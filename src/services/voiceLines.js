@@ -56,6 +56,7 @@ const SHOWN = new Set([
   'garden.resting',
   'pushRoll.instructions',
   'blockTower.instructions',
+  'balance.instructions',
   'pushRoll.hold',
   'pushRoll.pushing',
   'pushRoll.hit',
