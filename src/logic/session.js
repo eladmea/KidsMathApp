@@ -11,18 +11,26 @@ export function buildSession(skillIds, count = QUESTIONS_PER_QUIZ) {
 
   const order = shuffle(Array.from({ length: count }, (_, i) => skills[i % skills.length]));
   const questions = [];
-  const repeatsPrevious = (question) => {
-    const previous = questions[questions.length - 1];
-    return previous && previous.speech === question.speech;
-  };
+  const seen = new Set();
   order.forEach((skill, index) => {
+    // A question already asked this round is drawn again (a few tries, so a
+    // skill with only a handful of questions can still repeat).
     let question = generateQuestion(skill.generator);
-    for (let tries = 0; tries < 5 && repeatsPrevious(question); tries++) {
+    for (let tries = 0; tries < 40 && seen.has(questionKey(question)); tries++) {
       question = generateQuestion(skill.generator);
     }
+    seen.add(questionKey(question));
     questions.push({ ...question, id: index, skillId: skill.id });
   });
   return questions;
+}
+
+// What makes two questions the same: what is asked and what the answer is.
+// Story and life-cycle questions all share one spoken line, so their panels
+// tell them apart.
+export function questionKey(question) {
+  const items = question.items ? question.items.map((item) => item.caption).sort() : null;
+  return JSON.stringify([question.speech, question.prompt, question.answer, items, question.visual && question.visual.say]);
 }
 
 export function tallyBySkill(questions, results) {

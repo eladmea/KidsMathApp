@@ -1,4 +1,8 @@
-import { buildSession, tallyBySkill } from '../src/logic/session';
+import { buildSession, questionKey, tallyBySkill } from '../src/logic/session';
+import { STORIES as enStories } from '../src/content/en/literacy';
+import { STORIES as heStories } from '../src/content/he/literacy';
+import { LIFE_CYCLES as enCycles } from '../src/content/en/science';
+import { LIFE_CYCLES as heCycles } from '../src/content/he/science';
 import { QUESTIONS_PER_QUIZ } from '../src/logic/constants';
 
 describe('buildSession', () => {
@@ -27,5 +31,35 @@ describe('tallyBySkill', () => {
       a: { correct: 2, total: 2 },
       b: { correct: 0, total: 1 },
     });
+  });
+});
+
+describe('no repeats within a round', () => {
+  it('never asks the same story twice in a round', () => {
+    for (let round = 0; round < 20; round++) {
+      const stories = buildSession(['lit-story-strip'], 10).map((q) => questionKey(q));
+      expect(new Set(stories).size).toBe(10);
+    }
+  });
+
+  it('tells life cycles apart even though they share one spoken line', () => {
+    const cycles = buildSession(['sci-life-cycles'], 6).map((q) => questionKey(q));
+    expect(new Set(cycles).size).toBe(6);
+  });
+});
+
+describe('reading stories are not the Nature island again', () => {
+  const panels = (set) => set.map(([emoji]) => emoji);
+  it.each([
+    ['en', enStories, enCycles],
+    ['he', heStories, heCycles],
+  ])('%s: no story shares more than one picture with a life cycle', (_, stories, cycles) => {
+    stories.forEach((story) => {
+      cycles.forEach((cycle) => {
+        const shared = panels(story).filter((emoji) => panels(cycle).includes(emoji));
+        expect(shared.length, story.map(([, c]) => c).join(' / ')).toBeLessThan(2);
+      });
+    });
+    expect(stories.length).toBeGreaterThanOrEqual(20);
   });
 });

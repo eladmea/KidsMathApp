@@ -12,7 +12,8 @@ const today = new Date();
 const dayKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 
 // Ava (7) has the game-screen skill of her band passed, so every learning
-// step is a quiz. Leo (6) has used up today's 20 minutes.
+// step is a quiz. Leo (6) has used up today's 20 minutes long ago: the game
+// was left open and counted 200 minutes.
 await seedPlayers(
   t,
   [
@@ -22,7 +23,7 @@ await seedPlayers(
   { Ava: { 'logic-loops': PASSED } },
   '?fast'
 );
-await t.mp((day) => localStorage.setItem('mathplay2:play-time', JSON.stringify({ p1: { [day]: 20 * 60 } })), dayKey);
+await t.mp((day) => localStorage.setItem('mathplay2:play-time', JSON.stringify({ p1: { [day]: 200 * 60 } })), dayKey);
 await t.page.reload();
 await t.waitScene('Profiles');
 await tap('player:Ava');
@@ -131,7 +132,7 @@ await tap('more-time');
 await gate();
 await t.waitScene('WorldMap');
 s = await state();
-check('a grown-up adds 10 minutes', s.minutesLeft === 10, String(s.minutesLeft));
+check('a grown-up adds 10 minutes, from now even far past the limit', s.minutesLeft === 10, String(s.minutesLeft));
 
 // ---- Parent dashboard ----
 await tap('switch-player');
@@ -151,7 +152,7 @@ await waitFor(() => window.__mathplay.state.narration === false);
 check('and turns read-aloud off', true);
 await tap('tab:p1');
 await waitFor(() => window.__mathplay.state.child === 'Leo');
-check("Leo's tab shows today's 20 minutes and the bonus", (await state()).played === 20 && (await state()).allowed === 30, JSON.stringify((await state()).allowed));
+check("Leo's tab shows today's 200 minutes and 10 more allowed", (await state()).played === 200 && (await state()).allowed === 210, JSON.stringify((await state()).allowed));
 
 await tap('tab:p0');
 await waitFor(() => window.__mathplay.state.child === 'Ava');

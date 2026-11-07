@@ -35,6 +35,9 @@ export const LIFE_CYCLES = [
   [['🥚', 'Frog eggs float in a pond.'], ['🐟', 'A tadpole swims with its tail.'], ['🦵', 'The tadpole grows legs.'], ['🐸', 'It becomes a frog.']],
   [['🌰', 'A seed is planted.'], ['🌱', 'It sprouts roots and a shoot.'], ['🌳', 'It grows into a tree.'], ['🍎', 'The tree grows fruit with seeds.']],
   [['👶', 'A baby is born.'], ['🧒', 'The baby grows into a child.'], ['🧑', 'The child grows into an adult.'], ['🧓', 'The adult grows old.']],
+  [['🏖️', 'A sea turtle digs a nest in the sand.'], ['🥚', 'She lays her eggs in it.'], ['🐢', 'Baby turtles hatch.'], ['🌊', 'They crawl to the sea.']],
+  [['🌰', 'A bean seed is planted in soil.'], ['🌱', 'A sprout pushes up.'], ['🌿', 'The plant grows leaves.'], ['🌼', 'It grows flowers.']],
+  [['🥚', 'A ladybug lays eggs on a leaf.'], ['🐛', 'A larva hatches.'], ['💤', 'It rests as a pupa.'], ['🐞', 'A ladybug comes out.']],
 ];
 
 export const MATTER = [

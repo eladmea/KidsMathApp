@@ -19,7 +19,9 @@ import {
   allowedMinutes,
   dailyLimitFor,
   defaultDailyLimit,
+  activeMs,
   grantBonus,
+  IDLE_MS,
   isTimeUp,
   minutesLeft,
   recentDays,
@@ -199,6 +201,28 @@ describe('play time and the soft limit', () => {
     expect(allowedMinutes({ ...profile, ...grantBonus(profile, DAY1) }, DAY1)).toBe(35);
     expect(allowedMinutes(profile, DAY2)).toBe(15);
     expect(isTimeUp(profile, { [DAY1]: 20 * 60 }, DAY1)).toBe(false);
+  });
+
+  it('gives the 10 minutes from now to a child already past the limit', () => {
+    // Left open all day: 200 minutes counted against a 15 minute limit.
+    const days = { [DAY1]: 200 * 60 };
+    const profile = { age: 4, ...grantBonus({ age: 4 }, DAY1, { seconds: days[DAY1] }) };
+    expect(isTimeUp(profile, days, DAY1)).toBe(false);
+    expect(minutesLeft(profile, days, DAY1)).toBe(10);
+    // A second +10 adds to that.
+    const again = { ...profile, ...grantBonus(profile, DAY1, { seconds: days[DAY1] }) };
+    expect(minutesLeft(again, days, DAY1)).toBe(20);
+    // Under the limit it simply adds 10.
+    expect(minutesLeft({ age: 4, ...grantBonus({ age: 4 }, DAY1, { seconds: 300 }) }, { [DAY1]: 300 }, DAY1)).toBe(20);
+  });
+
+  it('stops counting play time when nobody has touched the game for a while', () => {
+    // Tapped just now: the whole stretch counts.
+    expect(activeMs(0, 15000, 0)).toBe(15000);
+    // The last tap was long ago: nothing counts.
+    expect(activeMs(IDLE_MS + 60000, IDLE_MS + 75000, 0)).toBe(0);
+    // Goes idle in the middle of the stretch: only the part before counts.
+    expect(activeMs(IDLE_MS - 5000, IDLE_MS + 10000, 0)).toBe(5000);
   });
 
   it('lists the last 7 days oldest first', () => {

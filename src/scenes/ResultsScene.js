@@ -42,8 +42,10 @@ export default class ResultsScene extends BaseScene {
     this.add.text(SAFE.width / 2, 258, resultLine(stars), textStyle(42, COLORS.primary)).setOrigin(0.5);
     this.add.text(SAFE.width / 2, 308, t('results.score', { score, total }), textStyle(34)).setOrigin(0.5);
     this.news = this.add.text(SAFE.width / 2, 352, '', textStyle(30, COLORS.ink, { lineSpacing: 10 })).setOrigin(0.5, 0);
-    const again = new Button(this, SAFE.width / 2 - 180, 620, { label: t('common.again'), width: 320, color: COLORS.primary, onTap: () => this.swap(replay.key, replay.data) });
-    const map = new Button(this, SAFE.width / 2 + 180, 620, { label: t('common.map'), width: 320, color: COLORS.green, onTap: () => this.back() });
+    // Back to the map is the way on (big and bold); playing again is a
+    // smaller, quieter choice beside it.
+    const again = new Button(this, SAFE.width / 2 - 270, 625, { label: t('common.again'), width: 220, height: 76, fontSize: 28, color: COLORS.white, textColor: COLORS.ink, onTap: () => this.swap(replay.key, replay.data) });
+    const map = new Button(this, SAFE.width / 2 + 100, 620, { label: t('common.map'), width: 420, height: 110, fontSize: 46, color: COLORS.green, onTap: () => this.back() });
     this.tag('again', again.box);
     this.tag('map', map.box);
     this.report({ step: 'saving', stars, shownStars: 0, score, total });
