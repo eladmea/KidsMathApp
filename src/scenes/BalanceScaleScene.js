@@ -1,6 +1,6 @@
 import BaseScene from '../ui/BaseScene';
 import Narrator from '../ui/Narrator';
-import NumberBlock from '../ui/NumberBlock';
+import WeightBlock, { WEIGHT_SIZE } from '../ui/WeightBlock';
 import { celebrate } from '../ui/Juice';
 import { COLORS } from '../ui/theme';
 import { play } from '../services/audio';
@@ -11,17 +11,17 @@ import { t } from '../i18n/index';
 
 // Balance Scale (ages 7-10): a block weighs as much as its number. The left
 // pan is set; drag or tap blocks from the tray onto the right pan until the
-// beam is level. It tips towards the heavier side as each block lands. Tap a
+// beam is level. Each weight is a plain block with its number. The beam tips
+// towards the heavier side as each one lands. Tap a
 // block on the pan to take it back. A point for each puzzle balanced without
 // ever making the right side too heavy.
 //   data: { skillId }
-const PIVOT = { x: 640, y: 250 };
+const PIVOT = { x: 640, y: 236 };
 const HALF = 300;
-const ROPE = 150;
+const ROPE = 190;
 const PAN_WIDTH = 330;
-const UNIT = 30;
-// A block in the tray takes a tap at least this big.
-const TOUCH = 60;
+// Weights stand two side by side on a pan.
+const PER_ROW = 2;
 const TRAY = { x: 640, y: 630, width: 1140, height: 150 };
 const TILT_MS = 520;
 const NEXT_PUZZLE_MS = 1800;
@@ -76,7 +76,7 @@ export default class BalanceScaleScene extends BaseScene {
 
   // ---- a puzzle ----
   newPuzzle() {
-    this.pans.forEach((pan) => pan.list.filter((o) => o instanceof NumberBlock).forEach((block) => block.destroy()));
+    this.pans.forEach((pan) => pan.list.filter((o) => o instanceof WeightBlock).forEach((block) => block.destroy()));
     this.trayBlocks.forEach((block) => {
       this.tweens.killTweensOf(block);
       block.destroy();
@@ -105,8 +105,7 @@ export default class BalanceScaleScene extends BaseScene {
   }
 
   makeBlock(weight, locked) {
-    const block = new NumberBlock(this, 0, 0, { length: weight, unit: UNIT, number: true, rowLength: 10, minHeight: TOUCH });
-    block.weight = weight;
+    const block = new WeightBlock(this, 0, 0, { weight });
     if (locked) {
       block.locked = true;
       block.disableInteractive();
@@ -114,37 +113,24 @@ export default class BalanceScaleScene extends BaseScene {
     return block;
   }
 
-  // The tray's blocks in a row (two rows if they don't fit), each with a home.
+  // The tray's weights in a row, each with a home to go back to.
   placeTray() {
-    const gap = 24;
-    const rows = [[]];
-    let width = 0;
-    this.trayBlocks.forEach((block) => {
-      if (width + block.blockWidth > TRAY.width - 60 && rows[rows.length - 1].length) {
-        rows.push([]);
-        width = 0;
-      }
-      rows[rows.length - 1].push(block);
-      width += block.blockWidth + gap;
-    });
-    rows.forEach((row, r) => {
-      const rowWidth = row.reduce((sum, block) => sum + block.blockWidth, 0) + gap * (row.length - 1);
-      let x = TRAY.x - rowWidth / 2;
-      const y = TRAY.y + (r - (rows.length - 1) / 2) * 66;
-      row.forEach((block) => {
-        block.home = { x: x + block.blockWidth / 2, y };
-        block.setPosition(block.home.x, block.home.y);
-        x += block.blockWidth + gap;
-      });
+    const step = WEIGHT_SIZE.width + 28;
+    this.trayBlocks.forEach((block, i) => {
+      block.home = { x: TRAY.x + (i - (this.trayBlocks.length - 1) / 2) * step, y: TRAY.y };
+      block.setPosition(block.home.x, block.home.y);
     });
   }
 
-  // Blocks on a pan stand on each other, bottom up.
+  // Weights on a pan stand two side by side, rows from the bottom up.
   stackPan(pan) {
-    let y = -8;
-    pan.list.filter((o) => o instanceof NumberBlock).forEach((block) => {
-      block.setPosition(0, y - block.blockHeight / 2 - 2);
-      y -= block.blockHeight + 4;
+    const { width, height } = WEIGHT_SIZE;
+    const weights = pan.list.filter((o) => o instanceof WeightBlock);
+    weights.forEach((block, i) => {
+      const row = Math.floor(i / PER_ROW);
+      const inRow = Math.min(PER_ROW, weights.length - row * PER_ROW);
+      const col = i % PER_ROW;
+      block.setPosition((col - (inRow - 1) / 2) * (width + 8), -8 - height / 2 - row * (height + 4));
     });
   }
 
@@ -166,7 +152,7 @@ export default class BalanceScaleScene extends BaseScene {
   }
 
   rightWeights() {
-    return this.pans[1].list.filter((o) => o instanceof NumberBlock).map((block) => block.weight);
+    return this.pans[1].list.filter((o) => o instanceof WeightBlock).map((block) => block.weight);
   }
 
   refresh() {
@@ -201,8 +187,6 @@ export default class BalanceScaleScene extends BaseScene {
   }
 
   putOn(block) {
-    // Stacked tight on the pan: only the block itself takes a tap.
-    block.setTouchSize(0);
     this.pans[1].add(block);
     speak(String(block.weight));
     this.changed();
@@ -211,7 +195,7 @@ export default class BalanceScaleScene extends BaseScene {
   takeBack(block) {
     this.pans[1].remove(block);
     this.add.existing(block);
-    block.setTouchSize(TOUCH).setPosition(block.home.x, block.home.y).setAngle(0);
+    block.setPosition(block.home.x, block.home.y).setAngle(0);
     this.changed();
   }
 
