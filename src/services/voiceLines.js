@@ -55,6 +55,7 @@ const SHOWN = new Set([
   'tracing.almostDigit',
   'garden.resting',
   'pushRoll.instructions',
+  'blockTower.instructions',
   'pushRoll.hold',
   'pushRoll.pushing',
   'pushRoll.hit',

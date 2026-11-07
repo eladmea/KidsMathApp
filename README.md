@@ -84,7 +84,7 @@ tests/                    Vitest unit tests for curriculum and logic
 e2e/                      Playwright walkthroughs through the window.__mathplay test hook: players, games, learning (the learning
                           loop), writing (the tracing games), pizza (Pizza Shop, Birthday Cake), thinking (Bunny Pop, Freeze Zoo, Robo Path,
                           Push & Roll, Feelings Friends), fun (Games, Fun Break and tickets), grownups (adventure, time limit,
-                          dashboard), islands (map, stops, chest), quiz (every quiz skill once), smoke (a deployed site); run.mjs runs them all
+                          dashboard), islands (map, stops, chest), numbers (Block Tower), quiz (every quiz skill once), smoke (a deployed site); run.mjs runs them all
 ```
 
 ## Play online

@@ -1,0 +1,9 @@
+{
+  "introSmall": "Build a tower! Big blocks go at the bottom. Small blocks go on top.",
+  "introBig": "Build a tall tower, from the biggest block to the smallest. Count the squares!",
+  "instructions": "Biggest at the bottom! Drag or tap a block.",
+  "tooBig": "Oops! That block is too big. A big block can't sit on a small one.",
+  "fell": "Oh no, the tower fell! A big block can't sit on a small one. Let's build it again.",
+  "done": "What a tower!",
+  "doneAgain": "You did it!"
+}
