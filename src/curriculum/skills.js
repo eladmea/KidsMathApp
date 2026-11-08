@@ -22,6 +22,8 @@ export const SKILLS = [
   { id: 'math-birthday-cake', subject: 'math', band: 'sprouts', emoji: '🎂', screen: 'BirthdayCake', prereqs: [] },
   { id: 'math-write-6-9', subject: 'math', band: 'sprouts', emoji: '🖍️', screen: 'TraceDigits', traceLevel: 'big', prereqs: ['math-write-1-5'] },
   // Block Tower: biggest block at the bottom (`towerLevel`, logic/blockTower.js).
+  // Number Pairs: memory with dots and numerals, then numerals and words (`pairsLevel`, logic/numberPairs.js).
+  { id: 'math-pairs', subject: 'math', band: 'sprouts', emoji: '🃏', screen: 'NumberPairs', pairsLevel: 'dots5', prereqs: ['math-count-5'] },
   { id: 'math-block-tower', subject: 'math', band: 'sprouts', emoji: '🧱', screen: 'BlockTower', towerLevel: 'small', prereqs: ['math-more-less'] },
 
   // ---- Number Island: Explorers (5-6) ----
@@ -31,6 +33,7 @@ export const SKILLS = [
   { id: 'math-number-line-10', subject: 'math', band: 'explorers', emoji: '🪂', generator: 'number-line-10', prereqs: ['math-next-number'] },
   { id: 'math-add-10', subject: 'math', band: 'explorers', emoji: '➕', generator: 'add-10', prereqs: ['math-more-less'] },
   { id: 'math-sub-10', subject: 'math', band: 'explorers', emoji: '➖', generator: 'sub-10', prereqs: ['math-add-10'] },
+  { id: 'math-pairs-10', subject: 'math', band: 'explorers', emoji: '🎴', screen: 'NumberPairs', pairsLevel: 'dots10', prereqs: ['math-next-number'] },
   { id: 'math-block-tower-10', subject: 'math', band: 'explorers', emoji: '🗼', screen: 'BlockTower', towerLevel: 'big', prereqs: ['math-bigger-number'] },
 
   // ---- Number Island: Builders (7-8) ----
@@ -42,6 +45,7 @@ export const SKILLS = [
   { id: 'math-mult-2-5-10', subject: 'math', band: 'builders', emoji: '✖️', generator: 'mult-2-5-10', prereqs: ['math-add-20'] },
   { id: 'math-number-line-100', subject: 'math', band: 'builders', emoji: '🪂', generator: 'number-line-100', prereqs: ['math-number-line-10'] },
   // Balance Scale: make both pans weigh the same (`scaleLevel`, logic/balanceScale.js).
+  { id: 'math-pairs-words', subject: 'math', band: 'builders', emoji: '🔠', screen: 'NumberPairs', pairsLevel: 'words', prereqs: [] },
   { id: 'math-balance', subject: 'math', band: 'builders', emoji: '⚖️', screen: 'BalanceScale', scaleLevel: 'sum', prereqs: ['math-add-20'] },
 
   // ---- Number Island: Masters (9-10) ----
@@ -113,7 +117,7 @@ export function getSkill(skillId) {
 }
 
 // Game screens that play a skill (they receive { skillId }).
-export const SKILL_SCREENS = ['TracePath', 'PizzaShop', 'BirthdayCake', 'BunnyPop', 'FreezeZoo', 'RoboPath', 'PushRoll', 'FeelingsFriends', 'TraceDigits', 'BlockTower', 'BalanceScale'];
+export const SKILL_SCREENS = ['TracePath', 'PizzaShop', 'BirthdayCake', 'BunnyPop', 'FreezeZoo', 'RoboPath', 'PushRoll', 'FeelingsFriends', 'TraceDigits', 'BlockTower', 'BalanceScale', 'NumberPairs'];
 
 export function isPlayable(skill) {
   return Boolean(skill && (skill.generator || skill.screen));

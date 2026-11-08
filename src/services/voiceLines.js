@@ -57,6 +57,8 @@ const SHOWN = new Set([
   'pushRoll.instructions',
   'blockTower.instructions',
   'balance.instructions',
+  'numberPairs.instructions',
+  'numberPairs.score',
   'pushRoll.hold',
   'pushRoll.pushing',
   'pushRoll.hit',

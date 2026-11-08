@@ -9,6 +9,9 @@
     "math-write-1-5": "Write 1 to 5",
     "math-race-track": "Race Track Numbers",
     "math-pizza": "Pizza Shop",
+    "math-pairs": "Number Pairs",
+    "math-pairs-10": "Pairs to 10",
+    "math-pairs-words": "Number Words",
     "math-block-tower": "Block Tower",
     "math-block-tower-10": "Tall Tower",
     "math-balance": "Balance It",
@@ -112,6 +115,24 @@
         "fractions": {
           "label": "Fraction Chips",
           "note": "1/2 ↔ 4/8"
+        }
+      }
+    },
+    "number-pairs": {
+      "title": "Number Pairs",
+      "description": "Turn over two cards and find the same number: dots, numbers or words.",
+      "options": {
+        "dots5": {
+          "label": "Dots to 5",
+          "note": "Dots ↔ numbers 1-5"
+        },
+        "dots10": {
+          "label": "Dots to 10",
+          "note": "Dots ↔ numbers 1-10"
+        },
+        "words": {
+          "label": "Number words",
+          "note": "7 ↔ seven"
         }
       }
     },

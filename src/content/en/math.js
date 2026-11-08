@@ -23,7 +23,10 @@ export const SHAPES = [
 ];
 
 // Number words, 0-9 (the writing games say them).
-export const NUMBER_WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
+export const NUMBER_WORDS = [
+  'zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten',
+  'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen', 'twenty',
+];
 
 // The pre-writing strokes of Bee Paths, by id (logic/tracing.js PREWRITING_PATHS).
 export const STROKE_NAMES = {

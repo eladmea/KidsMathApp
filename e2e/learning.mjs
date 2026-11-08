@@ -23,7 +23,7 @@ await t.waitScene('WorldMap');
 await sleep(400);
 let s = await state();
 const math = s.islands.find((i) => i.subject === 'math');
-check('the map shows five islands with progress in her band', s.islands.length === 5 && math.passed === 0 && math.total === 12 && math.next === 'math-count-5', JSON.stringify(math));
+check('the map shows five islands with progress in her band', s.islands.length === 5 && math.passed === 0 && math.total === 13 && math.next === 'math-count-5', JSON.stringify(math));
 check('no Daily Review before anything is passed', s.reviews.length === 0 && !(await t.box('review')));
 await t.shot(dir, 'l1-map');
 

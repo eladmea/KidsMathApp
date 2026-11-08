@@ -1,0 +1,10 @@
+{
+  "introDots": "Find the pairs! Turn over two cards. Match the dots to their number.",
+  "introWords": "Find the pairs! Turn over two cards. Match each number to its word.",
+  "instructions": "Turn over two cards with the same number.",
+  "peek": "Look carefully! Remember where they are.",
+  "pair": "A pair!",
+  "notPair": "Not a pair. Remember where they are!",
+  "done": "You found them all!",
+  "score": "{icon} {name}: {count}"
+}
