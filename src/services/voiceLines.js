@@ -59,6 +59,7 @@ const SHOWN = new Set([
   'balance.instructions',
   'numberPairs.instructions',
   'numberPairs.score',
+  'letterCatcher.instructions',
   'pushRoll.hold',
   'pushRoll.pushing',
   'pushRoll.hit',

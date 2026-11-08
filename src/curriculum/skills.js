@@ -62,11 +62,15 @@ export const SKILLS = [
   // then read sentences and word parts.
   { id: 'lit-rhymes', subject: 'literacy', band: 'sprouts', emoji: '🎵', generator: 'rhymes', prereqs: [] },
   { id: 'lit-first-sound', subject: 'literacy', band: 'sprouts', emoji: '👾', generator: 'sound-snack', prereqs: [] },
+  // Letter Catcher: throw a ball at the letters of a word, in order (`catchLevel`, logic/letterCatcher.js).
+  { id: 'lit-catch-letter', subject: 'literacy', band: 'sprouts', emoji: '🎩', screen: 'LetterCatcher', catchLevel: 'letter', prereqs: ['lit-first-sound'] },
   { id: 'lit-letter-sounds', subject: 'literacy', band: 'explorers', emoji: '🔤', generator: 'letter-sounds', prereqs: ['lit-first-sound'] },
   { id: 'lit-sight-words', subject: 'literacy', band: 'explorers', emoji: '👀', generator: 'sight-words', prereqs: [] },
+  { id: 'lit-catch-word', subject: 'literacy', band: 'explorers', emoji: '⚾', screen: 'LetterCatcher', catchLevel: 'word', prereqs: ['lit-letter-sounds'] },
   { id: 'lit-word-builder', subject: 'literacy', band: 'explorers', emoji: '🧱', generator: 'word-builder', prereqs: ['lit-letter-sounds'] },
   { id: 'lit-digraphs', subject: 'literacy', band: 'builders', emoji: '🚢', generator: 'digraph-starts', prereqs: [] },
   { id: 'lit-digraph-builder', subject: 'literacy', band: 'builders', emoji: '🧩', generator: 'digraph-builder', prereqs: ['lit-digraphs'] },
+  { id: 'lit-catch-sounds', subject: 'literacy', band: 'builders', emoji: '🥎', screen: 'LetterCatcher', catchLevel: 'pairs', prereqs: ['lit-digraphs'] },
   { id: 'lit-story-strip', subject: 'literacy', band: 'builders', emoji: '📖', generator: 'story-strip', prereqs: [] },
   { id: 'lit-compound-words', subject: 'literacy', band: 'masters', emoji: '🌻', generator: 'compound-words', prereqs: [] },
   { id: 'lit-word-parts', subject: 'literacy', band: 'masters', emoji: '🔍', generator: 'word-parts', prereqs: ['lit-compound-words'] },
@@ -117,7 +121,7 @@ export function getSkill(skillId) {
 }
 
 // Game screens that play a skill (they receive { skillId }).
-export const SKILL_SCREENS = ['TracePath', 'PizzaShop', 'BirthdayCake', 'BunnyPop', 'FreezeZoo', 'RoboPath', 'PushRoll', 'FeelingsFriends', 'TraceDigits', 'BlockTower', 'BalanceScale', 'NumberPairs'];
+export const SKILL_SCREENS = ['TracePath', 'PizzaShop', 'BirthdayCake', 'BunnyPop', 'FreezeZoo', 'RoboPath', 'PushRoll', 'FeelingsFriends', 'TraceDigits', 'BlockTower', 'BalanceScale', 'NumberPairs', 'LetterCatcher'];
 
 export function isPlayable(skill) {
   return Boolean(skill && (skill.generator || skill.screen));

@@ -236,7 +236,7 @@ await playScale('Sam', 'math-balance');
 await playScale('Ada', 'math-balance-times');
 
 // ---- Number Pairs ----
-const turnReady = () => waitFor(() => ['play', 'buddy', 'over', 'done'].includes(window.__mathplay.state.step), null, 15000);
+const turnReady = () => waitFor(() => window.__mathplay.scene !== 'NumberPairs' || ['play', 'buddy', 'over', 'done'].includes(window.__mathplay.state.step), null, 15000);
 const partnerOf = (s, card) => s.cards.find((c) => c.id !== card.id && c.value === card.value);
 
 // Turns over two cards and waits for the answer (and the next turn).
@@ -254,7 +254,8 @@ async function findAll() {
   for (let guard = 0; guard < 40; guard++) {
     await turnReady();
     const s = await state();
-    if (['over', 'done'].includes(s.step)) return;
+    // The game is over, or already showing Results.
+    if (['over', 'done'].includes(s.step) || !s.cards || (await t.scene()) !== 'NumberPairs') return;
     if (s.step === 'buddy') {
       await waitFor(() => window.__mathplay.state.step !== 'buddy', null, 15000);
       continue;

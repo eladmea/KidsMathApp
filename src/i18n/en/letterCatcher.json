@@ -1,0 +1,9 @@
+{
+  "introLetter": "Catch the letter! Move with the arrows, then throw the ball at it.",
+  "introWord": "Catch the letters of the word, in order! Move with the arrows, then throw the ball.",
+  "instructions": "Move left and right, then throw! Catch the letters in order.",
+  "left": "◀",
+  "right": "▶",
+  "throw": "⚾ Throw",
+  "great": "Great catching!"
+}
