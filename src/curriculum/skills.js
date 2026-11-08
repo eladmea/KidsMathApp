@@ -21,6 +21,8 @@ export const SKILLS = [
   { id: 'math-pizza', subject: 'math', band: 'sprouts', emoji: '🍕', screen: 'PizzaShop', prereqs: [] },
   { id: 'math-birthday-cake', subject: 'math', band: 'sprouts', emoji: '🎂', screen: 'BirthdayCake', prereqs: [] },
   { id: 'math-write-6-9', subject: 'math', band: 'sprouts', emoji: '🖍️', screen: 'TraceDigits', traceLevel: 'big', prereqs: ['math-write-1-5'] },
+  // Block Tower: biggest block at the bottom (`towerLevel`, logic/blockTower.js).
+  { id: 'math-block-tower', subject: 'math', band: 'sprouts', emoji: '🧱', screen: 'BlockTower', towerLevel: 'small', prereqs: ['math-more-less'] },
 
   // ---- Number Island: Explorers (5-6) ----
   { id: 'math-next-number', subject: 'math', band: 'explorers', emoji: '➡️', generator: 'next-number', prereqs: ['math-count-10'] },
@@ -29,6 +31,7 @@ export const SKILLS = [
   { id: 'math-number-line-10', subject: 'math', band: 'explorers', emoji: '🪂', generator: 'number-line-10', prereqs: ['math-next-number'] },
   { id: 'math-add-10', subject: 'math', band: 'explorers', emoji: '➕', generator: 'add-10', prereqs: ['math-more-less'] },
   { id: 'math-sub-10', subject: 'math', band: 'explorers', emoji: '➖', generator: 'sub-10', prereqs: ['math-add-10'] },
+  { id: 'math-block-tower-10', subject: 'math', band: 'explorers', emoji: '🗼', screen: 'BlockTower', towerLevel: 'big', prereqs: ['math-bigger-number'] },
 
   // ---- Number Island: Builders (7-8) ----
   { id: 'math-add-20', subject: 'math', band: 'builders', emoji: '➕', generator: 'add-20', prereqs: ['math-add-10'] },
@@ -107,7 +110,7 @@ export function getSkill(skillId) {
 }
 
 // Game screens that play a skill (they receive { skillId }).
-export const SKILL_SCREENS = ['TracePath', 'PizzaShop', 'BirthdayCake', 'BunnyPop', 'FreezeZoo', 'RoboPath', 'PushRoll', 'FeelingsFriends', 'TraceDigits'];
+export const SKILL_SCREENS = ['TracePath', 'PizzaShop', 'BirthdayCake', 'BunnyPop', 'FreezeZoo', 'RoboPath', 'PushRoll', 'FeelingsFriends', 'TraceDigits', 'BlockTower'];
 
 export function isPlayable(skill) {
   return Boolean(skill && (skill.generator || skill.screen));
