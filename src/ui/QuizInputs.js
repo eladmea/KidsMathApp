@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import Button from './Button';
 import { COLORS, textStyle } from './theme';
-import { tag } from '../services/testBridge';
+import { reportState, tag } from '../services/testBridge';
 import { numberLineFeedback } from '../logic/numberLine';
 import { isRtl, t } from '../i18n/index';
 import { art, hasArt } from './Art';
@@ -244,6 +244,7 @@ class WordBuilderInput {
     this.undo = new Button(scene, area.x, area.y + area.height / 2 - 30, { label: t('quiz.undo'), width: 200, height: 64, fontSize: 28, color: COLORS.gray, onTap: () => this.removeFrom(this.placed.length - 1) });
     this.undo.setVisible(false);
     this.extra = [];
+    reportState({ placed: [] });
   }
 
   place(tile, button) {
@@ -267,6 +268,8 @@ class WordBuilderInput {
   refresh() {
     this.slots.forEach((slot, i) => slot.label.setText(this.placed[i] ? this.placed[i].tile.text : ''));
     this.undo.setVisible(!this.locked && this.placed.length > 0);
+    // For browser tests: the tiles in the slots so far.
+    reportState({ placed: this.placed.map((p) => p.tile.id) });
   }
 
   appear() {
@@ -333,6 +336,7 @@ class StoryStripInput {
     });
     this.onSubmit = onSubmit;
     this.onSound = onSound;
+    reportState({ storyOrder: [] });
   }
 
   press(item) {
@@ -352,6 +356,8 @@ class StoryStripInput {
   }
 
   refresh(result = null) {
+    // For browser tests: the panels numbered so far.
+    reportState({ storyOrder: [...this.order] });
     this.cards.forEach((card) => {
       const position = this.order.indexOf(card.item.id);
       card.badge.setVisible(position >= 0);
