@@ -28,7 +28,11 @@ export const SHAPES = [
 
 // Number words, 0-9 (the writing games say them): the counting forms, as
 // one names a digit.
-export const NUMBER_WORDS = ['אפס', 'אחת', 'שתיים', 'שלוש', 'ארבע', 'חמש', 'שש', 'שבע', 'שמונה', 'תשע'];
+// Counting forms (feminine, as numbers are said when counting).
+export const NUMBER_WORDS = [
+  'אפס', 'אחת', 'שתיים', 'שלוש', 'ארבע', 'חמש', 'שש', 'שבע', 'שמונה', 'תשע', 'עשר',
+  'אחת עשרה', 'שתים עשרה', 'שלוש עשרה', 'ארבע עשרה', 'חמש עשרה', 'שש עשרה', 'שבע עשרה', 'שמונה עשרה', 'תשע עשרה', 'עשרים',
+];
 
 // The pre-writing strokes of Bee Paths, by id (logic/tracing.js PREWRITING_PATHS).
 // Said after "fly": "עופו ישר למטה!".

@@ -17,6 +17,16 @@ export const LEARNING_GAMES = [
     ],
   },
   {
+    id: 'number-pairs',
+    emoji: '🃏',
+    route: 'NumberPairs',
+    options: [
+      { id: 'dots5', emoji: '🎲', bands: ['sprouts'] },
+      { id: 'dots10', emoji: '🔟', bands: ['explorers'] },
+      { id: 'words', emoji: '🔠', bands: ['builders', 'masters'] },
+    ],
+  },
+  {
     id: 'garden-days',
     emoji: '🌻',
     route: 'Garden',

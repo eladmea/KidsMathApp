@@ -2,7 +2,9 @@
 // wrong block falls on its own, the top block lifts off, drag and tap both
 // work) and Tall Tower for ages 5-6 (a wrong block brings the whole tower
 // down). Balance Scale for ages 7-8 (sums; too heavy, take blocks back,
-// drag) and 9-10 (equal groups, a missing block).
+// drag) and 9-10 (equal groups, a missing block). Number Pairs alone on the
+// island (a miss, a memory slip, number words) and from the Games list against
+// a friend and the buddy.
 //   node e2e/numbers.mjs <screenshotDir> <width> <height> <label>
 import { PASSED, open, seedPlayers, sleep } from './helpers.mjs';
 
@@ -14,7 +16,7 @@ const results = () => waitFor(() => window.__mathplay.scene === 'Results' && win
 await seedPlayers(
   t,
   [{ name: 'Mia', age: 4, avatar: '🦁' }, { name: 'Leo', age: 6, avatar: '🐯' }, { name: 'Sam', age: 8, avatar: '🦊' }, { name: 'Ada', age: 10, avatar: '🦉' }],
-  { Mia: { 'math-more-less': PASSED }, Leo: { 'math-bigger-number': PASSED }, Sam: { 'math-add-20': PASSED }, Ada: { 'math-mult-10': PASSED } },
+  { Mia: { 'math-more-less': PASSED, 'math-count-5': PASSED }, Leo: { 'math-bigger-number': PASSED }, Sam: { 'math-add-20': PASSED }, Ada: { 'math-mult-10': PASSED } },
   '?fast'
 );
 await t.waitScene('Profiles');
@@ -232,5 +234,132 @@ async function playScale(player, skill) {
 
 await playScale('Sam', 'math-balance');
 await playScale('Ada', 'math-balance-times');
+
+// ---- Number Pairs ----
+const turnReady = () => waitFor(() => ['play', 'buddy', 'over', 'done'].includes(window.__mathplay.state.step), null, 15000);
+const partnerOf = (s, card) => s.cards.find((c) => c.id !== card.id && c.value === card.value);
+
+// Turns over two cards and waits for the answer (and the next turn).
+async function flip(a, b) {
+  await tap(`card:${a}`);
+  await tap(`card:${b}`);
+  await waitFor(() => ['pair', 'miss'].includes(window.__mathplay.state.step), null, 8000);
+  const result = (await state()).step;
+  await turnReady();
+  return result;
+}
+
+// Finds every pair still face down (whenever it is the child's turn).
+async function findAll() {
+  for (let guard = 0; guard < 40; guard++) {
+    await turnReady();
+    const s = await state();
+    if (['over', 'done'].includes(s.step)) return;
+    if (s.step === 'buddy') {
+      await waitFor(() => window.__mathplay.state.step !== 'buddy', null, 15000);
+      continue;
+    }
+    const card = s.cards.find((c) => c.status === 'hidden');
+    await flip(card.id, partnerOf(s, card).id);
+  }
+}
+
+// Alone on the island (ages 3-4): one miss, then one slip, then the rest.
+await openSkill('Mia', 'math-pairs', 'NumberPairs');
+await waitFor(() => window.__mathplay.state.step === 'peek', null, 8000);
+await sleep(60);
+await t.shot(dir, 'n-pairs-peek');
+await waitFor(() => window.__mathplay.state.step === 'play', null, 8000);
+s = await state();
+check('pairs 3-4: 4 pairs of dots and numerals', s.total === 4 && s.cards.every((c) => ['dots', 'numeral'].includes(c.face)));
+const [a] = s.cards;
+const b = s.cards.find((c) => c.value !== a.value);
+check('pairs: two different numbers are a miss', (await flip(a.id, b.id)) === 'miss');
+await waitFor(() => window.__mathplay.state.cards.every((c) => c.status === 'hidden'), null, 8000);
+check('pairs: a miss turns both cards back over', true);
+// b's partner was never seen, but its own partner (b) was: picking it and
+// then not b is a slip.
+const slipFirst = partnerOf(s, b);
+const slipSecond = s.cards.find((c) => c.id !== b.id && c.id !== slipFirst.id && c.value !== slipFirst.value);
+await flip(slipFirst.id, slipSecond.id);
+check('pairs: missing a partner already seen is a slip', (await state()).slips === 1, String((await state()).slips));
+await findAll();
+await results();
+s = await state();
+check('pairs 3-4: the slip costs one point', s.score === s.total - 1, `${s.score}/${s.total}`);
+await tap('map');
+await t.waitScene('Island');
+await tap('back');
+await t.waitScene('WorldMap');
+
+// Number words (ages 7-8): no head start.
+await openSkill('Sam', 'math-pairs-words', 'NumberPairs');
+await waitFor(() => window.__mathplay.state.step === 'play', null, 8000);
+s = await state();
+check('pairs 7-8: numerals and words, 8 pairs', s.total === 8 && s.cards.some((c) => c.face === 'word'));
+const word = s.cards.find((c) => c.face === 'word');
+await tap(`card:${word.id}`);
+await sleep(300);
+await t.shot(dir, 'n-pairs-words');
+await tap(`card:${partnerOf(s, word).id}`);
+await turnReady();
+await findAll();
+await results();
+s = await state();
+check('pairs 7-8: every pair found, full marks', s.score === s.total, `${s.score}/${s.total}`);
+await tap('map');
+await t.waitScene('Island');
+await tap('back');
+await t.waitScene('WorldMap');
+
+// From the Games list: with a friend, then with the buddy.
+async function openPairsGame(mode) {
+  await tap('games');
+  await t.waitScene('Games');
+  await tap('game:number-pairs');
+  await t.waitScene('GameSetup');
+  await tap(`mode:${mode}`);
+  await waitFor((m) => window.__mathplay.state.mode === m, mode);
+  await tap('start');
+  await t.waitScene('NumberPairs');
+}
+await openPairsGame('duo');
+await waitFor(() => window.__mathplay.state.step === 'play', null, 8000);
+s = await state();
+check('pairs with a friend: player 1 starts', s.versus && s.turn === 1);
+const x = s.cards[0];
+const y = s.cards.find((c) => c.value !== x.value);
+await flip(x.id, y.id);
+check('pairs with a friend: a miss passes the turn', (await state()).turn === 2);
+await findAll();
+await waitFor(() => window.__mathplay.state.step === 'over', null, 8000);
+s = await state();
+await sleep(300);
+await t.shot(dir, 'n-pairs-duo-over');
+check('pairs with a friend: player 2 found every pair and wins', s.winner === 2 && s.pairs[2] === s.total, JSON.stringify(s.pairs));
+await tap('map');
+await t.waitScene('GameSetup');
+await tap('back');
+await t.waitScene('Games');
+await tap('back');
+await t.waitScene('WorldMap');
+
+await openPairsGame('solo');
+await waitFor(() => window.__mathplay.state.step === 'play', null, 8000);
+s = await state();
+const m1 = s.cards[0];
+const m2 = s.cards.find((c) => c.value !== m1.value);
+await tap(`card:${m1.id}`);
+await tap(`card:${m2.id}`);
+await waitFor(() => window.__mathplay.state.step === 'buddy', null, 8000);
+check('pairs with the buddy: a miss gives the buddy a turn', (await state()).turn === 2);
+await waitFor(() => window.__mathplay.state.up && window.__mathplay.state.up.length === 2 && window.__mathplay.state.turn === 2, null, 8000);
+await sleep(150);
+await t.shot(dir, 'n-pairs-buddy');
+check('pairs with the buddy: the buddy turns over two cards by itself', true);
+await findAll();
+await waitFor(() => window.__mathplay.state.step === 'over', null, 15000);
+s = await state();
+check('pairs with the buddy: the game ends with every pair found', s.found === s.total && s.pairs[1] + s.pairs[2] === s.total, JSON.stringify(s.pairs));
 
 process.exit(await t.finish());
