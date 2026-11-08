@@ -60,6 +60,8 @@ const SHOWN = new Set([
   'numberPairs.instructions',
   'numberPairs.score',
   'letterCatcher.instructions',
+  'blockFit.instructions',
+  'blockFit.instructionsTurn',
   'pushRoll.hold',
   'pushRoll.pushing',
   'pushRoll.hit',

@@ -4,7 +4,7 @@
 // down). Balance Scale for ages 7-8 (sums; too heavy, take blocks back,
 // drag) and 9-10 (equal groups, a missing block). Number Pairs alone on the
 // island (a miss, a memory slip, number words) and from the Games list against
-// a friend and the buddy.
+// a friend and the buddy. Block Fit with digits (ages 3-4 and 5-6).
 //   node e2e/numbers.mjs <screenshotDir> <width> <height> <label>
 import { PASSED, open, seedPlayers, sleep } from './helpers.mjs';
 
@@ -16,7 +16,7 @@ const results = () => waitFor(() => window.__mathplay.scene === 'Results' && win
 await seedPlayers(
   t,
   [{ name: 'Mia', age: 4, avatar: '🦁' }, { name: 'Leo', age: 6, avatar: '🐯' }, { name: 'Sam', age: 8, avatar: '🦊' }, { name: 'Ada', age: 10, avatar: '🦉' }],
-  { Mia: { 'math-more-less': PASSED, 'math-count-5': PASSED }, Leo: { 'math-bigger-number': PASSED }, Sam: { 'math-add-20': PASSED }, Ada: { 'math-mult-10': PASSED } },
+  { Mia: { 'math-more-less': PASSED, 'math-count-5': PASSED, 'math-write-1-5': PASSED }, Leo: { 'math-bigger-number': PASSED }, Sam: { 'math-add-20': PASSED }, Ada: { 'math-mult-10': PASSED } },
   '?fast'
 );
 await t.waitScene('Profiles');
@@ -138,9 +138,14 @@ await t.waitScene('WorldMap');
 const onRight = (count) => waitFor((n) => window.__mathplay.state.right.length === n, count, 8000);
 const puzzleReady = (index) => waitFor((i) => window.__mathplay.state.step === 'play' && window.__mathplay.state.puzzle === i, index, 8000);
 
+// Waits for the puzzle to be solved (or already replaced by the next one:
+// at test speed "solved" lasts a moment).
+const solvedOrNext = (index) => waitFor((i) => window.__mathplay.state.step === 'solved' || window.__mathplay.state.puzzle !== i || window.__mathplay.scene !== 'BalanceScale', index, 8000);
+
 // Taps the answer's blocks onto the right pan.
 async function balance() {
   const s = await state();
+  const puzzleAt = s.puzzle;
   const used = new Set();
   let count = s.right.length;
   for (const weight of s.answer) {
@@ -150,7 +155,7 @@ async function balance() {
     count += 1;
     await onRight(count);
   }
-  await waitFor(() => window.__mathplay.state.step === 'solved', null, 8000);
+  await solvedOrNext(puzzleAt);
 }
 
 async function playScale(player, skill) {
@@ -188,6 +193,7 @@ async function playScale(player, skill) {
   // Puzzle 2: drag the first answer block onto the pan.
   await puzzleReady(1);
   s = await state();
+  const puzzleAt = s.puzzle;
   const first = s.tray.find((b) => b.weight === s.answer[0]);
   const from = await t.box(`weight:${first.id}`);
   const to = await t.mp(({ x, y }) => window.__mathplay.toPage(x, y), s.drop);
@@ -210,7 +216,7 @@ async function playScale(player, skill) {
       count += 1;
       await onRight(count);
     }
-    await waitFor(() => window.__mathplay.state.step === 'solved', null, 8000);
+    await solvedOrNext(puzzleAt);
   }
   await sleep(150);
   await t.shot(dir, `n-${skill}-balanced`);
@@ -363,4 +369,89 @@ await waitFor(() => window.__mathplay.state.step === 'over', null, 15000);
 s = await state();
 check('pairs with the buddy: the game ends with every pair found', s.found === s.total && s.pairs[1] + s.pairs[2] === s.total, JSON.stringify(s.pairs));
 
+
+// ---- Block Fit helpers ----
+// Drags a piece by its middle to a point in game coordinates.
+async function dragPiece(id, to) {
+  const from = await t.box(`piece:${id}`);
+  const p = await t.mp(({ x, y }) => window.__mathplay.toPage(x, y), to);
+  await t.page.mouse.move(from.x + from.width / 2, from.y + from.height / 2);
+  await t.page.mouse.down();
+  await t.page.mouse.move(p.x, p.y, { steps: 8 });
+  await t.page.mouse.up();
+  await sleep(120);
+}
+
+// Fills the shape: turns each piece back the way it was cut, then drags it
+// to where it goes.
+async function fillShape() {
+  const shape = (await state()).index;
+  // Still on this shape, and not filled yet?
+  const playing = () => state().then((s) => s.step === 'play' && s.index === shape);
+  for (let guard = 0; guard < 20; guard++) {
+    const s = await state();
+    if (!(await playing())) break;
+    const piece = s.pieces.find((p) => !p.placed);
+    if (!piece) break;
+    for (let k = piece.turns; k % 4 !== 0; k++) {
+      await tap(`piece:${piece.id}`);
+      await waitFor(([id, n]) => window.__mathplay.state.pieces.find((p) => p.id === id).turns === n, [piece.id, (k + 1) % 4], 4000);
+    }
+    await sleep(250);
+    await dragPiece(piece.id, piece.target);
+    await waitFor(([id, n]) => window.__mathplay.state.step !== 'play' || window.__mathplay.state.index !== n || window.__mathplay.state.pieces.find((p) => p.id === id).placed, [piece.id, shape], 4000);
+  }
+  await waitFor((n) => window.__mathplay.state.step === 'done' || window.__mathplay.state.index !== n || window.__mathplay.scene !== 'BlockFit', shape, 8000);
+}
+
+async function fillRest(from) {
+  const { total } = await state();
+  for (let i = from; i < total; i++) {
+    await waitFor((n) => window.__mathplay.state.step === 'play' && window.__mathplay.state.index === n && window.__mathplay.state.pieces, i, 8000);
+    await sleep(300);
+    await fillShape();
+  }
+}
+
+// From the buddy game's end card back to the players.
+await tap('map');
+await t.waitScene('GameSetup');
+await tap('back');
+await t.waitScene('Games');
+await tap('back');
+await t.waitScene('WorldMap');
+
+// Ages 3-4: outlines show where blocks go; one block dropped off the shape.
+await openSkill('Mia', 'math-block-fit', 'BlockFit');
+await waitFor(() => window.__mathplay.state.step === 'play' && window.__mathplay.state.pieces, null, 8000);
+await sleep(300);
+await t.shot(dir, 'n-fit-start');
+s = await state();
+check('fit 3-4: a digit to cover', ['0', '1', '4', '7'].includes(s.shape) && s.pieces.every((p) => p.turns === 0), s.shape);
+await dragPiece(s.pieces[0].id, { x: 60, y: 690 });
+await waitFor(() => window.__mathplay.state.lastDrop === 'miss', null, 4000);
+s = await state();
+check('fit: a block dropped where it does not fit goes back to the tray', s.misses === 1 && !s.pieces[0].placed);
+await fillShape();
+s = await state();
+check('fit: every block in place fills the shape', s.step === 'done' || s.index === 1, `${s.step} ${s.index}`);
+check('fit: a shape with a miss scores nothing', s.score === 0);
+await fillRest(1);
+await results();
+s = await state();
+check('fit 3-4: the round ends on Results', s.score === s.total - 1, `${s.score}/${s.total}`);
+await tap('map');
+await t.waitScene('Island');
+await tap('back');
+await t.waitScene('WorldMap');
+
+// Ages 5-6: any digit, no outlines.
+await openSkill('Leo', 'math-block-fit-10', 'BlockFit');
+await waitFor(() => window.__mathplay.state.step === 'play' && window.__mathplay.state.pieces, null, 8000);
+await sleep(300);
+await t.shot(dir, 'n-fit-digits');
+await fillRest(0);
+await results();
+s = await state();
+check('fit 5-6: every digit filled cleanly', s.score === s.total, `${s.score}/${s.total}`);
 process.exit(await t.finish());

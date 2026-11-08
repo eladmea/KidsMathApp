@@ -1,0 +1,9 @@
+{
+  "introDigit": "Fill the number with blocks! Drag each block to where it fits.",
+  "introLetter": "Fill the letter with blocks! Drag each block to where it fits.",
+  "introTurn": "Fill the letter with blocks! Tap a block to turn it, then drag it where it fits.",
+  "instructions": "Drag the blocks to cover the shape.",
+  "instructionsTurn": "Tap a block to turn it. Drag it to cover the shape.",
+  "noFit": "That block doesn't fit there. Try another spot!",
+  "done": "You filled it!"
+}

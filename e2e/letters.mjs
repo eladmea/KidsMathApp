@@ -1,7 +1,8 @@
 // Walkthrough: Letter Catcher on Word Woods. Runs at normal speed: the kid
 // is steered under a bubble (with the arrow keys, and once with the
 // on-screen arrows) and throws when lined up. One letter for ages 3-4 (with
-// a wrong hit first), words for 5-6, letter pairs for 7-8.
+// a wrong hit first), words for 5-6, letter pairs for 7-8. Block Fit with
+// letters for 5-6, and for 7-8 with blocks to turn.
 //   node e2e/letters.mjs <screenshotDir> <width> <height> <label>
 import { PASSED, open, seedPlayers, sleep } from './helpers.mjs';
 
@@ -167,5 +168,86 @@ await catchRest(0);
 await results();
 s = await state();
 check('catch 7-8: the round ends on Results', s.score === s.total, `${s.score}/${s.total}`);
+
+// ---- Block Fit helpers ----
+// Drags a piece by its middle to a point in game coordinates.
+async function dragPiece(id, to) {
+  const from = await t.box(`piece:${id}`);
+  const p = await t.mp(({ x, y }) => window.__mathplay.toPage(x, y), to);
+  await t.page.mouse.move(from.x + from.width / 2, from.y + from.height / 2);
+  await t.page.mouse.down();
+  await t.page.mouse.move(p.x, p.y, { steps: 8 });
+  await t.page.mouse.up();
+  await sleep(120);
+}
+
+// Fills the shape: turns each piece back the way it was cut, then drags it
+// to where it goes.
+async function fillShape() {
+  const shape = (await state()).index;
+  // Still on this shape, and not filled yet?
+  const playing = () => state().then((s) => s.step === 'play' && s.index === shape);
+  for (let guard = 0; guard < 20; guard++) {
+    const s = await state();
+    if (!(await playing())) break;
+    const piece = s.pieces.find((p) => !p.placed);
+    if (!piece) break;
+    for (let k = piece.turns; k % 4 !== 0; k++) {
+      await tap(`piece:${piece.id}`);
+      await waitFor(([id, n]) => window.__mathplay.state.pieces.find((p) => p.id === id).turns === n, [piece.id, (k + 1) % 4], 4000);
+    }
+    await sleep(250);
+    await dragPiece(piece.id, piece.target);
+    await waitFor(([id, n]) => window.__mathplay.state.step !== 'play' || window.__mathplay.state.index !== n || window.__mathplay.state.pieces.find((p) => p.id === id).placed, [piece.id, shape], 4000);
+  }
+  await waitFor((n) => window.__mathplay.state.step === 'done' || window.__mathplay.state.index !== n || window.__mathplay.scene !== 'BlockFit', shape, 8000);
+}
+
+async function fillRest(from) {
+  const { total } = await state();
+  for (let i = from; i < total; i++) {
+    await waitFor((n) => window.__mathplay.state.step === 'play' && window.__mathplay.state.index === n && window.__mathplay.state.pieces, i, 8000);
+    await sleep(300);
+    await fillShape();
+  }
+}
+
+async function openFit(player, skill) {
+  if ((await t.scene()) !== 'Profiles') await toMap();
+  await tap(`player:${player}`);
+  await t.waitScene('WorldMap');
+  await tap('island:literacy');
+  await t.waitScene('Island');
+  await sleep(200);
+  const status = (await state()).skills.find((x) => x.id === skill).status;
+  check(`${skill} is open on Word Woods`, status === 'ready', status);
+  await tap(`skill:${skill}`);
+  await t.waitScene('BlockFit');
+  await waitFor(() => window.__mathplay.state.step === 'play' && window.__mathplay.state.pieces, null, 8000);
+  await sleep(300);
+}
+
+// ---- Block Fit: letters (5-6), then turning blocks (7-8) ----
+await openFit('Leo', 'lit-block-fit');
+s = await state();
+check('fit letters 5-6: a letter to cover, blocks the right way up', /^[A-Z]$/.test(s.shape) && s.pieces.every((p) => p.turns === 0), s.shape);
+await t.shot(dir, 'l4-fit-letter');
+await fillRest(0);
+await results();
+s = await state();
+check('fit letters 5-6: every letter filled cleanly', s.score === s.total, `${s.score}/${s.total}`);
+
+await openFit('Sam', 'lit-block-fit-turn');
+s = await state();
+check('fit 7-8: some blocks start turned', s.pieces.some((p) => p.turns > 0), JSON.stringify(s.pieces.map((p) => p.turns)));
+await t.shot(dir, 'l5-fit-turn');
+const turnedPiece = s.pieces.find((p) => p.turns > 0);
+await tap(`piece:${turnedPiece.id}`);
+await waitFor(([id, n]) => window.__mathplay.state.pieces.find((p) => p.id === id).turns === n, [turnedPiece.id, (turnedPiece.turns + 1) % 4], 4000);
+check('fit 7-8: a tap turns a block', true);
+await fillRest(0);
+await results();
+s = await state();
+check('fit 7-8: every letter filled with turned blocks', s.score === s.total, `${s.score}/${s.total}`);
 
 process.exit(await t.finish());

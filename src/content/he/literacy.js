@@ -195,6 +195,19 @@ export const MEMORY_LETTERS = {
   6: ['ו', [['🌹', 'ורד'], ['🧇', 'וופל']]],
 };
 
+// Letters drawn as grid squares for Block Fit ('#' = a square): the ones
+// that stay clear and different at this size.
+export const BLOCK_LETTERS = {
+  ב: ['###', '..#', '..#', '..#', '####'],
+  ד: ['####', '..#.', '..#.', '..#.', '..#.'],
+  ה: ['###', '..#', '#.#', '#.#', '#.#'],
+  ו: ['##.', '.#.', '.#.', '.#.'],
+  ח: ['###', '#.#', '#.#', '#.#', '#.#'],
+  ן: ['##.', '.#.', '.#.', '.#.', '.#.', '.#.'],
+  ם: ['###', '#.#', '#.#', '#.#', '###'],
+  ר: ['###', '..#', '..#', '..#', '..#'],
+};
+
 export const say = {
   rhymes: {
     prompt: ({ target }) => `מה מתחרז עם ${target}?`,

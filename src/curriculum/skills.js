@@ -24,6 +24,8 @@ export const SKILLS = [
   // Block Tower: biggest block at the bottom (`towerLevel`, logic/blockTower.js).
   // Number Pairs: memory with dots and numerals, then numerals and words (`pairsLevel`, logic/numberPairs.js).
   { id: 'math-pairs', subject: 'math', band: 'sprouts', emoji: '🃏', screen: 'NumberPairs', pairsLevel: 'dots5', prereqs: ['math-count-5'] },
+  // Block Fit: cover a digit (here) or a letter (Word Woods) with blocks (`fitLevel`, logic/blockFit.js).
+  { id: 'math-block-fit', subject: 'math', band: 'sprouts', emoji: '🧩', screen: 'BlockFit', fitLevel: 'small', prereqs: ['math-write-1-5'] },
   { id: 'math-block-tower', subject: 'math', band: 'sprouts', emoji: '🧱', screen: 'BlockTower', towerLevel: 'small', prereqs: ['math-more-less'] },
 
   // ---- Number Island: Explorers (5-6) ----
@@ -34,6 +36,7 @@ export const SKILLS = [
   { id: 'math-add-10', subject: 'math', band: 'explorers', emoji: '➕', generator: 'add-10', prereqs: ['math-more-less'] },
   { id: 'math-sub-10', subject: 'math', band: 'explorers', emoji: '➖', generator: 'sub-10', prereqs: ['math-add-10'] },
   { id: 'math-pairs-10', subject: 'math', band: 'explorers', emoji: '🎴', screen: 'NumberPairs', pairsLevel: 'dots10', prereqs: ['math-next-number'] },
+  { id: 'math-block-fit-10', subject: 'math', band: 'explorers', emoji: '🔢', screen: 'BlockFit', fitLevel: 'digits', prereqs: [] },
   { id: 'math-block-tower-10', subject: 'math', band: 'explorers', emoji: '🗼', screen: 'BlockTower', towerLevel: 'big', prereqs: ['math-bigger-number'] },
 
   // ---- Number Island: Builders (7-8) ----
@@ -67,10 +70,12 @@ export const SKILLS = [
   { id: 'lit-letter-sounds', subject: 'literacy', band: 'explorers', emoji: '🔤', generator: 'letter-sounds', prereqs: ['lit-first-sound'] },
   { id: 'lit-sight-words', subject: 'literacy', band: 'explorers', emoji: '👀', generator: 'sight-words', prereqs: [] },
   { id: 'lit-catch-word', subject: 'literacy', band: 'explorers', emoji: '⚾', screen: 'LetterCatcher', catchLevel: 'word', prereqs: ['lit-letter-sounds'] },
+  { id: 'lit-block-fit', subject: 'literacy', band: 'explorers', emoji: '🔡', screen: 'BlockFit', fitLevel: 'letters', prereqs: ['lit-letter-sounds'] },
   { id: 'lit-word-builder', subject: 'literacy', band: 'explorers', emoji: '🧱', generator: 'word-builder', prereqs: ['lit-letter-sounds'] },
   { id: 'lit-digraphs', subject: 'literacy', band: 'builders', emoji: '🚢', generator: 'digraph-starts', prereqs: [] },
   { id: 'lit-digraph-builder', subject: 'literacy', band: 'builders', emoji: '🧩', generator: 'digraph-builder', prereqs: ['lit-digraphs'] },
   { id: 'lit-catch-sounds', subject: 'literacy', band: 'builders', emoji: '🥎', screen: 'LetterCatcher', catchLevel: 'pairs', prereqs: ['lit-digraphs'] },
+  { id: 'lit-block-fit-turn', subject: 'literacy', band: 'builders', emoji: '🔄', screen: 'BlockFit', fitLevel: 'turn', prereqs: [] },
   { id: 'lit-story-strip', subject: 'literacy', band: 'builders', emoji: '📖', generator: 'story-strip', prereqs: [] },
   { id: 'lit-compound-words', subject: 'literacy', band: 'masters', emoji: '🌻', generator: 'compound-words', prereqs: [] },
   { id: 'lit-word-parts', subject: 'literacy', band: 'masters', emoji: '🔍', generator: 'word-parts', prereqs: ['lit-compound-words'] },
@@ -121,7 +126,7 @@ export function getSkill(skillId) {
 }
 
 // Game screens that play a skill (they receive { skillId }).
-export const SKILL_SCREENS = ['TracePath', 'PizzaShop', 'BirthdayCake', 'BunnyPop', 'FreezeZoo', 'RoboPath', 'PushRoll', 'FeelingsFriends', 'TraceDigits', 'BlockTower', 'BalanceScale', 'NumberPairs', 'LetterCatcher'];
+export const SKILL_SCREENS = ['TracePath', 'PizzaShop', 'BirthdayCake', 'BunnyPop', 'FreezeZoo', 'RoboPath', 'PushRoll', 'FeelingsFriends', 'TraceDigits', 'BlockTower', 'BalanceScale', 'NumberPairs', 'LetterCatcher', 'BlockFit'];
 
 export function isPlayable(skill) {
   return Boolean(skill && (skill.generator || skill.screen));
