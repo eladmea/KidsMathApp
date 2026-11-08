@@ -20,6 +20,7 @@ await t.waitScene('Profiles');
 
 let played = 0;
 const failures = [];
+const partials = [];
 const seen = new Set();
 for (const band of BANDS) {
   for (const subject of SUBJECTS) {
@@ -72,7 +73,19 @@ for (const band of BANDS) {
               if (!said.includes(s.sayTarget)) failures.push(`${id}: ▶ said ${JSON.stringify(said)}, not "${s.sayTarget}"`);
             }
           }
+          // A retry after a half-done answer: one panel or tile already in
+          // place, then the helper finishes it (it must keep that one).
+          if (i === 0 && (s.type === 'order' || s.type === 'build')) {
+            const first = s.type === 'order' ? `story:${s.answer[0]}` : `tile:${s.tiles.find((tl) => tl.text === s.parts[0]).id}`;
+            await tap(first);
+            await waitFor(() => (window.__mathplay.state.storyOrder || window.__mathplay.state.placed || []).length === 1, null, 4000);
+            partials.push(id);
+          }
           await answerQuestion(t, { wrong: i === 1 });
+          if (i === 0 && partials.includes(id)) {
+            await waitFor(() => window.__mathplay.state.step === 'feedback', null, 6000);
+            if ((await state()).right !== true) failures.push(`${id}: finishing a half-done answer got it wrong`);
+          }
           // On a slow machine a tap can land just before the answers take
           // input: answer once more if nothing happened. A busy machine can
           // also just be slow to react, so only while this question still
@@ -111,6 +124,7 @@ for (const band of BANDS) {
     await t.waitScene('WorldMap');
   }
 }
+check('a half-done answer is finished, not tapped over (Story Strip, Word Builder)', partials.length >= 3, partials.join(', '));
 const saved = await t.mp(() => {
   const profile = JSON.parse(localStorage.getItem('mathplay2:profiles'))[0];
   return Object.keys(JSON.parse(localStorage.getItem(`mathplay2:progress:${profile.id}`) || '{}')).length;

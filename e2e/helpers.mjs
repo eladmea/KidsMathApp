@@ -104,8 +104,23 @@ export async function seedPlayers(t, players, progress = {}, query = '') {
 // A passed record (as the game saves it) for seeding progress.
 export const PASSED = { attempts: 10, correct: 10, bestScore: 10, passedDays: ['2026-10-16'], box: 1, lastPlayed: '2026-10-16', dueDate: '2099-01-01' };
 
+// Taps `ids` in order, keeping the ones already in place (`done`) when they
+// are the start of `ids`; otherwise taps `clear` (which takes everything
+// back) first and starts over.
+async function tapRest(t, ids, done, name, clear, key) {
+  const same = done.every((id, i) => ids[i] === id);
+  if (!same) {
+    await t.tap(clear);
+    await t.waitFor((k) => (window.__mathplay.state[k] || []).length === 0, key, 4000);
+  }
+  for (const id of ids.slice(same ? done.length : 0)) await t.tap(name(id));
+}
+
 // Answers the current quiz question through the test hook: right, or wrong
-// on purpose. Works for every answer type.
+// on purpose. Works for every answer type. Safe to call again on the same
+// question (a retry when a tap went missing): tiles and story panels already
+// in place are kept, and only the rest are tapped. If what is in place
+// doesn't match, it is taken back first.
 export async function answerQuestion(t, { wrong = false } = {}) {
   const s = await t.state();
   if (s.type === 'numberLine') {
@@ -124,10 +139,10 @@ export async function answerQuestion(t, { wrong = false } = {}) {
     });
     // A palindrome reversed is still right: swap in a distractor tile.
     if (wrong && wanted.join('') === s.parts.join('')) ids[0] = s.tiles.find((tl) => !ids.includes(tl.id)).id;
-    for (const id of ids) await t.tap(`tile:${id}`);
+    await tapRest(t, ids, s.placed || [], (id) => `tile:${id}`, 'slot:0', 'placed');
   } else if (s.type === 'order') {
     const order = wrong ? [...s.answer].reverse() : s.answer;
-    for (const id of order) await t.tap(`story:${id}`);
+    await tapRest(t, order, s.storyOrder || [], (id) => `story:${id}`, `story:${(s.storyOrder || [])[0]}`, 'storyOrder');
   } else {
     await t.tap(`choice:${wrong ? s.choices.find((c) => c !== s.answer) : s.answer}`);
   }
