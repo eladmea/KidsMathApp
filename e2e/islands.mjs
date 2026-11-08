@@ -12,7 +12,7 @@ const MASTERED = { ...PASSED, passedDays: ['2026-10-15', '2026-10-16'] };
 // Word Woods for ages 3-4 is done (its chest can open); Number Island has
 // one stop passed and one mastered.
 await seedPlayers(t, [{ name: 'Mia', age: 4, avatar: '🦁' }], {
-  Mia: { 'lit-rhymes': PASSED, 'lit-first-sound': PASSED, 'math-count-5': PASSED, 'math-shapes': MASTERED },
+  Mia: { 'lit-rhymes': PASSED, 'lit-first-sound': PASSED, 'lit-catch-letter': PASSED, 'math-count-5': PASSED, 'math-shapes': MASTERED },
 });
 await t.waitScene('Profiles');
 await tap('player:Mia');

@@ -29,7 +29,7 @@ const SIZES = [
 const runs = [
   // Every quiz skill once (about 5 minutes, at test speed): the longest, so first.
   ['quiz.mjs', 1280, 720, 'laptop'],
-  ...SIZES.flatMap((size) => [['writing.mjs', ...size], ['thinking.mjs', ...size], ['pizza.mjs', ...size], ['hebrew.mjs', ...size], ['learning.mjs', ...size], ['grownups.mjs', ...size], ['fun.mjs', ...size], ['games.mjs', ...size], ['players.mjs', ...size], ['islands.mjs', ...size], ['numbers.mjs', ...size]]),
+  ...SIZES.flatMap((size) => [['writing.mjs', ...size], ['thinking.mjs', ...size], ['pizza.mjs', ...size], ['hebrew.mjs', ...size], ['learning.mjs', ...size], ['grownups.mjs', ...size], ['fun.mjs', ...size], ['games.mjs', ...size], ['players.mjs', ...size], ['islands.mjs', ...size], ['numbers.mjs', ...size], ['letters.mjs', ...size]]),
   ['players.mjs', 390, 844, 'portrait'],
 ];
 const nameOf = ([script, , , label]) => `${script}:${label}`;
