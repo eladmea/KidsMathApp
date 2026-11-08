@@ -41,6 +41,8 @@ export const SKILLS = [
   { id: 'math-skip-count', subject: 'math', band: 'builders', emoji: '🦘', generator: 'skip-count', prereqs: ['math-next-number'] },
   { id: 'math-mult-2-5-10', subject: 'math', band: 'builders', emoji: '✖️', generator: 'mult-2-5-10', prereqs: ['math-add-20'] },
   { id: 'math-number-line-100', subject: 'math', band: 'builders', emoji: '🪂', generator: 'number-line-100', prereqs: ['math-number-line-10'] },
+  // Balance Scale: make both pans weigh the same (`scaleLevel`, logic/balanceScale.js).
+  { id: 'math-balance', subject: 'math', band: 'builders', emoji: '⚖️', screen: 'BalanceScale', scaleLevel: 'sum', prereqs: ['math-add-20'] },
 
   // ---- Number Island: Masters (9-10) ----
   { id: 'math-mult-10', subject: 'math', band: 'masters', emoji: '✖️', generator: 'mult-10', prereqs: ['math-mult-2-5-10'] },
@@ -48,6 +50,7 @@ export const SKILLS = [
   { id: 'math-mult-12', subject: 'math', band: 'masters', emoji: '🚀', generator: 'mult-12', prereqs: ['math-mult-10'] },
   { id: 'math-div-12', subject: 'math', band: 'masters', emoji: '🪐', generator: 'div-12', prereqs: ['math-div-10', 'math-mult-12'] },
   { id: 'math-number-line-1000', subject: 'math', band: 'masters', emoji: '🪂', generator: 'number-line-1000', prereqs: ['math-number-line-100'] },
+  { id: 'math-balance-times', subject: 'math', band: 'masters', emoji: '🏋️', screen: 'BalanceScale', scaleLevel: 'times', prereqs: ['math-mult-10'] },
 
   // ---- Word Woods ----
   // Order follows the National Reading Panel progression: hear sounds first
@@ -110,7 +113,7 @@ export function getSkill(skillId) {
 }
 
 // Game screens that play a skill (they receive { skillId }).
-export const SKILL_SCREENS = ['TracePath', 'PizzaShop', 'BirthdayCake', 'BunnyPop', 'FreezeZoo', 'RoboPath', 'PushRoll', 'FeelingsFriends', 'TraceDigits', 'BlockTower'];
+export const SKILL_SCREENS = ['TracePath', 'PizzaShop', 'BirthdayCake', 'BunnyPop', 'FreezeZoo', 'RoboPath', 'PushRoll', 'FeelingsFriends', 'TraceDigits', 'BlockTower', 'BalanceScale'];
 
 export function isPlayable(skill) {
   return Boolean(skill && (skill.generator || skill.screen));
