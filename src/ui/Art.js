@@ -9,7 +9,7 @@ import { COLORS, textStyle } from './theme';
 export function art(scene, x, y, { key = null, emoji = '', size = 64, color = COLORS.ink, style = {} } = {}) {
   const found = (key && texture(scene, key)) || (emoji !== '' && texture(scene, emojiKey(emoji)));
   if (found) {
-    const image = scene.add.image(x, y, found);
+    const image = scene.add.image(x, y, found.key, found.frame);
     const scale = (size * 1.15) / Math.max(image.width, image.height);
     return image.setScale(scale);
   }

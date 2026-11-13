@@ -16,6 +16,7 @@ src/
   content/<language>/*.js question content per subject: words, sentences, word banks
   voice/<language>/       recorded sentences (optional, replaces the device voice)
   assets/images/          pictures by key (optional, replaces emoji)
+  assets/atlases/         texture atlases of pictures by key (the Fluent emoji)
   assets/sounds/          sound effects by name
 ```
 
@@ -42,7 +43,7 @@ Emoji file names are the emoji's code points in hex, joined with `-`. Variation 
 
 `emojiKey()` in `services/assets.js` works out the name for you. Anything without a picture keeps its emoji, so art can arrive one file at a time.
 
-The emoji pictures are Microsoft Fluent Emoji (3D). After adding a new emoji anywhere in `src/`, run `npm run art:fluent -- <path to a fluentui-emoji checkout>` (the script's header says how to get one) to add its picture. It leaves existing pictures alone, so a hand-made one stays.
+The emoji pictures are Microsoft Fluent Emoji (3D), packed into a few texture atlases in `src/assets/atlases/` so the game starts quickly (one picture file per emoji meant hundreds of downloads before the first screen). After adding a new emoji anywhere in `src/`, run `npm run art:fluent -- <path to a fluentui-emoji checkout>` (the script's header says how to get one) to rebuild them. A picture in `images/emoji/` still wins over the atlas, so a hand-made one stays.
 
 In code, draw pictures with `art(scene, x, y, { key, emoji, size })` or `glyph(scene, x, y, emoji, size)` from `ui/Art.js`, never with `add.text(emoji)`. That way a picture can be swapped without a code change.
 
