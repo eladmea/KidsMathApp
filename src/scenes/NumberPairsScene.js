@@ -51,6 +51,9 @@ export default class NumberPairsScene extends BaseScene {
     this.pairs = { 1: 0, 2: 0 };
     this.found = 0;
     this.slips = 0;
+    // Turns judged so far, reported with each result, so a test can wait for
+    // the next one (a pair's 'pair' step only lasts half a second).
+    this.judged = 0;
     this.seen = new Set();
     this.first = null;
     this.busy = true;
@@ -196,6 +199,7 @@ export default class NumberPairsScene extends BaseScene {
   }
 
   judge(first, second, seenBefore) {
+    this.judged += 1;
     if (isMatch(first.info, second.info)) {
       [first, second].forEach((card) => {
         card.info.status = 'matched';
@@ -209,13 +213,13 @@ export default class NumberPairsScene extends BaseScene {
       speak(String(first.info.value));
       celebrate(this, (first.x + second.x) / 2, (first.y + second.y) / 2);
       this.refresh();
-      this.report({ step: 'pair', value: first.info.value });
+      this.report({ step: 'pair', value: first.info.value, judged: this.judged, result: 'pair' });
       if (this.found === this.level.pairs) return this.time.delayedCall(700, () => this.finish());
       // A pair keeps the turn.
       return this.time.delayedCall(500, () => this.startTurn());
     }
     if (!this.versus && isSlip(first.info, second.info, seenBefore, this.deck)) this.slips += 1;
-    this.report({ step: 'miss', slips: this.slips });
+    this.report({ step: 'miss', slips: this.slips, judged: this.judged, result: 'miss' });
     this.time.delayedCall(SHOW_MS, () => {
       [first, second].forEach((card) => {
         card.info.status = 'hidden';
