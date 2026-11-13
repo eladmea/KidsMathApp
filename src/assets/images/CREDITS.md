@@ -7,3 +7,10 @@ required, but it is kind.
 |---|---|---|---|
 | `emoji/2b50.png` (⭐) | [Game Icons](https://kenney.nl/assets/game-icons) | `PNG/White/2x/star.png` | trimmed, coloured yellow with an orange outline, 256 px |
 | `emoji/2606.png` (☆) | [Game Icons](https://kenney.nl/assets/game-icons) | `PNG/White/2x/star.png` | trimmed, coloured pale yellow with a gold outline, 256 px |
+
+## Emoji pictures
+
+Every other `emoji/*.webp` is from [Microsoft Fluent Emoji](https://github.com/microsoft/fluentui-emoji)
+(3D style), MIT License, Copyright (c) Microsoft Corporation. Resized to 256 px
+and saved as WebP by `npm run art:fluent` (`scripts/fluent-emoji.mjs`). People
+and hands use the default skin tone.
