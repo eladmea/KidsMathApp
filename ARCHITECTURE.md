@@ -42,6 +42,8 @@ Emoji file names are the emoji's code points in hex, joined with `-`. Variation 
 
 `emojiKey()` in `services/assets.js` works out the name for you. Anything without a picture keeps its emoji, so art can arrive one file at a time.
 
+The emoji pictures are Microsoft Fluent Emoji (3D). After adding a new emoji anywhere in `src/`, run `npm run art:fluent -- <path to a fluentui-emoji checkout>` (the script's header says how to get one) to add its picture. It leaves existing pictures alone, so a hand-made one stays.
+
 In code, draw pictures with `art(scene, x, y, { key, emoji, size })` or `glyph(scene, x, y, emoji, size)` from `ui/Art.js`, never with `add.text(emoji)`. That way a picture can be swapped without a code change.
 
 A picture from `art()` / `glyph()` may already be scaled to fit its `size`, so grow or shrink it relative to its own `.scale` (`setScale(item.scale * 1.2)`, or tween to the scale it started with), never to a fixed `1`.
