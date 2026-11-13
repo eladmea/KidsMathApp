@@ -10,7 +10,8 @@ required, but it is kind.
 
 ## Emoji pictures
 
-Every other `emoji/*.webp` is from [Microsoft Fluent Emoji](https://github.com/microsoft/fluentui-emoji)
-(3D style), MIT License, Copyright (c) Microsoft Corporation. Resized to 256 px
-and saved as WebP by `npm run art:fluent` (`scripts/fluent-emoji.mjs`). People
+The emoji atlases in `src/assets/atlases/` (`emoji-*.webp`) are made from
+[Microsoft Fluent Emoji](https://github.com/microsoft/fluentui-emoji) (3D
+style), MIT License, Copyright (c) Microsoft Corporation. Resized to 160 px and
+packed into sheets by `npm run art:fluent` (`scripts/fluent-emoji.mjs`). People
 and hands use the default skin tone.
