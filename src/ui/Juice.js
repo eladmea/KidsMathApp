@@ -9,6 +9,8 @@ import { COLORS, popStyle } from './theme';
 //   bob(scene, target)                  a slow float up and down, forever
 //   settle(scene, target)               stop all of these on a target, back at rest
 //   pulse(scene, target)                swell and spring back (a score going up)
+//   confetti(scene)                     paper confetti falling over the whole screen
+//   tapSpark(scene, x, y)               a tiny twinkle where a finger touches
 // They follow ?fast (via the scene's tween speed), and a device asking for
 // reduced motion gets no shaking or idle floating.
 
@@ -17,6 +19,14 @@ export const reducedMotion = () => typeof window !== 'undefined' && Boolean(wind
 // Textures drawn once, so no image files are needed.
 const SPARK = 'juice-spark';
 const PUFF = 'juice-puff';
+const CONFETTI = 'juice-confetti';
+const CONFETTI_COLORS = [COLORS.yellow, COLORS.orange, COLORS.pink, COLORS.primary, COLORS.green, 0x9b6bff, 0x4fc3f7];
+
+// Remembers that a scene just showed answer feedback, so BaseScene's
+// automatic feedback (on the 'correct' / 'wrong' sounds) doesn't double it.
+const mark = (scene) => {
+  scene.juiceAt = scene.time.now;
+};
 
 function makeTextures(scene) {
   if (!scene.textures.exists(SPARK)) {
@@ -45,12 +55,19 @@ function makeTextures(scene) {
     g.generateTexture(PUFF, c * 2, c * 2);
     g.destroy();
   }
+  if (!scene.textures.exists(CONFETTI)) {
+    const g = scene.make.graphics({ x: 0, y: 0 }, false);
+    g.fillStyle(0xffffff, 1).fillRoundedRect(0, 0, 14, 22, 4);
+    g.generateTexture(CONFETTI, 14, 22);
+    g.destroy();
+  }
 }
 
 // A right answer: sparkles burst out of (x, y). With `number`, it also rises
 // from there in big outlined digits.
-export function celebrate(scene, x, y, { number = null } = {}) {
+export function celebrate(scene, x, y, { number = null, count = 26 } = {}) {
   makeTextures(scene);
+  mark(scene);
   const sparks = scene.add.particles(x, y, SPARK, {
     speed: { min: 180, max: 460 },
     angle: { min: 0, max: 360 },
@@ -63,7 +80,7 @@ export function celebrate(scene, x, y, { number = null } = {}) {
     emitting: false,
   }).setDepth(70);
   sparks.timeScale = scene.tweens.timeScale;
-  sparks.explode(26);
+  sparks.explode(count);
   scene.time.delayedCall(1000, () => sparks.destroy());
   if (number !== null && /^\d+$/.test(String(number))) floatUp(scene, x, y, String(number));
   return sparks;
@@ -77,9 +94,10 @@ function floatUp(scene, x, y, text) {
 
 // A wrong answer: a quick, small shake and a warm puff that fades away.
 // Kept gentle on purpose: young children should feel "try again", not "bad".
-export function oops(scene, x, y) {
+export function oops(scene, x, y, { shake = true } = {}) {
   makeTextures(scene);
-  if (!reducedMotion()) scene.cameras.main.shake(180, 0.006);
+  mark(scene);
+  if (shake && !reducedMotion()) scene.cameras.main.shake(180, 0.006);
   const puff = scene.add.image(x, y, PUFF).setTint(0xe5533d).setAlpha(0.6).setScale(0.5).setDepth(70);
   scene.tweens.add({ targets: puff, scale: 1.6, alpha: 0, y: y - 30, duration: 600, ease: 'Quad.easeOut', onComplete: () => puff.destroy() });
   return puff;
@@ -124,4 +142,50 @@ export function pulse(scene, target, { to = 1.25 } = {}) {
   scene.tweens.killTweensOf(target);
   target.setScale(full);
   scene.tweens.add({ targets: target, scale: full * to, duration: 140, yoyo: true, ease: 'Quad.easeOut', onComplete: () => target.setScale(full) });
+}
+
+// Confetti raining down over the whole visible screen (a finished game, a
+// great result), in two waves. Above dialogs, and never in the way of a tap.
+export function confetti(scene, { count = 70 } = {}) {
+  if (reducedMotion()) return null;
+  makeTextures(scene);
+  const view = scene.view || { x: 0, y: 0, width: 1280, height: 720 };
+  const rain = scene.add.particles(0, 0, CONFETTI, {
+    x: { min: view.x, max: view.x + view.width },
+    y: { min: view.y - 60, max: view.y - 10 },
+    speedY: { min: 160, max: 380 },
+    speedX: { min: -140, max: 140 },
+    gravityY: 240,
+    rotate: { start: 0, end: 720, random: true },
+    // Turning over and over as it falls.
+    scaleX: { start: 1, end: -1, ease: 'Sine.easeInOut' },
+    scaleY: { min: 0.7, max: 1.1 },
+    lifespan: { min: 2200, max: 3200 },
+    tint: CONFETTI_COLORS,
+    emitting: false,
+  }).setDepth(150);
+  rain.timeScale = scene.tweens.timeScale;
+  rain.explode(Math.ceil(count * 0.6));
+  scene.time.delayedCall(350, () => rain.active && rain.explode(Math.floor(count * 0.4)));
+  scene.time.delayedCall(3800, () => rain.destroy());
+  return rain;
+}
+
+// A small twinkle where a finger touches the screen (BaseScene shows one on
+// every touch), so every tap feels like it did something.
+export function tapSpark(scene, x, y) {
+  makeTextures(scene);
+  const sparks = scene.add.particles(x, y, SPARK, {
+    speed: { min: 90, max: 170 },
+    angle: { min: 0, max: 360 },
+    lifespan: 340,
+    scale: { start: 0.45, end: 0 },
+    alpha: { start: 0.9, end: 0 },
+    tint: [0xffffff, COLORS.yellow],
+    emitting: false,
+  }).setDepth(200);
+  sparks.timeScale = scene.tweens.timeScale;
+  sparks.explode(7);
+  scene.time.delayedCall(450, () => sparks.destroy());
+  return sparks;
 }
