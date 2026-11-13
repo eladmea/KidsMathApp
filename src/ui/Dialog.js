@@ -16,8 +16,11 @@ export default class Dialog extends Phaser.GameObjects.Container {
     super.add([this.dim, this.card, this.title]);
     this.setDepth(100);
     scene.add.existing(this);
-    this.setScale(0.9);
-    scene.tweens.add({ targets: this, scale: 1, duration: 160, ease: 'Back.easeOut' });
+    // The dim fades in while the card springs up from smaller.
+    this.dim.setAlpha(0);
+    scene.tweens.add({ targets: this.dim, alpha: 1, duration: 180, ease: 'Sine.easeOut' });
+    this.setScale(0.75);
+    scene.tweens.add({ targets: this, scale: 1, duration: 300, ease: 'Back.easeOut', easeParams: [2.2] });
   }
 
   close() {

@@ -6,6 +6,7 @@ import { enterScene } from '../services/playClock';
 import { isTimeUp } from '../services/session';
 import Button from './Button';
 import IconText from './IconText';
+import { celebrate, oops, pulse, tapSpark } from './Juice';
 import { COLORS, textStyle } from './theme';
 import { skillTitle } from '../i18n/names';
 import { t } from '../i18n/index';
@@ -33,12 +34,20 @@ export default class BaseScene extends Phaser.Scene {
     this.leaving = false;
     this.startData = data || {};
     this.backButton = null;
+    // A twinkle wherever a finger touches. A scene where that would get in
+    // the way (drawing, for one) sets this to false in build().
+    this.tapSparkles = true;
+    this.juiceAt = -Infinity;
     reportScene(this.scene.key);
     enterScene(this.scene.key);
     this.view = new Phaser.Geom.Rectangle(0, 0, SAFE.width, SAFE.height);
     this.scale.on('resize', this.fitCamera, this);
+    this.input.on('pointerdown', this.sparkAt, this);
+    this.events.on('sfx', this.feedback, this);
     this.events.once('shutdown', () => {
       this.scale.off('resize', this.fitCamera, this);
+      this.input.off('pointerdown', this.sparkAt, this);
+      this.events.off('sfx', this.feedback, this);
       stopSpeech();
     });
     this.time.timeScale = TEST_SPEED;
@@ -47,6 +56,35 @@ export default class BaseScene extends Phaser.Scene {
     this.build(this.startData);
     this.built = true;
     this.fitCamera();
+    this.fadeInScene();
+  }
+
+  // Every scene arrives with a short, soft fade from cream, instead of a hard
+  // cut. The cover takes no taps, so the scene can be used straight away.
+  fadeInScene() {
+    const cover = this.add.rectangle(SAFE.width / 2, SAFE.height / 2, SAFE.width * 3, SAFE.height * 3, COLORS.cream).setDepth(1000);
+    this.tweens.add({ targets: cover, alpha: 0, duration: 240, ease: 'Sine.easeOut', onComplete: () => cover.destroy() });
+  }
+
+  sparkAt(pointer) {
+    if (this.tapSparkles) tapSpark(this, pointer.worldX, pointer.worldY);
+  }
+
+  // Every game plays the 'correct' and 'wrong' sounds (services/audio.js),
+  // so those also bring sparkles or a soft puff: where the child just
+  // touched, or mid-screen if they didn't. A scene that shows its own
+  // (celebrate() / oops() from Juice) is left alone.
+  feedback(key) {
+    if (key !== 'correct' && key !== 'wrong') return;
+    const pointer = this.input.activePointer;
+    const touched = pointer && (pointer.isDown || this.game.loop.time - pointer.upTime < 1500);
+    const x = touched ? pointer.worldX : SAFE.width / 2;
+    const y = touched ? pointer.worldY : SAFE.height / 2 - 60;
+    this.time.delayedCall(40, () => {
+      if (this.leaving || this.time.now - this.juiceAt < 300) return;
+      if (key === 'correct') celebrate(this, x, y, { count: 18 });
+      else oops(this, x, y, { shake: false });
+    });
   }
 
   // Fits the camera to the screen and re-pins the edge-anchored objects.
@@ -105,11 +143,14 @@ export default class BaseScene extends Phaser.Scene {
   addHeader(emoji, title) {
     this.headerTitle = new IconText(this, 30, 150, t('quiz.title', { emoji, title }), textStyle(24, COLORS.gray)).setOrigin(0, 0.5);
     this.headerCounter = new IconText(this, 1250, 150, '', textStyle(28)).setOrigin(1, 0.5);
+    this.headerScore = null;
   }
 
-  // `index` counts from 1.
+  // `index` counts from 1. The counter swells when the score goes up.
   setCounter(index, total, score, icon = '⭐') {
     this.headerCounter.setText(`${t('common.progress', { index, total })}   ${icon} ${score}`);
+    if (this.headerScore !== null && score > this.headerScore) pulse(this, this.headerCounter, { to: 1.18 });
+    this.headerScore = score;
   }
 
   // The end of a game's round: Results saves it and offers "Again".

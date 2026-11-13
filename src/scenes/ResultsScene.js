@@ -11,6 +11,7 @@ import { list, t } from '../i18n/index';
 import { skillTitle } from '../i18n/names';
 import { play } from '../services/audio';
 import { glyph } from '../ui/Art';
+import { confetti } from '../ui/Juice';
 
 // When the first star appears (after "Yaaay!") and the time between stars.
 const STARS_FROM = 600;
@@ -36,7 +37,10 @@ export default class ResultsScene extends BaseScene {
       onStar: (n) => {
         play(this, 'star', { detune: (n - 1) * 200 });
         this.report({ shownStars: n });
-        if (n === stars && stars >= 2) this.celebrate(stars === 3 ? 28 : 14);
+        if (n === stars && stars >= 2) {
+          this.celebrate(stars === 3 ? 28 : 14);
+          confetti(this, { count: stars === 3 ? 110 : 60 });
+        }
       },
     });
     this.add.text(SAFE.width / 2, 258, resultLine(stars), textStyle(42, COLORS.primary)).setOrigin(0.5);

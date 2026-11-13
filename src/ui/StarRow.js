@@ -1,5 +1,6 @@
 import IconText from './IconText';
 import { COLORS, textStyle } from './theme';
+import { celebrate } from './Juice';
 
 // ⭐⭐☆: 0 = not tried, 1 = tried, 2 = passed, 3 = mastered.
 export default class StarRow extends IconText {
@@ -26,6 +27,8 @@ export default class StarRow extends IconText {
         const full = star.scale;
         star.setScale(full * 0.2);
         this.scene.tweens.add({ targets: star, scale: full, duration: 320, ease: 'Back.easeOut' });
+        const at = star.getBounds();
+        celebrate(this.scene, at.centerX, at.centerY, { count: 12 });
         onStar(n);
       });
     }

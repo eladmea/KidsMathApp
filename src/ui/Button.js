@@ -10,6 +10,7 @@ export default class Button extends Phaser.GameObjects.Container {
     super(scene, x, y);
     this.onTap = onTap;
     this.enabled = true;
+    this.pressTween = null;
     this.shadow = scene.add.rectangle(0, 8, width, height, 0x000000, 0.18).setRounded(radius ?? Math.min(28, height / 2));
     this.box = scene.add.rectangle(0, 0, width, height, color).setRounded(radius ?? Math.min(28, height / 2));
     this.box.setStrokeStyle(4, COLORS.white);
@@ -19,23 +20,35 @@ export default class Button extends Phaser.GameObjects.Container {
     this.setSize(width, height);
     this.box.setInteractive({ useHandCursor: true });
 
+    // Squashes down while pressed and springs back with a little overshoot
+    // when let go; grows a touch under a mouse.
     let pressed = false;
+    this.box.on('pointerover', () => {
+      if (this.enabled && !pressed) this.squish(1.05, 140, 'Sine.easeOut');
+    });
     this.box.on('pointerdown', () => {
       if (!this.enabled) return;
       pressed = true;
-      this.setScale(0.94);
+      this.squish(0.92, 70, 'Quad.easeOut');
     });
     this.box.on('pointerout', () => {
       pressed = false;
-      this.setScale(1);
+      this.squish(1, 200, 'Sine.easeOut');
     });
     this.box.on('pointerup', () => {
-      this.setScale(1);
+      this.squish(1, 320, 'Back.easeOut');
       if (!pressed || !this.enabled) return;
       pressed = false;
       this.onTap(this);
     });
     scene.add.existing(this);
+  }
+
+  // Tweens the button's scale (only its own press tween, so a scene's other
+  // tweens on it keep running).
+  squish(scale, duration, ease) {
+    if (this.pressTween) this.pressTween.stop();
+    this.pressTween = this.scene.tweens.add({ targets: this, scale, duration, ease, easeParams: ease === 'Back.easeOut' ? [3.5] : undefined });
   }
 
   setColor(color) {
