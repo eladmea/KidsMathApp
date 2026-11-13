@@ -246,11 +246,14 @@ const turnReady = () => waitFor(() => window.__mathplay.scene !== 'NumberPairs' 
 const partnerOf = (s, card) => s.cards.find((c) => c.id !== card.id && c.value === card.value);
 
 // Turns over two cards and waits for the answer (and the next turn).
+// Waits on the count of judged turns, not the 'pair' step: that lasts half a
+// second, which a busy machine can miss.
 async function flip(a, b) {
+  const before = (await state()).judged || 0;
   await tap(`card:${a}`);
   await tap(`card:${b}`);
-  await waitFor(() => ['pair', 'miss'].includes(window.__mathplay.state.step), null, 8000);
-  const result = (await state()).step;
+  await waitFor((before) => (window.__mathplay.state.judged || 0) > before, before, 8000);
+  const { result } = await state();
   await turnReady();
   return result;
 }
