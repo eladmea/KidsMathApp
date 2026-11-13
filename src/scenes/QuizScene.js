@@ -6,6 +6,7 @@ import { makeInput } from '../ui/QuizInputs';
 import { COLORS, popStyle, textStyle } from '../ui/theme';
 import { celebrate, oops, pulse } from '../ui/Juice';
 import { logEvents, session } from '../services/session';
+import { testQuestionCount } from '../services/testBridge';
 import { preload, speak, stop as stopSpeech } from '../services/speech';
 import { play } from '../services/audio';
 import { buildSession, replaceRemaining, tallyBySkill } from '../logic/session';
@@ -60,7 +61,7 @@ export default class QuizScene extends BaseScene {
     this.adaptive = mode === 'practice' && isQuizSkill(this.baseSkill);
     this.level = 0;
     this.streak = 0;
-    this.questions = buildSession(skillIds, count);
+    this.questions = buildSession(skillIds, count ?? testQuestionCount());
     this.results = [];
     this.index = 0;
     this.finished = false;

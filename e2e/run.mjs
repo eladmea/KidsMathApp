@@ -27,12 +27,13 @@ const SIZES = [
   [1180, 820, 'tablet'],
 ];
 const runs = [
-  // Every quiz skill once (about 5 minutes, at test speed): the longest, so first.
-  ['quiz.mjs', 1280, 720, 'laptop'],
+  // Every quiz skill once, a subject per run so they share the workers;
+  // math has the most skills, so it goes first.
+  ...['math', 'literacy', 'logic', 'science', 'sel'].map((subject) => ['quiz.mjs', 1280, 720, 'laptop', subject]),
   ...SIZES.flatMap((size) => [['writing.mjs', ...size], ['thinking.mjs', ...size], ['pizza.mjs', ...size], ['hebrew.mjs', ...size], ['learning.mjs', ...size], ['grownups.mjs', ...size], ['fun.mjs', ...size], ['games.mjs', ...size], ['players.mjs', ...size], ['islands.mjs', ...size], ['numbers.mjs', ...size], ['letters.mjs', ...size]]),
   ['players.mjs', 390, 844, 'portrait'],
 ];
-const nameOf = ([script, , , label]) => `${script}:${label}`;
+const nameOf = ([script, , , label, part]) => `${script}:${label}${part ? `-${part}` : ''}`;
 if (listing) {
   console.log(JSON.stringify(runs.map((r) => ({ name: nameOf(r) }))));
   process.exit(0);
@@ -48,19 +49,19 @@ if (server) process.env.URL = server.url;
 const jobs = Math.min(chosen.length, Number(process.env.E2E_JOBS) || Math.max(1, Math.min(4, Math.floor(availableParallelism() / 2))));
 let failed = 0;
 
-async function runOne([script, width, height, label]) {
+async function runOne([script, width, height, label, ...extra]) {
   const started = Date.now();
   const took = () => `${Math.round((Date.now() - started) / 1000)}s`;
   try {
-    const { stdout: out } = await run('node', [new URL(script, import.meta.url).pathname, dir, String(width), String(height), label], { encoding: 'utf8', maxBuffer: 1 << 24 });
+    const { stdout: out } = await run('node', [new URL(script, import.meta.url).pathname, dir, String(width), String(height), label, ...extra], { encoding: 'utf8', maxBuffer: 1 << 24 });
     const lines = out.trim().split('\n');
     const fails = lines.filter((line) => line.startsWith('FAIL'));
-    console.log(`${fails.length ? '✗' : '✓'} ${script} ${label}: ${lines.filter((l) => l.startsWith('PASS')).length} passed${fails.length ? `, ${fails.length} failed` : ''} (${took()})`);
+    console.log(`${fails.length ? '✗' : '✓'} ${script} ${[label, ...extra].join(' ')}: ${lines.filter((l) => l.startsWith('PASS')).length} passed${fails.length ? `, ${fails.length} failed` : ''} (${took()})`);
     fails.forEach((line) => console.log(`  ${line}`));
     if (fails.length) failed += 1;
   } catch (error) {
     failed += 1;
-    console.log(`✗ ${script} ${label}: crashed (${took()})`);
+    console.log(`✗ ${script} ${[label, ...extra].join(' ')}: crashed (${took()})`);
     console.log(String(error.stdout || '').split('\n').filter((l) => l.startsWith('FAIL')).join('\n'));
     console.log(String(error.stderr || error.message).split('\n').slice(0, 8).join('\n'));
   }
