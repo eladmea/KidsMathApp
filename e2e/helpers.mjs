@@ -69,7 +69,9 @@ export async function open({ width, height, label }) {
       await page.mouse.up();
       await sleep(120);
     },
-    shot: (dir, name) => page.screenshot({ path: `${dir}/${label}-${name}.png` }),
+    // At CSS size (half the pixels of the 2x screen): quicker to save, and
+    // still clear enough to look over.
+    shot: (dir, name) => page.screenshot({ path: `${dir}/${label}-${name}.png`, scale: 'css' }),
     async finish() {
       // VOICE_DUMP=<file>: every sentence read aloud and whether a recording
       // or the device voice said it, for checking the recordings.

@@ -66,3 +66,12 @@ export function tag(name, object) {
   bridge.tags.set(name, object);
   return object;
 }
+
+// Browser tests can shorten every quiz round with ?questions=N in the
+// address (the quiz walkthrough plays every skill, so it uses 5). Undefined
+// otherwise, so the round keeps its normal length.
+export function testQuestionCount() {
+  if (typeof location === 'undefined') return undefined;
+  const count = Number(new URLSearchParams(location.search).get('questions'));
+  return count > 0 ? count : undefined;
+}
