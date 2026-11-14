@@ -10,8 +10,10 @@ import { t } from '../i18n/index';
 const BEE_PATHS_PER_ROUND = 5;
 
 // Two games that trace a path with something riding under the finger:
-//   Race Track Numbers (traceGame 'race'): drive a car along a digit, from
-//   the traffic light to the flag. All digits once Write 1 to 5 is passed.
+//   Race Track Numbers (traceGame 'race'): drive a vehicle (the child picks
+//   one of ten) along a digit, from the traffic light to the flag; then it
+//   drives the finished number once more. All digits once Write 1 to 5 is
+//   passed.
 //   Bee Paths (traceGame 'bee'): the pre-writing strokes digits are made of
 //   (down, across, rainbow, circle, cross), from the honey pot to the flower.
 const MODES = {
@@ -21,16 +23,18 @@ const MODES = {
     startMarker: '🚦',
     endMarker: '🏁',
     sayStart: 'tracing.sayStartLight',
-    look: (item) => ({ dot: 24, guide: 0x9c9c9c, guideCurrent: 0x8a8a8a, done: 0x5e5e5e, follower: item.vehicle }),
+    look: (vehicle) => ({ dot: 24, guide: 0x9c9c9c, guideCurrent: 0x8a8a8a, done: 0x5e5e5e, follower: vehicle }),
+    // The child picks the vehicle; after each number it drives it once more.
+    picker: () => ({ title: t('tracing.pickVehicle'), options: VEHICLES, columns: 5, size: 58, gap: 72, tagPrefix: 'vehicle', apply: (layer, vehicle) => layer.setFollower(vehicle) }),
+    replayOnDone: true,
     items() {
       const { NUMBER_WORDS, say } = content('math');
       const bigNumbers = hasPassed(getRecord(session.progress, 'math-write-1-5'));
-      return pickDistinct(numberPool({ bigNumbers, allowZero: true }), ROADS_PER_ROUND).map((digit, i) => {
+      return pickDistinct(numberPool({ bigNumbers, allowZero: true }), ROADS_PER_ROUND).map((digit) => {
         const word = NUMBER_WORDS[digit];
         return {
           key: `d${digit}`,
           strokes: digitCheckpoints(digit),
-          vehicle: VEHICLES[(digit + i) % VEHICLES.length],
           prompt: say.drive.prompt({ digit }),
           intro: say.drive.intro({ word }),
           praise: say.drive.praise({ word }),
@@ -69,12 +73,20 @@ export default class TracePathScene extends TraceRound {
     return this.mode.colors;
   }
 
+  get picker() {
+    return this.mode.picker ? this.mode.picker() : null;
+  }
+
+  get replayOnDone() {
+    return Boolean(this.mode.replayOnDone);
+  }
+
   makeItems() {
     return this.mode.items();
   }
 
-  lookOf(item) {
-    return { look: this.mode.look(item), startMarker: this.mode.startMarker, endMarker: this.mode.endMarker };
+  lookOf() {
+    return { look: this.mode.look(this.choice), startMarker: this.mode.startMarker, endMarker: this.mode.endMarker };
   }
 
   idleText() {

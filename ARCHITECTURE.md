@@ -105,7 +105,7 @@ Hebrew works the same way with `he` and `sentences_hebrew.txt`, using a Hebrew K
 - **No names in spoken lines.** "Hi! Pick an island to play.", not "Hi, Mia!". The screen can still show the name: `narrator.say(spoken, { show: shown })`.
 - **Put what varies in its own short sentence.** "Bear wants a pizza! Three toppings, please!" rather than one sentence with both. Read choices as one sentence each ("Ring. Tree. Or goat?") and numbers on their own ("Which number is bigger? 81. Or 64?").
 - **A new spoken template** (`{count}` and so on) needs its values listed in `templateValues()` in `src/services/voiceLines.js`. Game phrases from a content pack are listed in the same file. `npm test` fails if a spoken template has no values.
-- **Questions for ages 7-10 aren't recorded.** Those children read for themselves (read-aloud is off by default), so their questions use the device voice when 🔊 is tapped.
+- **Older children's questions are recorded too**, so a level never mixes the recorded voice with the device voice. Only the skills where nearly every question has new numbers (adding and taking away within 100, the number line to 1000: `DEVICE_VOICE_GENERATORS` in `src/services/voiceLines.js`) use the device voice, for the whole level.
 
 Letter sounds for Word Builder (`soundSpeech` in the literacy pack: "mmm", "buh") are sentences too, so they are recorded the same way.
 

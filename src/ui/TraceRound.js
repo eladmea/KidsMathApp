@@ -2,6 +2,7 @@ import BaseScene, { SAFE } from './BaseScene';
 import Button from './Button';
 import Narrator from './Narrator';
 import TraceLayer from './TraceLayer';
+import Picker from './Picker';
 import { COLORS, textStyle } from './theme';
 import { play } from '../services/audio';
 import { MAX_RESTARTS_FOR_POINT } from '../logic/tracing';
@@ -21,6 +22,12 @@ const TRACE_WIDTH = 330;
 //   hintText(kind)   { show, say } for 'start' | 'next' | 'almost'
 //   idleText()       what the message line says before the first touch
 //   colors           { background, card }
+//   picker           optional: something the child chooses beside the card
+//                    (a crayon colour, a vehicle), kept for the whole round:
+//                    { title, options, columns, size, gap, tagPrefix,
+//                    apply(layer, option) }; the choice is in this.choice
+//   replayOnDone     true: a finished item is traced once more by itself
+//                    (the chosen car drives the number again)
 //   data: { skillId }
 export default class TraceRound extends BaseScene {
   build({ skillId }) {
@@ -30,6 +37,8 @@ export default class TraceRound extends BaseScene {
     this.points = 0;
     this.layer = null;
     this.idle = null;
+    const picker = this.picker;
+    this.choice = picker ? picker.options[0] : null;
 
     this.bg = this.add.rectangle(0, 0, 10, 10, this.colors.background).setOrigin(0, 0);
     this.addBackButton();
@@ -41,6 +50,25 @@ export default class TraceRound extends BaseScene {
     this.again = new Button(this, 250, 420, { label: t('tracing.showAgain'), width: 300, height: 80, fontSize: 28, color: COLORS.white, textColor: COLORS.primary, onTap: () => this.layer && this.layer.demo() });
     this.tag('show-again', this.again.box);
     this.showItem();
+    if (picker) {
+      new Picker(this, 250, 580, {
+        ...picker,
+        chosen: this.choice,
+        onPick: (option) => {
+          this.choice = option;
+          if (this.layer && !this.celebrating) picker.apply(this.layer, option);
+          this.report({ choice: option });
+        },
+      });
+    }
+  }
+
+  get picker() {
+    return null;
+  }
+
+  get replayOnDone() {
+    return false;
   }
 
   layout() {
@@ -98,8 +126,10 @@ export default class TraceRound extends BaseScene {
     this.narrator.say(item.praise, { force: true });
     this.message.setText(item.celebrate || item.praise).setColor('#2e7d32');
     this.tweens.add({ targets: this.message, scale: { from: 1.25, to: 1 }, duration: 300, ease: 'Back.easeOut' });
-    this.report({ step: 'done', index: this.index, points: this.points, restarts });
-    this.time.delayedCall(CELEBRATE_MS, () => {
+    // The chosen car drives the whole number once more, then the next one.
+    const replayMs = this.replayOnDone ? this.layer.replay() : 0;
+    this.report({ step: 'done', index: this.index, points: this.points, restarts, replay: replayMs > 0 });
+    this.time.delayedCall(Math.max(CELEBRATE_MS, replayMs + 500), () => {
       this.index += 1;
       if (this.index < this.items.length) this.showItem();
       else this.finish();

@@ -10,3 +10,4 @@ not required, but it is kind.
 | `star.wav` | [Interface Sounds](https://kenney.nl/assets/interface-sounds) | `Audio/confirmation_001.ogg` | mono, 22 kHz wav |
 | `vroom.wav` | BigSoundBank [#0600 Acceleration Aston Martin](https://bigsoundbank.com/acceleration-aston-martin-s0600.html) | `0600.mp3`, 0.6–3.2 s | fades, loudness-levelled, mono, 22 kHz wav |
 | `ding.wav` | BigSoundBank [#0479 Counter bell](https://bigsoundbank.com/detail-0479-counter-bell.html) | `0479.mp3`, first 1.8 s | fade-out, peak −2 dB, mono, 22 kHz wav |
+| `hooray.wav` | Made for this game: "Yaaay! Hooray!" said by eight [Kokoro](https://huggingface.co/hexgrad/Kokoro-82M) voices (Apache 2.0), pitched up like children and layered a moment apart | `voice-generator/` voices | mixed with ffmpeg, room echo, loudness-levelled, mono, 22 kHz wav |

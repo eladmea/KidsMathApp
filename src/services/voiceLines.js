@@ -4,8 +4,9 @@
 //     speak() / say(), plus every `say...` key), with each value a template
 //     can take;
 //   - the games' phrases from the content packs, over every value;
-//   - the question sentences of the ages 3-6 skills (read aloud by default;
-//     older children read for themselves, so theirs keep the device voice);
+//   - the question sentences of every skill (ages 3-6 hear them by default;
+//     older children on a 🔊 tap), except a few older skills with thousands
+//     of different numbers (DEVICE_VOICE_GENERATORS);
 //   - the numbers 0-20, which games count out loud.
 // Spoken text is kept to short, name-free sentences so each recording is
 // reused: the game plays a recording per sentence and falls back to the
@@ -27,11 +28,12 @@ import { has, keysOf, list, raw, setLanguage, t } from '../i18n/index';
 import { coachIntro, skillTitle, subjectName } from '../i18n/names';
 import { clipId, clipUrl } from './voiceClips';
 
-// Bands whose questions are read aloud by default (narration is on for ages 3-6).
-const READ_ALOUD_BANDS = ['sprouts', 'explorers'];
 const SAMPLES = 3000;
-// An older children's skill saying at most this many sentences is recorded too.
-const FEW_SENTENCES = 80;
+// Older children's questions are recorded too, so a level doesn't mix the
+// recorded voice with the device voice. Only these, with thousands of
+// different numbers, are left to the device voice (whole levels, never
+// mixed: none of their sentences come from younger skills).
+const DEVICE_VOICE_GENERATORS = ['add-100', 'sub-100', 'number-line-1000'];
 const range = (from, to) => Array.from({ length: to - from + 1 }, (_, i) => from + i);
 // Round sizes of every game and quiz (for "You got 3 out of 5.").
 const ROUND_TOTALS = [2, 3, 5, 6, 8, 10, 16, 24];
@@ -162,10 +164,8 @@ export function voiceLines(language, { samples = SAMPLES } = {}) {
   if (hasContent('math', language)) memoryPhrases(content('math', language), literacy, add);
 
   // ---- questions ----
-  // Ages 3-6 hear every question; older children's skills are recorded only
-  // when they say few different sentences (stories, body parts, fair play),
-  // not when every question has new numbers in it.
-  const readAloud = new Set(SKILLS.filter((skill) => skill.generator && READ_ALOUD_BANDS.includes(skill.band)).map((skill) => skill.generator));
+  // Every question, except the older children's skills where nearly every
+  // question is new (DEVICE_VOICE_GENERATORS).
   const used = new Set(SKILLS.filter((skill) => skill.generator).map((skill) => skill.generator));
   Object.keys(GENERATORS).forEach((id) => {
     if (!used.has(id) || !hasContent(GENERATOR_PACK[id], language)) return;
@@ -179,7 +179,7 @@ export function voiceLines(language, { samples = SAMPLES } = {}) {
       (question.items || []).forEach((item) => take(item.caption, `caption: ${id}`));
       if (question.type === 'build' && literacy) take(t('quiz.blend', { sounds: question.parts.map((p) => literacy.SOUND_SPEECH[p] || p).join(', '), word: question.word }), `blend: ${id}`);
     }
-    if (readAloud.has(id) || found.size <= FEW_SENTENCES) found.forEach((source, sentence) => add(sentence, source));
+    if (!DEVICE_VOICE_GENERATORS.includes(id)) found.forEach((source, sentence) => add(sentence, source));
   });
 
   const result = [...lines.values()]

@@ -16,6 +16,8 @@ import { confetti } from '../ui/Juice';
 // When the first star appears (after "Yaaay!") and the time between stars.
 const STARS_FROM = 600;
 const STAR_GAP = 450;
+// How long the kids' cheer lasts before the narrator speaks.
+const CHEER_MS = 1500;
 
 // The end of a round (a quiz or a game): stars, the score, and anything new
 // (a skill passed or mastered, skills it unlocked, stickers). Saves the round.
@@ -67,7 +69,8 @@ export default class ResultsScene extends BaseScene {
       ];
       this.news.setText(lines.slice(0, 4).join('\n'));
       const mastered = result.newlyMastered.map(skillTitle);
-      speak([t('results.yay'), resultLine(stars), t('results.sayScore', { score, total }), mastered.length ? t('results.sayMastered', { titles: list(mastered) }) : '', result.earnedStickers.length ? t('results.saySticker') : '', result.earnedTicket ? t('results.sayTicket') : ''].filter(Boolean).join(' '));
+      // After the children's cheer.
+      this.time.delayedCall(CHEER_MS, () => speak([resultLine(stars), t('results.sayScore', { score, total }), mastered.length ? t('results.sayMastered', { titles: list(mastered) }) : '', result.earnedStickers.length ? t('results.saySticker') : '', result.earnedTicket ? t('results.sayTicket') : ''].filter(Boolean).join(' ')));
       this.report({
         step: 'results',
         newlyPassed: result.newlyPassed,
@@ -84,12 +87,14 @@ export default class ResultsScene extends BaseScene {
     this.bg.setPosition(v.x, v.y).setSize(v.width, v.height);
   }
 
-  // "Yaaay!" bounces in with a jingle, then keeps wiggling.
+  // "Yaaay!" bounces in with a jingle and kids cheering, then keeps wiggling.
   cheer() {
     const yay = this.add.text(SAFE.width / 2, 66, t('results.yay'), textStyle(78, COLORS.orange, { stroke: '#ffffff', strokeThickness: 12 })).setOrigin(0.5).setScale(0);
     this.tweens.add({ targets: yay, scale: 1, duration: 500, ease: 'Back.easeOut' });
     this.tweens.add({ targets: yay, angle: { from: -4, to: 4 }, duration: 600, yoyo: true, repeat: -1, ease: 'Sine.easeInOut', delay: 500 });
     play(this, 'cheer');
+    // Children cheering "Yaaay!" (a sound, not the narrator's voice).
+    this.time.delayedCall(250, () => play(this, 'hooray', { volume: 0.8 }));
   }
 
   celebrate(count) {

@@ -39,7 +39,7 @@ s = await state();
 check('write: lifting early starts the stroke again', s.hint === 'almost' && s.restarts === 1, JSON.stringify({ h: s.hint, r: s.restarts }));
 await tap('show-again');
 await tap('color:6');
-check('write: tapping a crayon picks the writing colour', (await state()).trailColor === 0x4caf50, String((await state()).trailColor));
+check('write: tapping a crayon picks the writing colour', (await state()).choice === 0x4caf50, String((await state()).choice));
 await traceAll();
 await waitFor(() => window.__mathplay.state.step === 'done');
 check('write: the digit is done after one restart (a point)', (await state()).points === 1);
@@ -90,6 +90,8 @@ await tap('skill:math-race-track');
 await t.waitScene('TracePath');
 await waitTrace(0);
 await sleep(400);
+await tap('vehicle:3');
+check('race: tapping a vehicle picks it', (await state()).choice === '🚜', String((await state()).choice));
 await t.shot(dir, 'w5-race');
 const keys = [];
 for (let i = 0; i < 5; i++) {
@@ -97,6 +99,7 @@ for (let i = 0; i < 5; i++) {
   keys.push((await state()).key);
   await traceAll();
   await waitFor(() => window.__mathplay.state.step === 'done');
+  if (i === 0) check('race: the vehicle drives the finished number again', (await state()).replay === true);
 }
 check('race: 5 different digits', new Set(keys).size === 5, keys.join(','));
 await waitFor(() => window.__mathplay.scene === 'Results' && window.__mathplay.state.step === 'results', null, 10000);

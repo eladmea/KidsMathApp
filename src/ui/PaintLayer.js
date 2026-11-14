@@ -101,8 +101,11 @@ export class DragSurface {
     this.zone.destroy();
   }
 
+  // A disabled surface lets touches through to what is under it (toppings
+  // on the pizza can be dragged).
   setEnabled(enabled) {
     this.enabled = enabled;
+    if (this.zone.input) this.zone.input.enabled = enabled;
     if (!enabled) this.pointerId = null;
   }
 }

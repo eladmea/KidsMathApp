@@ -47,8 +47,11 @@ export function isSlip(first, second, seenIds, deck) {
   return Boolean(partner && seenIds.has(partner.id));
 }
 
-// Solo score: a point per pair, less one for each slip (never below 0).
-export const soloScore = (pairs, slips) => Math.max(0, pairs - slips);
+// Solo score: a point per pair. Forgetting a card now and then is part of
+// a memory game, so the first slips are free (as many as there are pairs);
+// only slips beyond that cost a point each (never below 0). Finishing a
+// board with a few slips still earns every star.
+export const soloScore = (pairs, slips) => Math.max(0, pairs - Math.max(0, slips - pairs));
 
 // Two players: who wins, by pairs found (0 for a tie).
 export function winner(pairsByPlayer) {
