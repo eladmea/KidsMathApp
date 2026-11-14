@@ -15,3 +15,9 @@ The emoji atlases in `src/assets/atlases/` (`emoji-*.webp`) are made from
 style), MIT License, Copyright (c) Microsoft Corporation. Resized to 160 px and
 packed into sheets by `npm run art:fluent` (`scripts/fluent-emoji.mjs`). People
 and hands use the default skin tone.
+
+## Birthday Cake
+
+`cake/cake.svg`, `cake/candle.svg` and `cake/flame.svg` were drawn for this game
+(same license as the game). Replace any of them with a PNG or WebP of the same
+name to change the art; the scene keeps working.

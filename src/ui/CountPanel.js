@@ -5,15 +5,17 @@ import { tag } from '../services/testBridge';
 import { t } from '../i18n/index';
 
 // Putting a number of things somewhere (toppings, candles): how many so far,
-// "Take one off", the tray to drag more from, and Done. Returns the objects
-// made, for the scene to destroy when the count changes or the step ends.
+// "Take one off" (only given onTakeOne: a scene can let things be dragged
+// back to the tray instead), the tray to drag more from, and Done. Returns
+// the objects made, for the scene to destroy when the count changes or the
+// step ends.
 //   countPanel(scene, x, { count, draw, target, onDrop, onTakeOne, onDone })
 // `draw` and `target` are as for DragTray.
 export function countPanel(scene, x, { count, draw, target, onDrop, onTakeOne, onDone }) {
   const number = scene.add.text(x - 20, 270, String(count), textStyle(40)).setOrigin(1, 0.5);
   const icon = draw(scene, x + 20, 270, 40);
   const objects = [number, icon];
-  if (count) {
+  if (count && onTakeOne) {
     const takeOne = new Button(scene, x, 340, { label: t('tray.takeOne'), width: 260, height: 64, fontSize: 24, color: COLORS.white, textColor: COLORS.red, onTap: onTakeOne });
     tag('take-one', takeOne.box);
     objects.push(takeOne);

@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="80" height="240" viewBox="0 0 40 120">
+  <!-- A birthday candle (unlit): striped, with a wick. The flame is its own
+       picture (cake/flame), so it can flicker and be blown out. -->
+  <defs>
+    <clipPath id="stick"><rect x="8" y="16" width="24" height="104" rx="6"/></clipPath>
+    <linearGradient id="shine" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0" stop-color="#000" stop-opacity="0.12"/>
+      <stop offset="0.35" stop-color="#fff" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#000" stop-opacity="0.15"/>
+    </linearGradient>
+  </defs>
+  <line x1="20" y1="4" x2="20" y2="18" stroke="#3d3d3d" stroke-width="3" stroke-linecap="round"/>
+  <g clip-path="url(#stick)">
+    <rect x="8" y="16" width="24" height="104" fill="#fdfdfd"/>
+    <g fill="#4a9ff0">
+      <polygon points="0,30 40,10 40,22 0,42"/>
+      <polygon points="0,58 40,38 40,50 0,70"/>
+      <polygon points="0,86 40,66 40,78 0,98"/>
+      <polygon points="0,114 40,94 40,106 0,126"/>
+    </g>
+    <rect x="8" y="16" width="24" height="104" fill="url(#shine)"/>
+  </g>
+  <rect x="8" y="16" width="24" height="104" rx="6" fill="none" stroke="#2f7fd0" stroke-width="2"/>
+</svg>

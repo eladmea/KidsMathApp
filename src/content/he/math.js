@@ -219,7 +219,7 @@ export const say = {
       number === 1 ? `${count(1, CANDLE)}! עכשיו כבו אותו. לחצו על הנר!` : `${count(number, CANDLE)}! עכשיו כבו אותם. לחצו על כל נר!`,
     tooFewShow: ({ friend, number, placed }) => `יום הולדת ${number} ל${friend}! יש לנו ${placed}. הוסיפו עוד!`,
     tooFew: ({ number, placed }) => tooFew({ number, placed }),
-    tooManyShow: ({ friend, number }) => `יותר מדי! יום הולדת ${number} ל${friend}. הורידו אחד.`,
+    tooManyShow: ({ friend, number }) => `יותר מדי! יום הולדת ${number} ל${friend}. גררו נר אחד בחזרה לקופסה.`,
     tooMany: ({ number, placed }) => tooMany({ number, placed }),
     party: ({ friend }) => `אפס! יום הולדת שמח, ${friend}!`,
     show: {
