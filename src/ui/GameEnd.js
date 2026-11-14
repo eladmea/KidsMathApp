@@ -1,6 +1,7 @@
 import Button from './Button';
 import Dialog from './Dialog';
 import { glyph } from './Art';
+import { confetti, popIn } from './Juice';
 import { COLORS, textStyle } from './theme';
 import { tag } from '../services/testBridge';
 import { speak } from '../services/speech';
@@ -20,7 +21,10 @@ async function finishStep(scene) {
 
 export function showGameEnd(scene, { emoji, headline, detail = '', label = t('mini.backToLearning'), onDone = () => finishStep(scene), say = [headline, detail].filter(Boolean).join(' ') }) {
   const dialog = new Dialog(scene, { width: 640, height: 440, title: headline });
-  dialog.add(glyph(scene, 0, -60, emoji, 90));
+  const picture = glyph(scene, 0, -60, emoji, 90);
+  dialog.add(picture);
+  popIn(scene, picture, { duration: 520 });
+  confetti(scene);
   if (detail) dialog.add(scene.add.text(0, 40, detail, textStyle(24, COLORS.ink, { wordWrap: { width: 540 } })).setOrigin(0.5));
   const done = new Button(scene, 0, 150, { label, width: 360, height: 84, fontSize: 30, color: COLORS.primary, onTap: onDone });
   dialog.add(done);

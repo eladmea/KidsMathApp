@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="940" viewBox="0 0 480 470">
+  <!-- Birthday Cake: a round vanilla cake with strawberry cream, pink icing
+       drips, sprinkles and piped cream, on a plate. The top is an ellipse
+       (cx 240, cy 118, rx 200, ry 48) where the candles stand; the front
+       (x 40 to 440, y 166 to 384) is where the age is written. -->
+  <defs>
+    <linearGradient id="sponge" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0" stop-color="#f2c48d"/>
+      <stop offset="0.18" stop-color="#ffe2b8"/>
+      <stop offset="0.55" stop-color="#fff0d6"/>
+      <stop offset="0.85" stop-color="#ffdcae"/>
+      <stop offset="1" stop-color="#eab57d"/>
+    </linearGradient>
+    <linearGradient id="jam" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0" stop-color="#e2557f"/>
+      <stop offset="0.5" stop-color="#ff86ad"/>
+      <stop offset="1" stop-color="#dc4f79"/>
+    </linearGradient>
+    <linearGradient id="icing" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0" stop-color="#ff8fbc"/>
+      <stop offset="0.5" stop-color="#ffc1da"/>
+      <stop offset="1" stop-color="#ff86b6"/>
+    </linearGradient>
+    <radialGradient id="top" cx="0.45" cy="0.4" r="0.7">
+      <stop offset="0" stop-color="#fff2f8"/>
+      <stop offset="1" stop-color="#ffc6de"/>
+    </radialGradient>
+    <radialGradient id="plate" cx="0.5" cy="0.35" r="0.7">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#d9ecf7"/>
+    </radialGradient>
+  </defs>
+
+  <!-- plate and its shadow -->
+  <ellipse cx="240" cy="428" rx="236" ry="40" fill="#000" opacity="0.10"/>
+  <ellipse cx="240" cy="414" rx="234" ry="44" fill="#b9d8ea"/>
+  <ellipse cx="240" cy="408" rx="230" ry="40" fill="url(#plate)"/>
+  <ellipse cx="240" cy="404" rx="190" ry="28" fill="#eef7fc"/>
+
+  <!-- sponge -->
+  <path d="M40 118 V384 A200 48 0 0 0 440 384 V118 Z" fill="url(#sponge)"/>
+  <!-- strawberry cream layer -->
+  <path d="M40 268 A200 48 0 0 0 440 268 V290 A200 48 0 0 1 40 290 Z" fill="url(#jam)"/>
+  <path d="M40 262 A200 48 0 0 0 440 262 V270 A200 48 0 0 1 40 270 Z" fill="#fff6fa" opacity="0.9"/>
+  <path d="M40 290 A200 48 0 0 0 440 290 V297 A200 48 0 0 1 40 297 Z" fill="#fff6fa" opacity="0.9"/>
+
+  <!-- icing on top, dripping over the front edge -->
+  <path d="M40 118 A200 48 0 0 0 440 118 V132
+           C432 150 424 150 420 140 C414 168 400 172 396 150
+           C390 160 380 164 374 152 C368 186 350 190 346 160
+           C336 172 324 174 318 162 C312 178 300 180 296 166
+           C288 196 268 200 264 170 C256 178 244 180 238 170
+           C232 184 220 186 214 172 C206 202 186 204 182 172
+           C176 180 164 182 158 170 C152 182 140 182 134 168
+           C126 192 108 194 104 160 C98 168 88 166 84 154
+           C78 168 64 166 60 146 C54 152 46 148 40 134 Z" fill="url(#icing)"/>
+  <ellipse cx="240" cy="118" rx="200" ry="48" fill="url(#top)"/>
+  <ellipse cx="226" cy="108" rx="120" ry="20" fill="#ffffff" opacity="0.45"/>
+
+  <!-- sprinkles -->
+  <g stroke-linecap="round" stroke-width="5">
+    <line x1="96" y1="112" x2="104" y2="106" stroke="#4fc3f7"/>
+    <line x1="132" y1="132" x2="142" y2="134" stroke="#ffd23f"/>
+    <line x1="150" y1="94" x2="156" y2="100" stroke="#9b6bff"/>
+    <line x1="186" y1="140" x2="190" y2="148" stroke="#4caf50"/>
+    <line x1="206" y1="88" x2="216" y2="86" stroke="#ff7043"/>
+    <line x1="248" y1="146" x2="258" y2="142" stroke="#4fc3f7"/>
+    <line x1="270" y1="96" x2="274" y2="104" stroke="#ffd23f"/>
+    <line x1="300" y1="130" x2="310" y2="126" stroke="#9b6bff"/>
+    <line x1="328" y1="92" x2="336" y2="98" stroke="#4caf50"/>
+    <line x1="352" y1="138" x2="362" y2="138" stroke="#ff7043"/>
+    <line x1="380" y1="108" x2="386" y2="116" stroke="#4fc3f7"/>
+    <line x1="118" y1="98" x2="126" y2="96" stroke="#ff7043"/>
+    <line x1="230" y1="124" x2="236" y2="118" stroke="#4caf50"/>
+    <line x1="364" y1="84" x2="372" y2="88" stroke="#ffd23f"/>
+  </g>
+
+  <!-- piped cream around the bottom -->
+  <g fill="#fffaf2" stroke="#f3dcc4" stroke-width="2">
+    <circle cx="52" cy="392" r="13"/><circle cx="78" cy="403" r="14"/>
+    <circle cx="106" cy="412" r="14"/><circle cx="136" cy="419" r="15"/>
+    <circle cx="168" cy="424" r="15"/><circle cx="200" cy="427" r="15"/>
+    <circle cx="232" cy="428" r="15"/><circle cx="264" cy="428" r="15"/>
+    <circle cx="296" cy="426" r="15"/><circle cx="328" cy="422" r="15"/>
+    <circle cx="358" cy="416" r="14"/><circle cx="386" cy="408" r="14"/>
+    <circle cx="412" cy="398" r="13"/><circle cx="432" cy="388" r="12"/>
+  </g>
+</svg>

@@ -56,7 +56,16 @@ export async function open({ width, height, label }) {
     waitScene: (key, timeout = 8000) => page.waitForFunction((k) => window.__mathplay && window.__mathplay.scene === k, key, { timeout }),
     box: (name) => mp((n) => window.__mathplay.box(n), name),
     async tap(name) {
-      const box = await t.box(name);
+      // Waits (up to about half a second) until the target stops moving, so a
+      // button on a dialog that is still springing open is tapped where it ends up.
+      let box = await t.box(name);
+      for (let i = 0; i < 12 && box; i++) {
+        await sleep(40);
+        const next = await t.box(name);
+        const still = next && ['x', 'y', 'width', 'height'].every((k) => Math.abs(next[k] - box[k]) < 0.5);
+        box = next;
+        if (still) break;
+      }
       if (!box) throw new Error(`nothing tagged "${name}" in ${await t.scene()}`);
       await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
       await sleep(80);
@@ -69,7 +78,9 @@ export async function open({ width, height, label }) {
       await page.mouse.up();
       await sleep(120);
     },
-    shot: (dir, name) => page.screenshot({ path: `${dir}/${label}-${name}.png` }),
+    // At CSS size (half the pixels of the 2x screen): quicker to save, and
+    // still clear enough to look over.
+    shot: (dir, name) => page.screenshot({ path: `${dir}/${label}-${name}.png`, scale: 'css' }),
     async finish() {
       // VOICE_DUMP=<file>: every sentence read aloud and whether a recording
       // or the device voice said it, for checking the recordings.

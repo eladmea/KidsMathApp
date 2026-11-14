@@ -4,8 +4,8 @@ import Narrator from '../ui/Narrator';
 import TraceLayer from '../ui/TraceLayer';
 import { IdleHint } from '../ui/HintArrow';
 import { countPanel } from '../ui/CountPanel';
-import { emojiItem } from '../ui/DragTray';
-import { glyph } from '../ui/Art';
+import DragTray from '../ui/DragTray';
+import { art, glyph } from '../ui/Art';
 import { COLORS, textStyle } from '../ui/theme';
 import { session } from '../services/session';
 import { play } from '../services/audio';
@@ -23,21 +23,34 @@ import { t } from '../i18n/index';
 // first count was right. 3 cakes make a round, then Results.
 //   data: { skillId }
 
-const WIDTH = 360;
-const HEIGHT = 300;
+// The cake picture (src/assets/images/cake/cake.svg, 480 x 470 units) drawn
+// 460 wide: its top is an ellipse the candles stand on, and the age is
+// written on its front.
 const CX = 620;
-const CY = 480;
-const LEFT = CX - WIDTH / 2;
-const TOP = CY - HEIGHT / 2;
-const K = WIDTH / 300;
-const TRACE_WIDTH = WIDTH * 0.5;
-const ICING_LOOK = { dot: 17, guide: 0xf7d2e2, guideCurrent: 0xf3b5cf, done: 0xff4f93, trail: 0xff4f93, trailSize: 30, road: 0xfbd0e1, demo: '🧁' };
+const CAKE_TOP = 250;
+const CAKE_WIDTH = 460;
+const U = CAKE_WIDTH / 480;
+const CAKE_HEIGHT = 470 * U;
+const TOP = { y: CAKE_TOP + 118 * U, rx: 200 * U, ry: 48 * U };
+const FRONT = { top: CAKE_TOP + 166 * U, bottom: CAKE_TOP + 384 * U };
+const CY = (FRONT.top + FRONT.bottom) / 2;
+// Candles may be dropped anywhere on the cake; dragging one off it puts it
+// back in the box.
+const ON_CAKE = new Phaser.Geom.Rectangle(CX - CAKE_WIDTH / 2, CAKE_TOP - 40, CAKE_WIDTH, FRONT.bottom - CAKE_TOP + 40);
+const TRACE_WIDTH = 150;
+const ICING_LOOK = { dot: 15, guide: 0xf7d2e2, guideCurrent: 0xf3b5cf, done: 0xff4f93, trail: 0xff4f93, trailSize: 26, road: 0xfbd0e1, demo: '🧁' };
 const CANDLE = '🕯️';
-// How much higher the back row of candles stands.
-const ROW_LIFT = 46 * K;
+const CANDLE_HEIGHT = 84;
+const FLAME_HEIGHT = 36;
+// Where the two rows of candles stand on the top, and how wide a row is.
+const ROW_Y = [TOP.y + TOP.ry * 0.35, TOP.y - TOP.ry * 0.3];
+const ROW_WIDTH = TOP.rx * 1.6;
 const PARTY_MS = 2800;
 const FRIEND_AT = { x: 170, y: 330, size: 110 };
 const PANEL_X = 1030;
+
+// A candle (art 'cake/candle', or the emoji) standing with its bottom at (x, y).
+const drawCandle = (scene, x, y, height) => art(scene, x, y, { key: 'cake/candle', emoji: CANDLE, size: height / 1.15 }).setOrigin(0.5, 1);
 
 export default class BirthdayCakeScene extends BaseScene {
   static key = 'BirthdayCake';
@@ -62,13 +75,10 @@ export default class BirthdayCakeScene extends BaseScene {
     this.addGameHeader(this.skill);
     glyph(this, FRIEND_AT.x + 50, FRIEND_AT.y - 50, '🥳', 44).setDepth(1);
 
-    // The cake: sponge, an icing band on top, a layer of cream.
-    this.add.rectangle(CX, CY + 8, WIDTH, HEIGHT, 0x000000, 0.12).setRounded(26);
-    this.cake = this.add.rectangle(CX, CY, WIDTH, HEIGHT, 0xc98b5a).setRounded(26).setStrokeStyle(5, 0xa8693b);
-    this.add.rectangle(CX, TOP + HEIGHT * 0.11 + 3, WIDTH - 10, HEIGHT * 0.22, 0xfff3f8).setRounded(20);
-    this.add.rectangle(CX, TOP + HEIGHT * 0.62, WIDTH - 10, 12, 0xffd1e3);
+    // The cake (a picture: swap src/assets/images/cake/cake.svg to change it).
+    this.cake = art(this, CX, CAKE_TOP + CAKE_HEIGHT / 2, { key: 'cake/cake', emoji: '🎂', size: CAKE_WIDTH / 1.15 });
     this.holder = this.add.rectangle(CX, CY, TRACE_WIDTH + 16, TRACE_WIDTH * 1.4 + 16, COLORS.white, 0.85).setRounded(20);
-    this.age = this.add.text(CX, CY, '', textStyle(HEIGHT * 0.55, 0xff4f93)).setOrigin(0.5);
+    this.age = this.add.text(CX, CY, '', textStyle(170, 0xff4f93, { stroke: '#ffffff', strokeThickness: 10 })).setOrigin(0.5);
     this.tag('cake', this.cake);
     // Blowing: a tap on the cake blows the lit candle nearest to it.
     this.cake.setInteractive().on('pointerup', (pointer) => this.blowNearest(pointer.worldX));
@@ -140,7 +150,7 @@ export default class BirthdayCakeScene extends BaseScene {
       candles: this.candles.length,
       lit: this.candles.filter((candle) => candle.lit).length,
       spots: this.candles.map((candle) => [Math.round(candle.x), Math.round(candle.stick.y)]),
-      cake: { x: CX, y: CY, width: WIDTH, height: HEIGHT },
+      cake: { x: CX, y: CY, width: CAKE_WIDTH, height: FRONT.bottom - FRONT.top },
       guide: this.layer ? this.layer.guidePoints() : null,
       ...(this.layer ? { strokeIndex: this.layer.strokeIndex } : {}),
     };
@@ -173,55 +183,88 @@ export default class BirthdayCakeScene extends BaseScene {
     this.panel.forEach((object) => object.destroy());
     this.panel = [];
     if (this.step !== 'candles') return;
+    // No "Take one off": a candle is dragged off the cake back to the box.
     this.panel = countPanel(this, PANEL_X, {
       count: this.candles.length,
-      draw: emojiItem(CANDLE),
-      target: () => new Phaser.Geom.Rectangle(LEFT, TOP, WIDTH, HEIGHT),
+      draw: (scene, x, y, size) => drawCandle(scene, x, y + size * 0.6, size * 1.2),
+      target: () => ON_CAKE,
       onDrop: () => this.addCandle(),
-      onTakeOne: () => this.takeOne(),
       onDone: () => this.check(),
     });
   }
 
-  // Candles line up evenly on the cake wherever they are dropped (two rows
-  // when there are many), so each one can be tapped to blow it out.
+  // Candles line up evenly on the top of the cake wherever they are dropped
+  // (two rows when there are many), so each one can be tapped to blow it out.
+  // While putting them on, one can be dragged off the cake back to the box.
   addCandle() {
     if (this.step !== 'candles' || this.candles.length >= MAX_ON_TRAY_TARGET) return;
-    const i = this.candles.length;
-    const stick = glyph(this, 0, 0, CANDLE, 40 * K);
-    const flame = glyph(this, 0, 0, '🔥', 26 * K).setVisible(false);
-    const puff = glyph(this, 0, 0, '💨', 26 * K).setVisible(false);
+    const stick = drawCandle(this, 0, 0, CANDLE_HEIGHT);
+    const flame = art(this, 0, 0, { key: 'cake/flame', emoji: '🔥', size: FLAME_HEIGHT / 1.15 }).setOrigin(0.5, 0.93).setVisible(false);
+    const puff = glyph(this, 0, 0, '💨', 26).setVisible(false);
     // A tap anywhere in the candle's column (stick and flame) blows it.
-    const zone = this.add.rectangle(0, 0, 10, 10, 0xffffff, 0.001).setInteractive({ useHandCursor: true });
-    zone.on('pointerup', () => this.blow(i));
-    this.tag(`candle:${i}`, zone);
-    this.candles.push({ x: 0, puffY: 0, stick, flame, puff, zone, lit: false });
+    const zone = this.add.rectangle(0, 0, 10, 10, 0xffffff, 0.001).setInteractive({ useHandCursor: true, draggable: true });
+    const candle = { x: 0, base: 0, puffY: 0, stick, flame, puff, zone, lit: false, flicker: null };
+    zone.on('pointerup', () => this.blow(this.candles.indexOf(candle)));
+    zone.on('drag', (pointer) => this.dragCandle(candle, pointer));
+    zone.on('dragend', (pointer) => this.dropCandle(candle, pointer));
+    this.candles.push(candle);
     this.arrangeCandles();
     this.candlesChanged(true);
   }
 
   arrangeCandles() {
-    const slots = candleSlots(this.candles.length, WIDTH - 20);
+    const slots = candleSlots(this.candles.length, ROW_WIDTH);
     this.candles.forEach((candle, i) => {
       const { x, row, spacing } = slots[i];
-      const left = LEFT + 10 + x;
-      const lift = row * ROW_LIFT;
-      candle.x = left;
-      candle.stick.setPosition(left, TOP - 34 * K - lift).setDepth(2 - row);
-      candle.flame.setPosition(left, TOP - 82 * K - lift).setDepth(2 - row);
-      candle.puff.setPosition(left, TOP - 82 * K - lift).setDepth(2 - row);
-      candle.puffY = candle.puff.y;
-      // Front row: from the flame down onto the cake. Back row: above that.
-      const top = TOP - 100 * K - lift;
-      const bottom = row === 0 ? TOP + 10 : TOP - 100 * K;
-      candle.zone.setPosition(left, (top + bottom) / 2).setSize(spacing, bottom - top).setDepth(3);
+      this.standCandle(candle, CX - ROW_WIDTH / 2 + x, ROW_Y[row], 4 - row);
+      // The candle's column, from above the flame down to the cake.
+      const top = candle.base - CANDLE_HEIGHT - FLAME_HEIGHT - 6;
+      const bottom = candle.base + (row === 0 ? 24 : 0);
+      candle.zone.setPosition(candle.x, (top + bottom) / 2).setSize(Math.min(spacing, 70), bottom - top).setDepth(6);
+      this.tag(`candle:${i}`, candle.zone);
     });
   }
 
-  takeOne() {
-    const candle = this.candles.pop();
-    if (!candle) return;
-    [candle.stick, candle.flame, candle.puff, candle.zone].forEach((object) => object.destroy());
+  // Puts a candle's stick, flame and smoke with the stick's bottom at (x, base).
+  standCandle(candle, x, base, depth) {
+    candle.x = x;
+    candle.base = base;
+    candle.stick.setPosition(x, base).setDepth(depth);
+    candle.flame.setPosition(x, base - CANDLE_HEIGHT + 4).setDepth(depth);
+    candle.puff.setPosition(x, base - CANDLE_HEIGHT - 14).setDepth(depth);
+    candle.puffY = candle.puff.y;
+  }
+
+  // Dragging a candle (only while putting candles on): it follows the finger.
+  dragCandle(candle, pointer) {
+    if (this.step !== 'candles') return;
+    candle.dragging = true;
+    this.standCandle(candle, pointer.worldX, pointer.worldY + CANDLE_HEIGHT / 2, 20);
+    candle.zone.setPosition(pointer.worldX, pointer.worldY);
+  }
+
+  // Let go on the cake: it goes back in line. Anywhere else: back to the box.
+  dropCandle(candle, pointer) {
+    if (!candle.dragging) return;
+    candle.dragging = false;
+    if (this.step !== 'candles' || ON_CAKE.contains(pointer.worldX, pointer.worldY)) {
+      this.arrangeCandles();
+      return;
+    }
+    this.candles.splice(this.candles.indexOf(candle), 1);
+    candle.zone.destroy();
+    const tray = this.panel.find((object) => object instanceof DragTray);
+    const box = tray ? tray.box.getBounds() : { centerX: PANEL_X, centerY: 440 };
+    this.tweens.add({
+      targets: candle.stick,
+      x: box.centerX - 60,
+      y: box.centerY + 24,
+      scale: candle.stick.scale * 0.6,
+      alpha: 0.3,
+      duration: 280,
+      ease: 'Quad.easeIn',
+      onComplete: () => [candle.stick, candle.flame, candle.puff].forEach((object) => object.destroy()),
+    });
     this.arrangeCandles();
     this.candlesChanged(false);
   }
@@ -240,6 +283,14 @@ export default class BirthdayCakeScene extends BaseScene {
     this.candles = [];
   }
 
+  // A lit flame sways a little, each at its own pace.
+  light(candle) {
+    candle.lit = true;
+    candle.flame.setVisible(true);
+    const scale = candle.flame.scale;
+    candle.flicker = this.tweens.add({ targets: candle.flame, scaleY: scale * 1.12, scaleX: scale * 0.92, angle: { from: -4, to: 4 }, duration: 260 + Math.random() * 180, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+  }
+
   check() {
     const result = checkCount(this.candles.length, this.number);
     if (this.firstCheck === null) this.firstCheck = result;
@@ -248,10 +299,7 @@ export default class BirthdayCakeScene extends BaseScene {
     if (result === 'right') {
       play(this, 'correct');
       this.message.setText('');
-      this.candles.forEach((candle) => {
-        candle.lit = true;
-        candle.flame.setVisible(true);
-      });
+      this.candles.forEach((candle) => this.light(candle));
       this.setStep('blow');
       this.say(words.right({ number: this.number }));
       return;
@@ -275,6 +323,7 @@ export default class BirthdayCakeScene extends BaseScene {
     const candle = this.candles[i];
     if (this.step !== 'blow' || !candle || !candle.lit) return;
     candle.lit = false;
+    if (candle.flicker) candle.flicker.stop();
     candle.flame.setVisible(false);
     candle.puff.setVisible(true);
     this.tweens.add({ targets: candle.puff, y: candle.puffY - 20, alpha: { from: 1, to: 0.4 }, duration: 500 });
@@ -288,7 +337,7 @@ export default class BirthdayCakeScene extends BaseScene {
     play(this, 'correct');
     this.setStep('party');
     this.say(this.words.say.cake.party({ friend: this.friendName }));
-    this.party = ['🎈', '🎉', '🎁', '🎉', '🎈'].map((emoji, n) => glyph(this, CX - 120 + n * 60, TOP + HEIGHT + 40, emoji, 40));
+    this.party = ['🎈', '🎉', '🎁', '🎉', '🎈'].map((emoji, n) => glyph(this, CX - 300 + n * 150, CAKE_TOP + CAKE_HEIGHT - 10, emoji, 44).setDepth(8));
     this.tweens.add({ targets: this.friendArt, scale: { from: 1, to: 1.2 }, duration: 220, yoyo: true, repeat: 2 });
     this.time.delayedCall(PARTY_MS, () => {
       this.index += 1;
@@ -302,10 +351,15 @@ export default class BirthdayCakeScene extends BaseScene {
       const [x, y] = this.layer.startPoint();
       return { x, y: y - 22 };
     }
-    if (this.step === 'candles') return this.candles.length >= this.number ? { x: PANEL_X, y: 510 } : { x: PANEL_X - 60, y: 395 };
+    if (this.step === 'candles') {
+      // Too many: show that one can be dragged off the cake.
+      const last = this.candles[this.candles.length - 1];
+      if (this.candles.length > this.number) return { x: last.x, y: last.base - CANDLE_HEIGHT - 10 };
+      return this.candles.length === this.number ? { x: PANEL_X, y: 510 } : { x: PANEL_X - 60, y: 395 };
+    }
     if (this.step === 'blow') {
       const candle = this.candles.find((c) => c.lit);
-      return candle ? { x: candle.x, y: candle.flame.y - 18 * K } : null;
+      return candle ? { x: candle.x, y: candle.flame.y - FLAME_HEIGHT - 6 } : null;
     }
     return null;
   }

@@ -2,20 +2,27 @@
 // real map -> island -> quiz -> results flow. Each round answers one question
 // wrong and the rest right, so it should pass with 3 stars. Saves a
 // screenshot of each skill's first question and of its wrong answer.
-//   node e2e/quiz.mjs <screenshotDir> <width> <height> <label>
+// Rounds are 5 questions long (?questions=5), so one wrong still gives 3
+// stars. Given a subject, plays just that subject's skills, so run.mjs can
+// run the subjects side by side.
+//   node e2e/quiz.mjs <screenshotDir> <width> <height> <label> [subject]
 import { PASSED, answerQuestion, open, seedPlayers, sleep } from './helpers.mjs';
-import { SKILLS } from '../src/curriculum/skills.js';
+import { SKILLS, isQuizSkill } from '../src/curriculum/skills.js';
 
 const [dir, width, height, label] = [process.argv[2] || '.', Number(process.argv[3] || 1280), Number(process.argv[4] || 720), process.argv[5] || 'laptop'];
 const t = await open({ width, height, label });
 const { check, state, waitFor, tap } = t;
-const SUBJECTS = ['math', 'literacy', 'science', 'logic', 'sel'];
+const ALL_SUBJECTS = ['math', 'literacy', 'science', 'logic', 'sel'];
+const SUBJECTS = process.argv[6] ? [process.argv[6]] : ALL_SUBJECTS;
+const QUESTIONS = 5;
+// Quiz skills open in the Quiz scene (the rest are their own games).
+const expected = SKILLS.filter((skill) => SUBJECTS.includes(skill.subject) && isQuizSkill(skill) && !skill.screen).length;
 const BANDS = ['sprouts', 'explorers', 'builders', 'masters'];
 
 // Everything passed, so every skill is open and no worked example opens a
 // round (examples are covered by e2e/learning.mjs).
 const progress = Object.fromEntries(SKILLS.map((skill) => [skill.id, PASSED]));
-await seedPlayers(t, [{ name: 'Sam', age: 10, avatar: '🦊', narration: false }], { Sam: progress }, '?fast');
+await seedPlayers(t, [{ name: 'Sam', age: 10, avatar: '🦊', narration: false }], { Sam: progress }, `?fast&questions=${QUESTIONS}`);
 await t.waitScene('Profiles');
 
 let played = 0;
@@ -47,7 +54,7 @@ for (const band of BANDS) {
         continue;
       }
       try {
-        for (let i = 0; i < 10; i++) {
+        for (let i = 0; i < QUESTIONS; i++) {
           await waitFor((i) => window.__mathplay.state.step === 'question' && window.__mathplay.state.index === i, i, 6000);
           const s = await state();
           if (i === 0 && !seen.has(id)) {
@@ -97,7 +104,7 @@ for (const band of BANDS) {
         }
         await waitFor(() => window.__mathplay.scene === 'Results' && window.__mathplay.state.step === 'results', null, 8000);
         const r = await state();
-        if (r.stars !== 3 || r.score !== 9) failures.push(`${id}: ${r.score}/${r.total}, ${r.stars} stars`);
+        if (r.stars !== 3 || r.score !== QUESTIONS - 1) failures.push(`${id}: ${r.score}/${r.total}, ${r.stars} stars`);
         played += 1;
       } catch (error) {
         failures.push(`${id}: ${error.message.split("\n")[0]}`);
@@ -115,6 +122,6 @@ const saved = await t.mp(() => {
   const profile = JSON.parse(localStorage.getItem('mathplay2:profiles'))[0];
   return Object.keys(JSON.parse(localStorage.getItem(`mathplay2:progress:${profile.id}`) || '{}')).length;
 });
-check('every quiz skill played through to Results with 9/10 and 3 stars', failures.length === 0 && played >= 50, `${played} played; ${failures.join(' | ')}`);
+check(`every ${SUBJECTS.join('/')} quiz skill played through to Results with ${QUESTIONS - 1}/${QUESTIONS} and 3 stars`, failures.length === 0 && played === expected, `${played} of ${expected} played; ${failures.join(' | ')}`);
 check('progress saved for every skill played', saved >= played, `${saved} saved`);
 process.exit(await t.finish());

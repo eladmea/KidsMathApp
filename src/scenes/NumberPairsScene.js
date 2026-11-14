@@ -5,14 +5,14 @@ import IconText from '../ui/IconText';
 import Narrator from '../ui/Narrator';
 import { DICE } from '../ui/QuestionVisual';
 import { glyph } from '../ui/Art';
-import { celebrate, pulse } from '../ui/Juice';
+import { celebrate, pulse, tapSpark } from '../ui/Juice';
 import { COLORS, textStyle } from '../ui/theme';
 import { session } from '../services/session';
 import { speak } from '../services/speech';
 import { play } from '../services/audio';
 import { content } from '../content/index';
 import { getLevel, isMatch, isSlip, makeDeck, soloScore, winner } from '../logic/numberPairs';
-import { buddyLevel, chooseFirstCard, chooseSecondCard, forgetCards, observeCard } from '../logic/memoryBuddy';
+import { buddyLevel, buddySlip, chooseFirstCard, chooseSecondCard, forgetCards, observeCard } from '../logic/memoryBuddy';
 import { buildPlayers } from '../logic/players';
 import { profileBand } from '../logic/profiles';
 import { getSkill } from '../curriculum/skills';
@@ -34,6 +34,12 @@ const SHOW_MS = 900;
 const BUDDY_FIRST_MS = 900;
 const BUDDY_SECOND_MS = 800;
 const NEXT_MS = 1500;
+// A found pair: a moment to see it, then both cards fly to the finder's
+// pile (by the score), and the score goes up as they land.
+const COLLECT_DELAY_MS = 450;
+const COLLECT_MS = 520;
+const COLLECT_GAP_MS = 110;
+const PILE_SCALE = 0.3;
 
 export default class NumberPairsScene extends BaseScene {
   static key = 'NumberPairs';
@@ -51,11 +57,17 @@ export default class NumberPairsScene extends BaseScene {
     this.pairs = { 1: 0, 2: 0 };
     this.found = 0;
     this.slips = 0;
+    // What the scores show: they catch up as each pair lands on its pile.
+    this.shown = { pairs: { 1: 0, 2: 0 }, found: 0 };
+    this.piles = { 1: 0, 2: 0 };
+    // Turns judged so far, reported with each result, so a test can wait for
+    // the next one (a pair's 'pair' step only lasts half a second).
+    this.judged = 0;
     this.seen = new Set();
     this.first = null;
     this.busy = true;
     this.over = false;
-    this.memory = {};
+    this.memory = [];
     this.buddy = buddyLevel(profileBand(session.profile).id);
     this.words = content('math').NUMBER_WORDS;
 
@@ -183,7 +195,7 @@ export default class NumberPairsScene extends BaseScene {
     this.turnOver(card, true);
     const seenBefore = new Set(this.seen);
     this.seen.add(card.info.id);
-    if (this.versus && this.mode === 'solo') this.memory = observeCard(this.memory, card.info, this.buddy.recall);
+    if (this.versus && this.mode === 'solo') this.memory = observeCard(this.memory, card.info, this.buddy);
     if (!this.first) {
       this.first = card;
       this.report({ up: [card.info.id] });
@@ -196,12 +208,15 @@ export default class NumberPairsScene extends BaseScene {
   }
 
   judge(first, second, seenBefore) {
+    this.judged += 1;
     if (isMatch(first.info, second.info)) {
       [first, second].forEach((card) => {
         card.info.status = 'matched';
         card.frame.setStrokeStyle(6, COLORS.green);
+        card.disableInteractive();
         pulse(this, card, { to: 1.12 });
       });
+      this.collect([first, second], this.turn);
       this.found += 1;
       this.pairs[this.turn] += 1;
       this.memory = forgetCards(this.memory, [first.info.id, second.info.id]);
@@ -209,13 +224,13 @@ export default class NumberPairsScene extends BaseScene {
       speak(String(first.info.value));
       celebrate(this, (first.x + second.x) / 2, (first.y + second.y) / 2);
       this.refresh();
-      this.report({ step: 'pair', value: first.info.value });
-      if (this.found === this.level.pairs) return this.time.delayedCall(700, () => this.finish());
+      this.report({ step: 'pair', value: first.info.value, judged: this.judged, result: 'pair' });
+      if (this.found === this.level.pairs) return this.time.delayedCall(COLLECT_DELAY_MS + COLLECT_MS + COLLECT_GAP_MS + 500, () => this.finish());
       // A pair keeps the turn.
       return this.time.delayedCall(500, () => this.startTurn());
     }
     if (!this.versus && isSlip(first.info, second.info, seenBefore, this.deck)) this.slips += 1;
-    this.report({ step: 'miss', slips: this.slips });
+    this.report({ step: 'miss', slips: this.slips, judged: this.judged, result: 'miss' });
     this.time.delayedCall(SHOW_MS, () => {
       [first, second].forEach((card) => {
         card.info.status = 'hidden';
@@ -224,6 +239,59 @@ export default class NumberPairsScene extends BaseScene {
       if (this.versus) this.turn = this.turn === 1 ? 2 : 1;
       this.time.delayedCall(FLIP_MS * 2, () => this.startTurn());
     });
+  }
+
+  // ---- a found pair goes to the finder's pile ----
+  // Where pile card n of `player` lands: just right of their score (against
+  // someone), or left of the pairs counter in the corner (alone), each card a
+  // little further along so the pile shows how many.
+  pileSpot(player, n) {
+    if (!this.versus) {
+      const bounds = this.headerCounter.getBounds();
+      return { x: bounds.left - 46 - n * 9, y: bounds.centerY + 2 - n * 2 };
+    }
+    const bounds = this.scores[player - 1].getBounds();
+    return { x: bounds.right + 46 + n * 9, y: bounds.centerY + 2 - n * 2 };
+  }
+
+  collect(cards, player) {
+    this.time.delayedCall(COLLECT_DELAY_MS, () => {
+      cards.forEach((card, i) => {
+        const place = this.piles[player];
+        const spot = this.pileSpot(player, place);
+        this.piles[player] += 1;
+        this.tweens.killTweensOf(card);
+        card.setDepth(30);
+        const last = i === cards.length - 1;
+        this.tweens.add({
+          targets: card,
+          x: spot.x,
+          y: spot.y,
+          scale: PILE_SCALE,
+          angle: (i === 0 ? -1 : 1) * (4 + Math.random() * 5),
+          duration: COLLECT_MS,
+          delay: i * COLLECT_GAP_MS,
+          ease: 'Cubic.easeInOut',
+          onComplete: () => {
+            card.setDepth(5 + place);
+            if (last) this.landed(player, spot);
+          },
+        });
+      });
+    });
+  }
+
+  // The pair is on the pile: now the score goes up.
+  landed(player, spot) {
+    if (this.over) return;
+    this.shown.pairs[player] += 1;
+    this.shown.found += 1;
+    this.refresh();
+    play(this, 'ding');
+    tapSpark(this, spot.x, spot.y);
+    const label = this.versus ? this.scores[player - 1] : this.headerCounter;
+    const scale = label.scale;
+    this.tweens.add({ targets: label, scale: scale * 1.25, duration: 140, yoyo: true, ease: 'Quad.easeOut', onComplete: () => label.setScale(scale) });
   }
 
   playBuddy() {
@@ -235,7 +303,7 @@ export default class NumberPairsScene extends BaseScene {
       this.busy = true;
       this.time.delayedCall(BUDDY_SECOND_MS, () => {
         if (this.over) return;
-        const second = chooseSecondCard(this.deck, this.memory, first);
+        const second = chooseSecondCard(this.deck, this.memory, first, Math.random, buddySlip(this.buddy, this.pairs[2], this.pairs[1]));
         this.reveal(this.cards[second.id]);
       });
     });
@@ -250,13 +318,11 @@ export default class NumberPairsScene extends BaseScene {
     if (this.versus) {
       [1, 2].forEach((n, i) => {
         const on = this.turn === n && !this.over;
-        this.scores[i].setText(t('numberPairs.score', { icon: this.players[n].icon, name: this.name(n), count: this.pairs[n] }));
+        this.scores[i].setText(t('numberPairs.score', { icon: this.players[n].icon, name: this.name(n), count: this.shown.pairs[n] }));
         this.scores[i].setColor(on ? this.players[n].main : '#9e9e9e').setScale(on ? 1.12 : 1);
       });
-      this.headerCounter.setText(t('common.progress', { index: this.found, total: this.level.pairs }));
-    } else {
-      this.headerCounter.setText(t('common.progress', { index: this.found, total: this.level.pairs }));
     }
+    this.headerCounter.setText(t('common.progress', { index: this.shown.found, total: this.level.pairs }));
     this.report({
       level: this.levelId,
       versus: this.versus,
@@ -265,6 +331,8 @@ export default class NumberPairsScene extends BaseScene {
       found: this.found,
       total: this.level.pairs,
       pairs: { ...this.pairs },
+      shown: { ...this.shown.pairs },
+      piles: { ...this.piles },
       cards: this.deck.map(({ id, value, face, status }) => ({ id, value, face, status })),
     });
   }
@@ -272,6 +340,7 @@ export default class NumberPairsScene extends BaseScene {
   // ---- the end ----
   finish() {
     this.over = true;
+    this.shown = { pairs: { ...this.pairs }, found: this.found };
     this.refresh();
     if (!this.versus) {
       const score = soloScore(this.level.pairs, this.slips);

@@ -8,6 +8,11 @@
 //                             (the emoji's code points in hex, joined by '-')
 //   src/assets/images/@<language>/<key>.png    a picture just for one
 //     language (art with words on it); wins over the shared one
+//   src/assets/atlases/<name>.webp|png + <name>.json   texture atlases
+//     (Phaser JSON hash) whose frames are named by image key, e.g.
+//     'emoji/1f34e': many pictures in one file, so the game starts
+//     quickly. scripts/fluent-emoji.mjs makes the emoji ones. A picture
+//     in src/assets/images with the same key wins over an atlas frame.
 //   src/assets/sounds/<name>.wav|mp3|ogg       sound effects by file name
 //
 // Anything without a picture falls back to its emoji, so art can arrive a
@@ -15,6 +20,7 @@
 import { getLanguage } from '../i18n/index';
 
 const imageFiles = import.meta.glob('../assets/images/**/*.{png,webp,jpg,jpeg,svg}', { eager: true, query: '?url', import: 'default' });
+const atlasFiles = import.meta.glob('../assets/atlases/*.{png,webp,json}', { eager: true, query: '?url', import: 'default' });
 const soundFiles = import.meta.glob('../assets/sounds/*.{wav,mp3,ogg,m4a}', { eager: true, query: '?url', import: 'default' });
 
 const keyOf = (path, folder) => path.slice(path.indexOf(folder) + folder.length).replace(/\.[a-z0-9]+$/, '');
@@ -32,6 +38,15 @@ Object.entries(imageFiles).forEach(([path, url]) => {
     images[key] = url;
   }
 });
+
+// { [name]: { image, data } } for each atlas with both files.
+const atlases = {};
+Object.entries(atlasFiles).forEach(([path, url]) => {
+  const [, name, ext] = path.match(/\/([^/]+)\.([a-z]+)$/);
+  atlases[name] = atlases[name] || {};
+  atlases[name][ext === 'json' ? 'data' : 'image'] = url;
+});
+const atlasKey = (name) => `atlas:${name}`;
 
 export const SOUNDS = Object.fromEntries(Object.entries(soundFiles).map(([path, url]) => [keyOf(path, '/assets/sounds/'), url]));
 
@@ -53,14 +68,19 @@ export function loadAssets(scene) {
   Object.entries(languageImages).forEach(([language, files]) =>
     Object.entries(files).forEach(([key, url]) => scene.load.image(textureKey(key, language), url))
   );
+  Object.entries(atlases).forEach(([name, { image, data }]) => image && data && scene.load.atlas(atlasKey(name), image, data));
   Object.entries(SOUNDS).forEach(([key, url]) => scene.load.audio(key, url));
 }
 
-// The loaded texture for an image key (this language's first), or null.
+// The loaded picture for an image key, as { key, frame } for add.image():
+// this language's own image first, then the shared image, then a frame in
+// an atlas. Null when there is none.
 export function texture(scene, key) {
   const own = textureKey(key, getLanguage());
-  if (scene.textures.exists(own)) return own;
-  return scene.textures.exists(textureKey(key)) ? textureKey(key) : null;
+  if (scene.textures.exists(own)) return { key: own, frame: undefined };
+  if (scene.textures.exists(textureKey(key))) return { key: textureKey(key), frame: undefined };
+  const name = Object.keys(atlases).find((n) => scene.textures.exists(atlasKey(n)) && scene.textures.get(atlasKey(n)).has(key));
+  return name ? { key: atlasKey(name), frame: key } : null;
 }
 
 export function imageKeys() {
