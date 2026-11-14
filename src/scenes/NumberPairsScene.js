@@ -331,6 +331,8 @@ export default class NumberPairsScene extends BaseScene {
       found: this.found,
       total: this.level.pairs,
       pairs: { ...this.pairs },
+      shown: { ...this.shown.pairs },
+      piles: { ...this.piles },
       cards: this.deck.map(({ id, value, face, status }) => ({ id, value, face, status })),
     });
   }

@@ -4,6 +4,7 @@ import Dialog from '../ui/Dialog';
 import Narrator from '../ui/Narrator';
 import { DICE } from '../ui/QuestionVisual';
 import { glyph } from '../ui/Art';
+import { tapSpark } from '../ui/Juice';
 import { COLORS, colorOf, hex, textStyle } from '../ui/theme';
 import { session } from '../services/session';
 import { speak } from '../services/speech';
@@ -27,6 +28,12 @@ const BUDDY_FIRST_FLIP_MS = 900;
 const BUDDY_SECOND_FLIP_MS = 800;
 const BUDDY_THINK_MS = 1500;
 const GRID = { left: 330, top: 185, width: 920, height: 520, gap: 12 };
+// A won pair: a moment to see it, then both cards fly onto the winner's
+// player card as a small pile, and their pairs count goes up as they land.
+const COLLECT_DELAY_MS = 450;
+const COLLECT_MS = 520;
+const COLLECT_GAP_MS = 110;
+const PILE_SIZE = 40;
 
 // How a card's face is drawn: dice dots, a picture, or its label.
 function drawFace(scene, container, face, size, color) {
@@ -62,6 +69,10 @@ export default class MemoryScene extends BaseScene {
     this.flipped = [];
     this.current = this.solo || Math.random() < 0.5 ? 1 : 2;
     this.scores = { 1: 0, 2: 0 };
+    // What the player cards show: they catch up as each pair lands.
+    this.shownScores = { 1: 0, 2: 0 };
+    this.piles = { 1: 0, 2: 0 };
+    this.flying = 0;
     const chips = startingChips(this.variant.id);
     this.chips = { 1: chips, 2: chips };
     this.pending = null;
@@ -143,11 +154,12 @@ export default class MemoryScene extends BaseScene {
       const { box, stats } = this.playerCards[n - 1];
       const active = n === this.current && !this.over;
       box.setStrokeStyle(active ? 6 : 0, colorOf(this.players[n].main)).setScale(active ? 1.04 : 1);
-      stats.setText(t('memory.score', { pairs: this.scores[n], chips: this.chips[n] }));
+      stats.setText(t('memory.score', { pairs: this.shownScores[n], chips: this.chips[n] }));
     });
     const player = this.players[this.current];
     if (!this.over) this.narrator.text.setText(this.buddyTurn ? t('twoPlayer.buddyPlaying', { name: player.name }) : t('twoPlayer.turn', { name: `${player.icon} ${player.name}` }));
-    this.checkOver();
+    // The end waits until the last pair has landed on its pile.
+    if (!this.flying) this.checkOver();
     this.report(this.snapshot());
     this.scheduleBuddy();
   }
@@ -163,6 +175,8 @@ export default class MemoryScene extends BaseScene {
       buddyTurn: this.buddyTurn,
       busy: this.busy,
       scores: { ...this.scores },
+      shownScores: { ...this.shownScores },
+      piles: { ...this.piles },
       chips: { ...this.chips },
       deck: this.deck.map(({ id, value, status }) => ({ id, value, status })),
       flipped: this.flipped.map((card) => card.id),
@@ -197,9 +211,57 @@ export default class MemoryScene extends BaseScene {
     first.status = 'matched';
     second.status = 'matched';
     this.scores[this.current] += 1;
+    this.collect([first, second], this.current);
     this.flipped = [];
     this.busy = false;
     play(this, 'correct');
+    this.refresh();
+  }
+
+  // ---- a won pair goes to the winner's pile ----
+  // Pile card n of `player`: just right of their player card (between it and
+  // the board), each a little further along so the pile shows how many.
+  pileSpot(player, n) {
+    const { box } = this.playerCards[player - 1];
+    return { x: box.x + box.width / 2 + 34 + n * 4, y: box.y - n * 1.5 };
+  }
+
+  collect(cards, player) {
+    this.flying += 1;
+    this.time.delayedCall(COLLECT_DELAY_MS, () => {
+      cards.forEach((card, i) => {
+        const view = this.cards[card.id];
+        const place = this.piles[player];
+        const spot = this.pileSpot(player, place);
+        this.piles[player] += 1;
+        view.box.disableInteractive();
+        view.container.setDepth(30);
+        this.tweens.add({
+          targets: view.container,
+          x: spot.x,
+          y: spot.y,
+          scale: PILE_SIZE / this.cardSize,
+          angle: (i === 0 ? -1 : 1) * (4 + Math.random() * 5),
+          duration: COLLECT_MS,
+          delay: i * COLLECT_GAP_MS,
+          ease: 'Cubic.easeInOut',
+          onComplete: () => {
+            view.container.setDepth(5 + place);
+            if (i === cards.length - 1) this.landed(player, spot);
+          },
+        });
+      });
+    });
+  }
+
+  // The pair is on the pile: now the pairs count goes up.
+  landed(player, spot) {
+    this.flying -= 1;
+    this.shownScores[player] += 1;
+    play(this, 'ding');
+    tapSpark(this, spot.x, spot.y);
+    const { stats } = this.playerCards[player - 1];
+    this.tweens.add({ targets: stats, scale: 1.2, duration: 140, yoyo: true, ease: 'Quad.easeOut', onComplete: () => stats.setScale(1) });
     this.refresh();
   }
 
@@ -244,6 +306,7 @@ export default class MemoryScene extends BaseScene {
         this.chips[this.current] -= cost;
         this.chips[opponent] += cost;
         this.scores[this.current] += 1;
+        this.collect([low, high], this.current);
       } else {
         low.status = 'hidden';
         high.status = 'hidden';
