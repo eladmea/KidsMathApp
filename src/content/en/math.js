@@ -176,7 +176,7 @@ export const say = {
     right: ({ number }) => `${number} ${number === 1 ? 'candle' : 'candles'}! Now blow them out. Tap each candle!`,
     tooFewShow: ({ friend, number, placed }) => `${friend} is ${number}. We have ${placed}. Add more!`,
     tooFew: ({ number, placed }) => tooFew({ number, placed }),
-    tooManyShow: ({ friend, number }) => `Too many! ${friend} is ${number}. Take one off.`,
+    tooManyShow: ({ friend, number }) => `Too many! ${friend} is ${number}. Drag one back to the box.`,
     tooMany: ({ number, placed }) => tooMany({ number, placed }),
     party: ({ friend }) => `Zero! Happy birthday, ${friend}!`,
     show: {

@@ -166,6 +166,23 @@ async function bake(i, { mistakes = false } = {}) {
     await t.page.mouse.move(p.x, p.y, { steps: 5 });
     await t.page.mouse.up();
     await sleep(100);
+    // One too many, then that candle is dragged off the cake back to the box.
+    const extra = await t.mp(([x, y]) => window.__mathplay.toPage(x, y), [s.cake.x - 150, s.cake.y]);
+    await t.page.mouse.move(tray.x + 40, tray.y + tray.height / 2);
+    await t.page.mouse.down();
+    await t.page.mouse.move(extra.x, extra.y, { steps: 5 });
+    await t.page.mouse.up();
+    await sleep(100);
+    check('cake: one candle too many', (await state()).candles === s.number + 1);
+    check('cake: no "Take one off" button (candles are dragged back)', (await t.box('take-one')) === null);
+    const candle = await t.box(`candle:${s.number}`);
+    const box = await t.box('tray');
+    await t.page.mouse.move(candle.x + candle.width / 2, candle.y + candle.height / 2);
+    await t.page.mouse.down();
+    await t.page.mouse.move(box.x + box.width / 2, box.y + box.height / 2, { steps: 6 });
+    await t.page.mouse.up();
+    await sleep(400);
+    check('cake: dragging a candle off the cake puts it back in the box', (await state()).candles === s.number, String((await state()).candles));
   }
   check(`cake ${i + 1}: candles on the cake`, (await state()).candles === s.number);
   const spots = (await state()).spots;

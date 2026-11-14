@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="80" height="120" viewBox="0 0 40 60">
+  <!-- A candle flame with a soft glow. Its bottom middle (20, 56) sits on the wick. -->
+  <defs>
+    <radialGradient id="glow" cx="0.5" cy="0.6" r="0.5">
+      <stop offset="0" stop-color="#ffd23f" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#ffd23f" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="fire" cx="0.5" cy="0.75" r="0.75">
+      <stop offset="0" stop-color="#fffbe0"/>
+      <stop offset="0.35" stop-color="#ffd23f"/>
+      <stop offset="0.8" stop-color="#ff9a3d"/>
+      <stop offset="1" stop-color="#ff6a2b"/>
+    </radialGradient>
+  </defs>
+  <ellipse cx="20" cy="36" rx="20" ry="24" fill="url(#glow)"/>
+  <path d="M20 4 C26 18 33 26 33 39 C33 49 27 56 20 56 C13 56 7 49 7 39 C7 26 14 18 20 4 Z" fill="url(#fire)"/>
+  <path d="M20 30 C23 36 25 40 25 45 C25 50 23 53 20 53 C17 53 15 50 15 45 C15 40 17 36 20 30 Z" fill="#fffef4"/>
+</svg>
