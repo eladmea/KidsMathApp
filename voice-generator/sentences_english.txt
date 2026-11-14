@@ -3596,7 +3596,7 @@ read-a-story-36c7c02f | Read a story.
 read-every-clue-2dc856e7 | Read every clue.
 remember-where-they-are-b545051f | Remember where they are.
 rest-until-you-feel-better-b2818744 | Rest until you feel better.
-rhyming-words-end-with-the-same-sound-li-7b189b06 | Rhyming words end with the same sound, like cat and hat.
+rhyming-words-end-with-the-same-sound-a5fe340f | Rhyming words end with the same sound.
 ride-the-bus-to-school-d5803f81 | Ride the bus to school.
 ride-your-bike-21725bef | Ride your bike.
 ring-and-king-rhyme-they-end-with-the-sa-c365dfd3 | ring and king rhyme: they end with the same sound.
