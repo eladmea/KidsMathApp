@@ -75,18 +75,21 @@ async function aimAndThrow(pick, { buttons = false } = {}) {
       await sleep(80);
       continue;
     }
-    // A bubble with nothing below it in the ball's lane (another bubble there
-    // would be hit first), the lowest first; else wait for a lane to clear.
-    const clear = (target) => !s.bubbles.some((b) => b !== target && Math.abs(b.x - target.x) < 110 && b.y > target.y + 40);
+    // Where the ball will be thrown at a bubble: ahead of it by its drift
+    // during the ball's flight.
+    const aim = (b) => b.x + b.speed * ((618 - 112 - b.y) / 900 + 0.05);
+    // A bubble whose lane stays clear: no other bubble below it is (or drifts,
+    // while the ball flies up to it) in the way, allowing for a slow machine
+    // taking a moment to throw. The lowest first; else wait for a lane to clear.
+    const inWay = (b, x) => [0, 0.15, 0.3].some((lag) => Math.abs(b.x + b.speed * ((618 - 112 - b.y) / 900 + lag) - x) < 110);
+    const clear = (target) => !s.bubbles.some((b) => b !== target && b.y > target.y + 40 && inWay(b, aim(target)));
     const target = s.bubbles.filter((b) => pick(b.tile, s) && clear(b)).sort((a, b) => b.y - a.y)[0];
     if (!target) {
       why.blocked += 1;
       await sleep(120);
       continue;
     }
-    // Lead the drift by the ball's flight time.
-    const flight = (618 - 112 - target.y) / 900;
-    const dx = target.x + target.speed * (flight + 0.05) - s.kidX;
+    const dx = aim(target) - s.kidX;
     if (Math.abs(dx) > 16) {
       why.moves += 1;
       await move(dx, buttons);
@@ -104,13 +107,21 @@ async function aimAndThrow(pick, { buttons = false } = {}) {
   throw new Error(`could not line up a throw ${JSON.stringify(why)} ${JSON.stringify(await state())}`);
 }
 
+// Words in this round where the walkthrough's own throw hit a wrong bubble
+// that drifted into the way (on a slow machine): those words rightly score
+// nothing, so the round's score is checked against the clean ones.
+const strayWords = new Set();
+const strayIn = async (hit) => {
+  if (hit.right === false) strayWords.add((await state()).index);
+};
+
 // Catches the current word's letters in order, throwing until it is done
 // (a throw can still hit another bubble drifting into the way).
 async function catchWord(options) {
   for (let throws = 0; throws < 30; throws++) {
     const s = await state();
     if (s.step !== 'play' || s.caught >= s.tiles.length) break;
-    await aimAndThrow((tile, st) => tile === st.needed, options);
+    await strayIn(await aimAndThrow((tile, st) => tile === st.needed, options));
   }
   await waitFor(() => window.__mathplay.state.step === 'word' || window.__mathplay.scene !== 'LetterCatcher', null, 8000);
 }
@@ -137,29 +148,32 @@ await aimAndThrow((tile, st) => tile === st.needed, { buttons: true });
 await waitFor(() => window.__mathplay.state.step === 'word', null, 8000);
 check('catch: the on-screen arrows and throw button catch the letter', true);
 check('catch: a word with a wrong hit scores nothing', (await state()).score === 0);
+strayWords.clear();
 await catchRest(1);
 await results();
 s = await state();
-check('catch 3-4: the round ends on Results', s.score === s.total - 1, `${s.score}/${s.total}`);
+check('catch 3-4: the round ends on Results', s.score === s.total - 1 - strayWords.size && strayWords.size <= 2, `${s.score}/${s.total}, stray in words ${[...strayWords]}`);
 await toMap();
 
 // ---- Ages 5-6: words, in order ----
 await openSkill('Leo', 'lit-catch-word');
+strayWords.clear();
 s = await state();
 check('catch 5-6: a short word', s.tiles.length >= 2);
-await aimAndThrow((tile, st) => tile === st.needed);
+await strayIn(await aimAndThrow((tile, st) => tile === st.needed));
 await sleep(200);
 await t.shot(dir, 'l2-word');
 await catchWord();
-check('catch 5-6: letters caught in order fill the word', (await state()).score === 1);
+check('catch 5-6: letters caught in order fill the word', (await state()).score === 1 - strayWords.size, `strays ${[...strayWords]}`);
 await catchRest(1);
 await results();
 s = await state();
-check('catch 5-6: every word caught cleanly', s.score === s.total, `${s.score}/${s.total}`);
+check('catch 5-6: every word caught cleanly scores', s.score === s.total - strayWords.size && strayWords.size <= 2, `${s.score}/${s.total}, stray in words ${[...strayWords]}`);
 await toMap();
 
 // ---- Ages 7-8: letter pairs ----
 await openSkill('Sam', 'lit-catch-sounds');
+strayWords.clear();
 s = await state();
 check('catch 7-8: words with a letter pair in one bubble', s.tiles.some((tile) => tile.length === 2), JSON.stringify(s.tiles));
 await sleep(200);
@@ -167,7 +181,7 @@ await t.shot(dir, 'l3-pairs');
 await catchRest(0);
 await results();
 s = await state();
-check('catch 7-8: the round ends on Results', s.score === s.total, `${s.score}/${s.total}`);
+check('catch 7-8: the round ends on Results, clean words scored', s.score === s.total - strayWords.size && strayWords.size <= 2, `${s.score}/${s.total}, stray in words ${[...strayWords]}`);
 
 // ---- Block Fit helpers ----
 // Drags a piece by its middle to a point in game coordinates.

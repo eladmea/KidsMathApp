@@ -10,6 +10,7 @@
 import { execFile } from 'child_process';
 import { availableParallelism } from 'os';
 import { promisify } from 'util';
+import { fileURLToPath } from 'url';
 import { serve } from './serve.mjs';
 
 const run = promisify(execFile);
@@ -53,8 +54,8 @@ async function runOne([script, width, height, label, ...extra]) {
   const started = Date.now();
   const took = () => `${Math.round((Date.now() - started) / 1000)}s`;
   try {
-    const { stdout: out } = await run('node', [new URL(script, import.meta.url).pathname, dir, String(width), String(height), label, ...extra], { encoding: 'utf8', maxBuffer: 1 << 24 });
-    const lines = out.trim().split('\n');
+    const { stdout: out } = await run('node', [fileURLToPath(new URL(script, import.meta.url)), dir, String(width), String(height), label, ...extra], { encoding: 'utf8', maxBuffer: 1 << 24 });
+    const lines = out.trim().split(/\r?\n/);
     const fails = lines.filter((line) => line.startsWith('FAIL'));
     console.log(`${fails.length ? '✗' : '✓'} ${script} ${[label, ...extra].join(' ')}: ${lines.filter((l) => l.startsWith('PASS')).length} passed${fails.length ? `, ${fails.length} failed` : ''} (${took()})`);
     fails.forEach((line) => console.log(`  ${line}`));

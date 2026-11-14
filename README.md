@@ -101,6 +101,17 @@ One-time setup: make the repository public (or use a paid plan), set **Settings 
 
 `.github/workflows/e2e.yml` runs every browser walkthrough on pull requests and on main, each on its own machine at the same time (about as long as the slowest one; the every-skill quiz runs a subject per machine). A failed walkthrough uploads its screenshots to the run.
 
+#### Walkthroughs on your own PC
+
+GitHub's machines are slow, so the timing-sensitive walkthroughs (Pizza, Quiz, Letter Catcher) can fail there for no real reason. `e2e.yml` can run them on a stronger Windows PC instead, as a GitHub self-hosted runner. The results still show on the pull request. One-time setup:
+
+1. On the PC, install [Git for Windows](https://git-scm.com/download/win). The workflow installs Node and Chromium itself.
+2. On GitHub: **Settings → Actions → Runners → New self-hosted runner → Windows, x64**. Run the commands it shows in PowerShell, in a short folder such as `C:\actions-runner`. When `config.cmd` asks for **additional labels**, type `kidsmath`. Say **Y** to running it as a service, so it starts with Windows. (Or answer N and start `run.cmd` when you want it.)
+3. **Settings → Actions → General → Approval for running fork pull request workflows from contributors**: choose **Require approval for all external contributors**. The workflow never sends pull requests from forks to the PC, but this keeps strangers' workflows from running anywhere without you.
+4. **Settings → Secrets and variables → Actions → Variables**: add `E2E_RUNNER` = `pc`. Optionally add `E2E_JOBS` (how many walkthroughs run at once; by default half the CPUs, up to 4). Try 6 on a strong PC, and go back down if Pizza or Quiz start failing.
+
+From then on, every push to `main`, pull request from this repository, and manual run (**Actions → Browser walkthroughs → Run workflow**) runs all walkthroughs in one job on the PC. Pull requests from forks still use GitHub's machines. While the PC is off or asleep, the job waits for it (for up to a day). Delete the variable, or set it to anything but `pc`, to go back to GitHub's machines.
+
 `.github/workflows/smoke-live.yml` opens the live site in Chromium after every deploy. It fails, logging the broken download or script error, when the game doesn't start.
 
 ## Running the app
