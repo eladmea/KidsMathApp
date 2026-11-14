@@ -293,6 +293,14 @@ const slipFirst = partnerOf(s, b);
 const slipSecond = s.cards.find((c) => c.id !== b.id && c.id !== slipFirst.id && c.value !== slipFirst.value);
 await flip(slipFirst.id, slipSecond.id);
 check('pairs: missing a partner already seen is a slip', (await state()).slips === 1, String((await state()).slips));
+// A found pair flies to the pile by the counter; the counter goes up as it lands.
+s = await state();
+const kept = s.cards.find((c) => c.status === 'hidden');
+check('pairs: a found pair is kept', (await flip(kept.id, partnerOf(s, kept).id)) === 'pair');
+await waitFor(() => window.__mathplay.state.shown[1] === 1, null, 8000).catch(() => {});
+s = await state();
+check('pairs: the pair goes to the pile, then the count goes up', s.piles[1] === 2 && s.shown[1] === 1, JSON.stringify({ piles: s.piles, shown: s.shown }));
+await t.shot(dir, 'n-pairs-pile');
 await findAll();
 await results();
 s = await state();

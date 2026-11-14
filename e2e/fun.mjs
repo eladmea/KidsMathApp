@@ -64,7 +64,12 @@ for (let turn = 0; turn < 80; turn++) {
     await tap('pay');
     await waitFor(() => window.__mathplay.state.step !== 'gap', null, 8000);
     s = await state();
-    if (!paid) check('paying the right gap makes a pair and gives the chips away', s.scores[1] === 1 && s.chips[1] === before[1] - cost && s.chips[2] === before[2] + cost, JSON.stringify({ scores: s.scores, chips: s.chips }));
+    if (!paid) {
+      check('paying the right gap makes a pair and gives the chips away', s.scores[1] === 1 && s.chips[1] === before[1] - cost && s.chips[2] === before[2] + cost, JSON.stringify({ scores: s.scores, chips: s.chips }));
+      await waitFor(() => window.__mathplay.state.piles[1] === 2 && window.__mathplay.state.shownScores[1] === 1, null, 8000).catch(() => {});
+      s = await state();
+      check('memory: the pair flies to the player\'s pile, then their count goes up', s.piles[1] === 2 && s.shownScores[1] === 1, JSON.stringify({ piles: s.piles, shown: s.shownScores }));
+    }
     paid = true;
   }
 }
