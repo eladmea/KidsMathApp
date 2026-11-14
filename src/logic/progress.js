@@ -10,6 +10,7 @@
 // - `box` is a Leitner box: passing moves it up (longer gap until the next
 //   review), struggling moves it back down.
 import { SKILLS, getSkill, isPlayable, isQuizSkill } from '../curriculum/skills';
+import { calculateStars } from './scoring';
 
 export const PASS_RATIO = 0.8;
 export const STRUGGLE_RATIO = 0.5;
@@ -22,6 +23,7 @@ const EMPTY_RECORD = {
   attempts: 0,
   correct: 0,
   bestScore: 0,
+  bestStars: 0,
   passedDays: [],
   box: 0,
   lastPlayed: null,
@@ -54,12 +56,16 @@ export function isMastered(record) {
   return record.passedDays.length >= MASTERY_DAYS;
 }
 
-// 0 = not tried, 1 = tried, 2 = passed once, 3 = mastered.
+// The stars of the best round so far (the same stars the Results screen
+// showed), so a round finished with 3 stars shows 3 on the map. 0 = not
+// tried. Mastery is shown separately (the 🏅). Records saved before
+// bestStars existed fall back to: passed = 3 (a pass is >= 80%, which is 3
+// stars), tried = 1.
 export function skillStars(record) {
-  if (isMastered(record)) return 3;
-  if (hasPassed(record)) return 2;
-  if (record.attempts > 0) return 1;
-  return 0;
+  const known = record.bestStars || 0;
+  if (hasPassed(record)) return 3;
+  if (record.attempts > 0) return Math.max(1, known);
+  return known;
 }
 
 export function applyRound(record, { correct, total }, today) {
@@ -82,6 +88,7 @@ export function applyRound(record, { correct, total }, today) {
     attempts: record.attempts + total,
     correct: record.correct + correct,
     bestScore: Math.max(record.bestScore, correct),
+    bestStars: total > 0 ? Math.max(record.bestStars || 0, calculateStars(correct, total)) : record.bestStars || 0,
     passedDays,
     box,
     lastPlayed: today,

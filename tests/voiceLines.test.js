@@ -35,7 +35,7 @@ describe('sentences to record', () => {
     expect(texts.has('Or goat?') || [...texts].some((text) => /^Or \w+\?$/.test(text))).toBe(true);
     // One sentence per choice: no sentence lists several choices with commas and "or".
     expect([...texts].filter((text) => /, or /.test(text) && text.split(',').length > 2).length).toBeLessThan(30);
-    expect(lines.length).toBeLessThan(4000);
+    expect(lines.length).toBeLessThan(7000);
   });
 });
 

@@ -304,7 +304,7 @@ await t.shot(dir, 'n-pairs-pile');
 await findAll();
 await results();
 s = await state();
-check('pairs 3-4: the slip costs one point', s.score === s.total - 1, `${s.score}/${s.total}`);
+check('pairs 3-4: one slip still earns every point', s.score === s.total, `${s.score}/${s.total}`);
 await tap('map');
 await t.waitScene('Island');
 await tap('back');

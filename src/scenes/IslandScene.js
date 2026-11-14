@@ -62,7 +62,7 @@ export default class IslandScene extends BaseScene {
       this.drawStop(skill, stops[i], stop, next && next.id === skill.id);
       // `status` as a child can use it: 'ready' (open to play), 'locked' or 'soon'.
       const status = stop === 'passed' || stop === 'mastered' ? 'ready' : stop;
-      return { id: skill.id, status, stop };
+      return { id: skill.id, status, stop, stars: skillStars(getRecord(session.progress, skill.id)) };
     });
     this.complete = islandComplete(this.skills, session.progress);
     this.drawChest(chest);

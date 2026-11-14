@@ -6,9 +6,18 @@ import { t } from '../i18n/index';
 
 // Write 1 to 5 / Write 6 to 9 and 0: trace each digit stroke by stroke from
 // the green dot, after a pencil shows how. Then count that many things.
+// The child picks the colour they write with from the crayons on the left.
+
+// The crayon colours, in two rows of four; the first is the starting one.
+const PALETTE = [COLORS.orange, COLORS.red, COLORS.pink, 0x9c5de0, COLORS.primary, 0x29b6c8, COLORS.green, COLORS.yellow];
+
 export default class TraceDigitsScene extends TraceRound {
   static key = 'TraceDigits';
   static plays = ['TraceDigits'];
+
+  get picker() {
+    return { title: t('tracing.pickColor'), options: PALETTE, columns: 4, size: 60, gap: 78, tagPrefix: 'color', apply: (layer, color) => layer.setTrailColor(color) };
+  }
 
   get colors() {
     return { background: 0xeef6ff, card: COLORS.white };
@@ -30,7 +39,7 @@ export default class TraceDigitsScene extends TraceRound {
   }
 
   lookOf() {
-    return { look: {}, startMarker: null, endMarker: null };
+    return { look: { trail: this.choice }, startMarker: null, endMarker: null };
   }
 
   idleText() {

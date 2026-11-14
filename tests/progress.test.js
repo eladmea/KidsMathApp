@@ -65,10 +65,20 @@ describe('applyRound', () => {
     expect(applyRound(r, FAIL, DAY2).box).toBe(1);
   });
 
-  it('reports stars for tried/passed', () => {
+  it('shows the stars of the best round, like the Results screen', () => {
     expect(skillStars(empty)).toBe(0);
     expect(skillStars(applyRound(empty, FAIL, DAY1))).toBe(1);
-    expect(skillStars(applyRound(empty, PASS, DAY1))).toBe(2);
+    expect(skillStars(applyRound(empty, MEH, DAY1))).toBe(2);
+    // A 3-star round shows 3 stars right away, not only once mastered.
+    expect(skillStars(applyRound(empty, PASS, DAY1))).toBe(3);
+    // A worse round later never takes stars away.
+    expect(skillStars(applyRound(applyRound(empty, MEH, DAY1), FAIL, DAY1))).toBe(2);
+  });
+
+  it('gives old records without bestStars 3 stars once passed', () => {
+    const { bestStars, ...old } = applyRound(empty, PASS, DAY1);
+    expect(bestStars).toBe(3);
+    expect(skillStars(old)).toBe(3);
   });
 });
 

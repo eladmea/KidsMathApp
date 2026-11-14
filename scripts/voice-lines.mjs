@@ -22,7 +22,9 @@ const HEADERS = {
 const server = await createServer({ server: { middlewareMode: true }, appType: 'custom', logLevel: 'error' });
 try {
   const { voiceLines } = await server.ssrLoadModule('/src/services/voiceLines.js');
-  const all = voiceLines(language);
+  // More samples than the default, so rarer questions of the bigger skills
+  // are listed too.
+  const all = voiceLines(language, { samples: 12000 });
   const lines = all.filter((line) => !missingOnly || !line.recorded);
   if (all.missingTemplates.length) console.warn(`Spoken templates with no values listed (src/services/voiceLines.js templateValues): ${all.missingTemplates.join(', ')}`);
   if (asText) {

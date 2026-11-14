@@ -6,6 +6,7 @@ required, but it is kind.
 | File | Pack | Source file | Changes |
 |---|---|---|---|
 | `emoji/2b50.png` (⭐) | [Game Icons](https://kenney.nl/assets/game-icons) | `PNG/White/2x/star.png` | trimmed, coloured yellow with an orange outline, 256 px |
+| `emoji/1f3cd.png` (🏍️), `emoji/1f6fb.png` (🛻), `emoji/1f69b.png` (🚛) | [Microsoft Fluent Emoji](https://github.com/microsoft/fluentui-emoji) 3D, MIT | `assets/Motorcycle/3D/motorcycle_3d.png`, `assets/Pickup truck/3D/pickup_truck_3d.png`, `assets/Articulated lorry/3D/articulated_lorry_3d.png` | resized to 160 px (Race Track vehicles not yet in the atlases; `npm run art:fluent` leaves pictures here alone) |
 | `emoji/2606.png` (☆) | [Game Icons](https://kenney.nl/assets/game-icons) | `PNG/White/2x/star.png` | trimmed, coloured pale yellow with a gold outline, 256 px |
 
 ## Emoji pictures

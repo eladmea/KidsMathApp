@@ -40,8 +40,13 @@ describe('Number Pairs', () => {
     expect(isSlip(deck[0], deck[2], new Set(), deck)).toBe(false);
     expect(isSlip(deck[0], deck[2], new Set([1]), deck)).toBe(true);
     expect(isSlip(deck[0], deck[1], new Set([1]), deck)).toBe(false);
-    expect(soloScore(4, 1)).toBe(3);
-    expect(soloScore(4, 9)).toBe(0);
+    // A few slips are part of a memory game: still every point.
+    expect(soloScore(4, 0)).toBe(4);
+    expect(soloScore(4, 1)).toBe(4);
+    expect(soloScore(4, 4)).toBe(4);
+    // Only slips beyond one per pair cost a point.
+    expect(soloScore(4, 5)).toBe(3);
+    expect(soloScore(4, 20)).toBe(0);
   });
 
   it('picks the winner by pairs', () => {

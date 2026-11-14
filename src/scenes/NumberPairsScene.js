@@ -22,8 +22,9 @@ import { t } from '../i18n/index';
 
 // Number Pairs: cards lie face down; turn two over and keep them when they
 // show the same number (dots and a numeral, or a numeral and its word).
-// On Number Island it is played alone and scored: a point per pair, less one
-// for each slip (missing a partner already seen). From the Games list it is
+// On Number Island it is played alone and scored: a point per pair; slips
+// (missing a partner already seen) only cost points once there are more of
+// them than pairs (logic/numberPairs.js soloScore). From the Games list it is
 // played against the buddy or a friend: a pair keeps your turn, most pairs
 // wins.
 //   data: { skillId } (island) or { variant, mode: 'solo' | 'duo' } (Games)

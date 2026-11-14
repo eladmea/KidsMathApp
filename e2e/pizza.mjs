@@ -79,7 +79,24 @@ async function makePizza(i, { messy = false, wrongCount = false } = {}) {
     await tap('done');
     s = await state();
     check('too many toppings: asked to take one off', s.checked === 'fewer' && s.step === 'place');
-    await tap('take-one');
+    check('pizza: no "Take one off" button (toppings are dragged back)', (await t.box('take-one')) === null);
+    // Dragged somewhere on the pizza, it just moves.
+    let piece = await t.box(`placed:${want - 1}`);
+    const tray2 = await t.box('tray');
+    const centre = (b) => [b.x + b.width / 2, b.y + b.height / 2];
+    const dragPage = async (from, to) => {
+      await t.page.mouse.move(...from);
+      await t.page.mouse.down();
+      await t.page.mouse.move(...to, { steps: 6 });
+      await t.page.mouse.up();
+      await sleep(150);
+    };
+    const [cx, cy] = centre(piece);
+    await dragPage([cx, cy], [cx + 15, cy + 25]);
+    check('pizza: a topping dragged on the pizza stays on', (await state()).placed === want);
+    piece = await t.box(`placed:${want - 1}`);
+    await dragPage(centre(piece), centre(tray2));
+    check('pizza: a topping dragged back to the tray comes off', (await state()).placed === want - 1, String((await state()).placed));
   }
   await tap('done');
   await step('oven');

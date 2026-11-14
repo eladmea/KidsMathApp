@@ -4,6 +4,7 @@ import Narrator from '../ui/Narrator';
 import PaintLayer, { DragSurface } from '../ui/PaintLayer';
 import TraceLayer from '../ui/TraceLayer';
 import { countPanel } from '../ui/CountPanel';
+import DragTray from '../ui/DragTray';
 import { IdleHint } from '../ui/HintArrow';
 import { art, glyph } from '../ui/Art';
 import { COLORS, textStyle } from '../ui/theme';
@@ -41,7 +42,8 @@ import { t } from '../i18n/index';
 
 // Pizza Shop: an animal orders a pizza with a number of toppings. Roll the
 // dough, write the number in sauce (any stroke order, judged by the result),
-// spread the sauce and the cheese, pick a topping and put that many on, bake
+// spread the sauce and the cheese, pick a topping and put that many on (one
+// too many is dragged back to the tray), bake
 // it in the oven, cut it into 4 slices and feed them to the customer.
 // A pizza earns a point when the writing needed at most one restart and the
 // first count was right. 2 pizzas make a round, then Results.
@@ -67,7 +69,11 @@ const SAUCE_LOOK = { dot: 19, guide: 0xebcb9c, guideCurrent: 0xe2b47a, done: COL
 const CUSTOMER_AT = { x: 170, y: 300, size: 110 };
 const PANEL_X = 1030;
 const OVEN = { x: PANEL_X, y: 430, width: 260, height: 190 };
-const CHEESE = { color: 0xffd84d, edge: 0xedb92e, bakedColor: 0xffe38a, bakedEdge: 0xf2b441 };
+const CHEESE = { color: 0xffe066, edge: 0xf2c230, melt: 0xffe27a, meltLight: 0xfff3b8, bakedColor: 0xffd25e, bakedLight: 0xffe9a0, browned: 0xd9902f };
+// Toppings on the pizza, and how near the tray a dragged one must be let go
+// to go back.
+const TOPPING_SIZE = 46 * K;
+const TRAY_REACH = 50;
 
 export default class PizzaShopScene extends BaseScene {
   static key = 'PizzaShop';
@@ -162,8 +168,34 @@ export default class PizzaShopScene extends BaseScene {
       g.generateTexture(key, width + 2, height + 2);
       g.destroy();
     };
-    shred('cheese-shred', 14 * K, 5 * K, CHEESE.color, CHEESE.edge);
-    shred('cheese-melted', 18 * K, 7 * K, CHEESE.bakedColor, CHEESE.bakedEdge);
+    shred('cheese-shred', 16 * K, 6 * K, CHEESE.color, CHEESE.edge);
+    // Melted cheese: soft round blobs that run together into one layer.
+    const blob = (key, radius, color) => {
+      if (this.textures.exists(key)) return;
+      const g = this.make.graphics({ x: 0, y: 0 }, false);
+      g.fillStyle(color, 1).fillCircle(radius, radius, radius);
+      g.generateTexture(key, radius * 2, radius * 2);
+      g.destroy();
+    };
+    blob('cheese-blob', Math.round(17 * K), CHEESE.melt);
+    blob('cheese-shine', Math.round(6 * K), CHEESE.meltLight);
+    blob('cheese-baked', Math.round(17 * K), CHEESE.bakedColor);
+    blob('cheese-baked-shine', Math.round(6 * K), CHEESE.bakedLight);
+    blob('cheese-brown', Math.round(4 * K), CHEESE.browned);
+  }
+
+  // The cheese layer: shreds while sprinkling; melted (one bumpy layer with
+  // shiny spots) once it is all on; golden with brown spots once baked.
+  meltCheese(baked) {
+    this.cheese.clear();
+    const at = (dx, dy) => [SIZE / 2 + dx * SIZE, SIZE / 2 + dy * SIZE];
+    [...meltedCheese(150), { dx: 0, dy: 0 }].forEach(({ dx, dy }) => this.cheese.stamp(baked ? 'cheese-baked' : 'cheese-blob', null, ...at(dx, dy)));
+    meltedCheese(30).forEach(({ dx, dy }, i) => {
+      // Soft shiny spots, and once baked a few browned bubbles.
+      this.cheese.stamp(baked ? 'cheese-baked-shine' : 'cheese-shine', null, ...at(dx * 0.92, dy * 0.92), { alpha: 0.45 });
+      if (baked && i % 3 === 0) this.cheese.stamp('cheese-brown', null, ...at(dx * 0.85 + 0.02, dy * 0.85), { alpha: 0.75 });
+    });
+    this.cheese.render();
   }
 
   buildOven() {
@@ -238,6 +270,8 @@ export default class PizzaShopScene extends BaseScene {
     this.ovenBox.setStrokeStyle(6, step === 'baking' ? 0xff7a1a : 0x3e3936);
     this.ovenWindow.setFillStyle(step === 'baking' ? 0xe86a1c : 0x2a2624);
     this.surface.setEnabled(!['trace', 'topping', 'place', 'baking', 'done'].includes(step));
+    // Toppings can be dragged only while putting them on.
+    (this.placed || []).forEach(({ picture }) => picture.input && (picture.input.enabled = step === 'place'));
     this.updateStations();
     this.showPanel();
     this.showBubble();
@@ -337,7 +371,7 @@ export default class PizzaShopScene extends BaseScene {
         draw: this.drawTopping(this.topping),
         target: () => new Phaser.Geom.Rectangle(LEFT, TOP, SIZE, SIZE),
         onDrop: (x, y) => this.dropTopping(x, y),
-        onTakeOne: () => this.takeOne(),
+        // No "Take one off": a topping is dragged back to the tray.
         onDone: () => this.check(),
       })
     );
@@ -357,16 +391,68 @@ export default class PizzaShopScene extends BaseScene {
   dropTopping(x, y) {
     if (this.step !== 'place' || this.placed.length >= MAX_ON_TRAY_TARGET) return;
     const [px, py] = clampToCircle(x, y, SIZE, 0.16);
-    this.placed.push([px, py]);
-    this.toppingsLayer.add(this.drawTopping(this.topping)(this, px - SIZE / 2, py - SIZE / 2, 36 * K));
+    const picture = this.drawTopping(this.topping)(this, px - SIZE / 2, py - SIZE / 2, TOPPING_SIZE);
+    this.toppingsLayer.add(picture);
+    const piece = { x: px, y: py, picture };
+    this.placed.push(piece);
+    // Dragging a topping: back to the tray takes it off; anywhere on the
+    // pizza moves it there; anywhere else puts it back where it was.
+    // Pictures use their own bounds; the drawn olive ring needs a hit area.
+    if (picture instanceof Phaser.GameObjects.Graphics) picture.setInteractive(new Phaser.Geom.Circle(0, 0, TOPPING_SIZE * 0.6), Phaser.Geom.Circle.Contains);
+    else picture.setInteractive({ useHandCursor: true });
+    this.input.setDraggable(picture);
+    picture.on('drag', (pointer) => this.dragPlaced(piece, pointer));
+    picture.on('dragend', (pointer) => this.dropPlaced(piece, pointer));
+    this.tagPlaced();
     this.placedChanged(true);
   }
 
-  takeOne() {
-    if (!this.placed.length) return;
-    this.placed.pop();
-    const last = this.toppingsLayer.list[this.toppingsLayer.list.length - 1];
-    if (last) last.destroy();
+  tagPlaced() {
+    this.placed.forEach((piece, i) => this.tag(`placed:${i}`, piece.picture));
+  }
+
+  dragPlaced(piece, pointer) {
+    if (this.step !== 'place') return;
+    piece.dragging = true;
+    // The pizza sits still at (CX, CY) while toppings go on.
+    piece.picture.setPosition(pointer.worldX - CX, pointer.worldY - CY);
+    this.toppingsLayer.bringToTop(piece.picture);
+  }
+
+  dropPlaced(piece, pointer) {
+    if (!piece.dragging) return;
+    piece.dragging = false;
+    const tray = this.panel.find((object) => object instanceof DragTray);
+    const box = tray && tray.box.getBounds();
+    const nearTray = box && Phaser.Geom.Rectangle.Contains(Phaser.Geom.Rectangle.Inflate(Phaser.Geom.Rectangle.Clone(box), TRAY_REACH, TRAY_REACH), pointer.worldX, pointer.worldY);
+    if (this.step === 'place' && nearTray) return this.takeBack(piece, box);
+    const local = [pointer.worldX - LEFT, pointer.worldY - TOP];
+    const onPizza = Math.hypot(local[0] - SIZE / 2, local[1] - SIZE / 2) <= SIZE / 2;
+    if (onPizza) [piece.x, piece.y] = clampToCircle(local[0], local[1], SIZE, 0.16);
+    piece.picture.setPosition(piece.x - SIZE / 2, piece.y - SIZE / 2);
+    this.report(this.snapshot());
+  }
+
+  // A topping dragged back to the tray: it shrinks into it and the count
+  // goes down.
+  takeBack(piece, box) {
+    this.placed.splice(this.placed.indexOf(piece), 1);
+    const picture = piece.picture;
+    picture.disableInteractive();
+    this.toppingsLayer.remove(picture);
+    // (Out of the container, it is back on the scene's display list.)
+    picture.setPosition(this.pizza.x + picture.x, this.pizza.y + picture.y).setDepth(40);
+    this.tweens.add({
+      targets: picture,
+      x: box.centerX - 60,
+      y: box.centerY,
+      scale: picture.scale * 0.6,
+      alpha: 0.3,
+      duration: 260,
+      ease: 'Quad.easeIn',
+      onComplete: () => picture.destroy(),
+    });
+    this.tagPlaced();
     this.placedChanged(false);
   }
 
@@ -495,7 +581,7 @@ export default class PizzaShopScene extends BaseScene {
   }
 
   sprinkle(x, y) {
-    cheeseShreds(this.dabs).forEach(({ dx, dy, angle }) => this.cheese.stamp('cheese-shred', null, x + dx * SIZE, y + dy * SIZE, { angle }));
+    [...cheeseShreds(this.dabs), ...cheeseShreds(this.dabs + 500)].forEach(({ dx, dy, angle }) => this.cheese.stamp('cheese-shred', null, x + dx * SIZE, y + dy * SIZE, { angle }));
     this.cheese.render();
   }
 
@@ -516,9 +602,7 @@ export default class PizzaShopScene extends BaseScene {
   cheeseDone() {
     play(this, 'correct');
     // All the cheese on: melt it into an even layer.
-    this.cheese.clear();
-    meltedCheese().forEach(({ dx, dy, angle }) => this.cheese.stamp('cheese-shred', null, SIZE / 2 + dx * SIZE, SIZE / 2 + dy * SIZE, { angle }));
-    this.cheese.render();
+    this.meltCheese(false);
     this.setStep('topping');
     this.say(this.words.say.pizza.cheesed({ number: this.number, word: this.numberWord }));
   }
@@ -551,10 +635,8 @@ export default class PizzaShopScene extends BaseScene {
 
   baked() {
     this.ovenPizza.setVisible(false);
-    // Baked: browner crust, melted cheese.
-    this.cheese.clear();
-    meltedCheese().forEach(({ dx, dy, angle }) => this.cheese.stamp('cheese-melted', null, SIZE / 2 + dx * SIZE, SIZE / 2 + dy * SIZE, { angle }));
-    this.cheese.render();
+    // Baked: browner crust, golden cheese.
+    this.meltCheese(true);
     this.pizza.setPosition(CX, CY).setScale(1).setDepth(0).setVisible(true);
     // An oven bell instead of the narrator saying "Ding!".
     play(this, 'ding');
@@ -669,8 +751,12 @@ export default class PizzaShopScene extends BaseScene {
       }
       case 'topping':
         return { x: PANEL_X, y: 250 };
-      case 'place':
-        return this.placed.length >= this.number ? { x: PANEL_X, y: 510 } : { x: PANEL_X - 60, y: 395 };
+      case 'place': {
+        // Too many: show that one can be dragged back to the tray.
+        const last = this.placed[this.placed.length - 1];
+        if (this.placed.length > this.number) return { x: LEFT + last.x, y: TOP + last.y - TOPPING_SIZE / 2 - 8 };
+        return this.placed.length === this.number ? { x: PANEL_X, y: 560 } : { x: PANEL_X - 60, y: 400 };
+      }
       case 'oven':
         return { x: OVEN.x, y: OVEN.y - OVEN.height / 2 - 10 };
       case 'feed':

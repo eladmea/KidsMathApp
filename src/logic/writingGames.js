@@ -28,7 +28,8 @@ export const CUSTOMERS = [
   { id: 'pig', emoji: '🐷' },
 ];
 
-export const VEHICLES = ['🚗', '🚕', '🚙', '🚌', '🏎️', '🚓', '🚑', '🚒', '🚜', '🛵'];
+// Race Track: the vehicles a child can pick (the first is the starting one).
+export const VEHICLES = ['🏎️', '🏍️', '🚗', '🚜', '🚒', '🚓', '🚑', '🚌', '🛻', '🚛'];
 
 // Checking a pile of toppings or candles against the number.
 // 'right' | 'more' (needs more) | 'fewer' (too many)

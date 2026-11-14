@@ -159,32 +159,66 @@ export default class TraceLayer {
     this.stamps.push(glyph(this.scene, sx, sy, this.look.trailEmoji, 18));
   }
 
+  // A new colour for the strokes painted from now on (what is already
+  // painted keeps its colour, so a digit can be many colours).
+  setTrailColor(color) {
+    this.look.trail = color;
+    if (this.paint) this.paint.setBrush(color, this.look.trailSize / 2);
+  }
+
   clearTrail() {
     if (this.paint) this.paint.clear();
     this.stamps.forEach((stamp) => stamp.destroy());
     this.stamps = [];
   }
 
+  // A new rider for the "watch me" run and the finger (another vehicle).
+  setFollower(emoji) {
+    if (!this.follower) return;
+    const { x, y, visible } = this.follower;
+    const old = this.follower;
+    this.follower = glyph(this.scene, x, y, emoji, 42).setVisible(visible);
+    this.objects = this.objects.map((object) => (object === old ? this.follower : object));
+    old.destroy();
+    this.look.follower = emoji;
+  }
+
   // ---- "watch me": the pencil (or follower) runs along every stroke once ----
-  demo() {
+  // After the item is done, replay() runs the follower along it once more
+  // and leaves it at the end; returns how long that takes (ms).
+  replay() {
+    if (!this.follower) return 0;
+    this.demo({ stay: true });
+    return this.strokes.flat().length * DEMO_STEP_MS;
+  }
+
+  demo({ stay = false } = {}) {
     this.stopDemo();
     const path = this.strokes.flat();
     let i = 0;
-    const rider = this.follower || this.pencil;
-    rider.setVisible(true);
-    this.demoTimer = this.scene.time.addEvent({
+    // Looked up each step: the vehicle can be swapped mid-run.
+    const rider = () => this.follower || this.pencil;
+    rider().setVisible(true);
+    const timer = this.scene.time.addEvent({
       delay: DEMO_STEP_MS,
       loop: true,
       callback: () => {
+        // A fast clock can call a looping timer again in the same frame
+        // after it was removed.
+        if (timer !== this.demoTimer) return;
         if (i >= path.length) {
-          this.stopDemo();
+          if (stay) {
+            timer.remove();
+            this.demoTimer = null;
+          } else this.stopDemo();
           return;
         }
         const [px, py] = this.toScene(path[i]);
-        rider.setPosition(px, py);
+        rider().setPosition(px, py).setVisible(true);
         i += 1;
       },
     });
+    this.demoTimer = timer;
   }
 
   stopDemo() {
