@@ -159,6 +159,13 @@ export default class TraceLayer {
     this.stamps.push(glyph(this.scene, sx, sy, this.look.trailEmoji, 18));
   }
 
+  // A new colour for the strokes painted from now on (what is already
+  // painted keeps its colour, so a digit can be many colours).
+  setTrailColor(color) {
+    this.look.trail = color;
+    if (this.paint) this.paint.setBrush(color, this.look.trailSize / 2);
+  }
+
   clearTrail() {
     if (this.paint) this.paint.clear();
     this.stamps.forEach((stamp) => stamp.destroy());

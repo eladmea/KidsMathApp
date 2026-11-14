@@ -38,6 +38,8 @@ await drag(s.guide[0].slice(0, Math.floor(s.guide[0].length / 3)));
 s = await state();
 check('write: lifting early starts the stroke again', s.hint === 'almost' && s.restarts === 1, JSON.stringify({ h: s.hint, r: s.restarts }));
 await tap('show-again');
+await tap('color:6');
+check('write: tapping a crayon picks the writing colour', (await state()).trailColor === 0x4caf50, String((await state()).trailColor));
 await traceAll();
 await waitFor(() => window.__mathplay.state.step === 'done');
 check('write: the digit is done after one restart (a point)', (await state()).points === 1);
@@ -79,6 +81,9 @@ s = await state();
 check('bee: 5 of 5, passed', s.score === 5 && s.newlyPassed.includes('math-bee-paths'), JSON.stringify(s.newlyPassed));
 await tap('map');
 await t.waitScene('Island');
+await sleep(300);
+const bee = (await state()).skills.find((x) => x.id === 'math-bee-paths');
+check('bee: a 3-star round shows 3 stars on the map', bee.stars === 3, JSON.stringify(bee));
 
 // ---- Race Track ----
 await tap('skill:math-race-track');
