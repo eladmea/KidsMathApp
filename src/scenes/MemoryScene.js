@@ -10,7 +10,7 @@ import { speak } from '../services/speech';
 import { play } from '../services/audio';
 import { content } from '../content/index';
 import { chipCostToMatch, createDeck, getVariant, isStalemate, otherPlayer, startingChips } from '../logic/memoryGame';
-import { buddyLevel, chooseFirstCard, chooseSecondCard, decideGap, forgetCards, observeCard } from '../logic/memoryBuddy';
+import { buddyLevel, buddySlip, chooseFirstCard, chooseSecondCard, decideGap, forgetCards, observeCard } from '../logic/memoryBuddy';
 import { buildPlayers } from '../logic/players';
 import { profileBand } from '../logic/profiles';
 import { t } from '../i18n/index';
@@ -68,7 +68,7 @@ export default class MemoryScene extends BaseScene {
     this.guess = null;
     this.busy = false;
     this.over = false;
-    this.memory = {};
+    this.memory = [];
     this.buddyTimer = null;
     this.dialog = null;
     this.cards = [];
@@ -180,7 +180,7 @@ export default class MemoryScene extends BaseScene {
 
   flip(card) {
     if (this.busy || this.over || this.pending || card.status !== 'hidden' || this.flipped.length >= 2) return;
-    this.memory = observeCard(this.memory, card, this.level.recall);
+    this.memory = observeCard(this.memory, card, this.level);
     card.status = 'flipped';
     this.flipped.push(card);
     speak(this.words.face(card.face), { force: false });
@@ -291,7 +291,8 @@ export default class MemoryScene extends BaseScene {
     const delay = this.flipped.length === 0 ? BUDDY_FIRST_FLIP_MS : BUDDY_SECOND_FLIP_MS;
     this.buddyTimer = this.time.delayedCall(delay, () =>
       this.buddyDone(() => {
-        const card = this.flipped.length === 0 ? chooseFirstCard(this.deck, this.memory) : chooseSecondCard(this.deck, this.memory, this.flipped[0]);
+        const slip = buddySlip(this.level, this.scores[2], this.scores[1]);
+        const card = this.flipped.length === 0 ? chooseFirstCard(this.deck, this.memory) : chooseSecondCard(this.deck, this.memory, this.flipped[0], Math.random, slip);
         if (card) this.flip(card);
       })
     );

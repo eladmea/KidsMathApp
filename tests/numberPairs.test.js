@@ -52,9 +52,8 @@ describe('Number Pairs', () => {
 
   it("works with the Memory Chips buddy's card choices", () => {
     const deck = makeDeck('dots5');
-    const memory = { [deck[0].id]: deck[0].value };
     const partner = deck.find((c) => c.id !== deck[0].id && c.value === deck[0].value);
-    memory[partner.id] = partner.value;
+    const memory = [deck[0], partner].map(({ id, value }) => ({ id, value }));
     const first = chooseFirstCard(deck, memory);
     expect(first.value).toBe(deck[0].value);
     expect(chooseSecondCard(deck, memory, first).value).toBe(first.value);
