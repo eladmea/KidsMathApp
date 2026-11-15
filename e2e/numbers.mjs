@@ -49,7 +49,13 @@ async function buildRest() {
   for (const block of left) {
     await tap(`block:${block.id}`);
     count += 1;
-    if (count < s.blocks.length) await settled(count);
+    // A tap lost on a busy machine: tap again, but only if the block is
+    // still in the tray (a second tap on a placed block would lift it off).
+    const placed = (n) => waitFor(([id, k]) => window.__mathplay.state.step === 'done' || (window.__mathplay.state.step === 'build' && window.__mathplay.state.stack.length === k && window.__mathplay.state.blocks.find((b) => b.id === id).place === 'tower'), [block.id, n], 3000);
+    await placed(count).catch(async () => {
+      if ((await state()).blocks.find((b) => b.id === block.id).place === 'tray') await tap(`block:${block.id}`);
+      await placed(count).catch(() => settled(count));
+    });
   }
   await waitFor(() => window.__mathplay.state.step === 'done', null, 8000);
 }
