@@ -13,6 +13,7 @@ import { availableParallelism } from 'os';
 import { promisify } from 'util';
 import { fileURLToPath } from 'url';
 import { serve } from './serve.mjs';
+import { renderer, SCALE } from './helpers.mjs';
 
 const run = promisify(execFile);
 const args = process.argv.slice(2);
@@ -49,6 +50,9 @@ if (!chosen.length) {
 const server = served ? await serve(served) : null;
 // The walkthroughs read the address from URL (helpers.mjs).
 if (server) process.env.URL = server.url;
+// Shows whether the graphics card is used (E2E_GPU, helpers.mjs).
+const graphics = await renderer().catch((error) => `unknown (${error.message.split('\n')[0]})`);
+console.log(`Graphics: ${graphics}, pixel density ${SCALE}`);
 const jobs = Math.min(chosen.length, Number(process.env.E2E_JOBS) || Math.max(1, Math.min(4, Math.floor(availableParallelism() / 2))));
 let failed = 0;
 let done = 0;
@@ -108,7 +112,7 @@ if (process.env.GITHUB_ACTIONS && chosen.length > 1) {
     appendFileSync(process.env.GITHUB_STEP_SUMMARY, [
       `### ${failed ? '❌' : '✅'} ${total}`,
       '',
-      `${minutes} min, ${jobs} at a time.`,
+      `${minutes} min, ${jobs} at a time. Graphics: ${cell(graphics)}, pixel density ${SCALE}.`,
       '',
       '| | Walkthrough | Checks passed | Failed | Time |',
       '|---|---|---|---|---|',
