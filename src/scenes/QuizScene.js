@@ -25,6 +25,10 @@ import { content } from '../content/index';
 const sound = (grapheme) => (content('literacy').soundSpeech || ((g) => g))(grapheme);
 // A built word, blended back after the answer: "kuh, aah, tuh… cat!"
 const blendLine = (question) => (question.type === 'build' ? t('quiz.blend', { sounds: question.parts.map(sound).join(', '), word: question.word }) : null);
+// Everything a question can say: itself, its answer, its picture words and
+// captions (said on a tap), and a built word blended back.
+const questionLines = (question) =>
+  [question.speech, question.explain || answerLine(question), ...(question.choiceWords || []), ...(question.items || []).map((item) => item.caption), question.visual && question.visual.say, blendLine(question)].filter(Boolean);
 
 const titleOf = (mode, skill) => (mode === 'practice' ? t('quiz.title', { emoji: skill.emoji, title: skillTitle(skill) }) : t(`quiz.${mode}`));
 
@@ -57,7 +61,7 @@ export default class QuizScene extends BaseScene {
     const base = getSkill(skillIds[0]);
     const example = base && base.generator ? { ...generateQuestion(base.generator), id: 'example' } : null;
     QuizScene.prepared = { data, questions, example };
-    const lines = [...questions, example].filter(Boolean).flatMap((question) => [question.speech, question.explain || answerLine(question), ...(question.choiceWords || []), blendLine(question)]);
+    const lines = [...questions, example].filter(Boolean).flatMap(questionLines);
     return [...lines, base && howTo(base.generator)].filter(Boolean);
   }
 
@@ -289,7 +293,7 @@ export default class QuizScene extends BaseScene {
     if (adapted?.change === 'up' || adapted?.change === 'down') {
       this.questions = replaceRemaining(this.questions, this.index, nextSkill);
       this.level = adapted.level;
-      this.questions.slice(this.index).forEach((question) => preload([question.speech, question.explain || answerLine(question), ...(question.choiceWords || []), blendLine(question)].filter(Boolean).join(' ')));
+      this.questions.slice(this.index).forEach((question) => preload(questionLines(question).join(' ')));
     }
     const note = adapted?.change ? levelNote(adapted.change, nextSkill, adapted.level) : null;
     this.note.setText(note || '');
