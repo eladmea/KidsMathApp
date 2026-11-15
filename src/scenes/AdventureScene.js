@@ -20,6 +20,19 @@ const PATH_Y = 300;
 export default class AdventureScene extends BaseScene {
   static key = 'Adventure';
 
+  // The next step's line, when today's adventure is already planned (on the
+  // first visit it is planned in build(), and that one line downloads then).
+  static prepare() {
+    const adventure = session.adventure;
+    const step = adventure && !isFinished(adventure) ? currentStep(adventure) : null;
+    return step ? [AdventureScene.nextLine(step)] : [];
+  }
+
+  static nextLine(step) {
+    const skill = step.kind === 'new' || step.kind === 'second' ? getSkill(step.skillIds[0]) : null;
+    return skill ? t('adventure.sayNextSkill', { kind: stepKind(step), title: skillTitle(skill) }) : t('adventure.sayNext', { kind: stepKind(step) });
+  }
+
   build() {
     this.bg = this.add.rectangle(0, 0, 10, 10, 0xeaf4ff).setOrigin(0, 0);
     this.addBackButton();
@@ -67,8 +80,7 @@ export default class AdventureScene extends BaseScene {
       const label = t(adventure.done.length ? 'adventure.next' : 'adventure.start', { kind: stepKind(step) });
       const go = new Button(this, SAFE.width / 2, 610, { label, width: 520, height: 100, color: COLORS.green, onTap: () => this.go(...stepRoute(step)) });
       this.tag('go', go.box);
-      const skill = step.kind === 'new' || step.kind === 'second' ? getSkill(step.skillIds[0]) : null;
-      this.narrator.say(skill ? t('adventure.sayNextSkill', { kind: stepKind(step), title: skillTitle(skill) }) : t('adventure.sayNext', { kind: stepKind(step) }), { show: label });
+      this.narrator.say(AdventureScene.nextLine(step), { show: label });
     }
     this.report({ step: isFinished(adventure) ? 'finished' : 'path', steps: adventure.steps.map((s) => ({ id: s.id, kind: s.kind })), done: [...adventure.done], current: step ? step.id : null, route: step ? stepRoute(step) : null });
   }

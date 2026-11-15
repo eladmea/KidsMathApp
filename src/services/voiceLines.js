@@ -116,14 +116,90 @@ function spokenKeys(language) {
   return [...found].filter((key) => !SHOWN.has(key));
 }
 
+// ---- groups: which scenes need which recordings ----
+// A line from a language file belongs to its file's group ('t:pizza' for
+// pizza.json); a game phrase from a content pack to its say.* group
+// ('say:pizza'); a question to its generator ('q:add-20'). Scenes find their
+// groups in their own code (sceneGroups()), so new lines and scenes need no
+// list: run `npm run voice:lines` and the manifest follows.
+export const textGroup = (key) => `t:${key.split('.')[0]}`;
+const BIG_TEMPLATE = 40;
+export const questionGroup = (generatorId) => `q:${generatorId}`;
+const GAME_GROUPS = {
+  'game: writing': 'say:write',
+  'game: race track': 'say:drive',
+  'game: bee paths': 'say:fly',
+  'game: pizza': 'say:pizza',
+  'game: cake': 'say:cake',
+  'game: pizza and cake': ['say:pizza', 'say:cake'],
+  'game: memory': 'say:memory',
+  'game: feelings friends': 'say:friends',
+  'game: garden': 'say:garden',
+  'game: bunny pop': 'say:bunnyOops',
+  'island name': 'islands',
+  number: 'numbers',
+  'letter sound': 'letters',
+  'answer word': 'words',
+};
+function groupsOf(source) {
+  // Memory Chips: a group per card set ('say:memory:dots'), loaded by variant.
+  if (source.startsWith('game: memory ')) return `say:memory:${source.slice('game: memory '.length)}`;
+  return GAME_GROUPS[source] || source;
+}
+
+// The groups each scene speaks from, found in its code and the ui pieces it
+// imports: t('pizza.…') -> 't:pizza', say.pizza -> 'say:pizza'. Every scene
+// also gets the numbers, the island names and the common lines.
+const SCENE_SOURCES = import.meta.glob('../scenes/*Scene.js', { query: '?raw', import: 'default', eager: true });
+const UI_SOURCES = import.meta.glob('../ui/*.js', { query: '?raw', import: 'default', eager: true });
+function groupsInCode(code) {
+  const namespaces = new Set(keysOf('en').map((key) => key.split('.')[0]));
+  const found = new Set();
+  // Any language-file key written in the code ('pizza.order', t(`mini.${id}`)).
+  for (const [, ns] of code.matchAll(/['`](\w+)\.[\w.${}]+['`]/g)) if (namespaces.has(ns)) found.add(`t:${ns}`);
+  for (const [, name] of code.matchAll(/\bsay\.(\w+)/g)) found.add(`say:${name}`);
+  return found;
+}
+export function sceneGroups() {
+  const scenes = {};
+  Object.values(SCENE_SOURCES).forEach((code) => {
+    const key = (code.match(/static key = '(\w+)'/) || [])[1];
+    if (!key) return;
+    const found = groupsInCode(code);
+    // The ui pieces it uses (CountPanel says the tray's lines, ...).
+    for (const [, file] of code.matchAll(/from '\.\.\/ui\/(\w+)'/g)) {
+      const ui = UI_SOURCES[`../ui/${file}.js`];
+      if (ui) groupsInCode(ui).forEach((group) => found.add(group));
+    }
+    ['t:common', 'numbers', 'islands'].forEach((group) => found.add(group));
+    scenes[key] = [...found].sort();
+  });
+  return scenes;
+}
+
+// The preload manifest for a language (src/voice/<language>/groups.json):
+// { groups: { group: [clip ids] }, scenes: { scene key: [groups] } }, only
+// for recorded lines.
+export function voiceManifest(lines) {
+  const groups = {};
+  lines
+    .filter((line) => line.recorded)
+    .forEach((line) => line.groups.forEach((group) => (groups[group] = groups[group] || []).push(line.id)));
+  Object.values(groups).forEach((ids) => ids.sort());
+  return { groups, scenes: sceneGroups() };
+}
+
 export function voiceLines(language, { samples = SAMPLES } = {}) {
   setLanguage(language);
   const lines = new Map();
   const missing = [];
-  const add = (text, source) => {
+  // `source` says where a line is used (for people); its group(s) say which
+  // scenes need it (for preloading, see voiceGroups()).
+  const add = (text, source, groups = groupsOf(source)) => {
     splitSentences(text).forEach((sentence) => {
-      const entry = lines.get(sentence) || { text: sentence, source, count: 0 };
+      const entry = lines.get(sentence) || { text: sentence, source, count: 0, groups: new Set() };
       entry.count += 1;
+      [].concat(groups).forEach((group) => entry.groups.add(group));
       lines.set(sentence, entry);
     });
   };
@@ -135,14 +211,18 @@ export function voiceLines(language, { samples = SAMPLES } = {}) {
     const texts = typeof value === 'string' ? [value] : Array.isArray(value) ? value : value && typeof value === 'object' ? Object.values(value).filter((v) => typeof v === 'string') : [];
     if (!texts.length) return;
     if (!texts.some((text) => text.includes('{'))) {
-      texts.forEach((text) => add(text, key.startsWith('curriculum.howTo') ? 'how-to' : 'ui'));
+      texts.forEach((text) => add(text, key.startsWith('curriculum.howTo') ? 'how-to' : 'ui', textGroup(key)));
     } else if (values[key]) {
-      values[key].forEach((params) => add(t(key, params), 'ui template'));
+      // A template with many values (every score, every skill title) gets
+      // a group of its own, which no scene loads whole: the scene works out
+      // its own lines before it opens (static prepare, see voicePreload.js).
+      const group = values[key].length > BIG_TEMPLATE ? `t:${key}` : textGroup(key);
+      values[key].forEach((params) => add(t(key, params), 'ui template', group));
     } else if (has(key)) {
       missing.push(key);
     }
   });
-  add(coachIntro(), 'ui');
+  add(coachIntro(), 'ui', textGroup('curriculum.coach.intro'));
   SUBJECTS.forEach((subject) => add(subjectName(subject), 'island name'));
   range(0, 20).forEach((n) => add(String(n), 'number'));
 
@@ -179,12 +259,12 @@ export function voiceLines(language, { samples = SAMPLES } = {}) {
       (question.items || []).forEach((item) => take(item.caption, `caption: ${id}`));
       if (question.type === 'build' && literacy) take(t('quiz.blend', { sounds: question.parts.map((p) => literacy.SOUND_SPEECH[p] || p).join(', '), word: question.word }), `blend: ${id}`);
     }
-    if (!DEVICE_VOICE_GENERATORS.includes(id)) found.forEach((source, sentence) => add(sentence, source));
+    if (!DEVICE_VOICE_GENERATORS.includes(id)) found.forEach((source, sentence) => add(sentence, source, questionGroup(id)));
   });
 
   const result = [...lines.values()]
     .filter((entry) => entry.text.trim())
-    .map((entry) => ({ ...entry, id: clipId(entry.text), recorded: Boolean(clipUrl(entry.text, language)) }))
+    .map((entry) => ({ ...entry, groups: [...entry.groups].sort(), id: clipId(entry.text), recorded: Boolean(clipUrl(entry.text, language)) }))
     .sort((a, b) => b.count - a.count || a.text.localeCompare(b.text));
   // Spoken templates with no values listed above (add them to templateValues).
   result.missingTemplates = missing;
@@ -208,25 +288,28 @@ function mathPhrases({ NUMBER_WORDS, STROKE_NAMES, CUSTOMER_NAMES, TOPPING_NAMES
   const numbers = range(1, 9).map((number) => ({ number, word: NUMBER_WORDS[number] }));
   const toppings = TOPPINGS.map((topping) => TOPPING_NAMES[topping.id]);
   friends.forEach((friend) => {
-    numbers.forEach(({ number, word }) => add(pizza.order({ friend, number, word }), 'game: pizza'));
+    numbers.forEach(({ number, word }) => add(pizza.order({ friend, number, word }), 'game: pizza', `say:pizza:${number}`));
     add(pizza.cutTwo({ friend }), 'game: pizza');
     add(pizza.idle.feed({ friend }), 'game: pizza');
     numbers.forEach(({ number, word }) => add(say.cake.intro({ friend, number, word }), 'game: cake'));
     add(say.cake.party({ friend }), 'game: cake');
   });
+  // Lines about one number go in its own group ('say:pizza:3'): a round
+  // downloads only its numbers' (PizzaShopScene.voiceGroups).
   numbers.forEach(({ number, word }) => {
-    ['rolled', 'more', 'messy', 'written'].forEach((phrase) => add(pizza[phrase]({ word }), 'game: pizza'));
-    add(pizza.cheesed({ number, word }), 'game: pizza');
-    add(pizza.idle.trace({ word }), 'game: pizza');
-    add(pizza.idle.placed({ number }), 'game: pizza');
+    const pizzaN = `say:pizza:${number}`;
+    ['rolled', 'more', 'messy', 'written'].forEach((phrase) => add(pizza[phrase]({ word }), 'game: pizza', pizzaN));
+    add(pizza.cheesed({ number, word }), 'game: pizza', pizzaN);
+    add(pizza.idle.trace({ word }), 'game: pizza', pizzaN);
+    add(pizza.idle.placed({ number }), 'game: pizza', pizzaN);
     toppings.forEach((topping) => {
-      add(pizza.picked({ number, word, topping }), 'game: pizza');
-      add(pizza.right({ number, topping }), 'game: pizza');
+      add(pizza.picked({ number, word, topping }), 'game: pizza', pizzaN);
+      add(pizza.right({ number, topping }), 'game: pizza', pizzaN);
     });
     add(say.cake.iced({ number, word }), 'game: cake');
     add(say.cake.right({ number }), 'game: cake');
-    range(0, number - 1).forEach((placed) => add(pizza.tooFew({ number, placed }), 'game: pizza and cake'));
-    range(number + 1, 12).forEach((placed) => add(pizza.tooMany({ number, placed }), 'game: pizza and cake'));
+    range(0, number - 1).forEach((placed) => add(pizza.tooFew({ number, placed }), 'game: pizza and cake', [pizzaN, 'say:cake']));
+    range(number + 1, 12).forEach((placed) => add(pizza.tooMany({ number, placed }), 'game: pizza and cake', [pizzaN, 'say:cake']));
   });
   toppings.forEach((topping) => add(pizza.idle.place({ topping }), 'game: pizza'));
   range(1, 3).forEach((eaten) => add(pizza.ate({ eaten }), 'game: pizza'));

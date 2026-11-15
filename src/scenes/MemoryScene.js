@@ -54,6 +54,11 @@ function drawFace(scene, container, face, size, color) {
 export default class MemoryScene extends BaseScene {
   static key = 'Memory';
 
+  // The recordings of this card set's faces (services/voicePreload.js).
+  static voiceGroups({ variant } = {}) {
+    return [`say:memory:${getVariant(variant).id}`];
+  }
+
   build({ variant: variantId, mode = 'solo' } = {}) {
     this.variant = getVariant(variantId);
     this.mode = mode === 'duo' ? 'duo' : 'solo';

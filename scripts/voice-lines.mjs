@@ -4,6 +4,9 @@
 //   npm run voice:lines -- en --missing  only lines not recorded yet
 //   npm run voice:lines -- en --txt      -> voice-generator/sentences_english.txt
 //                                           (keeps its first line, the voice settings)
+// Every run also writes src/voice/<language>/groups.json: which recordings
+// each scene needs, so they are downloaded before it opens
+// (services/voicePreload.js). Run it again after recording.
 // Loads the game's own code through Vite, so it always matches the game.
 import fs from 'fs';
 import { createServer } from 'vite';
@@ -21,12 +24,17 @@ const HEADERS = {
 
 const server = await createServer({ server: { middlewareMode: true }, appType: 'custom', logLevel: 'error' });
 try {
-  const { voiceLines } = await server.ssrLoadModule('/src/services/voiceLines.js');
+  const { voiceLines, voiceManifest } = await server.ssrLoadModule('/src/services/voiceLines.js');
   // More samples than the default, so rarer questions of the bigger skills
   // are listed too.
   const all = voiceLines(language, { samples: 12000 });
   const lines = all.filter((line) => !missingOnly || !line.recorded);
   if (all.missingTemplates.length) console.warn(`Spoken templates with no values listed (src/services/voiceLines.js templateValues): ${all.missingTemplates.join(', ')}`);
+  const manifest = `src/voice/${language}/groups.json`;
+  if (fs.existsSync(`src/voice/${language}`)) {
+    fs.writeFileSync(manifest, JSON.stringify(voiceManifest(all)) + '\n');
+    console.log(`${manifest}: ${Object.keys(voiceManifest(all).groups).length} groups.`);
+  }
   if (asText) {
     const out = `voice-generator/sentences_${LANGUAGE_NAMES[language] || language}.txt`;
     const header = fs.existsSync(out) ? fs.readFileSync(out, 'utf8').split('\n')[0] : HEADERS[language] || HEADERS.en;

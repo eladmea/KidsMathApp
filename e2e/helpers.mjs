@@ -88,6 +88,10 @@ export async function open({ width, height, label }) {
         const voice = await mp(() => window.__mathplay.voice.slice()).catch(() => []);
         (await import('fs')).appendFileSync(process.env.VOICE_DUMP, voice.map((entry) => JSON.stringify(entry)).join('\n') + '\n');
       }
+      // Every recording was downloaded before the scene that said it opened
+      // (services/voicePreload.js), never fetched while the child waited.
+      const late = await mp(() => window.__mathplay.voice.filter((v) => v.source === 'recording' && !v.ready).map((v) => v.text)).catch(() => []);
+      t.check('every recording was downloaded before it was needed', late.length === 0, [...new Set(late)].slice(0, 8).join(' | '));
       t.check('no page errors', errors.length === 0, errors.join(' | '));
       await browser.close();
       return checks.some((c) => c.startsWith('FAIL')) ? 1 : 0;

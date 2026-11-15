@@ -13,7 +13,7 @@ import { buildSession, replaceRemaining, tallyBySkill } from '../logic/session';
 import { getRecord, hasPassed, toDayKey } from '../logic/progress';
 import { profileBand } from '../logic/profiles';
 import { adapt, skillForLevel } from '../logic/adaptive';
-import { exampleSpeech, feedbackDelay, isCorrectAnswer, levelNote } from '../logic/quizRound';
+import { answerLine, exampleSpeech, feedbackDelay, isCorrectAnswer, levelNote } from '../logic/quizRound';
 import { getSkill, isQuizSkill } from '../curriculum/skills';
 import { generateQuestion } from '../curriculum/generators';
 import { howTo } from '../curriculum/howTo';
@@ -23,6 +23,12 @@ import { content } from '../content/index';
 
 // How the narrator says a letter tile's sound, in the current language.
 const sound = (grapheme) => (content('literacy').soundSpeech || ((g) => g))(grapheme);
+// A built word, blended back after the answer: "kuh, aah, tuh… cat!"
+const blendLine = (question) => (question.type === 'build' ? t('quiz.blend', { sounds: question.parts.map(sound).join(', '), word: question.word }) : null);
+// Everything a question can say: itself, its answer, its picture words and
+// captions (said on a tap), and a built word blended back.
+const questionLines = (question) =>
+  [question.speech, question.explain || answerLine(question), ...(question.choiceWords || []), ...(question.items || []).map((item) => item.caption), question.visual && question.visual.say, blendLine(question)].filter(Boolean);
 
 const titleOf = (mode, skill) => (mode === 'practice' ? t('quiz.title', { emoji: skill.emoji, title: skillTitle(skill) }) : t(`quiz.${mode}`));
 
@@ -46,6 +52,24 @@ function areas(question) {
 export default class QuizScene extends BaseScene {
   static key = 'Quiz';
 
+  // Before the round opens (BaseScene.open), its questions are made here so
+  // exactly their recordings can be downloaded first; build() then uses
+  // them. Returns every line the round can say.
+  static prepare(data = {}) {
+    const { skillIds = [], count } = data;
+    const questions = buildSession(skillIds, count ?? testQuestionCount());
+    const base = getSkill(skillIds[0]);
+    const example = base && base.generator ? { ...generateQuestion(base.generator), id: 'example' } : null;
+    QuizScene.prepared = { data, questions, example };
+    const lines = [...questions, example].filter(Boolean).flatMap(questionLines);
+    return [...lines, base && howTo(base.generator)].filter(Boolean);
+  }
+
+  // The letter sounds the 🔊 buttons on letter tiles say, and with a grown-up
+  // playing along ("Play together") the coaching lines.
+  static voiceGroups() {
+    return ['letters', ...(session.coaching ? ['t:curriculum'] : [])];
+  }
 
   build({ skillIds, mode = 'practice', count }) {
     // Phaser reuses the scene object between rounds: start every field fresh.
@@ -61,7 +85,11 @@ export default class QuizScene extends BaseScene {
     this.adaptive = mode === 'practice' && isQuizSkill(this.baseSkill);
     this.level = 0;
     this.streak = 0;
-    this.questions = buildSession(skillIds, count ?? testQuestionCount());
+    // Made by prepare() for this start, or now (a scene started directly).
+    const prepared = QuizScene.prepared && QuizScene.prepared.data === this.startData ? QuizScene.prepared : null;
+    QuizScene.prepared = null;
+    this.questions = prepared ? prepared.questions : buildSession(skillIds, count ?? testQuestionCount());
+    this.firstExample = prepared ? prepared.example : null;
     this.results = [];
     this.index = 0;
     this.finished = false;
@@ -121,7 +149,10 @@ export default class QuizScene extends BaseScene {
     this.clear();
     this.step = 'example';
     const howToLine = howTo(skill.generator);
-    const question = { ...generateQuestion(skill.generator), id: 'example' };
+    // The first example was made (and its recordings downloaded) in prepare().
+    const ready = this.firstExample && skill.generator === getSkill(this.skillIds[0]).generator ? this.firstExample : null;
+    this.firstExample = null;
+    const question = ready || { ...generateQuestion(skill.generator), id: 'example' };
     this.help.setVisible(false);
     this.narrator.say(exampleSpeech(howToLine, question), { show: [howToLine, question.prompt].filter(Boolean).join('\n'), force: Boolean(question.speakAlways) });
     this.placeRow();
@@ -213,7 +244,7 @@ export default class QuizScene extends BaseScene {
     }
     if (question.type === 'build') {
       // Blend the sounds back into the word: "kuh, aah, tuh… cat!"
-      this.time.delayedCall(400, () => speak(t('quiz.blend', { sounds: question.parts.map(sound).join(', '), word: question.word }), { force: true }));
+      this.time.delayedCall(400, () => speak(blendLine(question), { force: true }));
     } else if (!right && question.explain) {
       this.narrator.say(question.explain);
     }
@@ -262,6 +293,7 @@ export default class QuizScene extends BaseScene {
     if (adapted?.change === 'up' || adapted?.change === 'down') {
       this.questions = replaceRemaining(this.questions, this.index, nextSkill);
       this.level = adapted.level;
+      this.questions.slice(this.index).forEach((question) => preload(questionLines(question).join(' ')));
     }
     const note = adapted?.change ? levelNote(adapted.change, nextSkill, adapted.level) : null;
     this.note.setText(note || '');
