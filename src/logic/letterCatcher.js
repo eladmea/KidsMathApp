@@ -59,3 +59,12 @@ export function catchTile(tiles, caught, tile) {
 
 // Does a ball at (x, y) touch a bubble?
 export const touches = (ball, bubble, reach) => Math.hypot(ball.x - bubble.x, ball.y - bubble.y) < reach;
+
+// Whether the ball touched a bubble anywhere on its way up this frame, from
+// fromY to ball.y. On a slow frame the ball moves far in one step, and
+// checking only where it ends up lets it pass through a bubble and hit the
+// one above it.
+export function touchesOnTheWay(ball, fromY, bubble, reach) {
+  const nearestY = Math.min(Math.max(bubble.y, Math.min(ball.y, fromY)), Math.max(ball.y, fromY));
+  return touches({ x: ball.x, y: nearestY }, bubble, reach);
+}

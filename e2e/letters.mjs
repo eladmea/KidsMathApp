@@ -64,6 +64,9 @@ async function move(dx, buttons) {
 
 // The bottom row's y (LetterCatcherScene BUBBLE.rows), less its bobbing.
 const BOTTOM_ROW = 462 - 20;
+// Where bubbles turn back (BUBBLE.min / max), and how close two in a row
+// get before they bump (BUBBLE.radius * 2 + 8).
+const [BUBBLE_MIN, BUBBLE_MAX, BUBBLE_GAP] = [380, 1060, 84];
 
 // Lines the kid up under a bubble showing `pick(tile)` and throws. Returns
 // the hit: { tile, right }. `bottom`: only at a bubble in the bottom row.
@@ -89,7 +92,17 @@ async function aimAndThrow(pick, { buttons = false, bottom = false } = {}) {
     // taking a moment to throw. The lowest first; else wait for a lane to clear.
     const inWay = (b, x) => [0, 0.15, 0.3].some((lag) => Math.abs(b.x + b.speed * ((618 - 112 - b.y) / 900 + lag) - x) < 110);
     const clear = (target) => !s.bubbles.some((b) => b !== target && b.y > target.y + 40 && inWay(b, aim(target)));
-    const target = s.bubbles.filter((b) => pick(b.tile, s) && clear(b) && (!bottom || b.y >= BOTTOM_ROW)).sort((a, b) => b.y - a.y)[0];
+    // And one that won't bounce (off a wall, or a bubble in its row that it
+    // is closing in on) before the ball arrives: a bounce sends it the other
+    // way, the ball misses, and flies on into a bubble higher up. The time
+    // allows for a slow machine.
+    const steady = (b) => {
+      const time = (618 - 112 - b.y) / 900 + 0.4;
+      const ahead = b.x + b.speed * time;
+      if (ahead < BUBBLE_MIN + 8 || ahead > BUBBLE_MAX - 8) return false;
+      return !s.bubbles.some((o) => o !== b && Math.abs(o.y - b.y) < 30 && Math.abs(o.x + o.speed * time - ahead) < BUBBLE_GAP + 8);
+    };
+    const target = s.bubbles.filter((b) => pick(b.tile, s) && clear(b) && steady(b) && (!bottom || b.y >= BOTTOM_ROW)).sort((a, b) => b.y - a.y)[0];
     if (!target) {
       why.blocked += 1;
       await sleep(120);
@@ -99,6 +112,10 @@ async function aimAndThrow(pick, { buttons = false, bottom = false } = {}) {
     if (Math.abs(dx) > 16) {
       why.moves += 1;
       await move(dx, buttons);
+      // The game reports where the kid is every 80 ms or so: wait for a report
+      // made after the arrow was let go, or the throw is aimed from a stale
+      // spot (up to ~35 px off) and the ball misses the letter.
+      await sleep(150);
       continue;
     }
     why.throws += 1;

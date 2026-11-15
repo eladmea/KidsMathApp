@@ -6,7 +6,7 @@ import { glyph } from '../ui/Art';
 import { COLORS, colorOf, textStyle } from '../ui/theme';
 import { session } from '../services/session';
 import { speak } from '../services/speech';
-import { play } from '../services/audio';
+import { cheer, play } from '../services/audio';
 import { getBoard, hasWon, spin, stepSquares } from '../logic/pathRace';
 import { buildPlayers } from '../logic/players';
 import { otherPlayer } from '../logic/memoryGame';
@@ -186,7 +186,8 @@ export default class PathRaceScene extends BaseScene {
   showWinner() {
     const { icon, name } = this.players[this.winner];
     const title = t('twoPlayer.wins', { name: `${icon} ${name}` });
-    speak(t('twoPlayer.sayWin'), { force: true });
+    // The children's cheer, then the narrator.
+    cheer(this, () => speak(t('twoPlayer.sayWin'), { force: true }));
     const dialog = new Dialog(this, { width: 620, height: 380, title });
     dialog.add(glyph(this, 0, -30, '🏆', 90));
     // The map is the way on; playing again is the smaller choice.

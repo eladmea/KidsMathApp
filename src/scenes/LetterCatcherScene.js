@@ -7,7 +7,7 @@ import { COLORS, textStyle } from '../ui/theme';
 import { play } from '../services/audio';
 import { speak } from '../services/speech';
 import { content } from '../content/index';
-import { bubblePool, catchTile, getLevel, makeTargets, nextBubble, touches } from '../logic/letterCatcher';
+import { bubblePool, catchTile, getLevel, makeTargets, nextBubble, touchesOnTheWay } from '../logic/letterCatcher';
 import { getSkill } from '../curriculum/skills';
 import { isRtl, t } from '../i18n/index';
 
@@ -212,9 +212,11 @@ export default class LetterCatcherScene extends BaseScene {
     });
     this.separateBubbles();
     if (this.ball && !this.ball.bouncing) {
+      const fromY = this.ball.y;
       this.ball.y -= BALL.speed * dt;
-      // The lowest bubble in the ball's way is the one it meets.
-      const hit = this.bubbles.filter((b) => !b.popping && touches(this.ball, b, BUBBLE.radius + BALL.radius)).sort((a, b) => b.y - a.y)[0];
+      // The lowest bubble in the ball's way is the one it meets, also when a
+      // slow frame carried the ball past it.
+      const hit = this.bubbles.filter((b) => !b.popping && touchesOnTheWay(this.ball, fromY, b, BUBBLE.radius + BALL.radius)).sort((a, b) => b.y - a.y)[0];
       if (hit) this.hit(hit);
       else if (this.ball.y < BALL.top) this.dropBall();
     }

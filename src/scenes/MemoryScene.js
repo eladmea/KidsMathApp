@@ -8,7 +8,7 @@ import { tapSpark } from '../ui/Juice';
 import { COLORS, colorOf, hex, textStyle } from '../ui/theme';
 import { session } from '../services/session';
 import { speak } from '../services/speech';
-import { play } from '../services/audio';
+import { cheer, play } from '../services/audio';
 import { content } from '../content/index';
 import { chipCostToMatch, createDeck, getVariant, isStalemate, otherPlayer, startingChips } from '../logic/memoryGame';
 import { buddyLevel, buddySlip, chooseFirstCard, chooseSecondCard, decideGap, forgetCards, observeCard } from '../logic/memoryBuddy';
@@ -527,8 +527,12 @@ export default class MemoryScene extends BaseScene {
     // The map is the way on; playing again is the smaller choice.
     this.dialogButton('again', -170, 190, t('twoPlayer.playAgain'), COLORS.white, () => this.replay(), 200, 70).label.setColor(hex(COLORS.ink));
     this.dialogButton('map', 110, 190, t('common.map'), COLORS.green, () => this.back(), 300, 92);
-    play(this, 'correct');
-    speak(t(winner ? 'twoPlayer.sayWin' : 'twoPlayer.sayTie'), { force: true });
+    // A win: the children's cheer, then the narrator.
+    if (winner) cheer(this, () => speak(t('twoPlayer.sayWin'), { force: true }));
+    else {
+      play(this, 'correct');
+      speak(t('twoPlayer.sayTie'), { force: true });
+    }
     this.report({ step: 'over', winner, stuck });
   }
 }

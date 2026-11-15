@@ -29,8 +29,12 @@ export default class CreateProfileScene extends BaseScene {
     this.add.text(250, 180, t('players.name'), textStyle(30)).setOrigin(1, 0.5);
     this.nameField = this.add.dom(SAFE.width / 2, 180, 'input', `width: 560px; height: 64px; box-sizing: border-box; border: 4px solid #4A6FE3; border-radius: 20px; padding: 0 20px; font: 600 34px ${FONT}; color: #2D3142; background: #fff; outline: none;`);
     const input = this.nameField.node;
-    Object.assign(input, { type: 'text', placeholder: t('players.namePlaceholder'), maxLength: MAX_NAME_LENGTH, autocomplete: 'off', spellcheck: false, ariaLabel: t('players.name') });
+    Object.assign(input, { type: 'text', placeholder: t('players.namePlaceholder'), maxLength: MAX_NAME_LENGTH, autocomplete: 'off', ariaLabel: t('players.name') });
+    // No spellcheck: false here. With autocomplete off, Android keyboards can
+    // take it as a password-like field and lock to English (no Hebrew).
     input.setAttribute('autocapitalize', 'words');
+    // Each name runs its own way (a Hebrew name in an English game too).
+    input.setAttribute('dir', 'auto');
     input.addEventListener('input', () => this.refresh());
     input.addEventListener('keydown', (event) => event.key === 'Enter' && this.save());
 

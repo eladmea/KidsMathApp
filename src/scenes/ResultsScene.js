@@ -9,17 +9,19 @@ import { speak } from '../services/speech';
 import { calculateStars } from '../logic/scoring';
 import { resultLine } from '../logic/quizRound';
 import { getSkill } from '../curriculum/skills';
-import { list, t } from '../i18n/index';
+import { t } from '../i18n/index';
 import { skillTitle } from '../i18n/names';
-import { play } from '../services/audio';
+import { CHEER_MS, cheer, play } from '../services/audio';
 import { glyph } from '../ui/Art';
 import { confetti } from '../ui/Juice';
 
 // When the first star appears (after "Yaaay!") and the time between stars.
 const STARS_FROM = 600;
 const STAR_GAP = 450;
-// How long the kids' cheer lasts before the narrator speaks.
-const CHEER_MS = 1500;
+
+// "You mastered Count to 5! You mastered Count to 10!": one sentence per
+// skill, so each is a recording (a list of titles would be a new sentence).
+const masteredLines = (titles) => titles.map((title) => t('results.sayMastered', { titles: title }));
 
 // The end of a round (a quiz or a game): stars, the score, and anything new
 // (a skill passed or mastered, skills it unlocked, stickers). Saves the round.
@@ -36,7 +38,7 @@ export default class ResultsScene extends BaseScene {
     const lines = [resultLine(stars), t('results.sayScore', { score, total })];
     if (session.profile) {
       const { newlyMastered } = applySession(session.progress, tallies, toDayKey(), profileBand(session.profile).id);
-      if (newlyMastered.length) lines.push(t('results.sayMastered', { titles: list(newlyMastered.map((id) => skillTitle(getSkill(id)))) }));
+      lines.push(...masteredLines(newlyMastered.map((id) => skillTitle(getSkill(id)))));
     }
     return lines;
   }
@@ -84,7 +86,7 @@ export default class ResultsScene extends BaseScene {
       this.news.setText(lines.slice(0, 4).join('\n'));
       const mastered = result.newlyMastered.map(skillTitle);
       // After the children's cheer.
-      this.time.delayedCall(CHEER_MS, () => speak([resultLine(stars), t('results.sayScore', { score, total }), mastered.length ? t('results.sayMastered', { titles: list(mastered) }) : '', result.earnedStickers.length ? t('results.saySticker') : '', result.earnedTicket ? t('results.sayTicket') : ''].filter(Boolean).join(' ')));
+      this.time.delayedCall(CHEER_MS, () => speak([resultLine(stars), t('results.sayScore', { score, total }), ...masteredLines(mastered), result.earnedStickers.length ? t('results.saySticker') : '', result.earnedTicket ? t('results.sayTicket') : ''].filter(Boolean).join(' ')));
       this.report({
         step: 'results',
         newlyPassed: result.newlyPassed,
@@ -106,9 +108,7 @@ export default class ResultsScene extends BaseScene {
     const yay = this.add.text(SAFE.width / 2, 66, t('results.yay'), textStyle(78, COLORS.orange, { stroke: '#ffffff', strokeThickness: 12 })).setOrigin(0.5).setScale(0);
     this.tweens.add({ targets: yay, scale: 1, duration: 500, ease: 'Back.easeOut' });
     this.tweens.add({ targets: yay, angle: { from: -4, to: 4 }, duration: 600, yoyo: true, repeat: -1, ease: 'Sine.easeInOut', delay: 500 });
-    play(this, 'cheer');
-    // Children cheering "Yaaay!" (a sound, not the narrator's voice).
-    this.time.delayedCall(250, () => play(this, 'hooray', { volume: 0.8 }));
+    cheer(this);
   }
 
   celebrate(count) {

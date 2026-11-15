@@ -26,6 +26,14 @@
         -webkit-touch-callout: none;
         font-family: 'Fredoka', system-ui, sans-serif;
       }
+      /* Name fields and notes must stay editable: inherited user-select: none
+         can stop Android keyboards from composing text (Hebrew among them). */
+      input,
+      textarea {
+        user-select: text;
+        -webkit-user-select: text;
+        touch-action: manipulation;
+      }
       /* The game fills the screen, inside the notch / home-bar insets. */
       #game {
         position: fixed;

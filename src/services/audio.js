@@ -13,3 +13,13 @@ export function play(scene, key, { volume = 0.6, detune = 0 } = {}) {
     // Audio can be blocked until the first tap; a missed chime is fine.
   }
 }
+
+// The end of a round or a match: a jingle and children cheering "Yaaay!"
+// (a sound, not the narrator's voice), then `after` (what the narrator says)
+// once the cheer is over.
+export const CHEER_MS = 2300;
+export function cheer(scene, after) {
+  play(scene, 'cheer');
+  scene.time.delayedCall(250, () => play(scene, 'kids-yay', { volume: 0.8 }));
+  if (after) scene.time.delayedCall(CHEER_MS, after);
+}

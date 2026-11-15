@@ -9,7 +9,7 @@ import { celebrate, pulse, tapSpark } from '../ui/Juice';
 import { COLORS, textStyle } from '../ui/theme';
 import { session } from '../services/session';
 import { speak } from '../services/speech';
-import { play } from '../services/audio';
+import { cheer, play } from '../services/audio';
 import { content } from '../content/index';
 import { getLevel, isMatch, isSlip, makeDeck, soloScore, winner } from '../logic/numberPairs';
 import { buddyLevel, buddySlip, chooseFirstCard, chooseSecondCard, forgetCards, observeCard } from '../logic/memoryBuddy';
@@ -352,7 +352,9 @@ export default class NumberPairsScene extends BaseScene {
     }
     const won = winner(this.pairs);
     const title = won ? t('twoPlayer.wins', { name: `${this.players[won].icon} ${this.name(won)}` }) : t('twoPlayer.tie');
-    speak(t(won ? 'twoPlayer.sayWin' : 'twoPlayer.sayTie'), { force: true });
+    // A win: the children's cheer, then the narrator.
+    if (won) cheer(this, () => speak(t('twoPlayer.sayWin'), { force: true }));
+    else speak(t('twoPlayer.sayTie'), { force: true });
     const dialog = new Dialog(this, { width: 620, height: 380, title });
     dialog.add(glyph(this, 0, -30, won ? '🏆' : '🤝', 90));
     // The map is the way on; playing again is the smaller choice.
