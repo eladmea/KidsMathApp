@@ -5,7 +5,7 @@
   "turn": "{name}'s turn!",
   "buddyPlaying": "{name} is playing…",
   "wins": "{name} wins!",
-  "sayWin": "Hooray! We have a winner!",
+  "sayWin": "We have a winner!",
   "sayTie": "It's a tie! Well played!",
   "tie": "It's a tie!",
   "playAgain": "Play Again"

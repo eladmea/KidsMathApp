@@ -111,7 +111,9 @@ for (let turn = 0; turn < 40; turn++) {
 await step('over', 20000);
 s = await state();
 check('path race: someone reaches 10 and wins', s.winner && s.positions[s.winner] === 10, JSON.stringify(s.positions));
-await sleep(700);
+// The children cheer (a sound), then the narrator says it, from a recording.
+const cheered = await t.waitFor(() => window.__mathplay.spoken.at(-1) === 'We have a winner!', null, 15000).then(() => true, () => false);
+check('path race: after the cheer the narrator says there is a winner', cheered, (await t.spoken()).slice(-2).join(' | '));
 await tap('map');
 await t.waitScene('GameSetup');
 
