@@ -13,7 +13,8 @@
 // - Recordings are downloaded whole before they play (one that starts while
 //   still downloading stutters the first time it is heard), all the
 //   sentences of a line at once, and kept for next time. preload(text) fetches
-//   a line that is about to be said (the next question).
+//   a line that is about to be said (the next question); preloadClips(urls)
+//   a whole scene's before it opens (services/voicePreload.js).
 // - Stops talking when the tab is hidden.
 import { fallbackVoice, isOnlineVoice, pickBestVoice, rankVoices, splitSentences } from '../logic/voices';
 import { getLanguage, languageInfo, onLanguageChange } from '../i18n/index';
@@ -155,27 +156,35 @@ function playQueue(sentences, index, token) {
   const sentence = sentences[index];
   const next = () => playQueue(sentences, index + 1, token);
   const url = clipUrl(sentence, getLanguage());
-  bridge.voice.push({ text: sentence, source: url ? 'recording' : 'device' });
+  // `ready`: the recording was already downloaded (preloaded) when needed.
+  bridge.voice.push({ text: sentence, source: url ? 'recording' : 'device', ready: Boolean(url && downloaded.has(url)) });
   if (url) playRecording(url, token, next, () => sayWithDevice(sentence, token, next));
   else sayWithDevice(sentence, token, next);
 }
 
 // Downloaded recordings: url -> a promise of a blob: URL (or the url itself
 // if the download failed, so the element can still try). The oldest are let
-// go after MAX_CLIPS.
-const MAX_CLIPS = 300;
+// go after MAX_CLIPS (a scene preloads up to a few hundred, ~7 KB each).
+const MAX_CLIPS = 2500;
 const clips = new Map();
+// The urls whose download has finished (for tests: was it there in time?).
+const downloaded = new Set();
 function fetchClip(url) {
   if (!clips.has(url)) {
     const download = fetch(url)
       .then((response) => (response.ok ? response.blob() : Promise.reject(new Error(String(response.status)))))
       // An empty file counts as a failed download.
       .then((blob) => (blob.size ? URL.createObjectURL(blob) : url))
-      .catch(() => url);
+      .catch(() => url)
+      .then((src) => {
+        downloaded.add(url);
+        return src;
+      });
     clips.set(url, download);
     if (clips.size > MAX_CLIPS) {
       const [oldest, src] = clips.entries().next().value;
       clips.delete(oldest);
+      downloaded.delete(oldest);
       src.then((value) => value.startsWith('blob:') && URL.revokeObjectURL(value));
     }
   }
@@ -189,6 +198,23 @@ export function preload(text) {
     const url = clipUrl(sentence, getLanguage());
     if (url) fetchClip(url);
   });
+}
+
+// Downloads many recordings (a scene's, before it opens), a few at a time.
+// Resolves once every one has downloaded or failed; onProgress(done, total).
+const PARALLEL_DOWNLOADS = 6;
+export function preloadClips(urls, { onProgress = () => {} } = {}) {
+  const queue = [...new Set(urls)];
+  const total = queue.length;
+  let done = 0;
+  const worker = async () => {
+    while (queue.length) {
+      await fetchClip(queue.shift());
+      done += 1;
+      onProgress(done, total);
+    }
+  };
+  return Promise.all(Array.from({ length: Math.min(PARALLEL_DOWNLOADS, total) }, worker)).then(() => total);
 }
 
 function playRecording(url, token, onDone, onFail) {

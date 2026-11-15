@@ -1,6 +1,8 @@
 import Phaser from 'phaser';
 import { reportScene, reportState, tag } from '../services/testBridge';
 import { stop as stopSpeech } from '../services/speech';
+import { preloadScene } from '../services/voicePreload';
+import { glyph } from './Art';
 import * as router from '../services/router';
 import { enterScene } from '../services/playClock';
 import { isTimeUp } from '../services/session';
@@ -22,6 +24,23 @@ export const SAFE = { width: 1280, height: 720 };
 // Browser tests open the game with ?fast: timers and tweens run 8x faster.
 const TEST_SPEED = typeof location !== 'undefined' && new URLSearchParams(location.search).has('fast') ? 8 : 1;
 
+// Opening a scene first downloads the recordings it will say (see
+// services/voicePreload.js). A spinner shows if that takes longer than
+// LOADING_AFTER_MS; after MAX_VOICE_WAIT_MS (a slow network) the scene opens
+// anyway and the rest keeps downloading.
+const LOADING_AFTER_MS = 250;
+const MAX_VOICE_WAIT_MS = 8000;
+
+// Waits for a scene's recordings, at most `ms`.
+export function voiceReady(key, data = {}, scenes = null, ms = MAX_VOICE_WAIT_MS) {
+  const target = scenes && scenes.getScene(key);
+  const Scene = target && target.constructor;
+  const groups = Scene && Scene.voiceGroups ? Scene.voiceGroups(data) : [];
+  const lines = Scene && Scene.prepare ? Scene.prepare(data) : [];
+  const capped = new Promise((resolve) => setTimeout(resolve, ms));
+  return Promise.race([preloadScene(key, { groups, lines }).catch(() => 0), capped]);
+}
+
 // Each scene names itself with `static key = 'Quiz'` (the registry in
 // scenes/registry.js picks every scene up, so nothing else needs editing).
 export default class BaseScene extends Phaser.Scene {
@@ -32,6 +51,7 @@ export default class BaseScene extends Phaser.Scene {
   create(data) {
     this.built = false;
     this.leaving = false;
+    this.opening = false;
     this.startData = data || {};
     this.backButton = null;
     // A twinkle wherever a finger touches. A scene where that would get in
@@ -166,30 +186,64 @@ export default class BaseScene extends Phaser.Scene {
     });
   }
 
+  // Starts `key` once its recordings are downloaded (see voiceReady). Taps
+  // while waiting do nothing, so a double tap opens one scene.
+  open(key, data, start) {
+    if (this.opening) return;
+    this.opening = true;
+    let spinner = null;
+    const showSpinner = setTimeout(() => {
+      if (this.sys.isActive()) spinner = this.loadingSpinner();
+    }, LOADING_AFTER_MS);
+    voiceReady(key, data, this.scene.manager).then(() => {
+      clearTimeout(showSpinner);
+      if (spinner) spinner.destroy();
+      this.opening = false;
+      if (this.sys.isActive()) start();
+    });
+  }
+
+  // A dimmed screen with a turning hourglass, taking every tap.
+  loadingSpinner() {
+    const cover = this.add.container(0, 0).setDepth(2000);
+    const shade = this.add.rectangle(SAFE.width / 2, SAFE.height / 2, SAFE.width * 3, SAFE.height * 3, COLORS.white, 0.55).setInteractive();
+    const sand = glyph(this, SAFE.width / 2, SAFE.height / 2, '⏳', 90);
+    cover.add([shade, sand]);
+    this.tweens.add({ targets: sand, angle: 180, duration: 700, repeat: -1, repeatDelay: 200, ease: 'Sine.easeInOut' });
+    this.report({ loadingVoice: true });
+    return cover;
+  }
+
   // Opens another scene; back() returns here with the same data.
   go(key, data = {}) {
-    router.push({ key: this.scene.key, data: this.startData });
-    this.scene.start(key, data);
+    this.open(key, data, () => {
+      router.push({ key: this.scene.key, data: this.startData });
+      this.scene.start(key, data);
+    });
   }
 
   // Back to the scene this one was opened from (the map if there is none).
   back() {
-    const previous = router.pop();
-    if (previous) this.scene.start(previous.key, previous.data);
-    else this.scene.start('WorldMap');
+    const previous = router.peek() || { key: 'WorldMap', data: {} };
+    this.open(previous.key, previous.data, () => {
+      router.pop();
+      this.scene.start(previous.key, previous.data);
+    });
   }
 
   // Replaces this scene with another in the same place in the history (a
   // finished quiz becomes its results; "back" from either goes to the same
   // place).
   swap(key, data = {}) {
-    this.scene.start(key, data);
+    this.open(key, data, () => this.scene.start(key, data));
   }
 
   // Starts a scene with a fresh history (e.g. after picking a player).
   reset(key, data = {}) {
-    router.clear();
-    this.scene.start(key, data);
+    this.open(key, data, () => {
+      router.clear();
+      this.scene.start(key, data);
+    });
   }
 
   // Plays this scene again from the start, keeping its place in the history.

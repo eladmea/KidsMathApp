@@ -11,6 +11,11 @@ export function pop() {
   return stack.pop() || null;
 }
 
+// The scene back() would return to, without leaving it yet.
+export function peek() {
+  return stack[stack.length - 1] || null;
+}
+
 export function clear() {
   stack.length = 0;
 }

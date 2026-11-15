@@ -1,9 +1,11 @@
 import Phaser from 'phaser';
 import { loadAssets } from '../services/assets';
 import { session } from '../services/session';
+import { voiceReady } from '../ui/BaseScene';
 
 // Loads every image and sound (services/assets.js), then opens "Who's
-// playing?" (or the welcome screen when there are no players yet).
+// playing?" (or the welcome screen when there are no players yet) once its
+// recordings are in.
 export default class BootScene extends Phaser.Scene {
   static key = 'Boot';
 
@@ -15,8 +17,9 @@ export default class BootScene extends Phaser.Scene {
     loadAssets(this);
   }
 
+  // The first screen's recordings download first, like every scene's.
   create() {
-    if (session.profiles.length) this.scene.start('Profiles');
-    else this.scene.start('CreateProfile', { first: true });
+    const [key, data] = session.profiles.length ? ['Profiles', {}] : ['CreateProfile', { first: true }];
+    voiceReady(key, data, this.scene.manager).then(() => this.scene.start(key, data));
   }
 }
