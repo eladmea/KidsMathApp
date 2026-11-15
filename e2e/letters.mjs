@@ -62,9 +62,15 @@ async function move(dx, buttons) {
   }
 }
 
+// The bottom row's y (LetterCatcherScene BUBBLE.rows), less its bobbing.
+const BOTTOM_ROW = 462 - 20;
+
 // Lines the kid up under a bubble showing `pick(tile)` and throws. Returns
-// the hit: { tile, right }.
-async function aimAndThrow(pick, { buttons = false } = {}) {
+// the hit: { tile, right }. `bottom`: only at a bubble in the bottom row.
+// The game moves the needed letter there (half a second), where nothing is
+// in its way; thrown at earlier, on a slow machine another bubble can drift
+// into the ball's path.
+async function aimAndThrow(pick, { buttons = false, bottom = false } = {}) {
   const why = { busy: 0, blocked: 0, moves: 0, throws: 0 };
   for (let tries = 0; tries < 200; tries++) {
     const s = await state();
@@ -83,7 +89,7 @@ async function aimAndThrow(pick, { buttons = false } = {}) {
     // taking a moment to throw. The lowest first; else wait for a lane to clear.
     const inWay = (b, x) => [0, 0.15, 0.3].some((lag) => Math.abs(b.x + b.speed * ((618 - 112 - b.y) / 900 + lag) - x) < 110);
     const clear = (target) => !s.bubbles.some((b) => b !== target && b.y > target.y + 40 && inWay(b, aim(target)));
-    const target = s.bubbles.filter((b) => pick(b.tile, s) && clear(b)).sort((a, b) => b.y - a.y)[0];
+    const target = s.bubbles.filter((b) => pick(b.tile, s) && clear(b) && (!bottom || b.y >= BOTTOM_ROW)).sort((a, b) => b.y - a.y)[0];
     if (!target) {
       why.blocked += 1;
       await sleep(120);
@@ -127,7 +133,7 @@ async function catchWord(options) {
   for (let throws = 0; throws < 30; throws++) {
     const s = await state();
     if (s.step !== 'play' || s.caught >= s.tiles.length) break;
-    await strayIn(await aimAndThrow((tile, st) => tile === st.needed, options));
+    await strayIn(await aimAndThrow((tile, st) => tile === st.needed, { ...options, bottom: true }));
   }
   await waitFor(() => window.__mathplay.state.step === 'word' || window.__mathplay.scene !== 'LetterCatcher', null, 8000);
 }
@@ -150,7 +156,7 @@ const miss = await aimAndThrow((tile, st) => tile !== st.needed);
 s = await state();
 check('catch: a wrong letter bounces off and catches nothing', miss.right === false && s.caught === 0 && s.wrong === 1, JSON.stringify({ miss, caught: s.caught, wrong: s.wrong, step: s.step, lastHit: s.lastHit }));
 // With the on-screen arrows and throw button this time.
-await aimAndThrow((tile, st) => tile === st.needed, { buttons: true });
+await aimAndThrow((tile, st) => tile === st.needed, { buttons: true, bottom: true });
 await waitFor(() => window.__mathplay.state.step === 'word', null, 8000);
 check('catch: the on-screen arrows and throw button catch the letter', true);
 check('catch: a word with a wrong hit scores nothing', (await state()).score === 0);
