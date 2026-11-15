@@ -79,11 +79,27 @@ export default class PizzaShopScene extends BaseScene {
   static key = 'PizzaShop';
   static plays = ['PizzaShop'];
 
+  // The round's numbers and customers are picked before it opens, so only
+  // those numbers' recordings are downloaded (services/voicePreload.js).
+  static prepare(data = {}) {
+    const bigNumbers = hasPassed(getRecord(session.progress, 'math-write-1-5'));
+    PizzaShopScene.prepared = { data, numbers: pickDistinct(numberPool({ bigNumbers }), PIZZAS_PER_ROUND), customers: pickDistinct(CUSTOMERS, PIZZAS_PER_ROUND) };
+    return [];
+  }
+
+  static voiceGroups(data) {
+    const prepared = PizzaShopScene.prepared && PizzaShopScene.prepared.data === data ? PizzaShopScene.prepared : null;
+    return prepared ? prepared.numbers.map((number) => `say:pizza:${number}`) : [];
+  }
+
   build({ skillId = 'math-pizza' } = {}) {
     this.skill = getSkill(skillId);
-    const bigNumbers = hasPassed(getRecord(session.progress, 'math-write-1-5'));
-    this.numbers = pickDistinct(numberPool({ bigNumbers }), PIZZAS_PER_ROUND);
-    this.customers = pickDistinct(CUSTOMERS, PIZZAS_PER_ROUND);
+    // Picked by prepare() for this start, or now (a scene started directly).
+    if (!PizzaShopScene.prepared || PizzaShopScene.prepared.data !== this.startData) PizzaShopScene.prepare(this.startData);
+    const prepared = PizzaShopScene.prepared;
+    PizzaShopScene.prepared = null;
+    this.numbers = prepared.numbers;
+    this.customers = prepared.customers;
     this.words = content('math');
     this.index = 0;
     this.points = 0;

@@ -26,17 +26,18 @@ const TEST_SPEED = typeof location !== 'undefined' && new URLSearchParams(locati
 
 // Opening a scene first downloads the recordings it will say (see
 // services/voicePreload.js). A spinner shows if that takes longer than
-// LOADING_AFTER_MS; after MAX_VOICE_WAIT_MS (a slow network) the scene opens
+// LOADING_AFTER_MS; after MAX_VOICE_WAIT_MS (6 s, a slow network) the scene opens
 // anyway and the rest keeps downloading.
 const LOADING_AFTER_MS = 250;
-const MAX_VOICE_WAIT_MS = 8000;
+const MAX_VOICE_WAIT_MS = 6000;
 
 // Waits for a scene's recordings, at most `ms`.
 export function voiceReady(key, data = {}, scenes = null, ms = MAX_VOICE_WAIT_MS) {
   const target = scenes && scenes.getScene(key);
   const Scene = target && target.constructor;
-  const groups = Scene && Scene.voiceGroups ? Scene.voiceGroups(data) : [];
+  // prepare() first: it can settle what the scene will use (a round's numbers).
   const lines = Scene && Scene.prepare ? Scene.prepare(data) : [];
+  const groups = Scene && Scene.voiceGroups ? Scene.voiceGroups(data) : [];
   const capped = new Promise((resolve) => setTimeout(resolve, ms));
   return Promise.race([preloadScene(key, { groups, lines }).catch(() => 0), capped]);
 }

@@ -59,10 +59,10 @@ export default class QuizScene extends BaseScene {
     return [...lines, base && howTo(base.generator)].filter(Boolean);
   }
 
-  // The letter sounds the 🔊 buttons on letter tiles say, and the grown-up
-  // coaching lines ("Play together").
+  // The letter sounds the 🔊 buttons on letter tiles say, and with a grown-up
+  // playing along ("Play together") the coaching lines.
   static voiceGroups() {
-    return ['letters', 't:curriculum'];
+    return ['letters', ...(session.coaching ? ['t:curriculum'] : [])];
   }
 
   build({ skillIds, mode = 'practice', count }) {

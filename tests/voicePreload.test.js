@@ -23,7 +23,10 @@ describe('voice preload manifest', () => {
 
   it("gives each game its own lines, and a quiz its round's lines", async () => {
     const pizza = await sceneClipUrls('PizzaShop', {}, 'en');
-    expect(pizza.length).toBeGreaterThan(100);
+    const withThree = await sceneClipUrls('PizzaShop', { groups: ['say:pizza:3'] }, 'en');
+    expect(pizza.length).toBeGreaterThan(40);
+    // A round's numbers add their own lines ("Put three mushrooms on...").
+    expect(withThree.length).toBeGreaterThan(pizza.length + 20);
     expect(en.scenes.PizzaShop).toEqual(expect.arrayContaining(['say:pizza', 't:pizza', 't:tray', 'numbers']));
     expect(en.scenes.TracePath).toEqual(expect.arrayContaining(['say:drive', 'say:fly']));
     const round = await sceneClipUrls('Quiz', { lines: ['What rhymes with rock? Clock.'] }, 'en');

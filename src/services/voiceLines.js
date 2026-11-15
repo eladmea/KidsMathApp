@@ -123,6 +123,7 @@ function spokenKeys(language) {
 // groups in their own code (sceneGroups()), so new lines and scenes need no
 // list: run `npm run voice:lines` and the manifest follows.
 export const textGroup = (key) => `t:${key.split('.')[0]}`;
+const BIG_TEMPLATE = 40;
 export const questionGroup = (generatorId) => `q:${generatorId}`;
 const GAME_GROUPS = {
   'game: writing': 'say:write',
@@ -141,7 +142,8 @@ const GAME_GROUPS = {
   'answer word': 'words',
 };
 function groupsOf(source) {
-  if (source.startsWith('game: memory')) return 'say:memory';
+  // Memory Chips: a group per card set ('say:memory:dots'), loaded by variant.
+  if (source.startsWith('game: memory ')) return `say:memory:${source.slice('game: memory '.length)}`;
   return GAME_GROUPS[source] || source;
 }
 
@@ -211,7 +213,11 @@ export function voiceLines(language, { samples = SAMPLES } = {}) {
     if (!texts.some((text) => text.includes('{'))) {
       texts.forEach((text) => add(text, key.startsWith('curriculum.howTo') ? 'how-to' : 'ui', textGroup(key)));
     } else if (values[key]) {
-      values[key].forEach((params) => add(t(key, params), 'ui template', textGroup(key)));
+      // A template with many values (every score, every skill title) gets
+      // a group of its own, which no scene loads whole: the scene works out
+      // its own lines before it opens (static prepare, see voicePreload.js).
+      const group = values[key].length > BIG_TEMPLATE ? `t:${key}` : textGroup(key);
+      values[key].forEach((params) => add(t(key, params), 'ui template', group));
     } else if (has(key)) {
       missing.push(key);
     }
@@ -282,25 +288,28 @@ function mathPhrases({ NUMBER_WORDS, STROKE_NAMES, CUSTOMER_NAMES, TOPPING_NAMES
   const numbers = range(1, 9).map((number) => ({ number, word: NUMBER_WORDS[number] }));
   const toppings = TOPPINGS.map((topping) => TOPPING_NAMES[topping.id]);
   friends.forEach((friend) => {
-    numbers.forEach(({ number, word }) => add(pizza.order({ friend, number, word }), 'game: pizza'));
+    numbers.forEach(({ number, word }) => add(pizza.order({ friend, number, word }), 'game: pizza', `say:pizza:${number}`));
     add(pizza.cutTwo({ friend }), 'game: pizza');
     add(pizza.idle.feed({ friend }), 'game: pizza');
     numbers.forEach(({ number, word }) => add(say.cake.intro({ friend, number, word }), 'game: cake'));
     add(say.cake.party({ friend }), 'game: cake');
   });
+  // Lines about one number go in its own group ('say:pizza:3'): a round
+  // downloads only its numbers' (PizzaShopScene.voiceGroups).
   numbers.forEach(({ number, word }) => {
-    ['rolled', 'more', 'messy', 'written'].forEach((phrase) => add(pizza[phrase]({ word }), 'game: pizza'));
-    add(pizza.cheesed({ number, word }), 'game: pizza');
-    add(pizza.idle.trace({ word }), 'game: pizza');
-    add(pizza.idle.placed({ number }), 'game: pizza');
+    const pizzaN = `say:pizza:${number}`;
+    ['rolled', 'more', 'messy', 'written'].forEach((phrase) => add(pizza[phrase]({ word }), 'game: pizza', pizzaN));
+    add(pizza.cheesed({ number, word }), 'game: pizza', pizzaN);
+    add(pizza.idle.trace({ word }), 'game: pizza', pizzaN);
+    add(pizza.idle.placed({ number }), 'game: pizza', pizzaN);
     toppings.forEach((topping) => {
-      add(pizza.picked({ number, word, topping }), 'game: pizza');
-      add(pizza.right({ number, topping }), 'game: pizza');
+      add(pizza.picked({ number, word, topping }), 'game: pizza', pizzaN);
+      add(pizza.right({ number, topping }), 'game: pizza', pizzaN);
     });
     add(say.cake.iced({ number, word }), 'game: cake');
     add(say.cake.right({ number }), 'game: cake');
-    range(0, number - 1).forEach((placed) => add(pizza.tooFew({ number, placed }), 'game: pizza and cake'));
-    range(number + 1, 12).forEach((placed) => add(pizza.tooMany({ number, placed }), 'game: pizza and cake'));
+    range(0, number - 1).forEach((placed) => add(pizza.tooFew({ number, placed }), 'game: pizza and cake', [pizzaN, 'say:cake']));
+    range(number + 1, 12).forEach((placed) => add(pizza.tooMany({ number, placed }), 'game: pizza and cake', [pizzaN, 'say:cake']));
   });
   toppings.forEach((topping) => add(pizza.idle.place({ topping }), 'game: pizza'));
   range(1, 3).forEach((eaten) => add(pizza.ate({ eaten }), 'game: pizza'));

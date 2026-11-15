@@ -2,7 +2,9 @@ import BaseScene, { SAFE } from '../ui/BaseScene';
 import Button from '../ui/Button';
 import StarRow from '../ui/StarRow';
 import { COLORS, textStyle } from '../ui/theme';
-import { completeAdventureStep, recordRound } from '../services/session';
+import { completeAdventureStep, recordRound, session } from '../services/session';
+import { applySession, toDayKey } from '../logic/progress';
+import { profileBand } from '../logic/profiles';
 import { speak } from '../services/speech';
 import { calculateStars } from '../logic/scoring';
 import { resultLine } from '../logic/quizRound';
@@ -26,6 +28,18 @@ const CHEER_MS = 1500;
 //   "Again"; adventureStep when the round is a step of Today's Adventure)
 export default class ResultsScene extends BaseScene {
   static key = 'Results';
+
+  // What it will say, worked out before it opens so those recordings are
+  // downloaded first: the result, the score, and any skill newly mastered.
+  static prepare({ score = 0, total = 0, tallies = {} } = {}) {
+    const stars = calculateStars(score, total);
+    const lines = [resultLine(stars), t('results.sayScore', { score, total })];
+    if (session.profile) {
+      const { newlyMastered } = applySession(session.progress, tallies, toDayKey(), profileBand(session.profile).id);
+      if (newlyMastered.length) lines.push(t('results.sayMastered', { titles: list(newlyMastered.map((id) => skillTitle(getSkill(id)))) }));
+    }
+    return lines;
+  }
 
 
   build({ mode, score, total, tallies, replay, adventureStep }) {

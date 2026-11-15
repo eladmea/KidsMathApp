@@ -202,7 +202,7 @@ export function preload(text) {
 
 // Downloads many recordings (a scene's, before it opens), a few at a time.
 // Resolves once every one has downloaded or failed; onProgress(done, total).
-const PARALLEL_DOWNLOADS = 6;
+const PARALLEL_DOWNLOADS = 12;
 export function preloadClips(urls, { onProgress = () => {} } = {}) {
   const queue = [...new Set(urls)];
   const total = queue.length;
