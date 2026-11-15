@@ -64,6 +64,9 @@ async function move(dx, buttons) {
 
 // The bottom row's y (LetterCatcherScene BUBBLE.rows), less its bobbing.
 const BOTTOM_ROW = 462 - 20;
+// Where bubbles turn back (BUBBLE.min / max), and how close two in a row
+// get before they bump (BUBBLE.radius * 2 + 8).
+const [BUBBLE_MIN, BUBBLE_MAX, BUBBLE_GAP] = [380, 1060, 84];
 
 // Lines the kid up under a bubble showing `pick(tile)` and throws. Returns
 // the hit: { tile, right }. `bottom`: only at a bubble in the bottom row.
@@ -89,7 +92,16 @@ async function aimAndThrow(pick, { buttons = false, bottom = false } = {}) {
     // taking a moment to throw. The lowest first; else wait for a lane to clear.
     const inWay = (b, x) => [0, 0.15, 0.3].some((lag) => Math.abs(b.x + b.speed * ((618 - 112 - b.y) / 900 + lag) - x) < 110);
     const clear = (target) => !s.bubbles.some((b) => b !== target && b.y > target.y + 40 && inWay(b, aim(target)));
-    const target = s.bubbles.filter((b) => pick(b.tile, s) && clear(b) && (!bottom || b.y >= BOTTOM_ROW)).sort((a, b) => b.y - a.y)[0];
+    // And one that won't bounce (off a wall or a bubble in its row) before
+    // the ball arrives: a bounce sends it the other way, the ball misses, and
+    // flies on into a bubble higher up. The aim allows for a slow machine.
+    const reach = (b) => Math.abs(b.speed) * ((618 - 112 - b.y) / 900 + 0.4) + 12;
+    const steady = (b) => {
+      const ahead = b.x + Math.sign(b.speed) * reach(b);
+      if (ahead < BUBBLE_MIN || ahead > BUBBLE_MAX) return false;
+      return !s.bubbles.some((o) => o !== b && Math.abs(o.y - b.y) < 30 && Math.abs(o.x - b.x) < BUBBLE_GAP + reach(b) + reach(o));
+    };
+    const target = s.bubbles.filter((b) => pick(b.tile, s) && clear(b) && steady(b) && (!bottom || b.y >= BOTTOM_ROW)).sort((a, b) => b.y - a.y)[0];
     if (!target) {
       why.blocked += 1;
       await sleep(120);
