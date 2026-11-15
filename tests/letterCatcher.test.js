@@ -1,6 +1,6 @@
 import * as en from '../src/content/en/literacy';
 import * as he from '../src/content/he/literacy';
-import { LEVELS, bubblePool, catchTile, makeTargets, nextBubble, touches } from '../src/logic/letterCatcher';
+import { LEVELS, bubblePool, catchTile, makeTargets, nextBubble, touches, touchesOnTheWay } from '../src/logic/letterCatcher';
 
 describe('Letter Catcher', () => {
   it.each([
@@ -48,5 +48,15 @@ describe('Letter Catcher', () => {
   it('knows when the ball touches a bubble', () => {
     expect(touches({ x: 100, y: 100 }, { x: 130, y: 120 }, 60)).toBe(true);
     expect(touches({ x: 100, y: 100 }, { x: 200, y: 100 }, 60)).toBe(false);
+  });
+
+  it('catches a bubble the ball passed in one slow frame', () => {
+    // The ball jumped from y 506 to 326: it went through the bubble at 468.
+    const ball = { x: 900, y: 326 };
+    expect(touches(ball, { x: 905, y: 468 }, 54)).toBe(false);
+    expect(touchesOnTheWay(ball, 506, { x: 905, y: 468 }, 54)).toBe(true);
+    // Not one off to the side, nor one still above the ball.
+    expect(touchesOnTheWay(ball, 506, { x: 1000, y: 468 }, 54)).toBe(false);
+    expect(touchesOnTheWay(ball, 506, { x: 900, y: 200 }, 54)).toBe(false);
   });
 });
