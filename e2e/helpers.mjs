@@ -9,12 +9,16 @@ export const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 // How the walkthroughs start Chromium. By default Playwright's headless
 // shell, which has no GPU: WebGL is drawn by the CPU (SwiftShader).
 // E2E_GPU=1 uses the full Chromium in its new headless mode, which can draw
-// with the graphics card (Direct3D 11 on Windows). CHROMIUM=path uses that
-// browser instead.
+// with the graphics card (Direct3D 11 on Windows). E2E_GPU=headed opens
+// real windows (always on the graphics card, but needs a logged-in desktop:
+// on Windows, start the runner with run.cmd, not as a service).
+// CHROMIUM=path uses that browser instead.
+export const GPU = ['1', 'headed'].includes(process.env.E2E_GPU) ? process.env.E2E_GPU : null;
 export function launchOptions() {
   const options = process.env.CHROMIUM ? { executablePath: process.env.CHROMIUM } : {};
-  if (process.env.E2E_GPU === '1') {
+  if (GPU) {
     if (!options.executablePath) options.channel = 'chromium';
+    if (GPU === 'headed') options.headless = false;
     options.args = ['--enable-gpu', '--ignore-gpu-blocklist', ...(process.platform === 'win32' ? ['--use-angle=d3d11'] : [])];
   }
   return options;
@@ -25,17 +29,21 @@ export function launchOptions() {
 // land in the same places.
 export const SCALE = Number(process.env.E2E_SCALE) || 2;
 
-// Which GPU (or software renderer) Chromium draws WebGL with.
+// Which GPU (or software renderer) Chromium draws WebGL with, and how it
+// was started.
 export async function renderer() {
+  const mode = GPU ? `GPU mode ${GPU === 'headed' ? 'headed (windows)' : 'on (headless)'}` : `GPU mode off (E2E_GPU=${process.env.E2E_GPU ? JSON.stringify(process.env.E2E_GPU) : 'not set'})`;
   const browser = await chromium.launch(launchOptions());
   try {
     const page = await browser.newPage();
-    return await page.evaluate(() => {
+    const name = await page.evaluate(() => {
       const gl = document.createElement('canvas').getContext('webgl');
       if (!gl) return 'no WebGL';
       const info = gl.getExtension('WEBGL_debug_renderer_info');
       return gl.getParameter(info ? info.UNMASKED_RENDERER_WEBGL : gl.RENDERER);
     });
+    const software = /SwiftShader|Basic Render|llvmpipe|no WebGL/i.test(name) ? ' (software: the CPU draws)' : '';
+    return `${name}${software}; ${mode}, ${GPU ? 'Chromium' : 'headless shell'} ${browser.version()}`;
   } finally {
     await browser.close();
   }
