@@ -7,7 +7,7 @@ import { COLORS, popStyle, textStyle } from '../ui/theme';
 import { celebrate, oops, pulse } from '../ui/Juice';
 import { logEvents, session } from '../services/session';
 import { testQuestionCount } from '../services/testBridge';
-import { preload, speak, stop as stopSpeech } from '../services/speech';
+import { preload, preloadLines, speak, stop as stopSpeech } from '../services/speech';
 import { play } from '../services/audio';
 import { buildSession, replaceRemaining, tallyBySkill } from '../logic/session';
 import { getRecord, hasPassed, toDayKey } from '../logic/progress';
@@ -29,6 +29,10 @@ const blendLine = (question) => (question.type === 'build' ? t('quiz.blend', { s
 // captions (said on a tap), and a built word blended back.
 const questionLines = (question) =>
   [question.speech, question.explain || answerLine(question), ...(question.choiceWords || []), ...(question.items || []).map((item) => item.caption), question.visual && question.visual.say, blendLine(question)].filter(Boolean);
+
+// How long a new level's questions may wait for their recordings (then
+// the device voice says what hasn't arrived).
+const NEW_LEVEL_WAIT_MS = 3000;
 
 const titleOf = (mode, skill) => (mode === 'practice' ? t('quiz.title', { emoji: skill.emoji, title: skillTitle(skill) }) : t(`quiz.${mode}`));
 
@@ -142,7 +146,8 @@ export default class QuizScene extends BaseScene {
   // ---- Worked example: how to play, a question with the answer filled in ----
   // `fromRound`: the round itself asks for it (a hint after wrong answers);
   // the ❓ button can't open one while an answer is showing.
-  showExample(fromRound = false) {
+  // `made`: an example made (and its recordings downloaded) beforehand.
+  showExample(fromRound = false, made = null) {
     if (this.step === 'feedback' && !fromRound) return;
     const skill = this.currentSkill();
     if (!skill.generator) return;
@@ -152,7 +157,7 @@ export default class QuizScene extends BaseScene {
     // The first example was made (and its recordings downloaded) in prepare().
     const ready = this.firstExample && skill.generator === getSkill(this.skillIds[0]).generator ? this.firstExample : null;
     this.firstExample = null;
-    const question = ready || { ...generateQuestion(skill.generator), id: 'example' };
+    const question = made || ready || this.makeExample();
     this.help.setVisible(false);
     this.narrator.say(exampleSpeech(howToLine, question), { show: [howToLine, question.prompt].filter(Boolean).join('\n'), force: Boolean(question.speakAlways) });
     this.placeRow();
@@ -287,20 +292,35 @@ export default class QuizScene extends BaseScene {
     this.report({ step: 'talk', right });
   }
 
+  makeExample() {
+    return { ...generateQuestion(this.currentSkill().generator), id: 'example' };
+  }
+
   next(adapted, nextSkill) {
     this.index += 1;
     if (this.index >= this.questions.length) return this.finish();
-    if (adapted?.change === 'up' || adapted?.change === 'down') {
+    const change = adapted?.change;
+    const newLevel = change === 'up' || change === 'down';
+    if (newLevel) {
       this.questions = replaceRemaining(this.questions, this.index, nextSkill);
       this.level = adapted.level;
-      this.questions.slice(this.index).forEach((question) => preload(questionLines(question).join(' ')));
     }
-    const note = adapted?.change ? levelNote(adapted.change, nextSkill, adapted.level) : null;
+    const note = change ? levelNote(change, nextSkill, adapted.level) : null;
     this.note.setText(note || '');
     this.report({ note, level: this.level });
     // A run of wrong answers gets a worked example of the (easier) skill.
-    if (adapted?.change === 'down' || adapted?.change === 'hint') this.showExample(true);
-    else this.showQuestion();
+    const example = (change === 'down' || change === 'hint') && this.currentSkill().generator ? this.makeExample() : null;
+    const show = () => (example ? this.showExample(true, example) : this.showQuestion());
+    if (!newLevel && !example) return show();
+    // New questions or a new example: their recordings download first (the
+    // level note shows meanwhile), so the voice doesn't wait mid-question.
+    const lines = [...(newLevel ? this.questions.slice(this.index).flatMap(questionLines) : []), ...(example ? [exampleSpeech(howTo(this.currentSkill().generator), example), ...questionLines(example)] : [])];
+    const round = this.questions;
+    const index = this.index;
+    Promise.race([preloadLines(lines), new Promise((resolve) => setTimeout(resolve, NEW_LEVEL_WAIT_MS))]).then(() => {
+      // Unless the player left (or the scene restarted) meanwhile.
+      if (this.sys.isActive() && !this.finished && this.questions === round && this.index === index) show();
+    });
   }
 
   finish() {

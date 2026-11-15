@@ -99,6 +99,12 @@ async function aimAndThrow(pick, { buttons = false } = {}) {
     const before = { caught: s.caught, wrong: s.wrong };
     if (buttons) await tap('throw');
     else await t.page.keyboard.press('Space');
+    // On a busy machine the ball can leave a frame or two after the press:
+    // wait for it (or its hit) first, or the next try throws a second ball.
+    await waitFor((b) => {
+      const now = window.__mathplay.state;
+      return Boolean(now.ball) || now.caught !== b.caught || now.wrong !== b.wrong || now.step !== 'play';
+    }, before, 1500).catch(() => {});
     await waitFor(() => !window.__mathplay.state.ball || window.__mathplay.state.step !== 'play', null, 4000);
     const after = await state();
     if (after.caught !== before.caught || after.step === 'word') return { right: true };

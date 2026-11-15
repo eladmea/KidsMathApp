@@ -34,6 +34,11 @@ const SIZE = { width: 236, height: 150 };
 export default class WorldMapScene extends BaseScene {
   static key = 'WorldMap';
 
+  // "Play together" says the coaching intro: download it with the map.
+  static prepare() {
+    return [coachIntro()];
+  }
+
 
   build() {
     if (this.timeUpGate()) return;

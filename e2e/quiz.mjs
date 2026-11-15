@@ -28,6 +28,9 @@ await t.waitScene('Profiles');
 let played = 0;
 const failures = [];
 const partials = [];
+// Story Strip / Word Builder skills met (each is answered half by hand
+// first). Some subjects have none.
+let halfDone = 0;
 const seen = new Set();
 for (const band of BANDS) {
   for (const subject of SUBJECTS) {
@@ -83,6 +86,7 @@ for (const band of BANDS) {
           // A retry after a half-done answer: one panel or tile already in
           // place, then the helper finishes it (it must keep that one).
           if (i === 0 && (s.type === 'order' || s.type === 'build')) {
+            halfDone += 1;
             const first = s.type === 'order' ? `story:${s.answer[0]}` : `tile:${s.tiles.find((tl) => tl.text === s.parts[0]).id}`;
             await tap(first);
             await waitFor(() => (window.__mathplay.state.storyOrder || window.__mathplay.state.placed || []).length === 1, null, 4000);
@@ -131,7 +135,12 @@ for (const band of BANDS) {
     await t.waitScene('WorldMap');
   }
 }
-check('a half-done answer is finished, not tapped over (Story Strip, Word Builder)', partials.length >= 3, partials.join(', '));
+// Every Story Strip / Word Builder skill met was finished from half done;
+// a run of every subject must meet several (the subjects run separately in
+// run.mjs, and math, logic and sel have none).
+if (halfDone || SUBJECTS.length > 1) {
+  check('a half-done answer is finished, not tapped over (Story Strip, Word Builder)', partials.length === halfDone && halfDone >= (SUBJECTS.length > 1 ? 3 : 1), `${partials.length} of ${halfDone}: ${partials.join(', ')}`);
+}
 const saved = await t.mp(() => {
   const profile = JSON.parse(localStorage.getItem('mathplay2:profiles'))[0];
   return Object.keys(JSON.parse(localStorage.getItem(`mathplay2:progress:${profile.id}`) || '{}')).length;
