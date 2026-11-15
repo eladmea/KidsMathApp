@@ -24,6 +24,12 @@ const NEXT_MS = 1700;
 
 export default class BlockFitScene extends BaseScene {
   static key = 'BlockFit';
+
+  // What a filled shape says: every digit's word and every letter (a few
+  // dozen), downloaded before the round opens (services/voicePreload.js).
+  static prepare() {
+    return [...Object.values(content('math').NUMBER_WORDS), ...Object.keys(content('literacy').BLOCK_LETTERS || {})];
+  }
   static plays = ['BlockFit'];
 
   build({ skillId = 'math-block-fit' } = {}) {

@@ -29,14 +29,32 @@ const sound = (tile) => (content('literacy').soundSpeech || ((g) => g))(tile);
 
 export default class LetterCatcherScene extends BaseScene {
   static key = 'LetterCatcher';
+
   static plays = ['LetterCatcher'];
+
+  // The round's words are picked before it opens, so their recordings (and
+  // every letter sound a bubble can say) download first
+  // (services/voicePreload.js).
+  static prepare(data = {}) {
+    const { skillId = 'lit-catch-letter' } = data;
+    const levelId = getSkill(skillId).catchLevel || 'letter';
+    const targets = makeTargets(levelId, content('literacy'));
+    LetterCatcherScene.prepared = { data, targets };
+    return targets.flatMap((target) => [target.word, levelId === 'letter' ? `${target.word}. ${sound(target.tiles[0])}.` : null]).filter(Boolean);
+  }
+
+  static voiceGroups() {
+    return ['letters'];
+  }
 
   build({ skillId = 'lit-catch-letter' } = {}) {
     this.skill = getSkill(skillId);
     this.levelId = this.skill.catchLevel || 'letter';
     this.level = getLevel(this.levelId);
     const pack = content('literacy');
-    this.targets = makeTargets(this.levelId, pack);
+    const prepared = LetterCatcherScene.prepared && LetterCatcherScene.prepared.data === this.startData ? LetterCatcherScene.prepared : null;
+    LetterCatcherScene.prepared = null;
+    this.targets = prepared ? prepared.targets : makeTargets(this.levelId, pack);
     this.pool = bubblePool(this.levelId, pack);
     this.wordIndex = 0;
     this.score = 0;
