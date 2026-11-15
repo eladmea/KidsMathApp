@@ -23,6 +23,8 @@ import { content } from '../content/index';
 
 // How the narrator says a letter tile's sound, in the current language.
 const sound = (grapheme) => (content('literacy').soundSpeech || ((g) => g))(grapheme);
+// A built word, blended back after the answer: "kuh, aah, tuh… cat!"
+const blendLine = (question) => (question.type === 'build' ? t('quiz.blend', { sounds: question.parts.map(sound).join(', '), word: question.word }) : null);
 
 const titleOf = (mode, skill) => (mode === 'practice' ? t('quiz.title', { emoji: skill.emoji, title: skillTitle(skill) }) : t(`quiz.${mode}`));
 
@@ -55,7 +57,7 @@ export default class QuizScene extends BaseScene {
     const base = getSkill(skillIds[0]);
     const example = base && base.generator ? { ...generateQuestion(base.generator), id: 'example' } : null;
     QuizScene.prepared = { data, questions, example };
-    const lines = [...questions, example].filter(Boolean).flatMap((question) => [question.speech, question.explain || answerLine(question), ...(question.choiceWords || [])]);
+    const lines = [...questions, example].filter(Boolean).flatMap((question) => [question.speech, question.explain || answerLine(question), ...(question.choiceWords || []), blendLine(question)]);
     return [...lines, base && howTo(base.generator)].filter(Boolean);
   }
 
@@ -238,7 +240,7 @@ export default class QuizScene extends BaseScene {
     }
     if (question.type === 'build') {
       // Blend the sounds back into the word: "kuh, aah, tuh… cat!"
-      this.time.delayedCall(400, () => speak(t('quiz.blend', { sounds: question.parts.map(sound).join(', '), word: question.word }), { force: true }));
+      this.time.delayedCall(400, () => speak(blendLine(question), { force: true }));
     } else if (!right && question.explain) {
       this.narrator.say(question.explain);
     }
@@ -287,7 +289,7 @@ export default class QuizScene extends BaseScene {
     if (adapted?.change === 'up' || adapted?.change === 'down') {
       this.questions = replaceRemaining(this.questions, this.index, nextSkill);
       this.level = adapted.level;
-      this.questions.slice(this.index).forEach((question) => preload([question.speech, question.explain || answerLine(question)].filter(Boolean).join(' ')));
+      this.questions.slice(this.index).forEach((question) => preload([question.speech, question.explain || answerLine(question), ...(question.choiceWords || []), blendLine(question)].filter(Boolean).join(' ')));
     }
     const note = adapted?.change ? levelNote(adapted.change, nextSkill, adapted.level) : null;
     this.note.setText(note || '');
