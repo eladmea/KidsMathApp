@@ -16,6 +16,8 @@ const rotate = await page.locator('#rotate').isVisible();
 if (height > width) {
   check('portrait phone asks to turn the device', rotate);
   await t.shot(dir, 'rotate');
+  // The game starts once the first scene's recordings are downloaded.
+  await t.waitFor(() => window.__mathplay && window.__mathplay.voice.length > 0, null, 15000).catch(() => {});
   const voiced = await t.mp(() => window.__mathplay.voice);
 check('every sentence is spoken from a recording', voiced.length > 0 && voiced.every((v) => v.source === 'recording'), voiced.filter((v) => v.source !== 'recording').map((v) => v.text).join(' | '));
 process.exit(await t.finish());

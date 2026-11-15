@@ -6,11 +6,56 @@ import { chromium } from 'playwright';
 export const URL = process.env.URL || 'http://localhost:8765/KidsMathApp/';
 export const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
+// How the walkthroughs start Chromium. By default Playwright's headless
+// shell, which has no GPU: WebGL is drawn by the CPU (SwiftShader).
+// E2E_GPU=1 uses the full Chromium in its new headless mode, which can draw
+// with the graphics card (Direct3D 11 on Windows). E2E_GPU=headed opens
+// real windows (always on the graphics card, but needs a logged-in desktop:
+// on Windows, start the runner with run.cmd, not as a service).
+// CHROMIUM=path uses that browser instead.
+export const GPU = ['1', 'headed'].includes(process.env.E2E_GPU) ? process.env.E2E_GPU : null;
+export function launchOptions() {
+  const options = process.env.CHROMIUM ? { executablePath: process.env.CHROMIUM } : {};
+  if (GPU) {
+    if (!options.executablePath) options.channel = 'chromium';
+    if (GPU === 'headed') options.headless = false;
+    // On a PC with two GPUs (e.g. Intel on the CPU and an NVIDIA card),
+    // ask for the faster one.
+    options.args = ['--enable-gpu', '--ignore-gpu-blocklist', ...(process.platform === 'win32' ? ['--use-angle=d3d11', '--force_high_performance_gpu'] : [])];
+  }
+  return options;
+}
+
+// The screen's pixel density. The game draws at this resolution (main.js),
+// so E2E_SCALE=1 draws a quarter of the pixels; taps are in CSS pixels and
+// land in the same places.
+export const SCALE = Number(process.env.E2E_SCALE) || 2;
+
+// Which GPU (or software renderer) Chromium draws WebGL with, and how it
+// was started.
+export async function renderer() {
+  const mode = GPU ? `GPU mode ${GPU === 'headed' ? 'headed (windows)' : 'on (headless)'}` : `GPU mode off (E2E_GPU=${process.env.E2E_GPU ? JSON.stringify(process.env.E2E_GPU) : 'not set'})`;
+  const browser = await chromium.launch(launchOptions());
+  try {
+    const page = await browser.newPage();
+    const name = await page.evaluate(() => {
+      const gl = document.createElement('canvas').getContext('webgl');
+      if (!gl) return 'no WebGL';
+      const info = gl.getExtension('WEBGL_debug_renderer_info');
+      return gl.getParameter(info ? info.UNMASKED_RENDERER_WEBGL : gl.RENDERER);
+    });
+    const software = /SwiftShader|Basic Render|llvmpipe|no WebGL/i.test(name) ? ' (software: the CPU draws)' : '';
+    return `${name}${software}; ${mode}, ${GPU ? 'Chromium' : 'headless shell'} ${browser.version()}`;
+  } finally {
+    await browser.close();
+  }
+}
+
 export async function open({ width, height, label }) {
   const checks = [];
   const errors = [];
-  const browser = await chromium.launch(process.env.CHROMIUM ? { executablePath: process.env.CHROMIUM } : {});
-  const context = await browser.newContext({ viewport: { width, height }, deviceScaleFactor: 2, hasTouch: true, isMobile: width < 1000 });
+  const browser = await chromium.launch(launchOptions());
+  const context = await browser.newContext({ viewport: { width, height }, deviceScaleFactor: SCALE, hasTouch: true, isMobile: width < 1000 });
   await context.addInitScript(() => {
     const fake = [
       { name: 'Fred', lang: 'en-US', voiceURI: 'fred', default: true, localService: true },

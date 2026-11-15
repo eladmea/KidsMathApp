@@ -110,7 +110,13 @@ GitHub's machines are slow, so the timing-sensitive walkthroughs (Pizza, Quiz, L
 3. **Settings → Actions → General → Approval for running fork pull request workflows from contributors**: choose **Require approval for all external contributors**. The workflow never sends pull requests from forks to the PC, but this keeps strangers' workflows from running anywhere without you.
 4. **Settings → Secrets and variables → Actions → Variables**: add `E2E_RUNNER` = `pc`. Optionally add `E2E_JOBS` (how many walkthroughs run at once; by default half the CPUs, up to 4). Try 6 on a strong PC, and go back down if Pizza or Quiz start failing.
 
-From then on, every push to `main`, pull request from this repository, and manual run (**Actions → Browser walkthroughs → Run workflow**) runs all walkthroughs in one job on the PC. Pull requests from forks still use GitHub's machines. While the PC is off or asleep, the job waits for it (for up to a day). Delete the variable, or set it to anything but `pc`, to go back to GitHub's machines.
+From then on, every push to `main`, pull request from this repository, and manual run (**Actions → Browser walkthroughs → Run workflow**) runs all walkthroughs in one job on the PC. Pull requests from forks still use GitHub's machines. While the PC is off or asleep, the job waits for it (for up to a day). Delete the variable, or set it to anything but `pc`, to go back to GitHub's machines. The PC job's log counts the walkthroughs as they finish (`[12/31] ✓ pizza.mjs phone …`), and the run's page shows how many passed out of the total, with a table of every walkthrough on its **Summary** tab.
+
+To take load off the PC's CPU (each headless Chromium draws the game's WebGL in software, at double resolution), two more variables:
+
+- `E2E_GPU` = `1`: draw with the PC's graphics card (full Chromium, new headless mode, Direct3D 11). The log's first line, `Graphics: …`, must name the card (e.g. `NVIDIA GeForce RTX 4060`). If it says `SwiftShader`, `Microsoft Basic Render Driver` or `no WebGL`, the card was not reached (with `no WebGL` the game falls back to its Canvas renderer, so WebGL is not being tested): run the runner from `run.cmd` in your own logged-in session, or set its service to log on as your account (`services.msc` → GitHub Actions Runner → Log On). If it still draws in software, set `E2E_GPU` = `headed`: the walkthroughs open real Chrome windows, which always use the card, but the runner must then run from `run.cmd` while you are logged in. If it names the processor's built-in graphics (e.g. `Intel UHD Graphics`) instead of the graphics card, see the next paragraph. The line also says whether GPU mode is on (`GPU mode off (E2E_GPU=not set)` means the variable did not reach the run).
+  On a PC with built-in graphics and a graphics card, the walkthroughs ask Chromium for the faster one. If the line still names the built-in graphics: plug the monitor into the graphics card rather than the motherboard, or in **Settings → System → Display → Graphics**, add Playwright's `chrome.exe` (the path is in the runner's log of `npx playwright install chromium`, or under `ms-playwright\chromium-*\chrome-win` in the runner account's AppData) and set it to **High performance**.
+- `E2E_SCALE` = `1`: draw at normal resolution instead of double, a quarter of the pixels. Taps land in the same places; screenshots are less sharp.
 
 `.github/workflows/smoke-live.yml` opens the live site in Chromium after every deploy. It fails, logging the broken download or script error, when the game doesn't start.
 
@@ -131,7 +137,7 @@ npm run e2e:local                       # builds, serves the build itself, runs 
                                         # tablet and portrait sizes, then stops the server. Runs several at
                                         # once (half the CPUs, up to 4; E2E_JOBS=n to change): ~22 min on
                                         # 4 CPUs, ~35 min with E2E_JOBS=1
-npm run e2e:local -- --only quiz.mjs:laptop-math   # just one (node e2e/run.mjs --list shows the names)
+npm run e2e:local -- --only quiz.mjs:laptop-math   # just one, or several with commas (node e2e/run.mjs --list shows the names)
 node e2e/players.mjs shots 844 390 phone    # or one walkthrough at one size, against a server you run
                                             # (npx vite preview --port 8765 after a BASE_URL=/KidsMathApp/ build)
 ```

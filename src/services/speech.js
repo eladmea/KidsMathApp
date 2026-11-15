@@ -200,6 +200,13 @@ export function preload(text) {
   });
 }
 
+// Downloads the recordings of some lines; resolves once all are in (or
+// failed). For lines made mid-scene (a quiz's new level).
+export function preloadLines(lines) {
+  const urls = lines.filter(Boolean).flatMap((line) => splitSentences(line).map((sentence) => clipUrl(sentence, getLanguage())));
+  return preloadClips(urls.filter(Boolean));
+}
+
 // Downloads many recordings (a scene's, before it opens), a few at a time.
 // Resolves once every one has downloaded or failed; onProgress(done, total).
 const PARALLEL_DOWNLOADS = 12;
