@@ -110,7 +110,7 @@ GitHub's machines are slow, so the timing-sensitive walkthroughs (Pizza, Quiz, L
 3. **Settings → Actions → General → Approval for running fork pull request workflows from contributors**: choose **Require approval for all external contributors**. The workflow never sends pull requests from forks to the PC, but this keeps strangers' workflows from running anywhere without you.
 4. **Settings → Secrets and variables → Actions → Variables**: add `E2E_RUNNER` = `pc`. Optionally add `E2E_JOBS` (how many walkthroughs run at once; by default half the CPUs, up to 4). Try 6 on a strong PC, and go back down if Pizza or Quiz start failing.
 
-From then on, every push to `main`, pull request from this repository, and manual run (**Actions → Browser walkthroughs → Run workflow**) runs all walkthroughs in one job on the PC. Pull requests from forks still use GitHub's machines. While the PC is off or asleep, the job waits for it (for up to a day). Delete the variable, or set it to anything but `pc`, to go back to GitHub's machines.
+From then on, every push to `main`, pull request from this repository, and manual run (**Actions → Browser walkthroughs → Run workflow**) runs all walkthroughs in one job on the PC. Pull requests from forks still use GitHub's machines. While the PC is off or asleep, the job waits for it (for up to a day). Delete the variable, or set it to anything but `pc`, to go back to GitHub's machines. The PC job's log counts the walkthroughs as they finish (`[12/31] ✓ pizza.mjs phone …`), and the run's page shows how many passed out of the total, with a table of every walkthrough on its **Summary** tab.
 
 `.github/workflows/smoke-live.yml` opens the live site in Chromium after every deploy. It fails, logging the broken download or script error, when the game doesn't start.
 
@@ -131,7 +131,7 @@ npm run e2e:local                       # builds, serves the build itself, runs 
                                         # tablet and portrait sizes, then stops the server. Runs several at
                                         # once (half the CPUs, up to 4; E2E_JOBS=n to change): ~22 min on
                                         # 4 CPUs, ~35 min with E2E_JOBS=1
-npm run e2e:local -- --only quiz.mjs:laptop-math   # just one (node e2e/run.mjs --list shows the names)
+npm run e2e:local -- --only quiz.mjs:laptop-math   # just one, or several with commas (node e2e/run.mjs --list shows the names)
 node e2e/players.mjs shots 844 390 phone    # or one walkthrough at one size, against a server you run
                                             # (npx vite preview --port 8765 after a BASE_URL=/KidsMathApp/ build)
 ```

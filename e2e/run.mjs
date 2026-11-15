@@ -6,8 +6,9 @@
 //   node e2e/run.mjs <screenshotDir> --serve <dir>    serves <dir> itself, then stops
 //   node e2e/run.mjs --list                           the walkthroughs as JSON
 //                                                     ({ name: 'quiz.mjs:laptop' }, for CI)
-//   node e2e/run.mjs ... --only quiz.mjs:laptop        just that one
+//   node e2e/run.mjs ... --only quiz.mjs:laptop-math   just that one (or several, a,b)
 import { execFile } from 'child_process';
+import { appendFileSync } from 'fs';
 import { availableParallelism } from 'os';
 import { promisify } from 'util';
 import { fileURLToPath } from 'url';
@@ -39,7 +40,8 @@ if (listing) {
   console.log(JSON.stringify(runs.map((r) => ({ name: nameOf(r) }))));
   process.exit(0);
 }
-const chosen = only ? runs.filter((r) => nameOf(r) === only) : runs;
+const wanted = only ? only.split(',') : null;
+const chosen = wanted ? runs.filter((r) => wanted.includes(nameOf(r))) : runs;
 if (!chosen.length) {
   console.log(`No walkthrough called ${only} (see --list)`);
   process.exit(1);
@@ -49,23 +51,37 @@ const server = served ? await serve(served) : null;
 if (server) process.env.URL = server.url;
 const jobs = Math.min(chosen.length, Number(process.env.E2E_JOBS) || Math.max(1, Math.min(4, Math.floor(availableParallelism() / 2))));
 let failed = 0;
+let done = 0;
+// One entry per walkthrough, for the summary at the end.
+const results = [];
 
-async function runOne([script, width, height, label, ...extra]) {
+async function runOne(entry) {
+  const [script, width, height, label, ...extra] = entry;
   const started = Date.now();
-  const took = () => `${Math.round((Date.now() - started) / 1000)}s`;
+  const seconds = () => Math.round((Date.now() - started) / 1000);
+  const count = () => `[${++done}/${chosen.length}]`;
+  let passes;
+  let fails;
+  let crashed = false;
   try {
     const { stdout: out } = await run('node', [fileURLToPath(new URL(script, import.meta.url)), dir, String(width), String(height), label, ...extra], { encoding: 'utf8', maxBuffer: 1 << 24 });
     const lines = out.trim().split(/\r?\n/);
-    const fails = lines.filter((line) => line.startsWith('FAIL'));
-    console.log(`${fails.length ? '✗' : '✓'} ${script} ${[label, ...extra].join(' ')}: ${lines.filter((l) => l.startsWith('PASS')).length} passed${fails.length ? `, ${fails.length} failed` : ''} (${took()})`);
+    passes = lines.filter((l) => l.startsWith('PASS')).length;
+    fails = lines.filter((l) => l.startsWith('FAIL'));
+    console.log(`${count()} ${fails.length ? '✗' : '✓'} ${script} ${[label, ...extra].join(' ')}: ${passes} passed${fails.length ? `, ${fails.length} failed` : ''} (${seconds()}s)`);
     fails.forEach((line) => console.log(`  ${line}`));
-    if (fails.length) failed += 1;
   } catch (error) {
-    failed += 1;
-    console.log(`✗ ${script} ${[label, ...extra].join(' ')}: crashed (${took()})`);
-    console.log(String(error.stdout || '').split('\n').filter((l) => l.startsWith('FAIL')).join('\n'));
+    crashed = true;
+    const out = String(error.stdout || '').split(/\r?\n/);
+    passes = out.filter((l) => l.startsWith('PASS')).length;
+    fails = out.filter((l) => l.startsWith('FAIL'));
+    console.log(`${count()} ✗ ${script} ${[label, ...extra].join(' ')}: crashed (${seconds()}s)`);
+    console.log(fails.join('\n'));
     console.log(String(error.stderr || error.message).split('\n').slice(0, 8).join('\n'));
   }
+  const ok = !crashed && !fails.length;
+  if (!ok) failed += 1;
+  results.push({ name: nameOf(entry), ok, crashed, passes, fails, seconds: seconds() });
 }
 
 // `jobs` workers take the next walkthrough until none are left.
@@ -74,6 +90,33 @@ const started = Date.now();
 await Promise.all(Array.from({ length: jobs }, async () => {
   while (queue.length) await runOne(queue.shift());
 }));
-console.log(`${chosen.length - failed} of ${chosen.length} walkthroughs passed in ${Math.round((Date.now() - started) / 60000)} min (${jobs} at a time)`);
+const minutes = Math.round((Date.now() - started) / 6000) / 10;
+const total = `${chosen.length - failed} of ${chosen.length} walkthroughs passed`;
+console.log(`${total} in ${minutes} min (${jobs} at a time)`);
+
+// On GitHub Actions, when this job runs more than one walkthrough (the PC
+// job), show the count at the top of the run page and a table on its
+// Summary page. The one-walkthrough jobs on GitHub's machines skip this.
+if (process.env.GITHUB_ACTIONS && chosen.length > 1) {
+  console.log(`::${failed ? 'error' : 'notice'} title=Walkthroughs::${total} (${minutes} min, ${jobs} at a time)`);
+  if (process.env.GITHUB_STEP_SUMMARY) {
+    const cell = (text) => text.replace(/\|/g, '\\|').replace(/\r?\n/g, ' ');
+    const rows = [...results]
+      .sort((a, b) => a.ok - b.ok || chosen.findIndex((r) => nameOf(r) === a.name) - chosen.findIndex((r) => nameOf(r) === b.name))
+      .map((r) => `| ${r.ok ? '✅' : '❌'} | ${r.name} | ${r.passes} | ${r.fails.length}${r.crashed ? ' (crashed)' : ''} | ${r.seconds}s |`);
+    const failures = results.filter((r) => r.fails.length).flatMap((r) => r.fails.map((f) => `- **${r.name}**: ${cell(f.replace(/^FAIL\s*/, ''))}`));
+    appendFileSync(process.env.GITHUB_STEP_SUMMARY, [
+      `### ${failed ? '❌' : '✅'} ${total}`,
+      '',
+      `${minutes} min, ${jobs} at a time.`,
+      '',
+      '| | Walkthrough | Checks passed | Failed | Time |',
+      '|---|---|---|---|---|',
+      ...rows,
+      ...(failures.length ? ['', '#### Failed checks', '', ...failures] : []),
+      '',
+    ].join('\n'));
+  }
+}
 if (server) await server.close();
 process.exit(failed ? 1 : 0);
