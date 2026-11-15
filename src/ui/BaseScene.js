@@ -51,7 +51,7 @@ export default class BaseScene extends Phaser.Scene {
   create(data) {
     this.built = false;
     this.leaving = false;
-    this.opening = false;
+    this.waitingForVoice = false;
     this.startData = data || {};
     this.backButton = null;
     // A twinkle wherever a finger touches. A scene where that would get in
@@ -186,11 +186,12 @@ export default class BaseScene extends Phaser.Scene {
     });
   }
 
-  // Starts `key` once its recordings are downloaded (see voiceReady). Taps
+  // Starts `key` once its recordings are downloaded (see voiceReady). (Not
+  // called open(): scenes use that name for their own things.) Taps
   // while waiting do nothing, so a double tap opens one scene.
-  open(key, data, start) {
-    if (this.opening) return;
-    this.opening = true;
+  startWhenVoiceReady(key, data, start) {
+    if (this.waitingForVoice) return;
+    this.waitingForVoice = true;
     let spinner = null;
     const showSpinner = setTimeout(() => {
       if (this.sys.isActive()) spinner = this.loadingSpinner();
@@ -198,7 +199,7 @@ export default class BaseScene extends Phaser.Scene {
     voiceReady(key, data, this.scene.manager).then(() => {
       clearTimeout(showSpinner);
       if (spinner) spinner.destroy();
-      this.opening = false;
+      this.waitingForVoice = false;
       if (this.sys.isActive()) start();
     });
   }
@@ -216,7 +217,7 @@ export default class BaseScene extends Phaser.Scene {
 
   // Opens another scene; back() returns here with the same data.
   go(key, data = {}) {
-    this.open(key, data, () => {
+    this.startWhenVoiceReady(key, data, () => {
       router.push({ key: this.scene.key, data: this.startData });
       this.scene.start(key, data);
     });
@@ -225,7 +226,7 @@ export default class BaseScene extends Phaser.Scene {
   // Back to the scene this one was opened from (the map if there is none).
   back() {
     const previous = router.peek() || { key: 'WorldMap', data: {} };
-    this.open(previous.key, previous.data, () => {
+    this.startWhenVoiceReady(previous.key, previous.data, () => {
       router.pop();
       this.scene.start(previous.key, previous.data);
     });
@@ -235,12 +236,12 @@ export default class BaseScene extends Phaser.Scene {
   // finished quiz becomes its results; "back" from either goes to the same
   // place).
   swap(key, data = {}) {
-    this.open(key, data, () => this.scene.start(key, data));
+    this.startWhenVoiceReady(key, data, () => this.scene.start(key, data));
   }
 
   // Starts a scene with a fresh history (e.g. after picking a player).
   reset(key, data = {}) {
-    this.open(key, data, () => {
+    this.startWhenVoiceReady(key, data, () => {
       router.clear();
       this.scene.start(key, data);
     });
