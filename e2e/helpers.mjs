@@ -19,7 +19,9 @@ export function launchOptions() {
   if (GPU) {
     if (!options.executablePath) options.channel = 'chromium';
     if (GPU === 'headed') options.headless = false;
-    options.args = ['--enable-gpu', '--ignore-gpu-blocklist', ...(process.platform === 'win32' ? ['--use-angle=d3d11'] : [])];
+    // On a PC with two GPUs (e.g. Intel on the CPU and an NVIDIA card),
+    // ask for the faster one.
+    options.args = ['--enable-gpu', '--ignore-gpu-blocklist', ...(process.platform === 'win32' ? ['--use-angle=d3d11', '--force_high_performance_gpu'] : [])];
   }
   return options;
 }
