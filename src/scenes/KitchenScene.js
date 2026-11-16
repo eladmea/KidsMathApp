@@ -28,6 +28,7 @@ import {
   isMeasured,
   keptIn,
   kitchenLevel,
+  levelRecipe,
   leftovers,
   measureStatus,
   measured,
@@ -79,8 +80,9 @@ export default class KitchenScene extends BaseScene {
 
   build({ skillId = 'kitchen-smoothie' } = {}) {
     this.skill = getSkill(skillId);
-    this.recipe = getRecipe(this.skill.recipe) || RECIPES[0];
     this.level = kitchenLevel(profileBand(session.profile).id);
+    // The oldest children cook for a party: everything doubled.
+    this.recipe = levelRecipe(getRecipe(this.skill.recipe) || RECIPES[0], this.level);
     this.words = content('kitchen');
     this.points = 0;
     this.station = null;
@@ -131,7 +133,7 @@ export default class KitchenScene extends BaseScene {
     this.buildStepper();
     this.buildCard();
     this.hint = new IdleHint(this, () => this.hintPoint(), { delay: 7000 });
-    this.say([this.words.say.kitchen.intro({ dish: this.words.DISHES[this.recipe.id] })]);
+    this.say([this.words.say.kitchen.intro({ dish: this.words.DISHES[this.recipe.id] }), this.recipe.factor > 1 ? this.words.say.kitchen.party() : null]);
     this.time.delayedCall(400, () => this.startWash());
   }
 
@@ -173,7 +175,7 @@ export default class KitchenScene extends BaseScene {
       const rowY = y + 82 + i * rowHeight;
       const back = this.add.rectangle(x + 8, rowY, width - 16, rowHeight - 4, 0xfff4dd, 0).setOrigin(0, 0.5).setRounded(10);
       const picture = glyph(this, x + 34, rowY, ingredient.emoji, Math.min(34, rowHeight - 14));
-      const text = this.add.text(x + 60, rowY, this.words.cardLine(ingredient, this.ingredientWords(ingredient)), textStyle(18, COLORS.ink, { align: 'left', wordWrap: { width: width - 100 } })).setOrigin(0, 0.5);
+      const text = this.add.text(x + 60, rowY, this.cardText(ingredient), textStyle(18, COLORS.ink, { align: 'left', wordWrap: { width: width - 100 } })).setOrigin(0, 0.5);
       const tick = this.add.text(x + width - 24, rowY, '✓', textStyle(24, COLORS.greenDark)).setOrigin(0.5).setVisible(false);
       this.cardRows[ingredient.key] = { back, picture, text, tick, gathered: false, measured: false };
     });
@@ -200,6 +202,13 @@ export default class KitchenScene extends BaseScene {
 
   clearTicks() {
     Object.values(this.cardRows).forEach((row) => row.tick.setVisible(false));
+  }
+
+  // A recipe card line: the recipe's own amount, and "× 2" at a party.
+  cardText(ingredient) {
+    const line = this.words.cardLine(ingredient.base || ingredient, this.ingredientWords(ingredient));
+    // Non-breaking, so "× 2" never wraps apart.
+    return this.recipe.factor > 1 ? `${line}\u00a0\u00a0×\u00a0${this.recipe.factor}` : line;
   }
 
   ingredientWords(ingredient) {
@@ -238,6 +247,7 @@ export default class KitchenScene extends BaseScene {
   snapshot() {
     return {
       recipe: this.recipe.id,
+      factor: this.recipe.factor,
       level: this.level.id,
       station: this.station,
       points: this.points,
@@ -515,7 +525,7 @@ export default class KitchenScene extends BaseScene {
       return object;
     };
     own(glyph(this, 560, 400, ingredient.emoji, 120));
-    own(this.add.text(560, 490, this.words.cardLine(ingredient, this.ingredientWords(ingredient)), textStyle(28, COLORS.ink, { stroke: '#ffffff', strokeThickness: 6 })).setOrigin(0.5));
+    own(this.add.text(560, 490, this.cardText(ingredient), textStyle(28, COLORS.ink, { stroke: '#ffffff', strokeThickness: 6 })).setOrigin(0.5));
     // The gauge: how much is in so far, and (younger children) where to stop.
     // The jug and the scale have their own numbers to read; cups and spoons
     // fill a bar over the bowl.
@@ -562,7 +572,8 @@ export default class KitchenScene extends BaseScene {
     }
     this.updateGauge();
     const words = this.ingredientWords(ingredient);
-    this.say([this.words.name(words), this.words.amount(ingredient, words), this.level.pickTool ? this.words.say.kitchen.pickTool() : null]);
+    const doubled = this.recipe.factor > 1;
+    this.say([this.words.name(words), this.words.amount(ingredient.base || ingredient, words), doubled ? this.words.say.kitchen.double() : null, this.level.pickTool ? this.words.say.kitchen.pickTool() : null]);
     this.report(this.snapshot());
   }
 

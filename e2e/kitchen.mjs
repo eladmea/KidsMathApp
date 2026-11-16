@@ -217,6 +217,8 @@ await tap('player:Noa');
 await openRecipe('kitchen-burgers');
 await station('wash');
 check('kitchen: masters level, only the quarter cup', (await state()).level === 'masters');
+s = await state();
+check('kitchen: the oldest double the recipe (2 eggs, 4 garlic cloves)', s.factor === 2 && s.shopping.find((i) => i.key === 'egg').count === 2 && s.shopping.find((i) => i.key === 'garlic').count === 4, JSON.stringify(s.shopping));
 await rub('hands', async () => (await state()).station !== 'wash');
 await gather();
 await measureAll({ picks: true });

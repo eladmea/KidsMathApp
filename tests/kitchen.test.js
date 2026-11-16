@@ -10,6 +10,7 @@ import {
   hasVerifiedCard,
   jugStep,
   kitchenLevel,
+  levelRecipe,
   leftovers,
   measureStatus,
   pantryStock,
@@ -111,6 +112,36 @@ describe('kitchen measures', () => {
     expect(kitchenLevel('sprouts').pickTool).toBe(false);
     expect(kitchenLevel('masters').tools).not.toContain('cup');
     expect(kitchenLevel('nobody')).toBe(LEVELS.sprouts);
+  });
+});
+
+describe('a party: the oldest children double the recipe', () => {
+  it('doubles every amount and keeps the card’s own amount', () => {
+    const muffins = levelRecipe(getRecipe('muffins'), LEVELS.masters);
+    expect(muffins.factor).toBe(2);
+    const oats = muffins.ingredients.find((i) => i.key === 'oats');
+    expect([oats.qty, oats.unit, oats.base]).toEqual([2, 'cup', { qty: 1, unit: 'cup' }]);
+    expect(muffins.ingredients.find((i) => i.key === 'coconutOil').qty).toBe(160);
+    expect(muffins.prep.find((a) => a.action === 'crack').times).toBe(4);
+    expect(levelRecipe(getRecipe('smoothie'), LEVELS.masters).prep[0].times).toBe(4);
+    // Twice the strawberries, in pieces twice the size: still 10 on the scale.
+    const strawberries = levelRecipe(getRecipe('smoothie'), LEVELS.masters).ingredients.find((i) => i.key === 'strawberries');
+    expect(scoopsFor(strawberries, 'scale')).toBe(10);
+    // 2 cups with only the quarter cup: 8 scoops.
+    expect(scoopsFor(oats, bestTool(oats, LEVELS.masters))).toBe(8);
+  });
+
+  it('leaves the other levels as the recipe says', () => {
+    const smoothie = levelRecipe(getRecipe('smoothie'), LEVELS.builders);
+    expect(smoothie.factor).toBe(1);
+    expect(smoothie.ingredients).toBe(getRecipe('smoothie').ingredients);
+  });
+
+  it('puts every doubled jug and scale amount on a mark', () => {
+    RECIPES.map((recipe) => levelRecipe(recipe, LEVELS.masters))
+      .flatMap((recipe) => recipe.ingredients)
+      .filter((ingredient) => ['jug', 'scale'].includes(familyOf(ingredient)))
+      .forEach((ingredient) => expect([ingredient.key, target(ingredient) % gaugeAxis(target(ingredient)).minor]).toEqual([ingredient.key, 0]));
   });
 });
 

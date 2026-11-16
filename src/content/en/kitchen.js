@@ -141,6 +141,8 @@ const CLEANUP_LINES = {
 export const say = {
   kitchen: {
     intro: ({ dish }) => `Let’s make ${dish}! Here is the recipe.`,
+    party: () => 'We’re cooking for a party! Make double: two times every amount on the recipe.',
+    double: () => 'Double it!',
     wash: () => 'First, wash your hands! Rub them under the tap.',
     washed: () => 'Clean hands!',
     gather: () => 'Now take everything on the recipe from the fridge and the cupboard. Tap the doors to open them.',

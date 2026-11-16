@@ -42,8 +42,9 @@ export const LEVELS = {
   sprouts: { id: 'sprouts', tools: ['cup', 'halfCup', 'quarterCup', 'tbsp', 'tsp', 'halfTsp', 'jug', 'scale'], pickTool: false, check: false, mark: true },
   explorers: { id: 'explorers', tools: ['cup', 'halfCup', 'quarterCup', 'tbsp', 'tsp', 'halfTsp', 'jug', 'scale'], pickTool: true, check: true, mark: true },
   builders: { id: 'builders', tools: ['cup', 'halfCup', 'quarterCup', 'tbsp', 'tsp', 'halfTsp', 'jug', 'scale'], pickTool: true, check: true, mark: false },
-  // Only the quarter cup: 2 cups is 8 scoops.
-  masters: { id: 'masters', tools: ['quarterCup', 'tbsp', 'tsp', 'halfTsp', 'jug', 'scale'], pickTool: true, check: true, mark: false },
+  // Only the quarter cup (2 cups is 8 scoops), and a party: every amount
+  // doubled (`factor`), worked out from the recipe card.
+  masters: { id: 'masters', tools: ['quarterCup', 'tbsp', 'tsp', 'halfTsp', 'jug', 'scale'], pickTool: true, check: true, mark: false, factor: 2 },
 };
 
 export function kitchenLevel(bandId) {
@@ -84,7 +85,7 @@ export function familyOf(ingredient) {
 // How much the jug pours a tap: the biggest round step that reaches the
 // amount exactly in at most 10 taps (250 ml -> 50 ml x 5).
 export function jugStep(ml) {
-  const fits = [100, 50, 25, 10, 5].filter((step) => ml % step === 0);
+  const fits = [100, 50, 25, 20, 10, 5].filter((step) => ml % step === 0);
   return fits.find((step) => ml / step <= 10) || fits[fits.length - 1] || 1;
 }
 
@@ -146,11 +147,35 @@ export function measureStatus(measure) {
 // `label`, a small one every `minor`, up to `max` (a bit over the amount, so
 // too much shows too).
 const AXIS_STEPS = [5, 10, 20, 25, 50, 100, 250];
+const minorOf = (label) => (label === 25 || label === 5 ? label / 5 : label / 2);
 export function gaugeAxis(goal) {
-  const label = AXIS_STEPS.find((step) => goal / step <= 6) || AXIS_STEPS[AXIS_STEPS.length - 1];
+  // Few numbers, and the amount on a mark (160 ml: every 20, not every 50).
+  const fits = (most) => AXIS_STEPS.find((step) => goal / step <= most && goal % minorOf(step) === 0);
+  const label = fits(6) || fits(8) || AXIS_STEPS.find((step) => goal / step <= 6) || AXIS_STEPS[AXIS_STEPS.length - 1];
   const max = Math.ceil((goal * 1.3) / label) * label;
-  const minor = label === 25 || label === 5 ? label / 5 : label / 2;
-  return { max: Math.max(max, goal + label), label, minor };
+  return { max: Math.max(max, goal + label), label, minor: minorOf(label) };
+}
+
+// A recipe at a level: the oldest children double it for a party. Each
+// ingredient keeps the recipe's own amount as `base` (the card shows that,
+// with "× 2", and the child works the rest out). Weighed things come in
+// pieces twice the size, so the scale takes as many taps; counted things
+// double, and so do the eggs to crack and bananas to peel.
+export function levelRecipe(recipe, level) {
+  const factor = level.factor || 1;
+  if (factor === 1) return { ...recipe, factor };
+  const ingredients = recipe.ingredients.map((ingredient) => {
+    const scaled = { ...ingredient, base: { qty: ingredient.qty, unit: ingredient.unit }, qty: ingredient.qty * factor };
+    if (ingredient.piece) scaled.piece = ingredient.piece * factor;
+    delete scaled.alt;
+    return scaled;
+  });
+  const countOf = (key) => {
+    const found = ingredients.find((ingredient) => ingredient.key === key);
+    return found && found.unit === 'whole' ? found.qty : null;
+  };
+  const prep = recipe.prep.map((action) => (['crack', 'peel'].includes(action.action) && countOf(action.on) ? { ...action, times: countOf(action.on) } : action));
+  return { ...recipe, ingredients, prep, factor };
 }
 
 // ---- gathering ----
@@ -256,6 +281,15 @@ export function recipeProblems(recipe) {
     if (ingredient.unit === 'g' && ingredient.piece && ingredient.qty % ingredient.piece) problems.push(`${ingredient.key}: ${ingredient.qty} g in ${ingredient.piece} g pieces`);
     Object.values(LEVELS).forEach((level) => {
       if (isMeasured(ingredient) && !toolsFor(ingredient, level).length) problems.push(`${ingredient.key}: no tool at ${level.id}`);
+    });
+  });
+  // At every level (doubled for the oldest), each amount can be measured, in
+  // at most 12 taps.
+  Object.values(LEVELS).forEach((level) => {
+    levelRecipe(recipe, level).ingredients.filter(isMeasured).forEach((ingredient) => {
+      const best = bestTool(ingredient, level);
+      if (!best) problems.push(`${ingredient.key}: no tool for ${ingredient.qty} ${ingredient.unit} at ${level.id}`);
+      else if (scoopsFor(ingredient, best) > 12) problems.push(`${ingredient.key}: ${scoopsFor(ingredient, best)} taps at ${level.id}`);
     });
   });
   recipe.prep.forEach((action) => {
