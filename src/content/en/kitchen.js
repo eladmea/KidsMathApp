@@ -29,6 +29,14 @@ export const INGREDIENTS = {
   cornflour: { one: 'cornflour', many: 'cornflour' },
   soySauce: { one: 'soy sauce', many: 'soy sauce' },
   oil: { one: 'oil', many: 'oil' },
+  // Only on the printable card (a recipe's `cardOnly`).
+  water: { one: 'cold water', many: 'cold water' },
+  parsley: { one: 'chopped parsley', many: 'chopped parsley' },
+  cumin: { one: 'ground cumin', many: 'ground cumin' },
+  paprika: { one: 'sweet paprika', many: 'sweet paprika' },
+  salt: { one: 'salt', many: 'salt' },
+  pepper: { one: 'black pepper', many: 'black pepper' },
+  bakingSoda: { one: 'baking soda', many: 'baking soda' },
 };
 
 // The dish each recipe makes (said in "Let's make ...").

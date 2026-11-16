@@ -21,11 +21,10 @@ Status: **built: all 5 recipes play, at all 4 age levels, in English and Hebrew*
 
 ## 1. The recipes
 
-⚠️ **None of these is verified yet.** This session's network blocks the
-recipe sites, so the quantities below come from **search-result summaries of
-each page, not the pages themselves**. They have to be checked before a
-printable card goes out (section 5). The game can be built against them in
-the meantime; a correction later is a one-file change.
+**Checked against the source page (2026-11-16): 🍔 burgers and 🌭 hot dogs.**
+The other three are still from **search-result summaries**: their sites
+refuse automated visitors (mako and Food is Life) or didn't answer
+(Matkonkal), so a person has to open those pages and compare (section 5).
 
 ### 🍓 Strawberry Banana Smoothie (2 glasses): no heat
 Source: [מתכון קל – שייק תות ובננה](https://matkonkal.co.il/recipe/%D7%A9%D7%99%D7%99%D7%A7-%D7%AA%D7%95%D7%AA-%D7%91%D7%A0%D7%A0%D7%94)
@@ -84,8 +83,8 @@ Source: [Sweet Scent – קציצות הודו עם שיבולת שועל](https
 | Olive oil | 25 ml | cupboard |
 | Whole-wheat buns, lettuce, tomato | for serving (ours) | cupboard / fridge |
 
-The page says to add cold water if the mixture is too dry, or a little more oats if too soft. Nice maths: **25 ml of oil = 5 teaspoons**, or 1 tablespoon + 2 teaspoons; 500 g shared into 5 burgers = 100 g each.
-*To check:* the cooking method and time, and whether shaping it into burgers needs a different cooking time (that's our change).
+Also on the page (on the card, not in the game): 3 tbsp cold water as needed, 20 g chopped parsley, 1 tsp cumin, 1 tsp sweet paprika, ½ tsp salt, ¼ tsp black pepper, ½ tsp baking soda (optional). Serves 6. The page fries the onion first in 1 tbsp of the oil, rests the mixture 25–30 minutes, then **bakes at 190 °C for 20–22 minutes** (turning after 12), or fries 3–4 minutes a side. It writes the oil as "25 ml (2 tablespoons)". Nice maths: **25 ml of oil = 5 teaspoons**, or 1 tablespoon + 2 teaspoons; 500 g shared into 5 burgers = 100 g each.
+✅ Checked. Still open: burgers are bigger than the page's meatballs, so they may need longer in the oven than 20–22 minutes.
 
 ### 🌭 Homemade Chicken Hot Dogs (5 to 8): the simple one
 Source: [וואלה אוכל – נקניקיות עוף פטנט ביתיות לילדים](https://food.walla.co.il/item/3111815) (Avi Biton's recipe). Lean chicken breast, with nothing processed.
@@ -97,13 +96,13 @@ Source: [וואלה אוכל – נקניקיות עוף פטנט ביתיות �
 | Garlic | 2 cloves | cupboard |
 | Ketchup | 1 tablespoon | fridge |
 | Eggs | 2 | fridge |
-| Cornflour | 2 tablespoons | cupboard |
-| Soy sauce | 1 tablespoon | cupboard |
+| Cornflour | 1½ teaspoons (the summary said 2 tablespoons) | cupboard |
+| Soy sauce | 2 tablespoons (the summary said 1) | cupboard |
 | Oil | 1 tablespoon (+ a little for searing) | cupboard |
 | Rolls, mustard, ketchup | for serving | cupboard |
 
-Method: blend everything smooth → roll into sausages in cling film → simmer in water → sear in a pan → into rolls. The **game keeps it simple**: blend → roll 5 sausages → pot, then pan (grown-up helper) → each into a roll → toppings, with cucumber and tomato on the side. The real card will say what the safety note in the search results says: **for children under 5, cut hot dogs lengthwise into thin strips, not rings** (choking risk).
-*To check:* the simmering time (one related Ynet recipe says 20 minutes), and whether the page names whole-wheat rolls (we'd suggest them).
+Method: blend everything smooth → roll into sausages in cling film → simmer about **15 minutes** on low heat → cool in ice water → sear in a pan → into rolls. Eggs: 2 medium or 1 large. The **game keeps it simple**: blend → roll 5 sausages → pot, then pan (grown-up helper) → each into a roll → toppings, with cucumber and tomato on the side. The real card will say what the safety note in the search results says: **for children under 5, cut hot dogs lengthwise into thin strips, not rings** (choking risk).
+✅ Checked. The page says plain "rolls"; whole-wheat would be our suggestion on the card.
 
 **"Healthy" without labelling food bad.** The game never calls a food bad or junk. The healthy part is in the recipes: fruit, vegetables, oats, lean meat, little or no added sugar. The extra items in the fridge and cupboard are other recipes' ingredients, not candy to resist.
 
@@ -212,8 +211,8 @@ Better first: move island positions into `subjects.js` (or lay them out by count
 - **Walkthrough** `e2e/kitchen.mjs`: a 4-year-old's smoothie, an 8-year-old's muffins (a wrong tool costs the measuring point), a 10-year-old's burgers (built in order), a Hebrew omelette, and hot dogs.
 
 ### Still to do
-- **Verify the quantities** (section 5) and set `verified` on each recipe; then the **printable recipe cards** in the Parent Dashboard.
+- **Verify the quantities**: burgers and hot dogs are done (read from their pages, which corrected the hot dogs' cornflour, soy sauce and simmering time, and the burgers' cooking: oven at 190 °C, 20 minutes). Smoothie, muffins and omelette need a person to check (their sites block automated visitors). Then the **printable recipe cards** in the Parent Dashboard.
 - Masters' **doubling and halving** a recipe (planned in section 3; not built).
 - Pictures for the fridge, cupboard, oven, sink, measuring cups, jug and scale (drawn with shapes for now); a jug and a scale with numbers on them instead of the bar.
 - Sounds (sizzle, blender, timer) and **recorded voice** lines (`npm run voice:lines`, then `voice-generator/`).
-- Things the game does differently from the sources, to revisit after checking: the muffins leave out vanilla, cinnamon and salt (amounts not seen); the timer minutes for muffins (20) and burgers (10) are the game's; tomato halves go on the omelette at serving, not before baking.
+- Things the game does differently from the sources, to revisit after checking: the muffins leave out vanilla, cinnamon and salt (amounts not seen); the muffins' 20 minutes is the game's; tomato halves go on the omelette at serving, not before baking.

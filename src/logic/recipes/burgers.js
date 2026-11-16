@@ -1,14 +1,18 @@
 // Turkey oat burgers: the source's turkey and oat meatball mixture, shaped
 // into 5 burgers instead of 20 meatballs (our change).
-// Source: Sweet Scent, "קציצות הודו עם שיבולת שועל". Amounts from a search
-// summary: NOT yet checked against the page. The cooking time for burgers is
-// the game's (10 minutes), to check.
+// Source: Sweet Scent, "קציצות הודו עם שיבולת שועל" (6 servings). Checked
+// against the page on 2026-11-16. The game uses the main ingredients; the
+// seasonings are in `cardOnly` (for the printable card). The page fries the
+// onion first in 1 tbsp of the oil, rests the mixture 25-30 minutes in the
+// fridge, then bakes at 190 °C for 20-22 minutes (turning after 12), or
+// fries 3-4 minutes a side. The olive oil is "25 ml (2 tablespoons)" there;
+// the game measures the 25 ml.
 export default {
   id: 'burgers',
   emoji: '🍔',
   order: 4,
   source: { url: 'https://sweetscent.co.il/turkey-meatballs-with-oats-recipe-2/', site: 'Sweet Scent' },
-  verified: null,
+  verified: { date: '2026-11-16', by: 'Claude, from the source page', checkedUrl: 'https://sweetscent.co.il/turkey-meatballs-with-oats-recipe-2/' },
   ingredients: [
     // Two 250 g packs of ground turkey breast.
     { key: 'turkey', emoji: '🥩', qty: 500, unit: 'g', piece: 250, kept: 'fridge' },
@@ -28,6 +32,17 @@ export default {
     { action: 'stir', on: 'bowl' },
     { action: 'shape', on: 'burger', times: 5 },
   ],
-  cook: { appliance: 'stove', minutes: 10 },
+  cook: { appliance: 'oven', celsius: 190, minutes: 20 },
+  // On the source's list, not played in the game. Water is "as needed";
+  // baking soda is optional there; frying oil has no amount.
+  cardOnly: [
+    { key: 'water', qty: 3, unit: 'tbsp', asNeeded: true },
+    { key: 'parsley', qty: 20, unit: 'g' },
+    { key: 'cumin', qty: 1, unit: 'tsp' },
+    { key: 'paprika', qty: 1, unit: 'tsp' },
+    { key: 'salt', qty: 0.5, unit: 'tsp' },
+    { key: 'pepper', qty: 0.25, unit: 'tsp' },
+    { key: 'bakingSoda', qty: 0.5, unit: 'tsp', optional: true },
+  ],
   serve: { kind: 'stack', dish: '🍔', layers: ['🍞', '🥬', '🥩', '🍅', '🍞'] },
 };

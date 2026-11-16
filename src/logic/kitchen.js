@@ -257,6 +257,9 @@ export function recipeProblems(recipe) {
   if (serve.kind === 'decorate' && !(serve.count > 0)) problems.push('serve: no count');
   if (serve.kind === 'stack' && !(serve.layers && serve.layers.length > 1)) problems.push('serve: no layers');
   if (!['decorate', 'stack'].includes(serve.kind)) problems.push(`serve ${serve.kind}`);
+  (recipe.cardOnly || []).forEach((ingredient) => {
+    if (!['cup', 'tbsp', 'tsp', 'ml', 'g'].includes(ingredient.unit) || !Number.isInteger(ingredient.qty * 4)) problems.push(`card only ${ingredient.key}`);
+  });
   if (!recipe.source || !/^https:\/\//.test(recipe.source.url)) problems.push('no source');
   return problems;
 }

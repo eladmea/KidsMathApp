@@ -154,7 +154,14 @@ describe('recipes', () => {
     );
   });
 
-  it('shows no printable card until a person has checked the recipe', () => {
+  it('names every ingredient, including the card-only ones', async () => {
+    for (const language of ['en', 'he']) {
+      const { INGREDIENTS } = await import(`../src/content/${language}/kitchen.js`);
+      RECIPES.forEach((recipe) => [...recipe.ingredients, ...(recipe.cardOnly || [])].forEach(({ key }) => expect([language, key, Boolean(INGREDIENTS[key])]).toEqual([language, key, true])));
+    }
+  });
+
+  it('shows no printable card until the recipe has been checked', () => {
     RECIPES.forEach((recipe) => expect(hasVerifiedCard(recipe)).toBe(Boolean(recipe.verified)));
     expect(hasVerifiedCard({ verified: { date: '2026-11-20', by: 'a grown-up', checkedUrl: 'https://x' } })).toBe(true);
     expect(hasVerifiedCard({ verified: null })).toBe(false);

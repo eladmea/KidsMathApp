@@ -26,6 +26,14 @@ export const INGREDIENTS = {
   cornflour: { one: 'קורנפלור', many: 'קורנפלור', gender: 'm' },
   soySauce: { one: 'רוטב סויה', many: 'רוטב סויה', gender: 'm' },
   oil: { one: 'שמן', many: 'שמן', gender: 'm' },
+  // Only on the printable card (a recipe's `cardOnly`).
+  water: { one: 'מים קרים', many: 'מים קרים', gender: 'm' },
+  parsley: { one: 'פטרוזיליה קצוצה', many: 'פטרוזיליה קצוצה', gender: 'f' },
+  cumin: { one: 'כמון טחון', many: 'כמון טחון', gender: 'm' },
+  paprika: { one: 'פפריקה מתוקה', many: 'פפריקה מתוקה', gender: 'f' },
+  salt: { one: 'מלח', many: 'מלח', gender: 'm' },
+  pepper: { one: 'פלפל שחור', many: 'פלפל שחור', gender: 'm' },
+  bakingSoda: { one: 'סודה לשתייה', many: 'סודה לשתייה', gender: 'f' },
 };
 
 export const DISHES = {
