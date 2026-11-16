@@ -3,6 +3,8 @@ import {
   LEVELS,
   addScoop,
   bestTool,
+  familyOf,
+  gaugeAxis,
   gatherCheck,
   gatherDone,
   hasVerifiedCard,
@@ -54,6 +56,21 @@ describe('kitchen measures', () => {
     expect(bestTool(cups(2), LEVELS.masters)).toBe('quarterCup');
     expect(bestTool({ qty: 250, unit: 'ml' }, LEVELS.sprouts)).toBe('jug');
     expect(bestTool({ qty: 150, unit: 'g', piece: 15 }, LEVELS.sprouts)).toBe('scale');
+  });
+
+  it('numbers the jug and the scale so the amount is easy to read', () => {
+    expect(gaugeAxis(250)).toEqual({ max: 350, label: 50, minor: 25 });
+    expect(gaugeAxis(80)).toEqual({ max: 120, label: 20, minor: 10 });
+    expect(gaugeAxis(150)).toEqual({ max: 200, label: 25, minor: 5 });
+    expect(gaugeAxis(500)).toEqual({ max: 700, label: 100, minor: 50 });
+    // Every jug and scale amount in the recipes falls on a mark.
+    RECIPES.flatMap((recipe) => recipe.ingredients)
+      .filter((ingredient) => ['jug', 'scale'].includes(familyOf(ingredient)))
+      .forEach((ingredient) => {
+        const axis = gaugeAxis(target(ingredient));
+        expect([ingredient.key, target(ingredient) % axis.minor]).toEqual([ingredient.key, 0]);
+        expect(axis.max).toBeGreaterThan(target(ingredient));
+      });
   });
 
   it('pours the jug in round steps', () => {

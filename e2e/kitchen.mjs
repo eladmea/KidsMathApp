@@ -192,6 +192,8 @@ await station('wash');
 check('kitchen: builders level', (await state()).level === 'builders');
 await rub('hands', async () => (await state()).station !== 'wash');
 await gather();
+await sleep(900);
+await t.shot(dir, 'k5a-jug');
 await measureAll({ picks: true, mistake: true });
 await t.shot(dir, 'k5-muffin-prep');
 await prepAll();

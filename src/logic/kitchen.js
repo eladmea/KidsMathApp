@@ -142,6 +142,17 @@ export function measureStatus(measure) {
   return sum === goal ? 'right' : sum < goal ? 'under' : 'over';
 }
 
+// The numbers on the jug (ml) and the scale (g): a numbered mark every
+// `label`, a small one every `minor`, up to `max` (a bit over the amount, so
+// too much shows too).
+const AXIS_STEPS = [5, 10, 20, 25, 50, 100, 250];
+export function gaugeAxis(goal) {
+  const label = AXIS_STEPS.find((step) => goal / step <= 6) || AXIS_STEPS[AXIS_STEPS.length - 1];
+  const max = Math.ceil((goal * 1.3) / label) * label;
+  const minor = label === 25 || label === 5 ? label / 5 : label / 2;
+  return { max: Math.max(max, goal + label), label, minor };
+}
+
 // ---- gathering ----
 // What goes on the counter: one of each measured ingredient (its carton or
 // bag) and `qty` of each counted one.

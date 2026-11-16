@@ -9,6 +9,7 @@ import { glyph } from '../ui/Art';
 import { celebrate, oops, popIn, pulse } from '../ui/Juice';
 import { COLORS, textStyle } from '../ui/theme';
 import { drawAppliance, drawCounter, drawCupboard, drawFridge, drawSink } from '../ui/KitchenArt';
+import { Jug, Scale } from '../ui/KitchenGauges';
 import { session } from '../services/session';
 import { play } from '../services/audio';
 import { content } from '../content/index';
@@ -20,6 +21,8 @@ import {
   TIMED,
   addScoop,
   bestTool,
+  familyOf,
+  gaugeAxis,
   gatherCheck,
   gatherDone,
   isMeasured,
@@ -94,6 +97,8 @@ export default class KitchenScene extends BaseScene {
     this.timerMinutes = 0;
     this.cooking = null;
     this.cookTimer = null;
+    this.instrument = null;
+    this.measureBowl = null;
     this.leftovers = [];
     this.dishes = [];
     this.crumbs = [];
@@ -481,7 +486,7 @@ export default class KitchenScene extends BaseScene {
     // The card's ticks now count what is measured (counted things are done).
     this.clearTicks();
     this.recipe.ingredients.filter((ingredient) => !isMeasured(ingredient)).forEach((ingredient) => this.cardRows[ingredient.key].tick.setVisible(true));
-    this.keep(glyph(this, 1000, 430, '🥣', 150));
+    this.measureBowl = this.keep(glyph(this, 1000, 430, '🥣', 150));
     this.say([this.words.say.kitchen.measure()]);
     this.time.delayedCall(700, () => this.nextMeasure());
   }
@@ -512,14 +517,29 @@ export default class KitchenScene extends BaseScene {
     own(glyph(this, 560, 400, ingredient.emoji, 120));
     own(this.add.text(560, 490, this.words.cardLine(ingredient, this.ingredientWords(ingredient)), textStyle(28, COLORS.ink, { stroke: '#ffffff', strokeThickness: 6 })).setOrigin(0.5));
     // The gauge: how much is in so far, and (younger children) where to stop.
+    // The jug and the scale have their own numbers to read; cups and spoons
+    // fill a bar over the bowl.
     const goal = target(ingredient);
+    const family = familyOf(ingredient);
+    this.instrument = null;
+    if (family === 'jug' || family === 'scale') {
+      this.measureBowl.setVisible(false);
+      const options = { axis: gaugeAxis(goal), goal, mark: this.level.mark, own, unit: this.words.TOOLS[family].label.replace(/^\S+\s/, ''), emoji: ingredient.emoji };
+      this.instrument = family === 'jug' ? new Jug(this, 950, 350, options) : new Scale(this, 950, 370, options);
+      this.gaugeText = own(this.add.text(950, 520, '', textStyle(22, COLORS.ink, { stroke: '#ffffff', strokeThickness: 5 })).setOrigin(0.5));
+      this.gaugeFill = null;
+    } else {
+      this.measureBowl.setVisible(true);
+    }
     const full = goal * 1.5;
     const gauge = { x: 790, y: 270, width: 400 };
-    own(this.add.rectangle(gauge.x, gauge.y, gauge.width, 30, COLORS.white).setRounded(15).setStrokeStyle(3, 0xe5d3b3));
-    this.gaugeFill = own(this.add.rectangle(gauge.x - gauge.width / 2, gauge.y, 0, 30, 0x7cc4f0).setOrigin(0, 0.5).setRounded(15));
-    if (this.level.mark) own(this.add.rectangle(gauge.x - gauge.width / 2 + (gauge.width * goal) / full, gauge.y, 6, 46, COLORS.red));
-    this.gaugeText = own(this.add.text(gauge.x, gauge.y + 38, '', textStyle(22, COLORS.ink)).setOrigin(0.5));
     this.gauge = { ...gauge, full };
+    if (!this.instrument) {
+      own(this.add.rectangle(gauge.x, gauge.y, gauge.width, 30, COLORS.white).setRounded(15).setStrokeStyle(3, 0xe5d3b3));
+      this.gaugeFill = own(this.add.rectangle(gauge.x - gauge.width / 2, gauge.y, 0, 30, 0x7cc4f0).setOrigin(0, 0.5).setRounded(15));
+      if (this.level.mark) own(this.add.rectangle(gauge.x - gauge.width / 2 + (gauge.width * goal) / full, gauge.y, 6, 46, COLORS.red));
+      this.gaugeText = own(this.add.text(gauge.x, gauge.y + 38, '', textStyle(22, COLORS.ink)).setOrigin(0.5));
+    }
     // The tools.
     this.toolButtons = {};
     const tools = this.toolChoices(ingredient);
@@ -549,8 +569,15 @@ export default class KitchenScene extends BaseScene {
   updateGauge() {
     const { ingredient } = this.measure;
     const amount = measured(this.measure);
+    const soFar = amount ? t('kitchen.soFar', { amount: this.amountText(ingredient, amount) }) : '';
+    if (this.instrument) {
+      this.instrument.set(amount, this.measure.scoops.length);
+      // Older children read the jug or the scale themselves.
+      this.gaugeText.setText(this.level.mark ? soFar : '');
+      return;
+    }
     this.gaugeFill.setSize(Math.min(this.gauge.width, (this.gauge.width * amount) / this.gauge.full), 30);
-    this.gaugeText.setText(amount ? t('kitchen.soFar', { amount: this.amountText(ingredient, amount) }) : '');
+    this.gaugeText.setText(soFar);
   }
 
   // An amount so far, in the recipe's own unit when it comes out even.
