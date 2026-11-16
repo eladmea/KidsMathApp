@@ -2,7 +2,7 @@
 
 A new island where children cook healthy recipes by following a recipe card:
 take the ingredients out of the fridge and cupboard, measure them
-("2 cups of oats", "1 tablespoon of baking powder", "200 grams of spinach"),
+("2 cups of oats", "1 tablespoon of baking powder", "150 grams of strawberries"),
 cook, do one clean-up job, then serve a nice-looking dish to a friend. The
 maths is counting, measuring (cups, spoons, ml, grams on a scale), fractions,
 sharing equally, scaling a recipe and reading a timer.
@@ -21,53 +21,62 @@ Status: **built: all 5 recipes play, at all 4 age levels, in English and Hebrew*
 
 ## 1. The recipes
 
-**Checked against the source page (2026-11-16): 🍔 burgers and 🌭 hot dogs.**
-The other three are still from **search-result summaries**: their sites
-refuse automated visitors (mako and Food is Life) or didn't answer
-(Matkonkal), so a person has to open those pages and compare (section 5).
+**All five recipes are checked against their source pages (2026-11-16).** The
+first sources for the smoothie, muffins and omelette (Matkonkal, Food is Life,
+mako) refused automated visitors or didn't answer, so those three were
+replaced with recipes from Gila Cooking, which could be read.
 
-### 🍓 Strawberry Banana Smoothie (2 glasses): no heat
-Source: [מתכון קל – שייק תות ובננה](https://matkonkal.co.il/recipe/%D7%A9%D7%99%D7%99%D7%A7-%D7%AA%D7%95%D7%AA-%D7%91%D7%A0%D7%A0%D7%94)
+### 🍓 Strawberry Banana Smoothie (4 glasses): no heat
+Source: [Gila Cooking – תות בננה בבלנדר עם יוגורט, וניל ודבש](https://gilacooking.co.il/strawberry-banana-smoothie-recipe/)
 
-| Ingredient | Source amount | In the game | Kept in |
-|---|---|---|---|
-| Banana | 1 | 1 | fruit bowl (cupboard) |
-| Strawberries | 150 g | 150 g on the scale (about 10 strawberries, counted) | fridge |
-| Milk | 250 ml | 250 ml (1 cup and a bit, or the jug's 250 line) | fridge |
-| Plain yogurt | 100 g | 100 g (one small tub) | fridge |
+| Ingredient | Amount | Kept in |
+|---|---|---|
+| Very ripe bananas | 2 | fruit bowl (cupboard) |
+| Strawberries, fresh or frozen | 1 cup (150 g): weighed on the scale, about 10 | fridge |
+| Milk | 1 cup (240 ml) | fridge |
+| Plain yogurt | ½ cup (120 g) | fridge |
+| Honey or silan | 2 tablespoons | cupboard |
+| Vanilla extract | ½ teaspoon | cupboard |
+| *Card only:* lemon juice | 1 tablespoon (optional) | |
+| *Card only:* ice | ¼ cup (with fresh strawberries) | |
 
-No sugar. The page suggests a little more milk if it's too thick. Steps: peel → weigh or count → pour → blender (hold the button) → 2 glasses, a strawberry on each rim.
+Blend about a minute. Game: peel 2 bananas → measure → hold the blender button → 4 glasses, a strawberry on each.
 
-### 🧁 Banana Yogurt Oat Muffins (12): no flour
-Source: [אוכל זה החיים – מאפינס בננה יוגורט שיבולת שועל ללא קמח](https://foodislife.co.il/recipes/banana-and-oatmeal-muffins)
+### 🧁 Healthy Banana Oat Muffins (12)
+Source: [Gila Cooking – מאפינס בריאות עם שיבולת שועל ובננות](https://gilacooking.co.il/healthy-muffins-for-kids-recipe/)
 
-| Ingredient | Source amount | Kept in |
+| Ingredient | Amount | Kept in |
 |---|---|---|
 | Ripe bananas | 2 | fruit bowl |
-| Plain yogurt | 1 cup | fridge |
-| Honey or maple syrup | ½ cup | cupboard |
-| Eggs | 2 | fridge |
-| Oats | 2 cups | cupboard |
-| Coconut oil, melted | ½ cup | cupboard |
-| Baking powder | 1 tablespoon | cupboard |
-| Vanilla, cinnamon, salt | in the method, amounts not seen | cupboard |
+| Medium eggs | 2 | fridge |
+| Coconut (or canola) oil | ⅓ cup (80 ml): the jug | cupboard |
+| Honey or maple | ¼ cup (60 ml): the jug | cupboard |
+| Fine oats | 1 cup (100 g) | cupboard |
+| Whole-wheat flour | ½ cup (60 g) | cupboard |
+| Baking soda | ½ teaspoon | cupboard |
+| Cinnamon | ½ teaspoon | cupboard |
+| Salt | a pinch (on the card, not in the game) | |
+| Dark chocolate chips | ⅓ cup, optional (left out) | |
 
-Oven 180 °C, about 35 minutes in all. It's all cups and spoons already, which suits the game. Steps: mash the bananas → measure → stir → one scoop into each of 12 cups → oven (grown-up helper), timer → clean-up job → blueberries on top.
-*To check on the page:* the vanilla, cinnamon and salt amounts, and the bake time on its own.
+Oven 180 °C, 18–20 minutes. ⅓ cup isn't one of the game's cups, so the oil and honey are poured in ml. Game: mash → crack 2 eggs → stir → fill 12 cups → oven, timer 20 → clean-up job → a banana slice on each muffin.
 
-### 🍳 Baked Spinach Omelette (1 serving)
-Source: Mako's healthy-eating challenge, [אתגר האוכל הבריא: יום 2](https://www.mako.co.il/food-cooking_magazine/Article-f24855d922ba151006.htm), a single-serving version of [חביתת תרד ועגבניות אפויה](https://www.mako.co.il/food-recipes/recipes_column-healthy/Recipe-5bc7759bf987e31006.htm)
+### 🍳 Vegetable Omelette (חביתת ירק, 4 servings)
+Source: [Gila Cooking – חביתת ירק בטיגון עם גזר, קישוא ופטרוזיליה](https://gilacooking.co.il/vegetable-omelette-recipe/)
 
-| Ingredient | Source amount | Kept in |
+| Ingredient | Amount | Kept in |
 |---|---|---|
-| Fresh spinach | 200 g | fridge |
-| Egg | 1 | fridge |
-| Bulgarian cheese 5% | 25 g | fridge |
-| Olive oil | ½ teaspoon | cupboard |
-| Cherry tomatoes | 5, sliced | fridge |
+| Large eggs | 4 | fridge |
+| Small onion, chopped | 1 | cupboard |
+| Medium carrot, grated | 1 | fridge |
+| Small zucchini, grated and squeezed | 1 | fridge |
+| Chopped parsley | ¼ cup | fridge |
+| Whole-wheat flour | 2 tablespoons | cupboard |
+| Baking powder | 1 teaspoon | cupboard |
+| Canola oil | 2 tablespoons | cupboard |
+| *Card only:* dill | ¼ cup (optional) | |
+| Salt and pepper | to taste | |
 
-Baked in a round dish for 20 minutes. Steps: wilt the spinach (grown-up helper) → weigh the spinach and cheese → crack and whisk the egg → into the dish → cut 5 cherry tomatoes in half and lay them on top (10 halves) → oven, 20 minutes.
-*To check:* the oven temperature (not in the summary).
+Fried 4–5 minutes, turned, then 3–4 more. Served with bread and a fresh salad. Game: crack 4 eggs → whisk → cut the onion (grown-up) → grate the carrot and the zucchini → stir → stove, timer 5 (the first side) → clean-up job → a salad by each plate.
 
 ### 🍔 Turkey Oat Burgers
 Source: [Sweet Scent – קציצות הודו עם שיבולת שועל](https://sweetscent.co.il/turkey-meatballs-with-oats-recipe-2/). The source makes 20 meatballs, or 30 small ones; we shape the same mixture into burgers.
@@ -179,10 +188,7 @@ Better first: move island positions into `subjects.js` (or lay them out by count
 
 - In the Parent Dashboard (behind the grown-up gate): **🍳 Recipe cards**. Each card shows the dish, the **source's exact quantities** (not the game's age-level versions), the method in short steps, the safety notes (oven, knife, hot dogs for under-5s) and the source link. It can be printed or saved with `services/exportFile.js`.
 - **The verification gate:** a recipe file's `verified` is `{ date, by, checkedUrl }`. Only verified recipes show a card; the rest say "Card coming soon". `npm test` enforces it.
-- **How to verify** (the only part I can't finish from this session). One of:
-  - **(a)** Allow these 5 hosts in this session's network, and I'll read each page, compare every quantity, and fix the files: `matkonkal.co.il`, `foodislife.co.il`, `www.mako.co.il`, `sweetscent.co.il`, `food.walla.co.il`.
-  - **(b)** You (or anyone) open the 5 links, check them against section 1, and tell me what's different. I'll set `verified` with your name and the date.
-
+- **Verified:** every recipe was checked against its source page on 2026-11-16 (see section 1). A recipe whose source changes, or a new recipe, needs the same check before its card shows.
 ---
 
 ## 6. Phases
@@ -211,8 +217,8 @@ Better first: move island positions into `subjects.js` (or lay them out by count
 - **Walkthrough** `e2e/kitchen.mjs`: a 4-year-old's smoothie, an 8-year-old's muffins (a wrong tool costs the measuring point), a 10-year-old's burgers (built in order), a Hebrew omelette, and hot dogs.
 
 ### Still to do
-- **Verify the quantities**: burgers and hot dogs are done (read from their pages, which corrected the hot dogs' cornflour, soy sauce and simmering time, and the burgers' cooking: oven at 190 °C, 20 minutes). Smoothie, muffins and omelette need a person to check (their sites block automated visitors). Then the **printable recipe cards** in the Parent Dashboard.
+- ✅ **Quantities verified** for all five, from their pages (2026-11-16). Reading them corrected the hot dogs' cornflour, soy sauce and simmering time and the burgers' cooking, and replaced the smoothie, muffins and omelette with Gila Cooking recipes. `verified.by` says "Claude, from the source page"; a grown-up may still want to look them over. Next: the **printable recipe cards** in the Parent Dashboard.
 - Masters' **doubling and halving** a recipe (planned in section 3; not built).
 - Pictures for the fridge, cupboard, oven, sink, measuring cups, jug and scale (drawn with shapes for now); a jug and a scale with numbers on them instead of the bar.
 - Sounds (sizzle, blender, timer) and **recorded voice** lines (`npm run voice:lines`, then `voice-generator/`).
-- Things the game does differently from the sources, to revisit after checking: the muffins leave out vanilla, cinnamon and salt (amounts not seen); the muffins' 20 minutes is the game's; tomato halves go on the omelette at serving, not before baking.
+- Things the game does differently from the sources: burgers are shaped from a meatball mixture (they may need longer than the meatballs' 20–22 minutes); the muffins leave out the pinch of salt and the optional chocolate chips; decorations (banana slices, strawberries, salads) are the game's.

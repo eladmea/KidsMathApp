@@ -1,30 +1,37 @@
-// Baked spinach omelette, 1 serving.
-// Source: mako, "אתגר האוכל הבריא: יום 2" (a one-serving version of
-// "חביתת תרד ועגבניות אפויה"). Amounts from a search summary: NOT yet checked
-// against the page. 20 minutes is from the summary; the oven temperature
-// wasn't in it.
+// Vegetable omelette (חביתת ירק), 4 servings.
+// Source: Gila Cooking, "חביתת ירק בטיגון עם גזר, קישוא ופטרוזיליה". Checked
+// against the page on 2026-11-16: 4 large eggs, 1 small onion (chopped), 1
+// medium carrot (grated), 1 small zucchini (grated, squeezed), ¼ cup chopped
+// parsley, ¼ cup dill (optional), 2 tbsp whole-wheat flour, 1 tsp baking
+// powder, salt and pepper, 2 tbsp canola oil. Fried 4-5 minutes, turned, then
+// 3-4 minutes more. Served with bread and a fresh salad.
 export default {
   id: 'omelette',
   emoji: '🍳',
   order: 3,
-  source: { url: 'https://www.mako.co.il/food-cooking_magazine/Article-f24855d922ba151006.htm', site: 'mako' },
-  verified: null,
+  source: { url: 'https://gilacooking.co.il/vegetable-omelette-recipe/', site: 'Gila Cooking' },
+  verified: { date: '2026-11-16', by: 'Claude, from the source page', checkedUrl: 'https://gilacooking.co.il/vegetable-omelette-recipe/' },
   ingredients: [
-    // A handful is about 50 g.
-    { key: 'spinach', emoji: '🥬', qty: 200, unit: 'g', piece: 50, kept: 'fridge' },
-    { key: 'egg', emoji: '🥚', qty: 1, unit: 'whole', kept: 'fridge' },
-    // Bulgarian cheese 5%, in 5 g crumbs.
-    { key: 'cheese', emoji: '🧀', qty: 25, unit: 'g', piece: 5, kept: 'fridge' },
-    { key: 'oliveOil', emoji: '🫒', qty: 0.5, unit: 'tsp', kept: 'cupboard' },
-    { key: 'cherryTomato', emoji: '🍅', qty: 5, unit: 'whole', kept: 'fridge' },
+    { key: 'egg', emoji: '🥚', qty: 4, unit: 'whole', kept: 'fridge' },
+    { key: 'onion', emoji: '🧅', qty: 1, unit: 'whole', kept: 'cupboard' },
+    { key: 'carrot', emoji: '🥕', qty: 1, unit: 'whole', kept: 'fridge' },
+    { key: 'zucchini', emoji: '🥒', qty: 1, unit: 'whole', kept: 'fridge' },
+    { key: 'parsley', emoji: '🌿', qty: 0.25, unit: 'cup', kept: 'fridge' },
+    { key: 'wholeFlour', emoji: '🍞', qty: 2, unit: 'tbsp', kept: 'cupboard' },
+    { key: 'bakingPowder', emoji: '🧂', qty: 1, unit: 'tsp', kept: 'cupboard' },
+    { key: 'oil', emoji: '🫗', qty: 2, unit: 'tbsp', kept: 'cupboard' },
   ],
   prep: [
-    { action: 'wilt', on: 'spinach', times: 1 },
-    { action: 'crack', on: 'egg', times: 1 },
+    { action: 'crack', on: 'egg', times: 4 },
     { action: 'whisk', on: 'bowl' },
-    // 5 tomatoes, each cut in half: 10 halves.
-    { action: 'cut', on: 'cherryTomato', times: 5 },
+    { action: 'cut', on: 'onion', times: 1 },
+    { action: 'grate', on: 'carrot' },
+    { action: 'grate', on: 'zucchini' },
+    { action: 'stir', on: 'bowl' },
   ],
-  cook: { appliance: 'oven', minutes: 20 },
-  serve: { kind: 'decorate', dish: '🍳', plates: 1, item: '🍅', count: 10 },
+  // The first side: 4-5 minutes (then turned for 3-4 more).
+  cook: { appliance: 'stove', minutes: 5 },
+  // Served with a fresh salad, as the page suggests.
+  serve: { kind: 'decorate', dish: '🍳', plates: 4, item: '🥗', count: 4 },
+  cardOnly: [{ key: 'dill', qty: 0.25, unit: 'cup', optional: true }],
 };

@@ -29,7 +29,14 @@ export const INGREDIENTS = {
   cornflour: { one: 'cornflour', many: 'cornflour' },
   soySauce: { one: 'soy sauce', many: 'soy sauce' },
   oil: { one: 'oil', many: 'oil' },
+  zucchini: { one: 'zucchini', many: 'zucchini' },
+  wholeFlour: { one: 'whole-wheat flour', many: 'whole-wheat flour' },
+  cinnamon: { one: 'cinnamon', many: 'cinnamon' },
+  vanilla: { one: 'vanilla extract', many: 'vanilla extract' },
   // Only on the printable card (a recipe's `cardOnly`).
+  dill: { one: 'chopped dill', many: 'chopped dill' },
+  lemonJuice: { one: 'lemon juice', many: 'lemon juice' },
+  ice: { one: 'ice cubes', many: 'ice cubes' },
   water: { one: 'cold water', many: 'cold water' },
   parsley: { one: 'chopped parsley', many: 'chopped parsley' },
   cumin: { one: 'ground cumin', many: 'ground cumin' },
@@ -43,7 +50,7 @@ export const INGREDIENTS = {
 export const DISHES = {
   smoothie: 'a strawberry banana smoothie',
   muffins: 'banana oat muffins',
-  omelette: 'a spinach omelette',
+  omelette: 'a vegetable omelette',
   burgers: 'turkey burgers',
   hotdogs: 'chicken hot dogs',
 };
@@ -103,12 +110,12 @@ export const name = (ingredient) => `${capital(ingredient.many)}.`;
 // The step lines, by prep action (logic/kitchen.js PREP_KINDS). `on` is what
 // the action is done to: an ingredient's key, or bowl / tin / burger / sausage.
 const ACTIONS = {
-  peel: () => 'Peel the banana. Tap it.',
+  peel: ({ times }) => (times === 1 ? 'Peel the banana. Tap it.' : `Peel ${times} bananas. Tap each one.`),
   mash: () => 'Mash the bananas. Rub them with your finger.',
   crack: ({ times }) => (times === 1 ? 'Crack the egg into the bowl. Tap it.' : `Crack ${times} eggs into the bowl. Tap each one.`),
   stir: () => 'Stir it all together. Rub round and round.',
   whisk: () => 'Whisk the egg. Rub round and round.',
-  grate: () => 'Grate the carrot. Rub it up and down.',
+  grate: ({ on }) => (on === 'zucchini' ? 'Grate the zucchini. Rub it up and down.' : 'Grate the carrot. Rub it up and down.'),
   blend: () => 'Blend it smooth. Rub round and round.',
   fill: ({ times }) => `Fill the ${times} muffin cups. One scoop in each.`,
   cut: ({ on, times }) => (on === 'cherryTomato' ? `Cut ${times} cherry tomatoes in half. Tap each one.` : 'Cut the onion. Tap it.'),
@@ -164,6 +171,8 @@ export const say = {
 // What the decoration is called (by emoji) in "Put on 2 strawberries.".
 export const DECORATIONS = {
   '🍓': { one: 'strawberry', many: 'strawberries' },
+  '🍌': { one: 'banana slice', many: 'banana slices' },
+  '🥗': { one: 'salad', many: 'salads' },
   '🍅': { one: 'tomato half', many: 'tomato halves' },
   '🌭': { one: 'sausage', many: 'sausages' },
 };

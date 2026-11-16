@@ -40,7 +40,7 @@ export const JUG_FROM_ML = 50;
 //   mark       the jug and the scale show where to stop
 export const LEVELS = {
   sprouts: { id: 'sprouts', tools: ['cup', 'halfCup', 'quarterCup', 'tbsp', 'tsp', 'halfTsp', 'jug', 'scale'], pickTool: false, check: false, mark: true },
-  explorers: { id: 'explorers', tools: ['cup', 'halfCup', 'tbsp', 'tsp', 'halfTsp', 'jug', 'scale'], pickTool: true, check: true, mark: true },
+  explorers: { id: 'explorers', tools: ['cup', 'halfCup', 'quarterCup', 'tbsp', 'tsp', 'halfTsp', 'jug', 'scale'], pickTool: true, check: true, mark: true },
   builders: { id: 'builders', tools: ['cup', 'halfCup', 'quarterCup', 'tbsp', 'tsp', 'halfTsp', 'jug', 'scale'], pickTool: true, check: true, mark: false },
   // Only the quarter cup: 2 cups is 8 scoops.
   masters: { id: 'masters', tools: ['quarterCup', 'tbsp', 'tsp', 'halfTsp', 'jug', 'scale'], pickTool: true, check: true, mark: false },

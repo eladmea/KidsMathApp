@@ -357,8 +357,11 @@ export default class KitchenScene extends BaseScene {
     const stock = pantryStock(this.recipe, RECIPES.filter((other) => other !== this.recipe));
     ['fridge', 'cupboard'].forEach((placeId) => {
       const place = this.places[placeId];
-      const items = stock.filter((item) => item.kept === placeId);
       const perShelf = placeId === 'fridge' ? 3 : 5;
+      const room = perShelf * (placeId === 'fridge' ? 3 : 2);
+      // The recipe's own things first; other recipes' things while there is room.
+      const here = stock.filter((item) => item.kept === placeId);
+      const items = [...here.filter((item) => !item.extra), ...here.filter((item) => item.extra)].slice(0, room);
       items.forEach((item, i) => {
         const shelf = Math.floor(i / perShelf);
         const slot = i % perShelf;
@@ -653,7 +656,7 @@ export default class KitchenScene extends BaseScene {
     if (prepKind(action) === 'tap') {
       // A row of what each tap makes (cracked eggs, filled cups, halves...).
       this.results = [];
-      const made = { crack: '🍳', fill: '🧁', cut: '🍅', shape: action.on === 'burger' ? '🍔' : '🌭', peel: '🍌', wilt: '🥬' }[action.action] || emoji;
+      const made = { crack: '🍳', fill: '🧁', shape: action.on === 'burger' ? '🍔' : '🌭' }[action.action] || emoji;
       const perRow = Math.min(action.times, 6);
       for (let i = 0; i < action.times; i++) {
         const x = STAGE_X + ((i % perRow) - (perRow - 1) / 2) * 70;

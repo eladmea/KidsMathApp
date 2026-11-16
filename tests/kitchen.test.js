@@ -105,6 +105,8 @@ describe('gathering and cleaning', () => {
     expect(gatherCheck(smoothie, counter, 'egg')).toBe('notInRecipe');
     expect(gatherCheck(smoothie, counter, 'banana')).toBe('take');
     counter.banana = 1;
+    expect(gatherCheck(smoothie, counter, 'banana')).toBe('take');
+    counter.banana = 2;
     expect(gatherCheck(smoothie, counter, 'banana')).toBe('enough');
     expect(gatherDone(smoothie, counter)).toBe(false);
     shoppingList(smoothie).forEach(({ key, count }) => (counter[key] = count));
@@ -120,7 +122,7 @@ describe('gathering and cleaning', () => {
 
   it('picks a different clean-up job from last time', () => {
     for (let i = 0; i < 20; i++) expect(pickCleanup('wipe', Math.random)).not.toBe('wipe');
-    expect(leftovers(smoothie).map((item) => item.key)).toEqual(['strawberries', 'milk', 'yogurt']);
+    expect(leftovers(smoothie).map((item) => item.key)).toEqual(['strawberries', 'milk', 'yogurt', 'honey', 'vanilla']);
   });
 
   it('builds a burger in order', () => {
@@ -144,6 +146,13 @@ describe('recipes', () => {
     expect(recipeProblems(recipe)).toEqual([]);
   });
 
+  it('fits each recipe in the fridge (9 places) and the cupboard (10)', () => {
+    RECIPES.forEach((recipe) => {
+      expect(recipe.ingredients.filter((i) => i.kept === 'fridge').length).toBeLessThanOrEqual(9);
+      expect(recipe.ingredients.filter((i) => i.kept === 'cupboard').length).toBeLessThanOrEqual(10);
+    });
+  });
+
   it('keeps every amount the same wherever an ingredient is kept', () => {
     const kept = {};
     RECIPES.forEach((recipe) =>
@@ -159,6 +168,10 @@ describe('recipes', () => {
       const { INGREDIENTS } = await import(`../src/content/${language}/kitchen.js`);
       RECIPES.forEach((recipe) => [...recipe.ingredients, ...(recipe.cardOnly || [])].forEach(({ key }) => expect([language, key, Boolean(INGREDIENTS[key])]).toEqual([language, key, true])));
     }
+  });
+
+  it('has every recipe checked against its source page', () => {
+    RECIPES.forEach((recipe) => expect([recipe.id, hasVerifiedCard(recipe)]).toEqual([recipe.id, true]));
   });
 
   it('shows no printable card until the recipe has been checked', () => {

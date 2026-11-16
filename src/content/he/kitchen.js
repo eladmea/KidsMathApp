@@ -26,7 +26,14 @@ export const INGREDIENTS = {
   cornflour: { one: 'קורנפלור', many: 'קורנפלור', gender: 'm' },
   soySauce: { one: 'רוטב סויה', many: 'רוטב סויה', gender: 'm' },
   oil: { one: 'שמן', many: 'שמן', gender: 'm' },
+  zucchini: { one: 'קישוא', many: 'קישואים', gender: 'm' },
+  wholeFlour: { one: 'קמח מלא', many: 'קמח מלא', gender: 'm' },
+  cinnamon: { one: 'קינמון', many: 'קינמון', gender: 'm' },
+  vanilla: { one: 'תמצית וניל', many: 'תמצית וניל', gender: 'f' },
   // Only on the printable card (a recipe's `cardOnly`).
+  dill: { one: 'שמיר קצוץ', many: 'שמיר קצוץ', gender: 'm' },
+  lemonJuice: { one: 'מיץ לימון', many: 'מיץ לימון', gender: 'm' },
+  ice: { one: 'קוביות קרח', many: 'קוביות קרח', gender: 'f' },
   water: { one: 'מים קרים', many: 'מים קרים', gender: 'm' },
   parsley: { one: 'פטרוזיליה קצוצה', many: 'פטרוזיליה קצוצה', gender: 'f' },
   cumin: { one: 'כמון טחון', many: 'כמון טחון', gender: 'm' },
@@ -39,7 +46,7 @@ export const INGREDIENTS = {
 export const DISHES = {
   smoothie: 'שייק תות בננה',
   muffins: 'מאפינס בננה ושיבולת שועל',
-  omelette: 'חביתת תרד',
+  omelette: 'חביתת ירק',
   burgers: 'המבורגר הודו',
   hotdogs: 'נקניקיות עוף',
 };
@@ -103,12 +110,12 @@ export function cardLine({ qty, unit }, ingredient) {
 export const name = (ingredient) => `${ingredient.many}.`;
 
 const ACTIONS = {
-  peel: () => 'קלפו את הבננה. הקישו עליה.',
+  peel: ({ times }) => (times === 1 ? 'קלפו את הבננה. הקישו עליה.' : `קלפו ${count(times, INGREDIENTS.banana)}. הקישו על כל אחת.`),
   mash: () => 'מעכו את הבננות. שפשפו אותן באצבע.',
   crack: ({ times }) => (times === 1 ? 'שברו את הביצה לקערה. הקישו עליה.' : `שברו ${count(times, INGREDIENTS.egg)} לקערה. הקישו על כל אחת.`),
   stir: () => 'ערבבו הכול יחד. שפשפו סביב סביב.',
   whisk: () => 'טרפו את הביצה. שפשפו סביב סביב.',
-  grate: () => 'גררו את הגזר. שפשפו למעלה ולמטה.',
+  grate: ({ on }) => (on === 'zucchini' ? 'גררו את הקישוא. שפשפו למעלה ולמטה.' : 'גררו את הגזר. שפשפו למעלה ולמטה.'),
   blend: () => 'טחנו עד שיהיה חלק. שפשפו סביב סביב.',
   fill: ({ times }) => `מלאו ${times} תבניות מאפינס. כף אחת בכל אחת.`,
   cut: ({ on, times }) => (on === 'cherryTomato' ? `חתכו ${count(times, INGREDIENTS.cherryTomato)} לחצאים. הקישו על כל אחת.` : 'חתכו את הבצל. הקישו עליו.'),
@@ -164,6 +171,8 @@ export const say = {
 
 export const DECORATIONS = {
   '🍓': { one: 'תות', many: 'תותים', gender: 'm' },
+  '🍌': { one: 'פרוסת בננה', many: 'פרוסות בננה', gender: 'f' },
+  '🥗': { one: 'סלט', many: 'סלטים', gender: 'm' },
   '🍅': { one: 'חצי עגבנייה', many: 'חצאי עגבנייה', gender: 'm' },
   '🌭': { one: 'נקניקייה', many: 'נקניקיות', gender: 'f' },
 };
