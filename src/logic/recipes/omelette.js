@@ -9,6 +9,7 @@ export default {
   id: 'omelette',
   emoji: '🍳',
   order: 3,
+  serves: 4,
   source: { url: 'https://gilacooking.co.il/vegetable-omelette-recipe/', site: 'Gila Cooking' },
   verified: { date: '2026-11-16', by: 'Claude, from the source page', checkedUrl: 'https://gilacooking.co.il/vegetable-omelette-recipe/' },
   ingredients: [
@@ -33,5 +34,9 @@ export default {
   cook: { appliance: 'stove', minutes: 5 },
   // Served with a fresh salad, as the page suggests.
   serve: { kind: 'decorate', dish: '🍳', plates: 4, item: '🥗', count: 4 },
-  cardOnly: [{ key: 'dill', qty: 0.25, unit: 'cup', optional: true }],
+  cardOnly: [
+    { key: 'dill', qty: 0.25, unit: 'cup', optional: true },
+    { key: 'salt', toTaste: true },
+    { key: 'pepper', toTaste: true },
+  ],
 };

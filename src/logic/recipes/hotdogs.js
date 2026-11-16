@@ -11,6 +11,7 @@ export default {
   id: 'hotdogs',
   emoji: '🌭',
   order: 5,
+  serves: 5,
   source: { url: 'https://food.walla.co.il/item/3111815', site: 'וואלה אוכל' },
   verified: { date: '2026-11-16', by: 'Claude, from the source page', checkedUrl: 'https://food.walla.co.il/item/3111815' },
   ingredients: [
@@ -33,4 +34,10 @@ export default {
   cook: { appliance: 'pot', minutes: 15 },
   // Each roll gets a sausage and becomes a hot dog.
   serve: { kind: 'decorate', dish: '🥖', plates: 5, item: '🌭', count: 5, replace: true },
+  // The printable card adds: for children under 5, cut lengthwise into strips.
+  safety: ['under5Strips'],
+  cardOnly: [
+    { key: 'salt', toTaste: true },
+    { key: 'pepper', toTaste: true },
+  ],
 };

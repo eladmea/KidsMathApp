@@ -3,7 +3,15 @@
   "fridge": "Fridge",
   "cupboard": "Cupboard",
   "sink": "Sink",
-  "stations": { "wash": "Wash", "gather": "Gather", "measure": "Measure", "prep": "Prepare", "cook": "Cook", "clean": "Clean", "serve": "Serve" },
+  "stations": {
+    "wash": "Wash",
+    "gather": "Gather",
+    "measure": "Measure",
+    "prep": "Prepare",
+    "cook": "Cook",
+    "clean": "Clean",
+    "serve": "Serve"
+  },
   "done": "✓ Done",
   "start": "▶ Start",
   "hold": "Hold",
@@ -11,5 +19,26 @@
   "celsius": "{degrees}°C",
   "grownUp": "A grown-up helps",
   "soFar": "{amount} so far",
-  "sourceNote": "Recipe from {site}"
+  "sourceNote": "Recipe from {site}",
+  "card": {
+    "title": "Recipe",
+    "makes": "Makes {count}",
+    "ingredients": "Ingredients",
+    "method": "Method",
+    "safetyTitle": "Safe cooking",
+    "optional": "(optional)",
+    "asNeeded": "(as needed)",
+    "toTaste": "{name}, to taste",
+    "pinch": "A pinch of {name}",
+    "source": "Source",
+    "checked": "Amounts checked against the source page on {date}.",
+    "safety": {
+      "washHands": "Wash hands before cooking.",
+      "rawFood": "Wash hands again after touching raw egg or meat.",
+      "grownUp": "A grown-up does the oven, the stove, hot water and the knife.",
+      "cookThrough": "Cook meat all the way through.",
+      "honey": "Honey is not for babies under 1 year old.",
+      "under5Strips": "For children under 5, cut hot dogs lengthwise into thin strips, not rings (choking risk)."
+    }
+  }
 }

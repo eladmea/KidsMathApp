@@ -8,14 +8,15 @@ export default {
   id: 'smoothie',
   emoji: '🥤',
   order: 1,
+  serves: 4,
   source: { url: 'https://gilacooking.co.il/strawberry-banana-smoothie-recipe/', site: 'Gila Cooking' },
   verified: { date: '2026-11-16', by: 'Claude, from the source page', checkedUrl: 'https://gilacooking.co.il/strawberry-banana-smoothie-recipe/' },
   ingredients: [
     { key: 'banana', emoji: '🍌', qty: 2, unit: 'whole', kept: 'cupboard' },
     // 150 g on the scale: about 10 strawberries.
-    { key: 'strawberries', emoji: '🍓', qty: 150, unit: 'g', piece: 15, kept: 'fridge' },
-    { key: 'milk', emoji: '🥛', qty: 1, unit: 'cup', kept: 'fridge' },
-    { key: 'yogurt', emoji: '🥣', qty: 0.5, unit: 'cup', kept: 'fridge' },
+    { key: 'strawberries', emoji: '🍓', qty: 150, unit: 'g', piece: 15, kept: 'fridge', alt: { qty: 1, unit: 'cup' } },
+    { key: 'milk', emoji: '🥛', qty: 1, unit: 'cup', kept: 'fridge', alt: { qty: 240, unit: 'ml' } },
+    { key: 'yogurt', emoji: '🥣', qty: 0.5, unit: 'cup', kept: 'fridge', alt: { qty: 120, unit: 'g' } },
     { key: 'honey', emoji: '🍯', qty: 2, unit: 'tbsp', kept: 'cupboard' },
     { key: 'vanilla', emoji: '🫙', qty: 0.5, unit: 'tsp', kept: 'cupboard' },
   ],

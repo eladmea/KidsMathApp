@@ -195,4 +195,20 @@ await waitFor(() => window.__mathplay.state.page === 'language');
 s = await state();
 check('the language page has a row for every child', Object.keys(s.languages).length === 2 && Object.values(s.languages).every((l) => l === 'en'), JSON.stringify(s.languages));
 await t.shot(dir, 'a8-language');
+
+// ---- Kitchen Cove's recipe cards ----
+await tap('settings:back');
+await waitFor(() => window.__mathplay.state.page === 'menu');
+await tap('settings:recipes');
+await waitFor(() => window.__mathplay.state.page === 'recipes');
+s = await state();
+check('the recipe cards page lists every checked recipe', s.cards.length === 5, s.cards.join());
+await t.shot(dir, 'a9-recipes');
+const [cardFile] = await Promise.all([t.page.waitForEvent('download', { timeout: 8000 }), tap('recipe-save:muffins')]);
+const saved = await (await import('fs')).promises.readFile(await cardFile.path(), 'utf8');
+check('a saved card is a page with the source amounts, steps and link', cardFile.suggestedFilename() === 'muffins-recipe.html' && saved.includes('80 ml coconut oil (⅓ cup)') && saved.includes('<ol>') && saved.includes('gilacooking.co.il'), cardFile.suggestedFilename());
+await tap('recipe-print:hotdogs');
+await waitFor(() => window.__mathplay.state.cardMade && window.__mathplay.state.cardMade.how === 'print');
+const frame = await t.mp(() => [...document.querySelectorAll('iframe')].map((f) => f.srcdoc).find((html) => html.includes('<ol>')) || '');
+check('printing opens the hot dog card, with the under-5 note', /under 5/.test(frame) && /15 minutes/.test(frame), String(frame.length));
 process.exit(await t.finish());

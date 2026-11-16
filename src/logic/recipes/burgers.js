@@ -11,19 +11,20 @@ export default {
   id: 'burgers',
   emoji: '🍔',
   order: 4,
+  serves: 6,
   source: { url: 'https://sweetscent.co.il/turkey-meatballs-with-oats-recipe-2/', site: 'Sweet Scent' },
   verified: { date: '2026-11-16', by: 'Claude, from the source page', checkedUrl: 'https://sweetscent.co.il/turkey-meatballs-with-oats-recipe-2/' },
   ingredients: [
     // Two 250 g packs of ground turkey breast.
     { key: 'turkey', emoji: '🥩', qty: 500, unit: 'g', piece: 250, kept: 'fridge' },
     // Fine oats, 25 g a scoop.
-    { key: 'oats', emoji: '🌾', qty: 100, unit: 'g', piece: 25, kept: 'cupboard' },
-    { key: 'onion', emoji: '🧅', qty: 1, unit: 'whole', kept: 'cupboard' },
-    { key: 'carrot', emoji: '🥕', qty: 1, unit: 'whole', kept: 'fridge' },
+    { key: 'oats', emoji: '🌾', qty: 100, unit: 'g', piece: 25, kept: 'cupboard', alt: { qty: 1, unit: 'cup' } },
+    { key: 'onion', emoji: '🧅', qty: 1, unit: 'whole', kept: 'cupboard', alt: { qty: 120, unit: 'g' } },
+    { key: 'carrot', emoji: '🥕', qty: 1, unit: 'whole', kept: 'fridge', alt: { qty: 80, unit: 'g' } },
     { key: 'garlic', emoji: '🧄', qty: 2, unit: 'whole', kept: 'cupboard' },
     { key: 'egg', emoji: '🥚', qty: 1, unit: 'whole', kept: 'fridge' },
     // 25 ml: 5 teaspoons (or a tablespoon and 2 teaspoons).
-    { key: 'oliveOil', emoji: '🫒', qty: 25, unit: 'ml', kept: 'cupboard' },
+    { key: 'oliveOil', emoji: '🫒', qty: 25, unit: 'ml', kept: 'cupboard', alt: { qty: 2, unit: 'tbsp' } },
   ],
   prep: [
     { action: 'cut', on: 'onion', times: 1 },

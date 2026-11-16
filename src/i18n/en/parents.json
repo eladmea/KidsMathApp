@@ -6,6 +6,7 @@
   "settingsTitle": "⚙️ Settings",
   "menuLanguage": "🌐 Language",
   "menuVoice": "🗣️ Read-aloud voice",
+  "menuRecipes": "🍳 Recipe cards",
   "backToSettings": "◀ Settings",
   "languageTitle": "🌐 Language",
   "languageIntro": "Each child plays in their own language: the menus, the questions and the read-aloud voice.",
@@ -33,16 +34,42 @@
   "report": "🧪 Play-test report",
   "backToChild": "◀ Back",
   "summary": {
-    "days": { "one": "{count} day", "other": "{count} days" },
-    "answers": { "one": "{count} answer", "other": "{count} answers" },
-    "rounds": { "one": "{count} round", "other": "{count} rounds" },
+    "days": {
+      "one": "{count} day",
+      "other": "{count} days"
+    },
+    "answers": {
+      "one": "{count} answer",
+      "other": "{count} answers"
+    },
+    "rounds": {
+      "one": "{count} round",
+      "other": "{count} rounds"
+    },
     "quits": "{count} left early",
-    "levels": { "one": "{count} level change", "other": "{count} level changes" },
-    "together": { "one": "{count} answer played together", "other": "{count} answers played together" }
+    "levels": {
+      "one": "{count} level change",
+      "other": "{count} level changes"
+    },
+    "together": {
+      "one": "{count} answer played together",
+      "other": "{count} answers played together"
+    }
   },
   "empty": "Nothing recorded yet. Every answer is logged on this device as the child plays.",
-  "columns": { "skill": "Skill", "tries": "Tries", "right": "Right", "time": "Time", "replays": "🔊/q" },
-  "flags": { "too hard": "too hard", "too easy": "too easy", "unclear": "unclear", "drop-off": "drop-off" },
+  "columns": {
+    "skill": "Skill",
+    "tries": "Tries",
+    "right": "Right",
+    "time": "Time",
+    "replays": "🔊/q"
+  },
+  "flags": {
+    "too hard": "too hard",
+    "too easy": "too easy",
+    "unclear": "unclear",
+    "drop-off": "drop-off"
+  },
   "legend": "Time = median seconds per answer. Flags need 10+ tries: too hard (under 60% right), too easy (95%+ and under 3 s), unclear (question replayed on half the tries), drop-off (a third of rounds left early).",
   "notes": "📝 Session notes",
   "notePlaceholder": "What did you notice? (e.g. guessed fast on Bigger Number)",
@@ -60,5 +87,10 @@
   "nowUsing": "Now using: {name}",
   "defaultVoice": "Using the device default voice",
   "sample": "Hi! This is how I will read to you.",
-  "voiceNote": "Tap a voice to hear it. Voices come from this device and are free: \"Natural\", \"Premium\", \"Enhanced\" and Google voices sound the most human. Online voices need internet; without it an on-device voice is used. On iPhone/iPad, download better voices in Settings → Accessibility → Spoken Content → Voices. On Android, in Settings → Text-to-speech → Google → Install voice data."
+  "voiceNote": "Tap a voice to hear it. Voices come from this device and are free: \"Natural\", \"Premium\", \"Enhanced\" and Google voices sound the most human. Online voices need internet; without it an on-device voice is used. On iPhone/iPad, download better voices in Settings → Accessibility → Spoken Content → Voices. On Android, in Settings → Text-to-speech → Google → Install voice data.",
+  "recipesTitle": "Recipe cards",
+  "recipesIntro": "Print a Kitchen Cove recipe and cook it together for real. The amounts are the source's own, checked against its page.",
+  "print": "🖨️ Print",
+  "save": "💾 Save",
+  "cardSoon": "Card coming soon"
 }

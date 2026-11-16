@@ -258,8 +258,16 @@ export function recipeProblems(recipe) {
   if (serve.kind === 'stack' && !(serve.layers && serve.layers.length > 1)) problems.push('serve: no layers');
   if (!['decorate', 'stack'].includes(serve.kind)) problems.push(`serve ${serve.kind}`);
   (recipe.cardOnly || []).forEach((ingredient) => {
+    if (ingredient.toTaste || ingredient.pinch) return;
     if (!['cup', 'tbsp', 'tsp', 'ml', 'g'].includes(ingredient.unit) || !Number.isInteger(ingredient.qty * 4)) problems.push(`card only ${ingredient.key}`);
   });
+  // The source's other way of giving an amount (thirds allowed: "⅓ cup").
+  recipe.ingredients.forEach(({ key, alt }) => {
+    if (!alt) return;
+    const thirds = Math.abs(alt.qty * 3 - Math.round(alt.qty * 3)) < 1e-9;
+    if (!['cup', 'tbsp', 'tsp', 'ml', 'g'].includes(alt.unit) || !(alt.qty > 0) || !(Number.isInteger(alt.qty * 4) || thirds)) problems.push(`${key}: alt amount`);
+  });
+  if (!(recipe.serves > 0)) problems.push('serves');
   if (!recipe.source || !/^https:\/\//.test(recipe.source.url)) problems.push('no source');
   return problems;
 }
