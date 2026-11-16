@@ -6,10 +6,16 @@ too-many-ae4d40a7 | Too many!
 drag-them-from-the-tray-ad54017c | Drag them from the tray.
 now-drag-the-pizza-into-the-oven-b73b16df | Now drag the pizza into the oven.
 it-bloomed-66f7eb81 | It bloomed!
+rub-round-and-round-a1c39f47 | Rub round and round.
 yes-dc811cc3 | Yes!
 follow-the-dots-93302349 | Follow the dots.
+tap-each-one-6c872b7f | Tap each one.
+tap-it-069c1a5f | Tap it.
 come-back-tomorrow-to-help-it-grow-more-7be17b32 | Come back tomorrow to help it grow more.
+cut-the-onion-206eb98d | Cut the onion.
 not-quite-62c34ae3 | Not quite!
+rub-it-up-and-down-ebdc1f93 | Rub it up and down.
+stir-it-all-together-1b2fab65 | Stir it all together.
 the-pair-goes-back-0afaba75 | The pair goes back.
 we-need-1-6a6a4e5e | We need 1.
 we-need-2-8c713fa9 | We need 2.
@@ -70,13 +76,16 @@ drag-them-one-by-one-26e10ada | Drag them one by one.
 eight-candles-today-4661d35a | Eight candles today!
 five-candles-today-7ff2d6f1 | Five candles today!
 four-candles-today-709ff801 | Four candles today!
+grate-the-carrot-c92b8c2c | Grate the carrot.
 nine-candles-today-1fb6a031 | Nine candles today!
 one-candle-today-38c7a990 | One candle today!
 only-boop-the-bunny-ee2a01c9 | Only boop the bunny!
 seven-candles-today-e94e8814 | Seven candles today!
 six-candles-today-5c7e81bb | Six candles today!
 take-4-off-01bb03d7 | Take 4 off.
+tap-the-bowl-5-times-dccf6774 | Tap the bowl 5 times.
 three-candles-today-ac89a983 | Three candles today!
+try-another-one-510b0d21 | Try another one.
 two-candles-today-e5a4bd05 | Two candles today!
 we-have-1-9e10e6f4 | We have 1.
 write-eight-on-the-cake-with-icing-4ca6a157 | Write eight on the cake with icing.
@@ -89,19 +98,22 @@ write-six-on-the-cake-with-icing-cdd31400 | Write six on the cake with icing.
 write-three-on-the-cake-with-icing-d4ab62b8 | Write three on the cake with icing.
 write-two-on-the-cake-with-icing-d4da3686 | Write two on the cake with icing.
 add-3-more-d8d309e9 | Add 3 more!
+crack-2-eggs-into-the-bowl-136946fe | Crack 2 eggs into the bowl.
 take-5-off-c91b9316 | Take 5 off.
 we-have-2-200de203 | We have 2.
+what-comes-next-bd78f6d8 | What comes next?
 add-4-more-0d8f9988 | Add 4 more!
 cat-d25960ab | Cat.
 dog-44c15b85 | Dog.
 start-at-the-honey-pot-4b4cc01f | Start at the honey pot.
 take-6-off-71f56695 | Take 6 off.
 we-have-3-fe0b6de6 | We have 3.
-what-comes-next-bd78f6d8 | What comes next?
 add-5-more-afd310df | Add 5 more!
 banana-76b3e7fa | Banana.
+crack-4-eggs-into-the-bowl-4c92cfb4 | Crack 4 eggs into the bowl.
 good-soil-gives-plants-nutrients-1717a64d | Good soil gives plants nutrients.
 help-the-robot-reach-the-cookie-e60bda01 | Help the robot reach the cookie.
+here-is-the-recipe-793d15ea | Here is the recipe.
 hmm-not-that-f1d1a543 | Hmm, not that.
 moon-73d919ca | Moon.
 plants-drink-water-through-their-roots-169d94d0 | Plants drink water through their roots.
@@ -110,15 +122,26 @@ read-the-clue-again-60d71c86 | Read the clue again!
 star-e4e7cdad | Star.
 take-7-off-6ce16d44 | Take 7 off.
 we-have-4-200964d5 | We have 4.
+2-tablespoons-ac0e4337 | 2 tablespoons.
 add-6-more-287f7c86 | Add 6 more!
 apple-af4b45e3 | Apple.
+blend-it-smooth-f71b8239 | Blend it smooth.
 blue-ea18fff9 | Blue.
+fill-the-12-muffin-cups-994b267a | Fill the 12 muffin cups.
+grate-the-zucchini-1663c996 | Grate the zucchini.
 green-square-c92261e7 | Green square.
+mash-the-bananas-7f8ffd29 | Mash the bananas.
 mouse-299b757e | Mouse.
+now-decorate-it-da830203 | Now decorate it.
+one-scoop-in-each-ba69cc7f | One scoop in each.
 red-square-4698f487 | Red square.
 red-b3134916 | Red.
+roll-5-sausages-d9c980d3 | Roll 5 sausages.
+rub-them-with-your-finger-a155c146 | Rub them with your finger.
+shape-5-burgers-e58aa44f | Shape 5 burgers.
 take-8-off-cfc6248b | Take 8 off.
 we-have-5-fe06f0b8 | We have 5.
+whisk-the-egg-95597c95 | Whisk the egg.
 yum-a34e27c1 | Yum!
 0-03ed4313 | 0.
 1-340ca71c | 1
@@ -174,10 +197,12 @@ bear-8a524c53 | bear
 bee-51ae487f | bee
 car-047458e1 | car
 cat-06745c07 | cat
+crack-the-egg-into-the-bowl-6dae6fa6 | Crack the egg into the bowl.
 dog-e668bd09 | dog
 fox-b6f3934e | fox
 frog-9bcd89e7 | frog
 grapes-4a48d4b5 | Grapes.
+half-a-teaspoon-b2a2501c | Half a teaspoon.
 it-grew-into-a-bud-deb93e94 | It grew into a bud!
 it-grew-into-a-leafy-plant-9804bd6b | It grew into a leafy plant!
 it-grew-into-a-sprout-6927c002 | It grew into a sprout!
@@ -185,6 +210,7 @@ it-grew-into-a-young-plant-9b5421b2 | It grew into a young plant!
 kuh-593cc03f | kuh
 look-at-your-plant-f483e647 | Look at your plant.
 one-d9bab4ea | One!
+peel-2-bananas-cff965e3 | Peel 2 bananas.
 something-cfc7b03f | Something.
 sun-6a5abefd | Sun.
 take-9-off-9f1bd0fa | Take 9 off.
@@ -203,6 +229,9 @@ what-is-5-times-6-f28ad757 | What is 5 times 6?
 what-is-5-times-7-f28d15ee | What is 5 times 7?
 what-is-5-times-8-f28f5485 | What is 5 times 8?
 what-is-5-times-9-72925c9c | What is 5 times 9?
+while-it-cooks-let-s-clean-up-560054fa | While it cooks, let’s clean up!
+1-cup-09d8739a | 1 cup.
+1-tablespoon-f06c4759 | 1 tablespoon.
 10-1beb2a44 | 10
 10-groups-of-1-make-10-7045af09 | 10 groups of 1 make 10.
 10-groups-of-2-make-20-c257b1f3 | 10 groups of 2 make 20.
@@ -247,6 +276,7 @@ what-is-5-times-9-72925c9c | What is 5 times 9?
 5-groups-of-3-make-15-1a65a522 | 5 groups of 3 make 15.
 5-groups-of-4-make-20-525c6cc9 | 5 groups of 4 make 20.
 50-29989f8a | 50.
+500-grams-bad8408a | 500 grams.
 51-4b9b13a7 | 51.
 52-a99de638 | 52.
 53-cba05a55 | 53.
@@ -324,6 +354,7 @@ what-is-5-times-9-72925c9c | What is 5 times 9?
 98-c3de337e | 98.
 99-e5e0a79b | 99.
 a-big-block-can-t-sit-on-a-small-one-64917d1f | A big block can't sit on a small one.
+a-grown-up-puts-it-in-the-oven-ef942a3c | A grown-up puts it in the oven.
 add-8-more-cdbe6e24 | Add 8 more!
 add-within-10-986431da | Add within 10.
 add-within-100-3970058a | Add within 100.
@@ -332,6 +363,7 @@ adventure-complete-3414d59d | Adventure complete!
 almost-999c54ea | Almost!
 balance-it-a377b6ce | Balance It.
 banana-d9889f50 | banana
+banana-muffins-a3190b3c | Banana Muffins.
 bear-feels-sad-598acf78 | Bear feels sad.
 bear-0e88eb67 | Bear.
 bee-paths-5bee210b | Bee Paths.
@@ -379,6 +411,7 @@ frog-19ff6d8b | Frog.
 goat-0e6f5bde | goat
 goat-4f092c70 | Goat.
 growing-patterns-413d9f4d | Growing Patterns.
+half-a-cup-3125b363 | Half a cup.
 hat-f2bf17c2 | hat
 hat-8efef4a4 | Hat.
 hi-325d0001 | Hi!
@@ -390,6 +423,8 @@ hmm-that-wouldn-t-help-frog-1e5442c1 | Hmm, that wouldn't help Frog.
 hmm-that-wouldn-t-help-lion-9587e079 | Hmm, that wouldn't help Lion.
 hmm-that-wouldn-t-help-monkey-dda045f4 | Hmm, that wouldn't help Monkey.
 hmm-that-wouldn-t-help-pig-a2767139 | Hmm, that wouldn't help Pig.
+honey-dd38341e | Honey.
+hot-dogs-2f2f49d3 | Hot Dogs.
 house-0cfb455b | house
 house-13cf854f | House.
 how-many-apples-7c529412 | How many apples?
@@ -425,6 +460,7 @@ lion-feels-angry-4358550f | Lion feels angry.
 lll-365991eb | lll
 logic-grids-bdeb7de6 | Logic Grids.
 make-the-scale-balance-831e23a5 | Make the scale balance!
+milk-d8c09f84 | Milk.
 monkey-feels-sad-84243af5 | Monkey feels sad.
 more-patterns-65da217f | More Patterns.
 mouse-592318c4 | mouse
@@ -438,6 +474,8 @@ number-pairs-85006081 | Number Pairs.
 number-puzzle-e63776fe | Number Puzzle.
 number-rules-2dc8f2bb | Number Rules.
 number-words-55a8e575 | Number Words.
+oats-b36e3d02 | Oats.
+oil-670719af | Oil.
 oops-29d2a17d | Oops!
 or-bear-7fd0b177 | Or bear?
 or-bee-def8ee75 | Or bee?
@@ -474,6 +512,7 @@ robot-loops-eb061bba | Robot Loops.
 same-pattern-new-look-9e40af6e | Same Pattern, New Look.
 scale-master-3127ffbd | Scale Master.
 see-you-tomorrow-4c7fe0e9 | See you tomorrow!
+set-the-timer-to-20-minutes-683da77d | Set the timer to 20 minutes.
 seven-e35d66ad | Seven!
 sh-ch-th-wh-ba740f74 | sh ch th wh.
 share-100-into-10-equal-groups-10-in-eac-e86c7026 | Share 100 into 10 equal groups: 10 in each, because 10 × 10 = 100.
@@ -630,6 +669,7 @@ start-with-9-and-take-away-7-2-are-left-9014057c | Start with 9 and take away 7:
 start-with-9-and-take-away-8-1-is-left-ca9a53de | Start with 9 and take away 8: 1 is left.
 start-with-9-and-take-away-9-0-are-left-324cb270 | Start with 9 and take away 9: 0 are left.
 story-strip-528daa0a | Story Strip.
+strawberry-smoothie-c594f1e6 | Strawberry Smoothie.
 subtract-within-100-53c11bd7 | Subtract within 100.
 subtract-within-20-e3ec3a8c | Subtract within 20.
 switch-cadfb010 | Switch!
@@ -652,6 +692,7 @@ the-part-that-repeats-is-dog-fcf1da72 | The part that repeats is Dog.
 the-part-that-repeats-is-red-square-fa139c8e | The part that repeats is Red square.
 the-part-that-repeats-is-red-f9af0105 | The part that repeats is Red.
 the-part-that-repeats-is-star-ab807fd4 | The part that repeats is Star.
+the-recipe-says-20-minutes-e229ca85 | The recipe says 20 minutes.
 there-are-3-apples-86748f8e | There are 3 apples!
 there-are-3-balloons-a7e09f4d | There are 3 balloons!
 there-are-3-cars-6a6e31a8 | There are 3 cars!
@@ -684,9 +725,11 @@ times-2-5-10-8e3288e5 | Times 2, 5 & 10.
 times-means-groups-of-fdd5cd10 | Times means groups of.
 times-tables-to-10-9d16e2ce | Times Tables to 10.
 tricky-patterns-49f1f6a0 | Tricky Patterns.
+turkey-burgers-4e7a22fd | Turkey Burgers.
 turn-fit-a9e758fb | Turn & Fit.
 turn-over-two-cards-59d435cd | Turn over two cards.
 two-5baf3a38 | Two!
+vegetable-omelette-32d68f37 | Vegetable Omelette.
 we-have-7-7e01aa0a | We have 7.
 what-comes-next-7854f082 | What Comes Next?.
 what-goes-in-the-gap-53ea510a | What goes in the gap?
@@ -868,6 +911,7 @@ what-plants-need-d7cf7035 | What Plants Need.
 where-do-i-live-4d9667f9 | Where Do I Live?.
 which-has-more-5cd126a6 | Which Has More?.
 which-part-repeats-4a9216fe | Which Part Repeats?.
+whole-wheat-flour-e2adbc00 | Whole-wheat flour.
 word-builder-teams-0e7af644 | Word Builder: Teams.
 word-builder-908f4f30 | Word Builder.
 word-catcher-39645851 | Word Catcher.
@@ -905,6 +949,7 @@ tell-a-grown-up-how-you-feel-would-help-9730597d | "Tell a grown-up how you feel
 use-words-to-say-how-you-feel-would-help-34336674 | "Use words to say how you feel" would help.
 0-350ca8af | 0
 0-is-at-the-start-and-the-end-is-the-big-9c1c7466 | 0 is at the start and the end is the biggest.
+1-and-a-half-teaspoons-20dc138b | 1 and a half teaspoons.
 1-candle-d03c52d0 | 1 candle!
 1-corn-ea6995bd | 1 corn!
 1-dot-e4a5f8fb | 1 dot
@@ -925,6 +970,7 @@ use-words-to-say-how-you-feel-would-help-34336674 | "Use words to say how you fe
 1-mushroom-4691ff55 | 1 mushroom!
 1-olive-slice-35006e64 | 1 olive slice!
 1-pineapple-bbc88e25 | 1 pineapple!
+1-teaspoon-8e5cd6b7 | 1 teaspoon.
 1-2-4-7-11-32a61bd5 | 1, 2, 4, 7, 11.
 1-2-4-8-56198b4c | 1, 2, 4, 8.
 1-4-9-16-a523eabe | 1, 4, 9, 16.
@@ -944,6 +990,7 @@ use-words-to-say-how-you-feel-would-help-34336674 | "Use words to say how you fe
 10-16-22-28-e2fc4d31 | 10, 16, 22, 28.
 10-17-24-31-c43601b8 | 10, 17, 24, 31.
 10-19-28-37-096ed7c0 | 10, 19, 28, 37.
+100-grams-523f9706 | 100 grams.
 100-is-the-bigger-number-3e166ee8 | 100 is the bigger number.
 11-goes-here-the-line-runs-from-0-to-100-ab67a0d0 | 11 goes here: the line runs from 0 to 100.
 11-groups-of-10-make-110-4b530299 | 11 groups of 10 make 110.
@@ -1036,6 +1083,7 @@ use-words-to-say-how-you-feel-would-help-34336674 | "Use words to say how you fe
 15-24-33-42-d2ce6d65 | 15, 24, 33, 42.
 15-26-37-48-65890ced | 15, 26, 37, 48.
 15-27-39-51-950c678c | 15, 27, 39, 51.
+150-grams-f6a1b731 | 150 grams.
 16-19eb271e | 16
 16-goes-here-the-line-runs-from-0-to-100-61bcfb41 | 16 goes here: the line runs from 0 to 100.
 16-is-the-bigger-number-3ef9f736 | 16 is the bigger number.
@@ -1159,6 +1207,7 @@ use-words-to-say-how-you-feel-would-help-34336674 | "Use words to say how you fe
 24-plus-5-is-29-a687c03a | 24 plus 5 is 29!
 25-goes-here-the-line-runs-from-0-to-100-8ddb43bb | 25 goes here: the line runs from 0 to 100.
 25-is-the-bigger-number-a4a2c1fc | 25 is the bigger number.
+25-milliliters-f67e8b64 | 25 milliliters.
 25-minus-1-is-24-1ceae0ac | 25 minus 1 is 24!
 25-minus-10-is-15-74e2b5fe | 25 minus 10 is 15!
 25-minus-2-is-23-3eec8200 | 25 minus 2 is 23!
@@ -1626,6 +1675,7 @@ use-words-to-say-how-you-feel-would-help-34336674 | "Use words to say how you fe
 6-04e8c778 | 6!
 60-goes-here-the-line-runs-from-0-to-100-6ba4a2d4 | 60 goes here: the line runs from 0 to 100.
 60-is-the-bigger-number-dbd76c07 | 60 is the bigger number.
+60-milliliters-7303b9d1 | 60 milliliters.
 60-minus-10-is-50-2d8e694c | 60 minus 10 is 50!
 60-minus-2-is-58-6dfc22f3 | 60 minus 2 is 58!
 60-minus-5-is-55-455a9c69 | 60 minus 5 is 55!
@@ -1921,6 +1971,7 @@ use-words-to-say-how-you-feel-would-help-34336674 | "Use words to say how you fe
 8-81018f92 | 8!
 80-goes-here-the-line-runs-from-0-to-100-d30837e6 | 80 goes here: the line runs from 0 to 100.
 80-is-the-bigger-number-f9eca3bd | 80 is the bigger number.
+80-milliliters-2e6dd26b | 80 milliliters.
 80-minus-10-is-70-211d7e2c | 80 minus 10 is 70!
 80-minus-2-is-78-7ac092b3 | 80 minus 2 is 78!
 80-minus-5-is-75-cd83bd75 | 80 minus 5 is 75!
@@ -2074,6 +2125,8 @@ a-fish-eats-the-shrimp-3c333091 | A fish eats the shrimp.
 a-fox-eats-the-rabbit-90db1369 | A fox eats the rabbit.
 a-friend-opens-the-letter-efec6b34 | A friend opens the letter.
 a-group-of-flamingos-is-called-a-flamboy-712dcded | A group of flamingos is called a flamboyance.
+a-grown-up-puts-the-pan-on-the-stove-edae46ac | A grown-up puts the pan on the stove.
+a-grown-up-puts-them-in-a-pot-of-hot-wat-5bacf5f3 | A grown-up puts them in a pot of hot water.
 a-harder-push-makes-it-roll-farther-c8b689ab | A harder push makes it roll farther.
 a-hawk-eats-the-bird-741fe98c | A hawk eats the bird.
 a-hen-lays-an-egg-61b44c82 | A hen lays an egg.
@@ -2086,6 +2139,7 @@ a-new-kid-wants-to-join-your-puzzle-89853d27 | A new kid wants to join your puzz
 a-new-player-9db6a6ca | A new player!
 a-pull-brings-it-closer-2dac292d | A pull brings it closer.
 a-push-moves-something-away-from-you-0847b5ef | A push moves something away from you.
+a-quarter-cup-c5764c3e | A quarter cup.
 a-rabbit-eats-the-grass-c21c90b8 | A rabbit eats the grass.
 a-scarf-dade4e41 | A scarf.
 a-sea-turtle-digs-a-nest-in-the-sand-ff7f4999 | A sea turtle digs a nest in the sand.
@@ -2100,10 +2154,12 @@ a-tooth-feels-wobbly-8f516eae | A tooth feels wobbly.
 a-warm-coat-5c759ee2 | A warm coat.
 aah-3d45e18d | aah
 add-9-more-15450bcb | Add 9 more!
+add-more-d4f781b1 | Add more.
 add-the-tens-then-add-the-ones-feb8ac13 | Add the tens, then add the ones.
 add-the-two-numbers-together-9439a627 | Add the two numbers together.
 add-water-and-ice-8d700071 | Add water and ice.
 air-515723db | Air.
+all-clean-a373d5cc | All clean!
 all-gone-9c601c4e | All gone!
 amazing-job-1a06f3ca | Amazing job!
 an-octopus-has-three-hearts-b5272443 | An octopus has three hearts!
@@ -2125,11 +2181,14 @@ apple-10bc2abf | apple
 ar-5d251efa | ar
 are-the-numbers-going-up-or-down-6800e0e1 | Are the numbers going up or down?
 arrive-at-the-beach-32f5865b | Arrive at the beach.
+ask-a-grown-up-to-help-with-this-2182615a | Ask a grown-up to help with this.
 ava-s-friend-made-her-a-card-when-she-wa-f0d2a7ff | Ava's friend made her a card when she was sick.
 aw-5a251a41 | aw
 ay-542510cf | ay
 baby-turtles-hatch-edf3b9b2 | Baby turtles hatch.
 bake-it-in-the-oven-b32c1bff | Bake it in the oven.
+baking-powder-f0e98226 | Baking powder.
+baking-soda-8125a43e | Baking soda.
 balanced-9dbb4c14 | Balanced!
 bananas-are-berries-but-strawberries-are-9e2af01f | Bananas are berries, but strawberries are not!
 bat-70b773a8 | bat
@@ -2172,6 +2231,7 @@ both-go-a-b-b-a-b-b-the-same-pattern-wit-9467ad68 | Both go A B B, A B B: the sa
 both-go-a-b-c-a-b-c-the-same-pattern-wit-15a560f2 | Both go A B C, A B C: the same pattern with new things.
 both-go-a-b-a-b-the-same-pattern-with-ne-e11f25e8 | Both go A B, A B: the same pattern with new things.
 both-sides-are-the-same-eb12ea8b | Both sides are the same.
+bottom-bun-first-c9772e80 | Bottom bun first!
 box-70c67e32 | box
 box-and-fox-rhyme-they-end-with-the-same-2552da5e | box and fox rhyme: they end with the same sound.
 box-9b7877e9 | box!
@@ -2192,6 +2252,7 @@ buh-uh-sss-c9aa36e2 | buh, uh, sss…
 build-a-sandcastle-94340f80 | Build a sandcastle.
 build-a-tall-tower-from-the-biggest-bloc-fed0cce4 | Build a tall tower, from the biggest block to the smallest.
 build-a-tower-2eaabbec | Build a tower!
+build-it-in-order-17cb08a7 | Build it in order.
 build-the-food-chain-3f7c3909 | Build the food chain.
 build-the-word-bat-412ae791 | Build the word: bat.
 build-the-word-bath-d4f0b49b | Build the word: bath.
@@ -2263,8 +2324,12 @@ chair-and-bear-rhyme-they-end-with-the-s-da5a5735 | chair and bear rhyme: they e
 chair-and-pear-rhyme-they-end-with-the-s-cacb8c1f | chair and pear rhyme: they end with the same sound.
 chair-c395574c | Chair.
 chick-ab29440e | chick!
+chicken-breast-e9e0d489 | Chicken breast.
 chop-573c93e8 | Chop!
+chopped-parsley-1cedc47a | Chopped parsley.
+cinnamon-8935a64c | Cinnamon.
 clap-at-the-end-496f92a4 | Clap at the end.
+clean-hands-e447559f | Clean hands!
 clock-15a40f5d | clock
 clock-and-rock-rhyme-they-end-with-the-s-341c0ee3 | clock and rock rhyme: they end with the same sound.
 clock-and-sock-rhyme-they-end-with-the-s-3c79c268 | clock and sock rhyme: they end with the same sound.
@@ -2273,9 +2338,12 @@ coat-dc398e12 | coat
 coat-and-boat-rhyme-they-end-with-the-sa-79855555 | coat and boat rhyme: they end with the same sound.
 coat-and-goat-rhyme-they-end-with-the-sa-d0f865ae | coat and goat rhyme: they end with the same sound.
 coat-90565a14 | Coat.
+coconut-oil-80414e76 | Coconut oil.
+cold-things-go-in-the-fridge-71b5ebbb | Cold things go in the fridge.
 collect-every-star-then-get-the-cookie-c06c245f | Collect every star, then get the cookie!
 come-back-tomorrow-746fa686 | Come back tomorrow!
 cook-hot-dogs-on-the-fire-d829353f | Cook hot dogs on the fire.
+cornflour-2c27bb91 | Cornflour.
 correct-eb5de810 | Correct!
 count-the-pictures-one-by-one-then-tap-h-2dfb81c8 | Count the pictures one by one, then tap how many there are.
 count-the-pictures-then-tap-the-number-t-d3bd4048 | Count the pictures, then tap the number that tells how many.
@@ -2298,6 +2366,7 @@ cover-the-whole-three-4ae853ea | Cover the whole three.
 cover-the-whole-two-42ee88f4 | Cover the whole two.
 cow-b27e667a | Cow.
 cows-have-best-friends-884abdee | Cows have best friends.
+crack-8-eggs-into-the-bowl-7fb640e0 | Crack 8 eggs into the bowl.
 cup-43b4246a | cup!
 cut-the-lemons-22d086d2 | Cut the lemons.
 dee-does-not-have-the-cat-03375e22 | Dee does not have the cat.
@@ -2310,6 +2379,7 @@ dee-has-the-dog-27db63de | Dee has the dog.
 dee-has-the-fish-d5e2db0a | Dee has the fish.
 dee-has-the-rabbit-eb1b5edc | Dee has the rabbit.
 dee-has-the-turtle-98943abe | Dee has the turtle.
+ding-9eb564ec | Ding!
 dish-6b8d6234 | dish!
 divide-means-share-equally-87012c7c | Divide means share equally.
 dog-and-frog-rhyme-they-end-with-the-sam-e616f0ba | dog and frog rhyme: they end with the same sound.
@@ -2317,6 +2387,7 @@ dog-and-log-rhyme-they-end-with-the-same-10abeffe | dog and log rhyme: they end 
 dog-dee1c5f8 | dog!
 donut-567b2a4f | donut
 donut-723ef3d3 | Donut.
+double-it-c538ce7c | Double it!
 drag-a-corn-from-the-tray-onto-the-pizza-dc2c4502 | Drag a corn from the tray onto the pizza.
 drag-a-mushroom-from-the-tray-onto-the-p-75a218f2 | Drag a mushroom from the tray onto the pizza.
 drag-a-pineapple-from-the-tray-onto-the-76af70e2 | Drag a pineapple from the tray onto the pizza.
@@ -2461,6 +2532,7 @@ first-play-what-comes-next-307651fe | First, play What Comes Next?.
 first-play-which-has-more-d13efaca | First, play Which Has More?.
 first-play-which-part-repeats-70d05f8a | First, play Which Part Repeats?.
 first-play-write-1-to-5-c01bc70b | First, play Write 1 to 5.
+first-wash-your-hands-8aec147a | First, wash your hands!
 fish-starts-with-fff-3e79895d | fish starts with fff!
 fish-d02f12e6 | fish!
 fish-00eb5f57 | Fish.
@@ -2506,6 +2578,7 @@ great-job-8ec45499 | Great job.
 great-playing-today-c2f45b94 | Great playing today!
 great-tossing-3884c3ee | Great tossing!
 great-work-c911f00a | Great work!
+ground-turkey-fe77843e | Ground turkey.
 guh-38351db3 | guh
 guitar-af274f0f | guitar
 guitar-0f04d593 | Guitar.
@@ -2538,9 +2611,9 @@ help-the-robot-reach-the-cookie-df0bcefc | Help the robot reach the cookie!
 high-five-your-team-9f08196a | High-five your team.
 hold-the-button-and-breathe-in-670ca3ae | Hold the button and breathe in.
 hold-the-button-to-push-the-ball-88fd1700 | Hold the button to push the ball.
+hold-the-button-e0a7c119 | Hold the button.
 hold-to-breathe-in-da095157 | Hold to breathe in
 honey-never-goes-bad-3733c7bb | Honey never goes bad.
-hooray-b991dd1a | Hooray!
 hop-2-squares-0e6a6b40 | Hop 2 squares.
 hop-3-squares-6d263119 | Hop 3 squares.
 hop-one-square-f10b07d7 | Hop one square.
@@ -2892,6 +2965,7 @@ i-will-read-to-you-61f43a68 | I will read to you.
 ih-43387dc4 | ih
 imagine-you-are-the-person-in-the-story-63c2a1df | Imagine you are the person in the story.
 imagine-you-were-there-59fc74eb | Imagine you were there.
+into-the-blender-d4fe6be3 | Into the blender!
 into-the-oven-4572aaed | Into the oven!
 is-a-brick-a-solid-a-liquid-or-a-gas-b7edea82 | Is a brick a solid, a liquid, or a gas?
 is-a-magnet-grabbing-a-paper-clip-a-push-0beef610 | Is a magnet grabbing a paper clip a push or a pull?
@@ -2918,6 +2992,7 @@ it-can-be-longer-this-time-30094340 | It can be longer this time!
 it-flies-high-in-the-sky-00c9a437 | It flies high in the sky!
 it-flies-into-the-goal-89d92b25 | It flies into the goal.
 it-goes-apple-banana-apple-banana-eb334c62 | It goes apple, banana, apple, banana…
+it-goes-back-4ce0098d | It goes back.
 it-goes-dog-cat-dog-cat-4ea1deb8 | It goes dog, cat, dog, cat…
 it-goes-red-square-green-square-red-squa-55824280 | It goes red square, green square, red square, green square…
 it-goes-red-blue-red-blue-7d9911ea | It goes red, blue, red, blue…
@@ -2933,6 +3008,7 @@ it-grows-into-a-tree-bc4299d7 | It grows into a tree.
 it-is-getting-hot-bdb594e7 | It is getting hot…
 it-is-sitting-in-a-dark-corner-b8cc2131 | It is sitting in a dark corner.
 it-is-very-late-and-your-eyes-keep-closi-d958f742 | It is very late and your eyes keep closing.
+it-looks-delicious-c11c6064 | It looks delicious!
 it-rests-as-a-pupa-539c7d6c | It rests as a pupa.
 it-rests-in-a-chrysalis-62883a07 | It rests in a chrysalis.
 it-sprouts-roots-and-a-shoot-4cc176b4 | It sprouts roots and a shoot.
@@ -2951,6 +3027,7 @@ it-was-9-db1c7a4c | It was 9.
 it-s-a-tie-46fd3db2 | It's a tie!
 it-s-okay-to-feel-that-way-8b183730 | It's okay to feel that way!
 it-s-rainy-today-be79a255 | It's rainy today!
+it-s-ready-fde6d42a | It’s ready!
 it-s-snowy-today-fa317f10 | It's snowy today!
 it-s-sunny-today-695f599f | It's sunny today!
 it-s-time-for-a-break-3437d09e | It's time for a break.
@@ -3159,7 +3236,9 @@ jump-that-many-at-a-time-to-reach-the-nu-555db62e | Jump that many at a time to 
 just-right-b6077014 | Just right!
 kai-and-mia-both-want-to-be-the-team-cap-7fb0263f | Kai and Mia both want to be the team captain.
 keep-going-all-the-way-to-the-end-ffd69e8e | Keep going all the way to the end.
+keep-holding-8f76ccbe | Keep holding!
 keep-practicing-6c02c3c9 | Keep practicing!
+ketchup-2797e909 | Ketchup.
 key-6815c86c | key
 key-and-bee-rhyme-they-end-with-the-same-9aac2153 | key and bee rhyme: they end with the same sound.
 key-and-tree-rhyme-they-end-with-the-sam-ba0bb7e5 | key and tree rhyme: they end with the same sound.
@@ -3168,6 +3247,7 @@ kick-the-ball-d2947e8d | Kick the ball.
 king-da13e3d6 | king
 king-and-ring-rhyme-they-end-with-the-sa-b3956cf9 | king and ring rhyme: they end with the same sound.
 king-19c4cb08 | King.
+kitchen-cove-f71d8c9a | Kitchen Cove
 koalas-sleep-up-to-20-hours-a-day-984c8265 | Koalas sleep up to 20 hours a day.
 ks-563d18db | ks
 kuh-aah-tuh-5958c5d2 | kuh, aah, tuh…
@@ -3195,6 +3275,11 @@ let-s-drive-the-number-three-7de3040b | Let's drive the number three!
 let-s-drive-the-number-two-011826e1 | Let's drive the number two!
 let-s-drive-the-number-zero-0b9c5159 | Let's drive the number zero!
 let-s-fill-the-balloon-with-slow-breaths-f5c2c613 | Let's fill the balloon with slow breaths.
+let-s-make-a-strawberry-banana-smoothie-ac5cfada | Let’s make a strawberry banana smoothie!
+let-s-make-a-vegetable-omelette-7c73aa9a | Let’s make a vegetable omelette!
+let-s-make-banana-oat-muffins-03bb29d2 | Let’s make banana oat muffins!
+let-s-make-chicken-hot-dogs-62c812fa | Let’s make chicken hot dogs!
+let-s-make-turkey-burgers-745c4a23 | Let’s make turkey burgers!
 let-s-make-your-player-886f2f00 | Let's make your player.
 let-s-write-eight-dc4fb1bf | Let's write eight!
 let-s-write-five-92506090 | Let's write five!
@@ -3247,6 +3332,7 @@ look-for-the-smallest-part-that-repeats-3e30d693 | Look for the smallest part th
 look-under-the-bed-d13b878e | Look under the bed.
 look-ce343eb5 | Look!
 make-a-sandwich-25ff8481 | Make a sandwich.
+make-double-two-times-every-amount-on-th-28334fbf | Make double: two times every amount on the recipe.
 map-9d7f1fb0 | map!
 match-each-number-to-its-word-0bf7f8c9 | Match each number to its word.
 match-the-dots-to-their-number-dc84357d | Match the dots to their number.
@@ -3254,7 +3340,6 @@ maya-practiced-piano-every-day-and-playe-b480d5aa | Maya practiced piano every d
 medium-push-efc2ef82 | medium push
 milk-888e7aa2 | milk
 milk-starts-with-mmm-5b4d5bab | milk starts with mmm!
-milk-d8c09f84 | Milk.
 mix-the-flour-and-eggs-9ab1fa97 | Mix the flour and eggs.
 mmm-ca99d446 | mmm
 mmm-aah-puh-4073a47d | mmm, aah, puh…
@@ -3291,6 +3376,18 @@ noah-thought-he-lost-his-dog-then-found-dc3ad951 | Noah thought he lost his dog,
 nose-918d404a | nose
 nose-starts-with-nnn-fc9970e2 | nose starts with nnn!
 nose-11cb1a0c | Nose.
+not-enough-yet-1e8bc6d2 | Not enough yet.
+not-that-one-yet-4c40a549 | Not that one yet.
+not-the-cup-4c62e875 | Not the cup.
+not-the-half-cup-7850df0c | Not the half cup.
+not-the-half-teaspoon-38b1cec9 | Not the half teaspoon.
+not-the-jug-d8f06cff | Not the jug.
+not-the-quarter-cup-432acee5 | Not the quarter cup.
+not-the-scale-55bf9883 | Not the scale.
+not-the-tablespoon-0da48894 | Not the tablespoon.
+not-the-teaspoon-5bdd9a56 | Not the teaspoon.
+not-there-c927525a | Not there.
+now-let-s-measure-c00f3118 | Now let’s measure.
 now-put-eight-candles-on-the-cake-ac21eccd | Now put eight candles on the cake.
 now-put-five-candles-on-the-cake-77230c68 | Now put five candles on the cake.
 now-put-four-candles-on-the-cake-e1217a00 | Now put four candles on the cake.
@@ -3301,6 +3398,7 @@ now-put-six-candles-on-the-cake-b9779f90 | Now put six candles on the cake.
 now-put-three-candles-on-the-cake-19078e50 | Now put three candles on the cake.
 now-put-two-candles-on-the-cake-ead09942 | Now put two candles on the cake.
 now-sprinkle-the-cheese-all-over-8a28a0fe | Now sprinkle the cheese all over.
+now-take-everything-on-the-recipe-from-t-8b5c8033 | Now take everything on the recipe from the fridge and the cupboard.
 now-tap-only-the-owl-341eab0d | Now tap only the owl.
 now-the-next-line-d024ae1c | Now the next line!
 now-write-eight-with-the-sauce-4c11a9e5 | Now write eight with the sauce.
@@ -3318,6 +3416,7 @@ nut-starts-with-nnn-a63391d8 | nut starts with nnn!
 nut-b96f6052 | Nut.
 oh-67343942 | oh
 oh-no-the-tower-fell-2945f939 | Oh no, the tower fell!
+olive-oil-7f380746 | Olive oil.
 one-more-cut-a6319892 | One more cut.
 one-slice-adf3cfc8 | One slice!
 oo-62343163 | oo
@@ -3505,10 +3604,12 @@ pear-d01fc26d | pear
 pear-and-bear-rhyme-they-end-with-the-sa-67b31b56 | pear and bear rhyme: they end with the same sound.
 pear-and-chair-rhyme-they-end-with-the-s-9eae4f0f | pear and chair rhyme: they end with the same sound.
 pear-36fa1b99 | Pear.
+peel-4-bananas-7130d411 | Peel 4 bananas.
 pen-04f9b203 | pen!
 penguin-2efc387f | penguin
 penguin-starts-with-puh-c0623558 | penguin starts with puh!
 penguin-be838723 | Penguin.
+perfect-b3e788bd | Perfect!
 pick-a-game-to-play-833f1b64 | Pick a game to play.
 pick-a-game-b886272e | Pick a game!
 pick-an-island-to-play-a3223f79 | Pick an island to play.
@@ -3539,6 +3640,7 @@ put-eight-corn-on-the-pizza-d6155a87 | Put eight corn on the pizza.
 put-eight-mushrooms-on-the-pizza-c84d73c8 | Put eight mushrooms on the pizza.
 put-eight-olive-slices-on-the-pizza-7a1441d7 | Put eight olive slices on the pizza.
 put-eight-pineapples-on-the-pizza-daed3ad6 | Put eight pineapples on the pizza.
+put-everything-back-ce484028 | Put everything back.
 put-five-corn-on-the-pizza-1a1eb0fe | Put five corn on the pizza.
 put-five-mushrooms-on-the-pizza-3bf9f603 | Put five mushrooms on the pizza.
 put-five-olive-slices-on-the-pizza-6af70a46 | Put five olive slices on the pizza.
@@ -3553,6 +3655,10 @@ put-nine-corn-on-the-pizza-81c572ce | Put nine corn on the pizza.
 put-nine-mushrooms-on-the-pizza-8861b053 | Put nine mushrooms on the pizza.
 put-nine-olive-slices-on-the-pizza-55557b16 | Put nine olive slices on the pizza.
 put-nine-pineapples-on-the-pizza-24a65153 | Put nine pineapples on the pizza.
+put-on-4-salads-4102aa3f | Put on 4 salads.
+put-on-4-strawberries-764ba682 | Put on 4 strawberries.
+put-on-5-sausages-790940b2 | Put on 5 sausages.
+put-on-6-banana-slices-a0f348e5 | Put on 6 banana slices.
 put-on-a-bandage-6827cd00 | Put on a bandage.
 put-on-your-helmet-d521e12b | Put on your helmet.
 put-one-corn-on-the-pizza-56fdd5ee | Put one corn on the pizza.
@@ -3567,6 +3673,7 @@ put-six-corn-on-the-pizza-f855b786 | Put six corn on the pizza.
 put-six-mushrooms-on-the-pizza-e87ddfeb | Put six mushrooms on the pizza.
 put-six-olive-slices-on-the-pizza-710d48de | Put six olive slices on the pizza.
 put-six-pineapples-on-the-pizza-f556bdfb | Put six pineapples on the pizza.
+put-the-dishes-in-the-sink-09f4281e | Put the dishes in the sink.
 put-the-life-cycle-in-order-8969c7c8 | Put the life cycle in order.
 put-the-story-in-order-e8897f73 | Put the story in order.
 put-the-two-groups-together-and-count-th-db3d433e | Put the two groups together and count them all.
@@ -3610,6 +3717,8 @@ rrr-38deadf5 | rrr
 rrr-aah-tuh-935bd418 | rrr, aah, tuh…
 rrr-ay-nnn-914027b7 | rrr, ay, nnn…
 rub-the-dough-with-your-finger-to-roll-i-27a7726a | Rub the dough with your finger to roll it out!
+rub-them-under-the-tap-eed4c1da | Rub them under the tap.
+rub-until-it-shines-9c19555d | Rub until it shines.
 rub-your-finger-all-over-the-pizza-to-sp-1cc1d6d6 | Rub your finger all over the pizza to spread the sauce.
 rub-your-finger-all-over-the-pizza-to-sp-cb24e0a7 | Rub your finger all over the pizza to sprinkle the cheese.
 run-into-the-wind-54d7b89f | Run into the wind.
@@ -3624,6 +3733,8 @@ sea-otters-hold-hands-while-they-sleep-1afe5c6e | Sea otters hold hands while th
 seal-585056a0 | seal
 seal-starts-with-sss-8d40b81b | seal starts with sss!
 seal-ba347caa | Seal.
+set-the-timer-to-15-minutes-ce965819 | Set the timer to 15 minutes.
+set-the-timer-to-5-minutes-7a06552e | Set the timer to 5 minutes.
 share-1-into-1-equal-groups-1-in-each-be-ee6e30d4 | Share 1 into 1 equal groups: 1 in each, because 1 × 1 = 1.
 share-10-into-1-equal-groups-10-in-each-ea8ca250 | Share 10 into 1 equal groups: 10 in each, because 1 × 10 = 10.
 share-10-into-10-equal-groups-1-in-each-18caddee | Share 10 into 10 equal groups: 1 in each, because 10 × 1 = 10.
@@ -3754,6 +3865,7 @@ solids-keep-their-shape-liquids-pour-and-a1d30ffd | Solids keep their shape, liq
 some-tiles-have-two-letters-that-make-on-5fbb74ef | Some tiles have two letters that make one sound.
 someone-grabs-your-crayon-without-asking-b6337960 | Someone grabs your crayon without asking.
 someone-knocks-down-your-tower-on-purpos-46a6c8cd | Someone knocks down your tower on purpose.
+soy-sauce-0841c5d1 | Soy sauce.
 spell-the-word-with-them-74def53e | Spell the word with them.
 spin-103f1cc8 | Spin!
 spread-the-butter-59ecc999 | Spread the butter.
@@ -4125,6 +4237,7 @@ step-one-has-2-step-two-has-4-step-three-3bb88969 | Step one has 2, step two has
 step-one-has-2-step-two-has-5-step-three-d7872c6e | Step one has 2, step two has 5, step three has 8.
 step-one-has-3-step-two-has-6-step-three-12c597c9 | Step one has 3, step two has 6, step three has 9.
 stop-it-on-the-target-d52664fc | Stop it on the target!
+strawberries-76a82d32 | Strawberries.
 sun-e04e3f61 | sun
 sun-starts-with-sss-f9877030 | sun starts with sss!
 sun-5b2d91c0 | sun!
@@ -4146,10 +4259,12 @@ take-turns-24cb5598 | Take turns.
 tap-a-topping-you-like-09ec651e | Tap a topping you like.
 tap-its-home-cc90cfa3 | Tap its home.
 tap-that-face-74db9dee | Tap that face.
+tap-the-arrow-to-take-one-back-47d894b7 | Tap the arrow to take one back.
 tap-the-bigger-number-9eeffde2 | Tap the bigger number.
 tap-the-bunny-when-it-pops-up-a51ab3d5 | Tap the bunny when it pops up.
 tap-the-circle-e51ecfe3 | Tap the circle.
 tap-the-diamond-e42d44e1 | Tap the diamond.
+tap-the-doors-to-open-them-32c1bda3 | Tap the doors to open them.
 tap-the-fair-thing-to-do-00142737 | Tap the fair thing to do.
 tap-the-glowing-animal-to-the-beat-88f406f3 | Tap the glowing animal to the beat!
 tap-the-heart-f8f93799 | Tap the heart.
@@ -4262,12 +4377,14 @@ tent-starts-with-tuh-d06fc375 | tent starts with tuh!
 tent-30207fea | Tent.
 th-41454691 | th
 thank-you-for-being-kind-f0c4ca9c | Thank you for being kind.
+thank-you-chef-e6789353 | Thank you, chef!
 thank-you-that-was-yummy-4017f1a6 | Thank you, that was yummy!
 that-block-doesn-t-fit-there-12f76250 | That block doesn't fit there.
 that-block-is-too-big-ac8bd6e3 | That block is too big.
 that-part-repeats-again-and-again-47293c66 | That part repeats again and again.
 that-way-everyone-gets-a-fair-chance-2eae9f16 | That way everyone gets a fair chance.
 that-would-help-31a1daef | That would help!
+that-s-not-in-our-recipe-8663dce6 | That’s not in our recipe.
 that-s-the-cat-c20e6e71 | That's the cat.
 that-s-the-chicken-b6fdd008 | That's the chicken.
 that-s-the-dog-2c513c0f | That's the dog.
@@ -4519,6 +4636,9 @@ the-pattern-repeats-every-3-a796a716 | The pattern repeats every 3.
 the-pizza-is-ready-e048e351 | The pizza is ready.
 the-plane-takes-off-bff8aa3b | The plane takes off.
 the-plant-grows-leaves-e2b23f4b | The plant grows leaves.
+the-recipe-says-15-minutes-143b4b61 | The recipe says 15 minutes.
+the-recipe-says-5-minutes-b343f066 | The recipe says 5 minutes.
+the-rest-goes-in-the-cupboard-f8889c02 | The rest goes in the cupboard.
 the-robot-bumped-into-something-a57cc3b9 | The robot bumped into something.
 the-robot-found-the-cookie-8131394e | The robot found the cookie!
 the-robot-missed-a-star-d5a2d110 | The robot missed a star.
@@ -4625,6 +4745,7 @@ tomato-starts-with-tuh-aed33268 | tomato starts with tuh!
 tomato-bbd249b7 | Tomato.
 too-hard-131ac245 | Too hard!
 too-heavy-9def0dbd | Too heavy!
+too-much-84a8b285 | Too much!
 too-soft-c250d53a | Too soft!
 tree-6d8b34d5 | tree
 tree-and-bee-rhyme-they-end-with-the-sam-56d8d2d4 | tree and bee rhyme: they end with the same sound.
@@ -4661,6 +4782,7 @@ use-repeat-blocks-you-can-use-5-blocks-61a2d5fe | Use repeat blocks: you can use
 use-the-facts-you-know-0b97affc | Use the facts you know.
 use-the-times-tables-you-know-to-build-t-c2e8b431 | Use the times tables you know to build the big ones.
 van-e0c95c39 | van!
+vanilla-extract-91d17fbd | Vanilla extract.
 vvv-905fdcc1 | vvv
 vvv-aah-nnn-d8c55461 | vvv, aah, nnn…
 wait-for-the-paint-to-dry-0da77756 | Wait for the paint to dry.
@@ -4669,6 +4791,9 @@ want-to-talk-fits-best-0ae7469d | Want to talk?" fits best.
 water-d3f75aba | Water.
 we-have-8-a026b069 | We have 8.
 we-have-a-winner-bbf7f4a4 | We have a winner!
+we-have-enough-of-those-3b2a3935 | We have enough of those.
+we-have-everything-83dc3821 | We have everything!
+we-re-cooking-for-a-party-62e32c2c | We’re cooking for a party!
 web-a3c40910 | web!
 welcome-13cb3336 | Welcome!
 well-done-6e3f023b | Well done.
@@ -5339,6 +5464,7 @@ what-will-be-number-23-431bb20f | What will be number 23?
 what-will-be-number-7-8d27ec53 | What will be number 7?
 what-will-be-number-8-0d1be9e0 | What will be number 8?
 what-will-be-number-9-0d19ab49 | What will be number 9?
+where-do-we-keep-it-8531f13a | Where do we keep it?
 where-does-food-go-after-you-swallow-it-dadca677 | Where does food go after you swallow it?
 where-does-the-camel-live-8d3c186b | Where does the camel live?
 where-does-the-crab-live-38904ee7 | Where does the crab live?
@@ -5434,6 +5560,7 @@ which-pet-belongs-to-dee-6a30d6cf | Which pet belongs to Dee?
 which-pet-belongs-to-eli-d1605f4d | Which pet belongs to Eli?
 which-pet-belongs-to-fay-591fc05d | Which pet belongs to Fay?
 which-row-has-the-same-pattern-made-of-d-13cbc1a4 | Which row has the same pattern, made of different things?
+which-tool-do-we-need-1fba7aea | Which tool do we need?
 which-two-words-make-backpack-c62c392a | Which two words make backpack?
 which-two-words-make-bedroom-3a44a82e | Which two words make bedroom?
 which-two-words-make-butterfly-c16c44f3 | Which two words make butterfly?
@@ -5451,6 +5578,7 @@ which-two-words-make-starfish-dc4f41a2 | Which two words make starfish?
 which-two-words-make-sunflower-5811db55 | Which two words make sunflower?
 which-two-words-make-toothbrush-045bc83a | Which two words make toothbrush?
 who-s-playing-9b2d5f48 | Who's playing?
+wipe-the-counter-2a1e9c01 | Wipe the counter.
 word-woods-7e3ee3ef | Word Woods
 write-a-letter-cada3e31 | Write a letter.
 write-a-shopping-list-bc0bf9fb | Write a shopping list.
@@ -5464,6 +5592,7 @@ write-the-six-with-your-finger-709ce2e9 | Write the six with your finger.
 write-the-three-with-your-finger-659d2f31 | Write the three with your finger.
 write-the-two-with-your-finger-7888b6b7 | Write the two with your finger.
 wuh-eh-buh-a61c0b0d | wuh, eh, buh…
+yogurt-f7024f27 | Yogurt.
 you-both-want-the-red-crayon-1f1ef2eb | You both want the red crayon.
 you-can-do-this-any-time-you-need-to-fee-9f37d729 | You can do this any time you need to feel calm.
 you-did-it-92f7ec51 | You did it!
@@ -5592,6 +5721,7 @@ you-mastered-add-within-10-d07740ff | You mastered Add within 10!
 you-mastered-add-within-100-85e0b187 | You mastered Add within 100!
 you-mastered-add-within-20-4b2af2fa | You mastered Add within 20!
 you-mastered-balance-it-0282a47b | You mastered Balance It!
+you-mastered-banana-muffins-1d891bf5 | You mastered Banana Muffins!
 you-mastered-bee-paths-319dd8de | You mastered Bee Paths!
 you-mastered-big-division-d6256cfb | You mastered Big Division!
 you-mastered-big-times-tables-28dc30e7 | You mastered Big Times Tables!
@@ -5612,6 +5742,7 @@ you-mastered-find-the-shape-43cb6287 | You mastered Find the Shape!
 you-mastered-food-chains-144b8d44 | You mastered Food Chains!
 you-mastered-freeze-zoo-491b76cd | You mastered Freeze Zoo!
 you-mastered-growing-patterns-f738d594 | You mastered Growing Patterns!
+you-mastered-hot-dogs-783bab5e | You mastered Hot Dogs!
 you-mastered-how-would-you-feel-d6674415 | You mastered How Would You Feel?!
 you-mastered-in-their-shoes-0929f335 | You mastered In Their Shoes!
 you-mastered-letter-catcher-6f25d850 | You mastered Letter Catcher!
@@ -5649,6 +5780,7 @@ you-mastered-solid-liquid-gas-7dba5d84 | You mastered Solid, Liquid, Gas!
 you-mastered-sound-catcher-371954b7 | You mastered Sound Catcher!
 you-mastered-sound-snack-49bace89 | You mastered Sound Snack!
 you-mastered-story-strip-e8fe8d4f | You mastered Story Strip!
+you-mastered-strawberry-smoothie-b0127e1b | You mastered Strawberry Smoothie!
 you-mastered-subtract-within-100-3927256a | You mastered Subtract within 100!
 you-mastered-subtract-within-20-2ed31d9d | You mastered Subtract within 20!
 you-mastered-take-away-within-10-78c2a85b | You mastered Take Away within 10!
@@ -5656,7 +5788,9 @@ you-mastered-tall-tower-7eb46fd6 | You mastered Tall Tower!
 you-mastered-times-2-5-10-af88a33c | You mastered Times 2, 5 & 10!
 you-mastered-times-tables-to-10-fbc1d96b | You mastered Times Tables to 10!
 you-mastered-tricky-patterns-5283bca9 | You mastered Tricky Patterns!
+you-mastered-turkey-burgers-e9ad792c | You mastered Turkey Burgers!
 you-mastered-turn-fit-a60ad52e | You mastered Turn & Fit!
+you-mastered-vegetable-omelette-6dac5b0a | You mastered Vegetable Omelette!
 you-mastered-what-comes-next-c4b5ff3f | You mastered What Comes Next?!
 you-mastered-what-plants-need-e9cc897c | You mastered What Plants Need!
 you-mastered-where-do-i-live-196edd98 | You mastered Where Do I Live?!
