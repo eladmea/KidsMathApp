@@ -316,6 +316,7 @@ export default class KitchenScene extends BaseScene {
     this.bubbles = [];
     this.rubbed = 0;
     this.say([this.words.say.kitchen.wash()]);
+    play(this, 'kitchen-tap', { volume: 0.5 });
     this.rubArea(STAGE_X - 170, 290, 340, 250, () => this.washed(), (x, y) => {
       if (Math.random() > 0.25) return;
       const bubble = this.keep(glyph(this, x + Phaser.Math.Between(-20, 20), y + Phaser.Math.Between(-20, 20), '🫧', 34));
@@ -416,7 +417,7 @@ export default class KitchenScene extends BaseScene {
     const place = this.places[id];
     if (this.station === 'gather' && !place.isOpen) {
       place.open();
-      play(this, 'star', { volume: 0.3 });
+      play(this, id === 'fridge' ? 'kitchen-fridge' : 'kitchen-cupboard', { volume: id === 'fridge' ? 0.35 : 0.6 });
       return;
     }
     if (this.station === 'clean' && this.cleanupJob === 'putAway') this.putAway(id);
@@ -613,7 +614,8 @@ export default class KitchenScene extends BaseScene {
       return;
     }
     button.pop();
-    play(this, 'star', { volume: 0.4, detune: 60 * this.measure.scoops.length });
+    if (toolId === 'jug') play(this, 'kitchen-pour', { volume: 0.5 });
+    else play(this, 'star', { volume: 0.4, detune: 60 * this.measure.scoops.length });
     // A scoop flies into the bowl.
     const drop = this.add.circle(button.x, button.y - 50, 14, 0xf3e0c0).setDepth(20);
     this.tweens.add({ targets: drop, x: 1000, y: 420, scale: 0.4, duration: 300, onComplete: () => drop.destroy() });
@@ -713,7 +715,8 @@ export default class KitchenScene extends BaseScene {
     if (this.progress >= action.times) return;
     const result = this.results[this.progress];
     this.progress += 1;
-    play(this, 'star', { volume: 0.4, detune: 80 * this.progress });
+    if (['cut', 'crack', 'shape'].includes(action.action)) play(this, 'kitchen-chop', { volume: 0.7, detune: 40 * this.progress });
+    else play(this, 'star', { volume: 0.4, detune: 80 * this.progress });
     result.setAlpha(1);
     popIn(this, result);
     this.tweens.add({ targets: this.focus, scale: this.focus.scale * 0.9, yoyo: true, duration: 90 });
@@ -781,6 +784,8 @@ export default class KitchenScene extends BaseScene {
       return;
     }
     play(this, 'correct');
+    const sound = { stove: 'kitchen-sizzle', pot: 'kitchen-boil' }[this.recipe.cook.appliance];
+    if (sound) this.time.delayedCall(300, () => play(this, sound, { volume: 0.5 }));
     this.dish.setAlpha(1);
     this.cooking = { left: minutes, total: minutes };
     this.cookTimer = this.time.addEvent({
@@ -822,6 +827,8 @@ export default class KitchenScene extends BaseScene {
       loop: true,
       callback: () => {
         if (!this.holding || !this.holding.down) return;
+        // The motor whirs while the button is held.
+        if (this.holding.held % 1500 === 0) play(this, 'kitchen-blend', { volume: 0.5 });
         this.holding.held += 50;
         fill.setSize(Math.min(200, (200 * this.holding.held) / HOLD_MS), 18);
         this.applianceArt.box.setAngle(Math.sin(this.holding.held / 40) * 2);
@@ -930,7 +937,7 @@ export default class KitchenScene extends BaseScene {
       return;
     }
     this.selected = null;
-    play(this, 'correct');
+    play(this, placeId === 'fridge' ? 'kitchen-fridge' : 'kitchen-cupboard', { volume: placeId === 'fridge' ? 0.35 : 0.6 });
     const place = this.places[placeId];
     picture.disableInteractive();
     this.tweens.add({ targets: picture, x: place.box.x, y: place.box.y, scale: 0.1, duration: 350, onComplete: () => picture.setVisible(false) });
@@ -942,7 +949,7 @@ export default class KitchenScene extends BaseScene {
   toSink(entry, sink) {
     if (entry.washed) return;
     entry.washed = true;
-    play(this, 'star', { volume: 0.4 });
+    play(this, 'kitchen-clink', { volume: 0.6, detune: Phaser.Math.Between(-200, 200) });
     this.tweens.add({ targets: entry.moves, x: sink.box.x + Phaser.Math.Between(-60, 60), y: sink.box.y + 20, scale: 0.6, duration: 350 });
     const next = this.dishes.find((other) => !other.washed);
     this.cleanFocus = next ? next.hit : null;
