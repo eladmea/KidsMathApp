@@ -1,4 +1,4 @@
-import { isOpenSubject } from './subjects';
+import { isOpenSubject } from './subjects.js';
 
 // The skill map: ordered learning-trajectory steps per subject and age band.
 // A skill is played either through the quiz engine (`generator`) or on its
