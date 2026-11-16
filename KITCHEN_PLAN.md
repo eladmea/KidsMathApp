@@ -2,123 +2,147 @@
 
 A new island where children cook healthy recipes by following a recipe card:
 take the ingredients out of the fridge and cupboard, measure them
-("2 cups of oats", "1 tablespoon of honey"), cook, clean up while it bakes,
-then serve a nice-looking dish to a friend. The maths is counting, measuring,
-fractions, sharing equally, scaling a recipe and reading a timer.
+("2 cups of oats", "1 tablespoon of baking powder", "200 grams of spinach"),
+cook, do one clean-up job, then serve a nice-looking dish to a friend. The
+maths is counting, measuring (cups, spoons, ml, grams on a scale), fractions,
+sharing equally, scaling a recipe and reading a timer.
 
 Status: **plan only, nothing built yet.**
+
+### Decisions so far
+- **Metric.** Cups and spoons first, with ml and grams beside them. Israeli measures: **1 cup = 240 ml, 1 tablespoon = 15 ml, 1 teaspoon = 5 ml**. Anything a recipe gives in grams is weighed on a kitchen **scale** (a new tool, and good maths: reading a dial or display). Oven in °C.
+- **Recipes from Israeli sites** (below).
+- **The island is fully open:** every recipe is there for every child from the start, with no locks and no age band filter. The difficulty follows the child's age instead (section 3).
+- **One clean-up job per round.**
+- **Five recipes**, including a simple hot dog.
+- **A real recipe card** for families, but only for a recipe whose quantities a person has checked against the source page (section 5).
 
 ---
 
 ## 1. The recipes
 
-Four real, healthy recipes. Ingredient lists are taken from the sources, and
-the amounts are rounded to kid-friendly numbers. The changes are listed so
-the recipe card can say "adapted from …", and a grown-up could cook it for real.
+⚠️ **None of these is verified yet.** This session's network blocks the
+recipe sites, so the quantities below come from **search-result summaries of
+each page, not the pages themselves**. They have to be checked before a
+printable card goes out (section 5). The game can be built against them in
+the meantime; a correction later is a one-file change.
 
-### 🫐 Berry Banana Smoothie (no heat, for the youngest)
-Source: a common kid smoothie formula (e.g. [Kids Activity Zone](https://kidsactivityzone.com/berry-smoothie/), [Picky Eater Blog](https://pickyeaterblog.com/healthy-banana-berry-smoothie/)).
+### 🍓 Strawberry Banana Smoothie (2 glasses): no heat
+Source: [מתכון קל – שייק תות ובננה](https://matkonkal.co.il/recipe/%D7%A9%D7%99%D7%99%D7%A7-%D7%AA%D7%95%D7%AA-%D7%91%D7%A0%D7%A0%D7%94)
 
-| Ingredient | Amount | Where |
+| Ingredient | Source amount | In the game | Kept in |
+|---|---|---|---|
+| Banana | 1 | 1 | fruit bowl (cupboard) |
+| Strawberries | 150 g | 150 g on the scale (about 10 strawberries, counted) | fridge |
+| Milk | 250 ml | 250 ml (1 cup and a bit, or the jug's 250 line) | fridge |
+| Plain yogurt | 100 g | 100 g (one small tub) | fridge |
+
+No sugar. The page suggests a little more milk if it's too thick. Steps: peel → weigh or count → pour → blender (hold the button) → 2 glasses, a strawberry on each rim.
+
+### 🧁 Banana Yogurt Oat Muffins (12): no flour
+Source: [אוכל זה החיים – מאפינס בננה יוגורט שיבולת שועל ללא קמח](https://foodislife.co.il/recipes/banana-and-oatmeal-muffins)
+
+| Ingredient | Source amount | Kept in |
 |---|---|---|
-| Banana | 1 | cupboard (fruit bowl) |
-| Berries (strawberries, blueberries) | 1 cup | fridge |
-| Plain yogurt | ½ cup | fridge |
-| Milk | ½ cup | fridge |
-| Honey | 1 tablespoon | cupboard |
+| Ripe bananas | 2 | fruit bowl |
+| Plain yogurt | 1 cup | fridge |
+| Honey or maple syrup | ½ cup | cupboard |
+| Eggs | 2 | fridge |
+| Oats | 2 cups | cupboard |
+| Coconut oil, melted | ½ cup | cupboard |
+| Baking powder | 1 tablespoon | cupboard |
+| Vanilla, cinnamon, salt | in the method, amounts not seen | cupboard |
 
-Steps: peel the banana → measure → blender (hold the button) → pour into 2 glasses → put a berry and a straw on top.
+Oven 180 °C, about 35 minutes in all. It's all cups and spoons already, which suits the game. Steps: mash the bananas → measure → stir → one scoop into each of 12 cups → oven (grown-up helper), timer → clean-up job → blueberries on top.
+*To check on the page:* the vanilla, cinnamon and salt amounts, and the bake time on its own.
 
-### 🧁 Banana Oat Muffins (the "cupcakes")
-Source: [Yummy Toddler Food, Banana Oatmeal Muffins](https://www.yummytoddlerfood.com/banana-oatmeal-muffins/): no flour and no oil.
+### 🍳 Baked Spinach Omelette (1 serving)
+Source: Mako's healthy-eating challenge, [אתגר האוכל הבריא: יום 2](https://www.mako.co.il/food-cooking_magazine/Article-f24855d922ba151006.htm), a single-serving version of [חביתת תרד ועגבניות אפויה](https://www.mako.co.il/food-recipes/recipes_column-healthy/Recipe-5bc7759bf987e31006.htm)
 
-| Ingredient | Original | In the game |
+| Ingredient | Source amount | Kept in |
 |---|---|---|
-| Rolled oats | 2 cups | 2 cups |
-| Ripe bananas | 2 medium | 2 |
-| Plain Greek yogurt | 6 oz | ¾ cup (3 × ¼ cup for older children) |
-| Maple syrup | ⅓ cup | ¼ cup (less sugar, and a fraction children know) |
-| Eggs | 2 | 2 |
-| Baking soda | 1 tsp | 1 teaspoon |
-| Cinnamon, vanilla | some | 1 teaspoon each |
+| Fresh spinach | 200 g | fridge |
+| Egg | 1 | fridge |
+| Bulgarian cheese 5% | 25 g | fridge |
+| Olive oil | ½ teaspoon | cupboard |
+| Cherry tomatoes | 5, sliced | fridge |
 
-Steps: grind the oats in the blender → add the rest → blend → fill 12 muffin cups (one scoop each) → **oven** (grown-up helper) → set the timer for 20 minutes → **clean up while it bakes** → decorate each muffin with blueberries.
-
-### 🍳 Veggie Omelette
-Source: Spinach, Tomato and Cheese Omelette ([Panlasang Pinoy](https://panlasangpinoy.com/?p=43158)), with the milk splash from [Abbey's Kitchen](https://www.abbeyskitchen.com/?p=177683).
-
-| Ingredient | Original | In the game |
-|---|---|---|
-| Eggs | 2 | 2 |
-| Milk | 1 tbsp (Abbey's) | 1 tablespoon |
-| Baby spinach | ¾ cup | ½ cup (a round handful) |
-| Tomato | 1 small | 1, cut into 4 pieces |
-| Grated cheddar | ½ cup | 2 tablespoons (less fat and salt) |
-
-Steps: crack the eggs (tap) → whisk (stir) → cut the tomato in half, then in half again → **stove** (grown-up helper) → pour, add the vegetables and cheese → fold in **half** → slide onto the plate, with tomato pieces on the side.
+Baked in a round dish for 20 minutes. Steps: wilt the spinach (grown-up helper) → weigh the spinach and cheese → crack and whisk the egg → into the dish → cut 5 cherry tomatoes in half and lay them on top (10 halves) → oven, 20 minutes.
+*To check:* the oven temperature (not in the summary).
 
 ### 🍔 Turkey Oat Burgers
-Source: [Mayo Clinic, Barbecue Turkey Burger](https://www.mayoclinic.org/healthy-lifestyle/recipes/barbecue-turkey-burger/rcp-20197677): oats in the patty, whole-wheat bun.
+Source: [Sweet Scent – קציצות הודו עם שיבולת שועל](https://sweetscent.co.il/turkey-meatballs-with-oats-recipe-2/). The source makes 20 meatballs, or 30 small ones; we shape the same mixture into burgers.
 
-| Ingredient | Original (2 burgers) | In the game (4 burgers) |
+| Ingredient | Source amount | Kept in |
 |---|---|---|
-| Ground turkey breast | ½ lb | 1 pound (1 pack) |
-| Chopped onion | 1 cup | 1 cup |
-| Dry oats | ½ cup | 1 cup |
-| Ketchup | ¼ cup | ¼ cup |
-| Brown sugar | 2 tbsp | 1 tablespoon honey (less sugar) |
-| Spices (chili powder, paprika …) | 1 tsp … ¼ tsp | 1 teaspoon paprika, ½ teaspoon garlic powder (no cayenne) |
-| Whole-wheat buns | 2 | 4, plus lettuce and tomato slices |
+| Ground turkey breast | 500 g | fridge |
+| Fine oats | 100 g | cupboard |
+| Onion | 1 medium (120 g) | cupboard |
+| Carrot | 1 small (80 g) | fridge |
+| Garlic | 2 cloves | cupboard |
+| Egg (L) | 1 | fridge |
+| Olive oil | 25 ml | cupboard |
+| Whole-wheat buns, lettuce, tomato | for serving (ours) | cupboard / fridge |
 
-Doubling the original is itself an older children's level ("the recipe makes 2, we need 4").
-Steps: mix → **split the mixture into 4 equal patties** → stove, flip → build each burger in order: bun, lettuce, patty, tomato, bun.
+The page says to add cold water if the mixture is too dry, or a little more oats if too soft. Nice maths: **25 ml of oil = 5 teaspoons**, or 1 tablespoon + 2 teaspoons; 500 g shared into 5 burgers = 100 g each.
+*To check:* the cooking method and time, and whether shaping it into burgers needs a different cooking time (that's our change).
 
-> Sources were read from search results. This session's network blocks the
-> recipe sites, so the amounts are worth checking once against each page
-> before they go into the game.
+### 🌭 Homemade Chicken Hot Dogs (5 to 8): the simple one
+Source: [וואלה אוכל – נקניקיות עוף פטנט ביתיות לילדים](https://food.walla.co.il/item/3111815) (Avi Biton's recipe). Lean chicken breast, with nothing processed.
 
-**"Healthy" without labelling food bad.** Following child-feeding guidance, the game never calls a food bad or junk. The healthy part is in the recipes themselves: fruit, vegetables, whole grains, less sugar. The extra items in the fridge and cupboard are other recipes' ingredients, not candy to resist.
+| Ingredient | Source amount | Kept in |
+|---|---|---|
+| Chicken breast | 500 g | fridge |
+| Small onion | 1 | cupboard |
+| Garlic | 2 cloves | cupboard |
+| Ketchup | 1 tablespoon | fridge |
+| Eggs | 2 | fridge |
+| Cornflour | 2 tablespoons | cupboard |
+| Soy sauce | 1 tablespoon | cupboard |
+| Oil | 1 tablespoon (+ a little for searing) | cupboard |
+| Rolls, mustard, ketchup | for serving | cupboard |
 
-**Safety habits built in:** every recipe starts with *wash your hands* (a quick scrub) and ends with cleaning up. The oven, stove and knife steps show a grown-up helper (a 🧑‍🍳 hand that does the hot or sharp part while the child taps), and the spoken line says "Ask a grown-up to help with the oven."
+Method: blend everything smooth → roll into sausages in cling film → simmer in water → sear in a pan → into rolls. The **game keeps it simple**: blend → roll 5 sausages → pot, then pan (grown-up helper) → each into a roll → toppings, with cucumber and tomato on the side. The real card will say what the safety note in the search results says: **for children under 5, cut hot dogs lengthwise into thin strips, not rings** (choking risk).
+*To check:* the simmering time (one related Ynet recipe says 20 minutes), and whether the page names whole-wheat rolls (we'd suggest them).
+
+**"Healthy" without labelling food bad.** The game never calls a food bad or junk. The healthy part is in the recipes: fruit, vegetables, oats, lean meat, little or no added sugar. The extra items in the fridge and cupboard are other recipes' ingredients, not candy to resist.
+
+**Safety habits built in:** every recipe starts with *wash your hands*. Hot and sharp steps (oven, stove, pot, knife) show a grown-up helper, a 🧑‍🍳 hand that does that part while the child taps, and the spoken line says "Ask a grown-up to help." Raw egg and raw meat → wash hands again before serving.
 
 ---
 
 ## 2. How a game goes: the stations
 
-One scene, `KitchenScene` (`static plays = ['Kitchen']`). Each recipe is data that lists its steps, so the scene runs those stations in order. The camera pans along one long kitchen: **fridge and cupboard → counter → stove/oven → sink → table**.
+One scene, `KitchenScene` (`static plays = ['Kitchen']`). Each recipe is data that lists its steps, so the scene runs them in order. The camera pans along one long kitchen: **fridge and cupboard → counter → stove/oven → sink → table**.
 
 | # | Station | What the child does | Maths | Reuses |
 |---|---|---|---|---|
-| 0 | **Recipe card** | Sees the picture recipe (ingredient + number + measuring tool) and hears it read | reading amounts | Narrator, RulesCard |
-| 1 | **Wash hands** | Scrubs the hands under the tap until the bubbles fill up | — | coverage (`coverAt`/`coverageRatio`) |
-| 2 | **Gather** | Taps the fridge and cupboard doors open and drags what the card shows to the counter. Things you count have to match the count (2 eggs, 2 bananas). Something wrong gets a gentle "That's not in our recipe" and goes back | counting, matching | new `Pantry` (finite items, not the endless `DragTray`) |
-| 3 | **Measure** | Picks the right tool (cup, ½ cup, ¼ cup, tablespoon, teaspoon) and scoops into the bowl; the bowl fills and a tally shows the scoops. "¾ cup" with only a ¼ cup = 3 scoops | units, fractions, repeated addition | new `MeasureStation` |
-| 4 | **Prepare** (per recipe) | Crack (tap), stir/whisk (circle drag), chop (swipe, like the pizza cuts), peel, shape patties (split into N equal parts) | halves and quarters, equal sharing | `isCut`, stir gesture |
-| 5 | **Cook** | Oven or stove or blender: the grown-up helper puts it in, and the child turns the timer dial to the number on the card (20 min). Flips the patty or folds the omelette in half | reading a number on a dial or clock | new `TimerDial` |
-| 6 | **Clean up** (while the timer runs) | Puts each ingredient away (**cold → fridge, dry → cupboard**), drags bowls and spoons into the sink, wipes the counter until it shines. When the timer rings, cooking is done | sorting, a countdown | `Pantry` (reversed), coverage |
-| 7 | **Serve & decorate** | Plates the dish and decorates it: blueberries on each muffin, a berry and a straw on the smoothie, building the burger in order. A friend (`CUSTOMERS`) eats it, and celebrate() | counting to a number, order | DragTray, Juice |
+| 0 | **Recipe card** | Sees the picture recipe (ingredient, amount, tool) and hears it read | reading amounts | Narrator, RulesCard |
+| 1 | **Wash hands** | Scrubs under the tap until the bubbles fill up | — | coverage (`coverAt`/`coverageRatio`) |
+| 2 | **Gather** | Opens the fridge and cupboard and drags what the card shows to the counter. Counted things must match (2 eggs). A wrong item gets a gentle "That's not in our recipe" and goes back | counting, matching | new `Pantry` (finite items, unlike the endless `DragTray`) |
+| 3 | **Measure** | **Spoons and cups:** pick the tool and scoop; the bowl fills and a tally shows the scoops. **ml:** pour into a jug up to the line. **Grams:** put things on the scale until the needle reaches the number | units, fractions, reading a scale, repeated addition | new `MeasureStation`, `Scale` |
+| 4 | **Prepare** | Mash, crack, stir/whisk (circle drag), cut (swipe, like the pizza cuts), shape into N equal burgers or sausages | halves, equal sharing | `isCut`, stir gesture |
+| 5 | **Cook** | Oven, stove, pot or blender, with the grown-up helper. The child sets the temperature (180 °C) and timer (20 min) to the card's numbers | reading numbers on a dial | new `TimerDial` |
+| 6 | **Clean-up job** (one, while it cooks) | One of: put everything away (**cold → fridge, dry → cupboard**), dishes into the sink, or wipe the counter until it shines. It changes from round to round. The timer ringing means the food is done | sorting, a countdown | `Pantry` (reversed), coverage |
+| 7 | **Serve & decorate** | Plate it and decorate: blueberries on each muffin, a strawberry on each glass, building the burger, toppings on the hot dog. A friend (`CUSTOMERS`) eats it, and celebrate() | counting, order | DragTray, Juice |
 
-**Points** (`finishRound(skillId, points, total)`), one for each:
-everything gathered right the first time, every measure right the first time, cleaned up before the timer rang, served as the card asked. 4 points per recipe; passing works like the other games.
-
-**Hints:** `IdleHint` points at the next ingredient, door or tool. A second wrong scoop shows the right tool glowing. No timers that can make a child lose: the oven timer only paces the clean-up.
+**Points** (`finishRound`): gathered right first time, measured right first time, clean-up job done before the timer rang, served as the card asked. 4 points a recipe.
+**Hints:** `IdleHint` points at the next ingredient, door or tool. After a second wrong scoop, the right tool glows. The timer only paces the clean-up; nobody loses to it.
 
 ---
 
-## 3. Levels by age (the skills on the island)
+## 3. One open island, difficulty by age
 
-The same four recipes come back harder in each band (`kitchenLevel` on the skill, like `towerLevel`).
+**Five skills, one per recipe**, all with `prereqs: []`. The island shows all of them to every child. Each round picks its difficulty from the **child's age band** at play time (`kitchenLevel(band)` in `logic/kitchen.js`), so a 4-year-old and a 9-year-old make the same muffins at different levels:
 
-| Band | Skill (recipe) | What changes |
+| Band | Measuring | Extra maths |
 |---|---|---|
-| 🌱 Sprouts 3-4 | 🫐 Smoothie | Whole numbers only: "1 banana, 5 strawberries, 2 scoops of yogurt". One tool (a scoop). No timer dial: the blender is a big button |
-| 🌱 Sprouts 3-4 | 🧁 Muffins (easy) | Count 2 bananas and 2 eggs; fill 6 muffin cups one each (one-to-one); 3 blueberries on each |
-| 🧭 Explorers 5-6 | 🍳 Omelette | Cups and spoons as whole units; cut the tomato into 2 then 4; fold in half; timer up to 10 |
-| 🧭 Explorers 5-6 | 🧁 Muffins | The real recipe in whole units; 12 cups; set the timer to 20 |
-| 🧱 Builders 7-8 | 🍔 Burgers | ½ and ¼ cups, tablespoon vs teaspoon; split the mixture into 4 equal patties; 4 burgers × 5 layers |
-| 🧱 Builders 7-8 | 🫐 Smoothie for 4 | Double every amount (½ cup → 1 cup) |
-| 🏆 Masters 9-10 | 🧁 Muffins, ¼-cup only | Make ¾ and 2 cups with a ¼ cup (how many scoops?); double or halve the batch; 24 muffins into 2 tins |
-| 🏆 Masters 9-10 | 🍔 Burgers from the original | The card makes 2, the party is 4 (or 6): scale ½ lb, 1 cup, ½ cup; timer in minutes and seconds |
+| 🌱 3-4 | Counts only: whole things and number of scoops ("2 cups" = 2 scoops with the cup). The scale and jug show a big **target mark** to fill to | count to 10, one into each muffin cup |
+| 🧭 5-6 | Cups and spoons by name (cup vs tablespoon vs teaspoon); ½ shown as a picture; scale to a round number (100 g, 200 g) | cut in halves, timer to 20 |
+| 🧱 7-8 | ½ cup, tablespoon vs teaspoon; ml on the jug (250); any grams (25 g, 150 g) | 25 ml = 5 teaspoons; 500 g into 5 burgers |
+| 🏆 9-10 | One-tool challenges (2 cups with only the ½ cup = 4 scoops); **double or halve** the recipe; grams ↔ cups for oats | scale for a party of 4 or 6 |
+
+No age band filter for this island means one small rule change: `skillsFor` (or the island screen) skips the band filter for a subject marked `open: true` in `subjects.js`. The World Map and Parent Dashboard count its 5 skills for every band.
 
 ---
 
@@ -128,50 +152,47 @@ The same four recipes come back harder in each band (`kitchenLevel` on the skill
 
 | File | What |
 |---|---|
-| `src/logic/kitchen.js` | Phaser-free rules: amounts as whole quarters (`{ unit: 'cup', quarters: 3 }`, so there are no float bugs), `scaleRecipe(recipe, factor)`, `scoopsFor(amount, tool)`, `checkGather(counter, recipe)`, `isCold(item)` for put-away, `splitEqually(total, parts)`, `levelRecipe(recipe, kitchenLevel)` |
-| `src/logic/recipes/*.js` | One file per recipe (`smoothie.js`, `muffins.js`, `omelette.js`, `burgers.js`): ingredients (key, emoji, amount, unit, where it is kept), steps, and the dish it makes. Found with `import.meta.glob`, so a fifth recipe is a new file. No words in them |
-| `tests/kitchen.test.js` | Scaling, scoop counts, gather checks, every recipe valid at every level (amounts in quarters, every step known, every ingredient has a place) |
-| `src/scenes/KitchenScene.js` | The scene: runs the recipe's stations in order, `tag()`s doors, items, tools, dial and sink, and `report()`s the station and counts |
-| `src/ui/kitchen/Pantry.js`, `MeasureStation.js`, `TimerDial.js`, `StirGesture.js` | The station pieces, so the scene stays small (Pizza Shop is already 800 lines) |
-| `src/i18n/en/kitchen.json` | UI text: station titles, "Ask a grown-up to help", buttons |
-| `src/content/en/kitchen.js` | Ingredient and dish names, units with plurals ("1 cup / 2 cups", "½ cup"), and `say` phrases. Spoken lines follow the voice rules: what varies goes in its own sentence ("Oats. Two cups."), and every value can be listed for recording |
-| `src/assets/images/kitchen/*.svg` | Pictures there is no emoji for: **fridge (open and closed), cupboard, counter, oven, stove, sink, measuring cups ½ / ¼, spoons, muffin tin, timer dial**. Drawn with `art()` and an emoji fallback, like `cake/*.svg` |
-| `e2e/kitchen.mjs` | Walkthrough: open the island, cook the smoothie start to finish through the tags, check `report()` at each station, and one wrong ingredient going back |
+| `src/logic/kitchen.js` | Phaser-free rules. Amounts in exact metric units (`{ unit: 'ml', amount: 250 }`, `{ unit: 'g', amount: 150 }`, `{ unit: 'cup', quarters: 2 }`). Also `toMl()` (cup 240, tbsp 15, tsp 5), `scoopsFor(amount, tool)`, `scaleRecipe(recipe, factor)`, `checkGather`, `isCold`, `splitEqually`, `kitchenLevel(band)`, `pickCleanup(roundIndex)` |
+| `src/logic/recipes/*.js` | One file per recipe (`smoothie`, `muffins`, `omelette`, `burgers`, `hotdogs`): ingredients (key, emoji, amount, unit, where kept), steps, the dish, `source: { url }` and `verified: null` until checked. Found with `import.meta.glob`, so a sixth recipe is a new file. No words in them |
+| `tests/kitchen.test.js` | Unit conversions, scoop counts, scaling, gather checks; every recipe valid at every level; **no printable card for a recipe without `verified`** |
+| `src/scenes/KitchenScene.js` | The scene: runs the stations, `tag()`s doors, items, tools, scale, dial and sink, and `report()`s the station and counts |
+| `src/ui/kitchen/Pantry.js`, `MeasureStation.js`, `Scale.js`, `TimerDial.js`, `StirGesture.js` | Station pieces, so the scene stays small |
+| `src/i18n/en/kitchen.json`, `src/i18n/he/kitchen.json` | UI text |
+| `src/content/en/kitchen.js`, `src/content/he/kitchen.js` | Ingredient and dish names; units with plurals and Hebrew gender (כוס, כף, כפית, גרם, מ"ל); `say` phrases following the voice rules ("Oats. Two cups."). The recipes are Israeli, so Hebrew ships at the same time as English |
+| `src/assets/images/kitchen/*.svg` | Art with no emoji: fridge (open and closed), cupboard, counter, oven, stove, sink, measuring cups, spoons, jug, **scale**, muffin tin, timer dial; oats and turkey packs |
+| `e2e/kitchen.mjs` | Walkthrough: open the island, make the smoothie through the tags, check `report()` at each station, a wrong item goes back, and the island is open at every age |
 
-Ingredients mostly have Fluent emoji (🥚 🥛 🍌 🫐 🍓 🥬 🍅 🧀 🧅 🍯 🧂 🥣 🧁 🍔 🍳 🥤). Oats and ground turkey have none, so they get a jar and a pack picture in `kitchen/`. Then run `npm run art:fluent` to add the new emoji to the atlas.
+Ingredients mostly have Fluent emoji (🥚 🥛 🍌 🍓 🫐 🥬 🍅 🧀 🧅 🧄 🥕 🍯 🥣 🧁 🍔 🌭 🍳 🥤 🥒). Run `npm run art:fluent` after adding them.
 
-**The few shared places a new island has to touch.** An island is a subject, and subjects are still a list. These edits can't be avoided:
+**Shared places a new island must touch** (subjects are still a list):
+1. `src/curriculum/subjects.js`: `{ id: 'kitchen', emoji: '🍳', color: '#E8613C', light: '#FFE3D6', open: true }`.
+2. `src/curriculum/skills.js`: the 5 skills (band `'all'` or skipped by the `open` rule), and `'Kitchen'` in `SKILL_SCREENS`.
+3. `src/scenes/WorldMapScene.js`: `ISLANDS` places five in one row. Six need two rows of three, or a smaller `SIZE`.
+4. `src/scenes/ParentDashboardScene.js`: the sixth progress row (`TOP + 285`) runs into the hint at `TOP + 290`.
+5. `src/logic/adventure.js`: leave the kitchen out of the daily adventure for now. It's a free-play island.
+6. `src/i18n/*/curriculum.json`: the island name and skill titles.
 
-1. `src/curriculum/subjects.js`: add `{ id: 'kitchen', emoji: '🍳', color: '#E8613C', light: '#FFE3D6' }`.
-2. `src/curriculum/skills.js`: the 8 skills above, plus `'Kitchen'` in `SKILL_SCREENS`.
-3. `src/scenes/WorldMapScene.js`: `ISLANDS` has five places in one row. Six need a new layout: **two rows of three**, or a smaller `SIZE`. The avatar and progress badges follow.
-4. `src/scenes/ParentDashboardScene.js`: the sixth progress row (`TOP + 285`) runs into the hint at `TOP + 290`. Move the hint down or tighten the rows.
-5. `src/logic/adventure.js`: add `'kitchen'` to `SECOND_SUBJECTS` so the daily adventure sometimes cooks (or leave it out at first, see the questions).
-6. `src/i18n/en/curriculum.json`: the island name (`subjects.kitchen`) and the skill titles; `voiceLines.js` picks the island name up by itself.
-
-A cleaner option, worth doing first or alongside: move island positions into `subjects.js` (or lay them out automatically from how many there are), so the next island only needs `subjects.js`.
-
-**Hebrew:** game skills show for every language as soon as the scene exists (`isAvailable` only checks `GAME_SCENES`), so without a Hebrew `kitchen` pack the island would show English words. Either add `src/content/he/kitchen.js` (כוס, חצי כוס, כף, כפית, with number gender handled in the pack) in the same change, or add an `isAvailable` check that a game skill's `pack` exists in the language, so it shows 🚧 until it does. I recommend the check: it is small, and it protects later games too.
+Better first: move island positions into `subjects.js` (or lay them out by count), so the next island touches one file.
 
 ---
 
-## 5. Phases
+## 5. The real recipe card (for families)
+
+- In the Parent Dashboard (behind the grown-up gate): **🍳 Recipe cards**. Each card shows the dish, the **source's exact quantities** (not the game's age-level versions), the method in short steps, the safety notes (oven, knife, hot dogs for under-5s) and the source link. It can be printed or saved with `services/exportFile.js`.
+- **The verification gate:** a recipe file's `verified` is `{ date, by, checkedUrl }`. Only verified recipes show a card; the rest say "Card coming soon". `npm test` enforces it.
+- **How to verify** (the only part I can't finish from this session). One of:
+  - **(a)** Allow these 5 hosts in this session's network, and I'll read each page, compare every quantity, and fix the files: `matkonkal.co.il`, `foodislife.co.il`, `www.mako.co.il`, `sweetscent.co.il`, `food.walla.co.il`.
+  - **(b)** You (or anyone) open the 5 links, check them against section 1, and tell me what's different. I'll set `verified` with your name and the date.
+
+---
+
+## 6. Phases
 
 | Phase | Scope | Done when |
 |---|---|---|
-| **K0 Rules** | `logic/kitchen.js`, the four recipe files, unit tests | `npm test` covers scaling, scoops, checks and every recipe at every level |
-| **K1 Island + Smoothie** | Subject, map layout for 6, dashboard row, the scene with Wash → Gather → Measure → Blend → Clean → Serve, `Pantry`, `MeasureStation`, placeholder art, i18n + content, the pack check for Hebrew, `e2e/kitchen.mjs` | A 3-year-old can make the smoothie on a tablet; lint, tests and walkthroughs pass |
-| **K2 Muffins** | Oven, `TimerDial`, clean-up during baking, filling the tin, decorating | Muffins at the Sprouts and Explorers levels |
-| **K3 Omelette + Burgers** | Crack, whisk, chop, stove, fold, flip, equal patties, building in order | All four recipes play |
-| **K4 Harder levels** | Fractions with one tool, doubling and halving, minutes and seconds | Builders and Masters levels; generated amounts tested |
-| **K5 Art, voice, Hebrew** | Final SVGs (fridge, cupboard, oven, sink), sounds (sizzle, blender, timer ding), recorded lines, Hebrew pack | Play-test with children (PLAYTEST.md) |
-
----
-
-## 6. Questions before building
-
-1. **Ages:** all four bands as above, or start with the younger ones (Smoothie and Muffins only)?
-2. **Amounts:** rounded kid-friendly amounts with "adapted from …" (recommended), or the exact original amounts (for example ⅓ cup and 6 oz), which are harder to show with a game's scoops?
-3. **Clean-up:** put away + dishes in the sink + wipe the counter, all three every time? Or one clean-up job per recipe, so a round stays under about 5 minutes for the youngest?
-4. **Daily adventure:** should the Kitchen join it straight away, or stay a free-play island first?
-5. **"Cook it for real":** later, a printable recipe card in the Parent Dashboard so a family can make the same dish together?
+| **K0 Rules** | `logic/kitchen.js`, the 5 recipe files (`verified: null`), unit tests | `npm test` covers units, scoops, scaling, checks, levels and the card gate |
+| **K1 Island + Smoothie** | Subject (`open`), map for 6, dashboard row, the scene with Wash → Gather → Measure (jug, scale) → Blend → Clean-up job → Serve; `Pantry`, `MeasureStation`, `Scale`; placeholder art; en + he; `e2e/kitchen.mjs` | A 3-year-old can make the smoothie on a tablet; lint, tests and walkthroughs pass |
+| **K2 Muffins + Hot dogs** | Oven, `TimerDial`, 12-cup tin, decorating; blending and rolling sausages, pot and pan, building the hot dog | 3 recipes play at all 4 levels |
+| **K3 Omelette + Burgers** | Wilting, cracking, cutting tomatoes in half, the baking dish; shaping equal burgers, building in order | All 5 play |
+| **K4 Recipe cards** | The verification pass (section 5), then the Parent Dashboard cards and printing | Only verified cards show |
+| **K5 Art, sound, voice** | Final SVGs, sounds (sizzle, blender, timer ding), recorded lines | Play-test with children (PLAYTEST.md) |
