@@ -126,6 +126,15 @@ Letter sounds for Word Builder (`soundSpeech` in the literacy pack: "mmm", "buh"
 5. **Rules:** put them in `src/logic/` with unit tests, free of Phaser.
 6. **Browser test:** `tag()` what a test must tap, `report()` the scene's state, and add a walkthrough under `e2e/`.
 
+## Add a recipe (Kitchen Cove)
+
+1. Add `src/logic/recipes/<id>.js`: its ingredients (key, emoji, `qty`, `unit`: `whole`, `cup`, `tbsp`, `tsp`, `ml` or `g`, `piece` grams for the scale, and `kept`: `fridge` or `cupboard`), its `prep` steps, how it is cooked and served, and its `source` URL. Leave `verified: null` until a person has checked every amount against the source page.
+   - Measures are Israeli metric: 1 cup = 240 ml, 1 tablespoon = 15 ml, 1 teaspoon = 5 ml (`logic/kitchen.js`).
+   - `npm test` checks the recipe at every age level (every amount can be measured with that level's tools).
+2. Add a skill to `curriculum/skills.js` with `screen: 'Kitchen'` and `recipe: '<id>'`, and its title to `i18n/<language>/curriculum.json`.
+3. Add the new ingredient names, the dish and any new step lines to `content/<language>/kitchen.js`.
+4. Kitchen Cove is an open island (`open: true` in `curriculum/subjects.js`): every age sees every recipe, and the child's age band sets the level (`LEVELS` in `logic/kitchen.js`).
+
 ## Add a quiz skill
 
 1. Add the skill to `curriculum/skills.js`: `id`, `subject`, `band`, `emoji`, `generator`, `prereqs`.

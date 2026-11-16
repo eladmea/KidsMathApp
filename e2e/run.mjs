@@ -33,7 +33,7 @@ const runs = [
   // Every quiz skill once, a subject per run so they share the workers;
   // math has the most skills, so it goes first.
   ...['math', 'literacy', 'logic', 'science', 'sel'].map((subject) => ['quiz.mjs', 1280, 720, 'laptop', subject]),
-  ...SIZES.flatMap((size) => [['writing.mjs', ...size], ['thinking.mjs', ...size], ['pizza.mjs', ...size], ['hebrew.mjs', ...size], ['learning.mjs', ...size], ['grownups.mjs', ...size], ['fun.mjs', ...size], ['games.mjs', ...size], ['players.mjs', ...size], ['islands.mjs', ...size], ['numbers.mjs', ...size], ['letters.mjs', ...size]]),
+  ...SIZES.flatMap((size) => [['writing.mjs', ...size], ['thinking.mjs', ...size], ['pizza.mjs', ...size], ['hebrew.mjs', ...size], ['learning.mjs', ...size], ['grownups.mjs', ...size], ['fun.mjs', ...size], ['games.mjs', ...size], ['players.mjs', ...size], ['islands.mjs', ...size], ['numbers.mjs', ...size], ['letters.mjs', ...size], ['kitchen.mjs', ...size]]),
   ['players.mjs', 390, 844, 'portrait'],
 ];
 const nameOf = ([script, , , label, part]) => `${script}:${label}${part ? `-${part}` : ''}`;

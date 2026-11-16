@@ -1,3 +1,5 @@
+import { isOpenSubject } from './subjects.js';
+
 // The skill map: ordered learning-trajectory steps per subject and age band.
 // A skill is played either through the quiz engine (`generator`) or on its
 // own game screen (`screen`), which reports results the same way.
@@ -117,6 +119,16 @@ export const SKILLS = [
   { id: 'sel-feelings-friends', subject: 'sel', band: 'explorers', emoji: '🐻', screen: 'FeelingsFriends', prereqs: ['sel-situations'] },
   { id: 'sel-fair-play', subject: 'sel', band: 'builders', emoji: '🤝', generator: 'fair-play', prereqs: [] },
   { id: 'sel-perspective', subject: 'sel', band: 'masters', emoji: '👟', generator: 'in-their-shoes', prereqs: [] },
+
+  // ---- Kitchen Cove (cook a real recipe: measure with cups, spoons, ml and
+  // grams). An open island: every age band sees every recipe, and the
+  // child's age sets the level (logic/kitchen.js LEVELS), so `band` is just
+  // the youngest. `recipe` is a file in logic/recipes/.
+  { id: 'kitchen-smoothie', subject: 'kitchen', band: 'sprouts', emoji: '🥤', screen: 'Kitchen', recipe: 'smoothie', prereqs: [] },
+  { id: 'kitchen-muffins', subject: 'kitchen', band: 'sprouts', emoji: '🧁', screen: 'Kitchen', recipe: 'muffins', prereqs: [] },
+  { id: 'kitchen-omelette', subject: 'kitchen', band: 'sprouts', emoji: '🍳', screen: 'Kitchen', recipe: 'omelette', prereqs: [] },
+  { id: 'kitchen-burgers', subject: 'kitchen', band: 'sprouts', emoji: '🍔', screen: 'Kitchen', recipe: 'burgers', prereqs: [] },
+  { id: 'kitchen-hotdogs', subject: 'kitchen', band: 'sprouts', emoji: '🌭', screen: 'Kitchen', recipe: 'hotdogs', prereqs: [] },
 ];
 
 const SKILLS_BY_ID = Object.fromEntries(SKILLS.map((skill) => [skill.id, skill]));
@@ -126,7 +138,7 @@ export function getSkill(skillId) {
 }
 
 // Game screens that play a skill (they receive { skillId }).
-export const SKILL_SCREENS = ['TracePath', 'PizzaShop', 'BirthdayCake', 'BunnyPop', 'FreezeZoo', 'RoboPath', 'PushRoll', 'FeelingsFriends', 'TraceDigits', 'BlockTower', 'BalanceScale', 'NumberPairs', 'LetterCatcher', 'BlockFit'];
+export const SKILL_SCREENS = ['TracePath', 'PizzaShop', 'BirthdayCake', 'BunnyPop', 'FreezeZoo', 'RoboPath', 'PushRoll', 'FeelingsFriends', 'TraceDigits', 'BlockTower', 'BalanceScale', 'NumberPairs', 'LetterCatcher', 'BlockFit', 'Kitchen'];
 
 export function isPlayable(skill) {
   return Boolean(skill && (skill.generator || skill.screen));
@@ -142,8 +154,9 @@ export function skillRoute(skill) {
   return skill.screen ? [skill.screen, { skillId: skill.id }] : ['Quiz', { skillIds: [skill.id], mode: 'practice' }];
 }
 
+// An open island's skills belong to every band.
 export function skillsFor({ subject, band } = {}) {
   return SKILLS.filter(
-    (skill) => (!subject || skill.subject === subject) && (!band || skill.band === band)
+    (skill) => (!subject || skill.subject === subject) && (!band || skill.band === band || isOpenSubject(skill.subject))
   );
 }

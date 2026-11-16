@@ -19,6 +19,11 @@
     "math-balance": "Balance It",
     "math-balance-times": "Scale Master",
     "math-birthday-cake": "Birthday Cake",
+    "kitchen-smoothie": "Strawberry Smoothie",
+    "kitchen-muffins": "Banana Muffins",
+    "kitchen-omelette": "Spinach Omelette",
+    "kitchen-burgers": "Turkey Burgers",
+    "kitchen-hotdogs": "Hot Dogs",
     "math-write-6-9": "Write 6 to 9 and 0",
     "math-next-number": "What Comes Next?",
     "math-bigger-number": "Bigger Number",
@@ -86,7 +91,8 @@
     "literacy": "Word Woods",
     "science": "Nature Bay",
     "logic": "Puzzle Peak",
-    "sel": "Feelings Garden"
+    "sel": "Feelings Garden",
+    "kitchen": "Kitchen Cove"
   },
   "bands": {
     "sprouts": "Sprouts",
@@ -298,6 +304,18 @@
           "Ask: \"How would the other person feel?\"",
           "Talk about why the right answer is kinder.",
           "Act it out together: what would you say or do?"
+        ]
+      },
+      "kitchen": {
+        "right": [
+          "Ask: \"How many scoops was that?\"",
+          "Ask: \"Which tool did we use, and why?\"",
+          "Cook it together for real one day, with the recipe card."
+        ],
+        "wrong": [
+          "Count the scoops together, out loud.",
+          "Look at the recipe card together: what does it say?",
+          "Ask: \"Is a teaspoon big or small?\" Then compare the tools."
         ]
       }
     }

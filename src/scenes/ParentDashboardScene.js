@@ -182,7 +182,8 @@ export default class ParentDashboardScene extends BaseScene {
       const passed = own.filter((skill) => hasPassed(getRecord(progress, skill.id))).length;
       const mastered = own.filter((skill) => isMastered(getRecord(progress, skill.id))).length;
       subjects[subject.id] = { passed, mastered, total: own.length };
-      const y = TOP + 55 + i * 46;
+      // Rows fit above the hint however many islands there are.
+      const y = TOP + 55 + i * Math.min(46, 210 / Math.max(1, SUBJECTS.length - 1));
       this.text(RIGHT, y, `${subject.emoji} ${subjectName(subject)}`, 20);
       this.keep(this.add.rectangle(RIGHT + 210, y, 260, 18, 0xe6e9f5).setOrigin(0, 0.5).setRounded(9));
       if (passed) this.keep(this.add.rectangle(RIGHT + 210, y, (260 * passed) / own.length, 18, colorOf(subject.light)).setOrigin(0, 0.5).setRounded(9));

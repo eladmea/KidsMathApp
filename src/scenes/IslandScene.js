@@ -24,7 +24,7 @@ const ROAD = 0xe9cf96;
 // in a treasure chest that opens once every stop is passed. The child's
 // avatar waits at the next stop to play. Children start on their own band
 // and can peek at the others. A stop opens once its prerequisites are
-// passed.
+// passed. An open island (Kitchen Cove) has every skill for every age.
 //   data: { subjectId, bandId }
 export default class IslandScene extends BaseScene {
   static key = 'Island';
@@ -38,7 +38,8 @@ export default class IslandScene extends BaseScene {
     drawIsland(this, SAFE.width / 2, 445, { width: 1230, height: 470, seed: 7, land: colorOf(this.subject.light) });
     this.addBackButton();
     this.add.text(SAFE.width / 2, 60, t('island.title', { emoji: this.subject.emoji, name: subjectName(this.subject) }), textStyle(48, color, { stroke: '#ffffff', strokeThickness: 8 })).setOrigin(0.5);
-    AGE_BANDS.forEach((band, i) => {
+    // An open island shows every skill to every age, so it has no age pills.
+    (this.subject.open ? [] : AGE_BANDS).forEach((band, i) => {
       const selected = band.id === this.bandId;
       const pill = new Button(this, SAFE.width / 2 + (i - 1.5) * 190, 140, {
         label: t('island.ages', { emoji: band.emoji, min: band.minAge, max: band.maxAge }),

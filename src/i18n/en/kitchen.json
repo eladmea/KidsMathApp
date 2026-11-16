@@ -1,0 +1,15 @@
+{
+  "recipe": "Recipe",
+  "fridge": "Fridge",
+  "cupboard": "Cupboard",
+  "sink": "Sink",
+  "stations": { "wash": "Wash", "gather": "Gather", "measure": "Measure", "prep": "Prepare", "cook": "Cook", "clean": "Clean", "serve": "Serve" },
+  "done": "✓ Done",
+  "start": "▶ Start",
+  "hold": "Hold",
+  "minutes": "{minutes} min",
+  "celsius": "{degrees}°C",
+  "grownUp": "A grown-up helps",
+  "soFar": "{amount} so far",
+  "sourceNote": "Recipe from {site}"
+}
