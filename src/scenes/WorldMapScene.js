@@ -16,15 +16,17 @@ import { bandName, subjectName } from '../i18n/names';
 import { art, glyph } from '../ui/Art';
 import { drawIsland } from '../ui/IslandArt';
 
-// Where each island sits in the sea (by subject), and how big it is.
-const ISLANDS = {
-  math: { x: 175, y: 300 },
-  literacy: { x: 420, y: 420 },
-  science: { x: 645, y: 300 },
-  logic: { x: 865, y: 420 },
-  sel: { x: 1105, y: 300 },
-};
-const SIZE = { width: 236, height: 150 };
+// Where the islands sit in the sea: spread across it, zigzagging between two
+// rows, and smaller when there are more of them. Worked out from how many
+// subjects there are, so a new island needs no edit here.
+const FULL_SIZE = { width: 236, height: 150 };
+function islandLayout(count) {
+  const spacing = Math.min(240, (SAFE.width - 80) / count);
+  const k = Math.min(1, (spacing * 1.05) / FULL_SIZE.width);
+  const size = { width: Math.round(FULL_SIZE.width * k), height: Math.round(FULL_SIZE.height * k) };
+  const spots = Array.from({ length: count }, (_, i) => ({ x: SAFE.width / 2 + (i - (count - 1) / 2) * spacing, y: i % 2 ? 425 : 300 }));
+  return { size, spots, k };
+}
 
 // The world map: the sea with an island per subject, the child's progress
 // in their age band on each, and their avatar on the island they last
@@ -52,16 +54,17 @@ export default class WorldMapScene extends BaseScene {
     this.add.text(SAFE.width / 2, 196, `${band.emoji} ${bandName(band)}`, textStyle(24, colorOf(band.color), { stroke: '#ffffff', strokeThickness: 5 })).setOrigin(0.5);
 
     const home = session.lastIsland || SUBJECTS[0].id;
+    const { size: SIZE, spots, k } = islandLayout(SUBJECTS.length);
     const islands = SUBJECTS.map((subject, i) => {
       const skills = skillsFor({ subject: subject.id, band: band.id }).filter(isPlayable);
       const passed = skills.filter((s) => hasPassed(getRecord(progress, s.id))).length;
       const mastered = skills.filter((s) => isMastered(getRecord(progress, s.id))).length;
       const next = recommendNextSkill(skills.filter((skill) => isAvailable(skill)), progress);
-      const { x, y } = ISLANDS[subject.id];
+      const { x, y } = spots[i];
       const island = this.add.container(x, y);
       island.add(drawIsland(this, 0, 0, { ...SIZE, seed: i + 1, land: colorOf(subject.light) }));
-      island.add(art(this, 0, -12, { key: `islands/${subject.id}`, emoji: subject.emoji, size: 72 }));
-      const ribbon = this.add.text(0, SIZE.height / 2 + 4, subjectName(subject), textStyle(24, COLORS.white, { backgroundColor: subject.color, padding: { x: 14, y: 4 } })).setOrigin(0.5);
+      island.add(art(this, 0, -12, { key: `islands/${subject.id}`, emoji: subject.emoji, size: Math.round(72 * k) }));
+      const ribbon = this.add.text(0, SIZE.height / 2 + 4, subjectName(subject), textStyle(Math.round(24 * Math.max(k, 0.9)), COLORS.white, { backgroundColor: subject.color, padding: { x: 14, y: 4 } })).setOrigin(0.5);
       const count = this.add.text(0, SIZE.height / 2 + 34, t('map.passed', { passed, total: skills.length }) + (mastered ? t('map.mastered', { mastered }) : ''), textStyle(20, COLORS.ink, { stroke: '#ffffff', strokeThickness: 4 })).setOrigin(0.5);
       island.add([ribbon, count]);
       // The whole island is the button; it squishes when pressed.

@@ -1,0 +1,15 @@
+{
+  "recipe": "מתכון",
+  "fridge": "מקרר",
+  "cupboard": "ארון",
+  "sink": "כיור",
+  "stations": { "wash": "שטיפה", "gather": "איסוף", "measure": "מדידה", "prep": "הכנה", "cook": "בישול", "clean": "סידור", "serve": "הגשה" },
+  "done": "✓ סיימנו",
+  "start": "▶ הפעלה",
+  "hold": "החזיקו",
+  "minutes": "{minutes} דק׳",
+  "celsius": "{degrees}°C",
+  "grownUp": "מבוגר עוזר",
+  "soFar": "עד עכשיו: {amount}",
+  "sourceNote": "מתכון מ{site}"
+}

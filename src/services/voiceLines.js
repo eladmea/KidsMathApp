@@ -21,6 +21,8 @@ import { OTHERS } from '../logic/bunnyPop';
 import { createDeck, getVariant } from '../logic/memoryGame';
 import { PREWRITING_PATHS } from '../logic/tracing';
 import { STEP_INFO } from '../logic/adventure';
+import { CLEANUP_JOBS, LEVELS, TIMED, isMeasured } from '../logic/kitchen';
+import { RECIPES } from '../logic/recipes/index';
 import { answerLine } from '../logic/quizRound';
 import { splitSentences } from '../logic/voices';
 import { content, hasContent } from '../content/index';
@@ -136,6 +138,7 @@ const GAME_GROUPS = {
   'game: feelings friends': 'say:friends',
   'game: garden': 'say:garden',
   'game: bunny pop': 'say:bunnyOops',
+  'game: kitchen': 'say:kitchen',
   'island name': 'islands',
   number: 'numbers',
   'letter sound': 'letters',
@@ -242,6 +245,7 @@ export function voiceLines(language, { samples = SAMPLES } = {}) {
     pictures.forEach(([, word]) => add(literacy.listWords([word]), 'answer word'));
   }
   if (hasContent('math', language)) memoryPhrases(content('math', language), literacy, add);
+  if (hasContent('kitchen', language)) kitchenPhrases(content('kitchen', language), add);
 
   // ---- questions ----
   // Every question, except the older children's skills where nearly every
@@ -335,6 +339,30 @@ function memoryPhrases({ say }, literacy, add) {
   });
   add(memory.sayRight(), 'game: memory');
   range(1, 12).forEach((cost) => add(memory.sayWrong({ cost }), 'game: memory'));
+}
+
+// Kitchen Cove: every recipe's lines (logic/recipes/), and the cook's.
+function kitchenPhrases({ INGREDIENTS, DISHES, TOOLS, DECORATIONS, name, amount, say }, add) {
+  const kitchen = say.kitchen;
+  const source = 'game: kitchen';
+  RECIPES.forEach((recipe) => {
+    add(kitchen.intro({ dish: DISHES[recipe.id] }), source);
+    recipe.ingredients.filter(isMeasured).forEach((ingredient) => {
+      add(name(INGREDIENTS[ingredient.key]), source);
+      add(amount(ingredient, INGREDIENTS[ingredient.key]), source);
+    });
+    recipe.prep.forEach((action) => add(kitchen.prep[action.action](action), source));
+    add(kitchen.cook({ appliance: recipe.cook.appliance }), source);
+    if (TIMED.has(recipe.cook.appliance)) {
+      add(kitchen.setTimer({ minutes: recipe.cook.minutes }), source);
+      add(kitchen.timerWrong({ minutes: recipe.cook.minutes }), source);
+    }
+    if (recipe.serve.kind === 'decorate') add(kitchen.decorate({ count: recipe.serve.count, item: DECORATIONS[recipe.serve.item] }), source);
+  });
+  const tools = new Set(Object.values(LEVELS).flatMap((level) => level.tools));
+  tools.forEach((tool) => add(kitchen.wrongTool({ tool: TOOLS[tool].a }), source));
+  CLEANUP_JOBS.forEach((job) => add(kitchen.cleanup({ job }), source));
+  ['wash', 'washed', 'gather', 'notInRecipe', 'enough', 'gathered', 'measure', 'pickTool', 'tooMuch', 'notEnough', 'measured', 'grownUp', 'blending', 'wrongPlace', 'cleaned', 'ding', 'stack', 'wrongLayer', 'served'].forEach((phrase) => add(kitchen[phrase](), source));
 }
 
 function friendPhrases({ FRIENDS: WORDS, FEELINGS, say }, add) {

@@ -7,7 +7,7 @@ cook, do one clean-up job, then serve a nice-looking dish to a friend. The
 maths is counting, measuring (cups, spoons, ml, grams on a scale), fractions,
 sharing equally, scaling a recipe and reading a timer.
 
-Status: **plan only, nothing built yet.**
+Status: **built: all 5 recipes play, at all 4 age levels, in English and Hebrew** (see section 7). Not done yet: checking the quantities against the sources, the printable cards, final art, sounds and voice recordings.
 
 ### Decisions so far
 - **Metric.** Cups and spoons first, with ml and grams beside them. Israeli measures: **1 cup = 240 ml, 1 tablespoon = 15 ml, 1 teaspoon = 5 ml**. Anything a recipe gives in grams is weighed on a kitchen **scale** (a new tool, and good maths: reading a dial or display). Oven in °C.
@@ -196,3 +196,24 @@ Better first: move island positions into `subjects.js` (or lay them out by count
 | **K3 Omelette + Burgers** | Wilting, cracking, cutting tomatoes in half, the baking dish; shaping equal burgers, building in order | All 5 play |
 | **K4 Recipe cards** | The verification pass (section 5), then the Parent Dashboard cards and printing | Only verified cards show |
 | **K5 Art, sound, voice** | Final SVGs, sounds (sizzle, blender, timer ding), recorded lines | Play-test with children (PLAYTEST.md) |
+
+---
+
+## 7. Progress
+
+### First build (branch `claude/brave-cerf-9stdxa`)
+- **Rules** in `src/logic/kitchen.js` (metric units, tools, measuring, gathering, levels, clean-up, recipe checks) and **5 recipe files** in `src/logic/recipes/`, with `tests/kitchen.test.js`.
+- **Kitchen Cove** island (`open: true`): no age pills, every recipe ready at any age. The world map now lays out islands by count (six fit), and the Parent Dashboard's progress rows fit six.
+- **`KitchenScene`**: wash → gather → measure → prepare → cook → one clean-up job → serve, as planned. The recipe card ticks off what's gathered, then what's measured.
+  - Younger children are handed the right tool and their measuring stops at the amount; older children choose tools and tap ✓; the oldest have only the ¼ cup.
+  - The oven, stove and pot need the timer set to the recipe's minutes; the clean-up job happens while it counts down.
+- **Words** in `content/{en,he}/kitchen.js` and `i18n/{en,he}/kitchen.json`; the spoken lines are listed for recording (`voiceLines.js`); "Play together" prompts for the kitchen.
+- **Emoji atlas** rebuilt with the new ingredients.
+- **Walkthrough** `e2e/kitchen.mjs`: a 4-year-old's smoothie, an 8-year-old's muffins (a wrong tool costs the measuring point), a 10-year-old's burgers (built in order), a Hebrew omelette, and hot dogs.
+
+### Still to do
+- **Verify the quantities** (section 5) and set `verified` on each recipe; then the **printable recipe cards** in the Parent Dashboard.
+- Masters' **doubling and halving** a recipe (planned in section 3; not built).
+- Pictures for the fridge, cupboard, oven, sink, measuring cups, jug and scale (drawn with shapes for now); a jug and a scale with numbers on them instead of the bar.
+- Sounds (sizzle, blender, timer) and **recorded voice** lines (`npm run voice:lines`, then `voice-generator/`).
+- Things the game does differently from the sources, to revisit after checking: the muffins leave out vanilla, cinnamon and salt (amounts not seen); the timer minutes for muffins (20) and burgers (10) are the game's; tomato halves go on the omelette at serving, not before baking.
