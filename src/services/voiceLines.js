@@ -21,7 +21,7 @@ import { OTHERS } from '../logic/bunnyPop';
 import { createDeck, getVariant } from '../logic/memoryGame';
 import { PREWRITING_PATHS } from '../logic/tracing';
 import { STEP_INFO } from '../logic/adventure';
-import { CLEANUP_JOBS, LEVELS, TIMED, isMeasured } from '../logic/kitchen';
+import { CLEANUP_JOBS, LEVELS, TIMED, isMeasured, levelRecipe } from '../logic/kitchen';
 import { RECIPES } from '../logic/recipes/index';
 import { answerLine } from '../logic/quizRound';
 import { splitSentences } from '../logic/voices';
@@ -351,7 +351,8 @@ function kitchenPhrases({ INGREDIENTS, DISHES, TOOLS, DECORATIONS, name, amount,
       add(name(INGREDIENTS[ingredient.key]), source);
       add(amount(ingredient, INGREDIENTS[ingredient.key]), source);
     });
-    recipe.prep.forEach((action) => add(kitchen.prep[action.action](action), source));
+    // Doubled for the oldest children: more eggs to crack, bananas to peel.
+    Object.values(LEVELS).forEach((level) => levelRecipe(recipe, level).prep.forEach((action) => add(kitchen.prep[action.action](action), source)));
     add(kitchen.cook({ appliance: recipe.cook.appliance }), source);
     if (TIMED.has(recipe.cook.appliance)) {
       add(kitchen.setTimer({ minutes: recipe.cook.minutes }), source);
@@ -362,7 +363,7 @@ function kitchenPhrases({ INGREDIENTS, DISHES, TOOLS, DECORATIONS, name, amount,
   const tools = new Set(Object.values(LEVELS).flatMap((level) => level.tools));
   tools.forEach((tool) => add(kitchen.wrongTool({ tool: TOOLS[tool].a }), source));
   CLEANUP_JOBS.forEach((job) => add(kitchen.cleanup({ job }), source));
-  ['wash', 'washed', 'gather', 'notInRecipe', 'enough', 'gathered', 'measure', 'pickTool', 'tooMuch', 'notEnough', 'measured', 'grownUp', 'blending', 'wrongPlace', 'cleaned', 'ding', 'stack', 'wrongLayer', 'served'].forEach((phrase) => add(kitchen[phrase](), source));
+  ['party', 'double', 'wash', 'washed', 'gather', 'notInRecipe', 'enough', 'gathered', 'measure', 'pickTool', 'tooMuch', 'notEnough', 'measured', 'grownUp', 'blending', 'wrongPlace', 'cleaned', 'ding', 'stack', 'wrongLayer', 'served'].forEach((phrase) => add(kitchen[phrase](), source));
 }
 
 function friendPhrases({ FRIENDS: WORDS, FEELINGS, say }, add) {

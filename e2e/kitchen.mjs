@@ -28,9 +28,11 @@ async function rub(name, until) {
 
 async function gather({ wrong = false } = {}) {
   await station('gather');
+  if (wrong) await t.shot(dir, 'k1b-pantry-closed');
   await tap('fridge');
   await tap('cupboard');
   await sleep(300);
+  if (wrong) await t.shot(dir, 'k1c-pantry-open');
   const s = await state();
   if (wrong) {
     const names = await t.mp(() => window.__mathplay.names());
@@ -192,6 +194,8 @@ await station('wash');
 check('kitchen: builders level', (await state()).level === 'builders');
 await rub('hands', async () => (await state()).station !== 'wash');
 await gather();
+await sleep(900);
+await t.shot(dir, 'k5a-jug');
 await measureAll({ picks: true, mistake: true });
 await t.shot(dir, 'k5-muffin-prep');
 await prepAll();
@@ -215,6 +219,8 @@ await tap('player:Noa');
 await openRecipe('kitchen-burgers');
 await station('wash');
 check('kitchen: masters level, only the quarter cup', (await state()).level === 'masters');
+s = await state();
+check('kitchen: the oldest double the recipe (2 eggs, 4 garlic cloves)', s.factor === 2 && s.shopping.find((i) => i.key === 'egg').count === 2 && s.shopping.find((i) => i.key === 'garlic').count === 4, JSON.stringify(s.shopping));
 await rub('hands', async () => (await state()).station !== 'wash');
 await gather();
 await measureAll({ picks: true });

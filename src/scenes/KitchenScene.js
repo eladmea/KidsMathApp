@@ -5,10 +5,11 @@ import Button from '../ui/Button';
 import DragTray from '../ui/DragTray';
 import { DragSurface } from '../ui/PaintLayer';
 import { IdleHint } from '../ui/HintArrow';
-import { glyph } from '../ui/Art';
+import { art, glyph } from '../ui/Art';
 import { celebrate, oops, popIn, pulse } from '../ui/Juice';
 import { COLORS, textStyle } from '../ui/theme';
 import { drawAppliance, drawCounter, drawCupboard, drawFridge, drawSink } from '../ui/KitchenArt';
+import { Jug, Scale } from '../ui/KitchenGauges';
 import { session } from '../services/session';
 import { play } from '../services/audio';
 import { content } from '../content/index';
@@ -18,13 +19,17 @@ import {
   GROWN_UP,
   POINTS_PER_RECIPE,
   TIMED,
+  TOOLS,
   addScoop,
   bestTool,
+  familyOf,
+  gaugeAxis,
   gatherCheck,
   gatherDone,
   isMeasured,
   keptIn,
   kitchenLevel,
+  levelRecipe,
   leftovers,
   measureStatus,
   measured,
@@ -56,6 +61,15 @@ import { isRtl, t } from '../i18n/index';
 // job, and serving right.
 //   data: { skillId }
 
+// Pictures of the measuring tools (src/assets/images/kitchen/), with emoji
+// to fall back on; a tablespoon is drawn bigger than a teaspoon.
+const TOOL_PICTURES = {
+  cup: { key: 'kitchen/cup', emoji: '🥛', size: 34 },
+  spoon: { key: 'kitchen/spoon', emoji: '🥄', size: 36 },
+  jug: { key: 'kitchen/jug', emoji: '🫙', size: 34 },
+  scale: { key: null, emoji: '⚖️', size: 34 },
+};
+const TOOL_SIZES = { halfCup: 0.85, quarterCup: 0.7, tsp: 0.8, halfTsp: 0.65 };
 const STATIONS = ['wash', 'gather', 'measure', 'prep', 'cook', 'clean', 'serve'];
 const CARD = { x: 20, y: 192, width: 290, height: 510 };
 const STAGE_X = 800;
@@ -76,8 +90,9 @@ export default class KitchenScene extends BaseScene {
 
   build({ skillId = 'kitchen-smoothie' } = {}) {
     this.skill = getSkill(skillId);
-    this.recipe = getRecipe(this.skill.recipe) || RECIPES[0];
     this.level = kitchenLevel(profileBand(session.profile).id);
+    // The oldest children cook for a party: everything doubled.
+    this.recipe = levelRecipe(getRecipe(this.skill.recipe) || RECIPES[0], this.level);
     this.words = content('kitchen');
     this.points = 0;
     this.station = null;
@@ -94,6 +109,8 @@ export default class KitchenScene extends BaseScene {
     this.timerMinutes = 0;
     this.cooking = null;
     this.cookTimer = null;
+    this.instrument = null;
+    this.measureBowl = null;
     this.leftovers = [];
     this.dishes = [];
     this.crumbs = [];
@@ -126,7 +143,7 @@ export default class KitchenScene extends BaseScene {
     this.buildStepper();
     this.buildCard();
     this.hint = new IdleHint(this, () => this.hintPoint(), { delay: 7000 });
-    this.say([this.words.say.kitchen.intro({ dish: this.words.DISHES[this.recipe.id] })]);
+    this.say([this.words.say.kitchen.intro({ dish: this.words.DISHES[this.recipe.id] }), this.recipe.factor > 1 ? this.words.say.kitchen.party() : null]);
     this.time.delayedCall(400, () => this.startWash());
   }
 
@@ -168,7 +185,7 @@ export default class KitchenScene extends BaseScene {
       const rowY = y + 82 + i * rowHeight;
       const back = this.add.rectangle(x + 8, rowY, width - 16, rowHeight - 4, 0xfff4dd, 0).setOrigin(0, 0.5).setRounded(10);
       const picture = glyph(this, x + 34, rowY, ingredient.emoji, Math.min(34, rowHeight - 14));
-      const text = this.add.text(x + 60, rowY, this.words.cardLine(ingredient, this.ingredientWords(ingredient)), textStyle(18, COLORS.ink, { align: 'left', wordWrap: { width: width - 100 } })).setOrigin(0, 0.5);
+      const text = this.add.text(x + 60, rowY, this.cardText(ingredient), textStyle(18, COLORS.ink, { align: 'left', wordWrap: { width: width - 100 } })).setOrigin(0, 0.5);
       const tick = this.add.text(x + width - 24, rowY, '✓', textStyle(24, COLORS.greenDark)).setOrigin(0.5).setVisible(false);
       this.cardRows[ingredient.key] = { back, picture, text, tick, gathered: false, measured: false };
     });
@@ -195,6 +212,13 @@ export default class KitchenScene extends BaseScene {
 
   clearTicks() {
     Object.values(this.cardRows).forEach((row) => row.tick.setVisible(false));
+  }
+
+  // A recipe card line: the recipe's own amount, and "× 2" at a party.
+  cardText(ingredient) {
+    const line = this.words.cardLine(ingredient.base || ingredient, this.ingredientWords(ingredient));
+    // Non-breaking, so "× 2" never wraps apart.
+    return this.recipe.factor > 1 ? `${line}\u00a0\u00a0×\u00a0${this.recipe.factor}` : line;
   }
 
   ingredientWords(ingredient) {
@@ -233,6 +257,7 @@ export default class KitchenScene extends BaseScene {
   snapshot() {
     return {
       recipe: this.recipe.id,
+      factor: this.recipe.factor,
       level: this.level.id,
       station: this.station,
       points: this.points,
@@ -301,6 +326,7 @@ export default class KitchenScene extends BaseScene {
     this.bubbles = [];
     this.rubbed = 0;
     this.say([this.words.say.kitchen.wash()]);
+    play(this, 'kitchen-tap', { volume: 0.5 });
     this.rubArea(STAGE_X - 170, 290, 340, 250, () => this.washed(), (x, y) => {
       if (Math.random() > 0.25) return;
       const bubble = this.keep(glyph(this, x + Phaser.Math.Between(-20, 20), y + Phaser.Math.Between(-20, 20), '🫧', 34));
@@ -357,8 +383,11 @@ export default class KitchenScene extends BaseScene {
     const stock = pantryStock(this.recipe, RECIPES.filter((other) => other !== this.recipe));
     ['fridge', 'cupboard'].forEach((placeId) => {
       const place = this.places[placeId];
-      const items = stock.filter((item) => item.kept === placeId);
       const perShelf = placeId === 'fridge' ? 3 : 5;
+      const room = perShelf * (placeId === 'fridge' ? 3 : 2);
+      // The recipe's own things first; other recipes' things while there is room.
+      const here = stock.filter((item) => item.kept === placeId);
+      const items = [...here.filter((item) => !item.extra), ...here.filter((item) => item.extra)].slice(0, room);
       items.forEach((item, i) => {
         const shelf = Math.floor(i / perShelf);
         const slot = i % perShelf;
@@ -398,7 +427,7 @@ export default class KitchenScene extends BaseScene {
     const place = this.places[id];
     if (this.station === 'gather' && !place.isOpen) {
       place.open();
-      play(this, 'star', { volume: 0.3 });
+      play(this, id === 'fridge' ? 'kitchen-fridge' : 'kitchen-cupboard', { volume: id === 'fridge' ? 0.35 : 0.6 });
       return;
     }
     if (this.station === 'clean' && this.cleanupJob === 'putAway') this.putAway(id);
@@ -478,7 +507,7 @@ export default class KitchenScene extends BaseScene {
     // The card's ticks now count what is measured (counted things are done).
     this.clearTicks();
     this.recipe.ingredients.filter((ingredient) => !isMeasured(ingredient)).forEach((ingredient) => this.cardRows[ingredient.key].tick.setVisible(true));
-    this.keep(glyph(this, 1000, 430, '🥣', 150));
+    this.measureBowl = this.keep(glyph(this, 1000, 430, '🥣', 150));
     this.say([this.words.say.kitchen.measure()]);
     this.time.delayedCall(700, () => this.nextMeasure());
   }
@@ -507,23 +536,43 @@ export default class KitchenScene extends BaseScene {
       return object;
     };
     own(glyph(this, 560, 400, ingredient.emoji, 120));
-    own(this.add.text(560, 490, this.words.cardLine(ingredient, this.ingredientWords(ingredient)), textStyle(28, COLORS.ink, { stroke: '#ffffff', strokeThickness: 6 })).setOrigin(0.5));
+    own(this.add.text(560, 490, this.cardText(ingredient), textStyle(28, COLORS.ink, { stroke: '#ffffff', strokeThickness: 6 })).setOrigin(0.5));
     // The gauge: how much is in so far, and (younger children) where to stop.
+    // The jug and the scale have their own numbers to read; cups and spoons
+    // fill a bar over the bowl.
     const goal = target(ingredient);
+    const family = familyOf(ingredient);
+    this.instrument = null;
+    if (family === 'jug' || family === 'scale') {
+      this.measureBowl.setVisible(false);
+      const options = { axis: gaugeAxis(goal), goal, mark: this.level.mark, own, unit: this.words.TOOLS[family].label.replace(/^\S+\s/, ''), emoji: ingredient.emoji };
+      this.instrument = family === 'jug' ? new Jug(this, 950, 350, options) : new Scale(this, 950, 370, options);
+      this.gaugeText = own(this.add.text(950, 520, '', textStyle(22, COLORS.ink, { stroke: '#ffffff', strokeThickness: 5 })).setOrigin(0.5));
+      this.gaugeFill = null;
+    } else {
+      this.measureBowl.setVisible(true);
+    }
     const full = goal * 1.5;
     const gauge = { x: 790, y: 270, width: 400 };
-    own(this.add.rectangle(gauge.x, gauge.y, gauge.width, 30, COLORS.white).setRounded(15).setStrokeStyle(3, 0xe5d3b3));
-    this.gaugeFill = own(this.add.rectangle(gauge.x - gauge.width / 2, gauge.y, 0, 30, 0x7cc4f0).setOrigin(0, 0.5).setRounded(15));
-    if (this.level.mark) own(this.add.rectangle(gauge.x - gauge.width / 2 + (gauge.width * goal) / full, gauge.y, 6, 46, COLORS.red));
-    this.gaugeText = own(this.add.text(gauge.x, gauge.y + 38, '', textStyle(22, COLORS.ink)).setOrigin(0.5));
     this.gauge = { ...gauge, full };
+    if (!this.instrument) {
+      own(this.add.rectangle(gauge.x, gauge.y, gauge.width, 30, COLORS.white).setRounded(15).setStrokeStyle(3, 0xe5d3b3));
+      this.gaugeFill = own(this.add.rectangle(gauge.x - gauge.width / 2, gauge.y, 0, 30, 0x7cc4f0).setOrigin(0, 0.5).setRounded(15));
+      if (this.level.mark) own(this.add.rectangle(gauge.x - gauge.width / 2 + (gauge.width * goal) / full, gauge.y, 6, 46, COLORS.red));
+      this.gaugeText = own(this.add.text(gauge.x, gauge.y + 38, '', textStyle(22, COLORS.ink)).setOrigin(0.5));
+    }
     // The tools.
     this.toolButtons = {};
     const tools = this.toolChoices(ingredient);
     const width = Math.min(116, 880 / tools.length - 10);
     tools.forEach((toolId, i) => {
       const x = 800 + (i - (tools.length - 1) / 2) * (width + 10);
-      const button = new Button(this, x, 640, { label: this.words.TOOLS[toolId].label, width, height: 80, fontSize: 22, color: COLORS.white, textColor: COLORS.ink, onTap: () => this.scoop(toolId) });
+      // The tool's picture above its name ("½ cup", "tsp").
+      const name = this.words.TOOLS[toolId].label.replace(/^\S+\s/, '');
+      const button = new Button(this, x, 640, { label: name, width, height: 92, fontSize: 19, color: COLORS.white, textColor: COLORS.ink, onTap: () => this.scoop(toolId) });
+      button.label.setY(24);
+      const look = TOOL_PICTURES[TOOLS[toolId].family];
+      button.add(art(this, 0, -14, { key: look.key, emoji: look.emoji, size: look.size * (TOOL_SIZES[toolId] || 1) }));
       own(button);
       this.toolButtons[toolId] = button;
       this.tag(`tool:${toolId}`, button.box);
@@ -539,15 +588,23 @@ export default class KitchenScene extends BaseScene {
     }
     this.updateGauge();
     const words = this.ingredientWords(ingredient);
-    this.say([this.words.name(words), this.words.amount(ingredient, words), this.level.pickTool ? this.words.say.kitchen.pickTool() : null]);
+    const doubled = this.recipe.factor > 1;
+    this.say([this.words.name(words), this.words.amount(ingredient.base || ingredient, words), doubled ? this.words.say.kitchen.double() : null, this.level.pickTool ? this.words.say.kitchen.pickTool() : null]);
     this.report(this.snapshot());
   }
 
   updateGauge() {
     const { ingredient } = this.measure;
     const amount = measured(this.measure);
+    const soFar = amount ? t('kitchen.soFar', { amount: this.amountText(ingredient, amount) }) : '';
+    if (this.instrument) {
+      this.instrument.set(amount, this.measure.scoops.length);
+      // Older children read the jug or the scale themselves.
+      this.gaugeText.setText(this.level.mark ? soFar : '');
+      return;
+    }
     this.gaugeFill.setSize(Math.min(this.gauge.width, (this.gauge.width * amount) / this.gauge.full), 30);
-    this.gaugeText.setText(amount ? t('kitchen.soFar', { amount: this.amountText(ingredient, amount) }) : '');
+    this.gaugeText.setText(soFar);
   }
 
   // An amount so far, in the recipe's own unit when it comes out even.
@@ -572,7 +629,8 @@ export default class KitchenScene extends BaseScene {
       return;
     }
     button.pop();
-    play(this, 'star', { volume: 0.4, detune: 60 * this.measure.scoops.length });
+    if (toolId === 'jug') play(this, 'kitchen-pour', { volume: 0.5 });
+    else play(this, 'star', { volume: 0.4, detune: 60 * this.measure.scoops.length });
     // A scoop flies into the bowl.
     const drop = this.add.circle(button.x, button.y - 50, 14, 0xf3e0c0).setDepth(20);
     this.tweens.add({ targets: drop, x: 1000, y: 420, scale: 0.4, duration: 300, onComplete: () => drop.destroy() });
@@ -653,7 +711,7 @@ export default class KitchenScene extends BaseScene {
     if (prepKind(action) === 'tap') {
       // A row of what each tap makes (cracked eggs, filled cups, halves...).
       this.results = [];
-      const made = { crack: '🍳', fill: '🧁', cut: '🍅', shape: action.on === 'burger' ? '🍔' : '🌭', peel: '🍌', wilt: '🥬' }[action.action] || emoji;
+      const made = { crack: '🍳', fill: '🧁', shape: action.on === 'burger' ? '🍔' : '🌭' }[action.action] || emoji;
       const perRow = Math.min(action.times, 6);
       for (let i = 0; i < action.times; i++) {
         const x = STAGE_X + ((i % perRow) - (perRow - 1) / 2) * 70;
@@ -672,7 +730,8 @@ export default class KitchenScene extends BaseScene {
     if (this.progress >= action.times) return;
     const result = this.results[this.progress];
     this.progress += 1;
-    play(this, 'star', { volume: 0.4, detune: 80 * this.progress });
+    if (['cut', 'crack', 'shape'].includes(action.action)) play(this, 'kitchen-chop', { volume: 0.7, detune: 40 * this.progress });
+    else play(this, 'star', { volume: 0.4, detune: 80 * this.progress });
     result.setAlpha(1);
     popIn(this, result);
     this.tweens.add({ targets: this.focus, scale: this.focus.scale * 0.9, yoyo: true, duration: 90 });
@@ -740,6 +799,8 @@ export default class KitchenScene extends BaseScene {
       return;
     }
     play(this, 'correct');
+    const sound = { stove: 'kitchen-sizzle', pot: 'kitchen-boil' }[this.recipe.cook.appliance];
+    if (sound) this.time.delayedCall(300, () => play(this, sound, { volume: 0.5 }));
     this.dish.setAlpha(1);
     this.cooking = { left: minutes, total: minutes };
     this.cookTimer = this.time.addEvent({
@@ -781,6 +842,8 @@ export default class KitchenScene extends BaseScene {
       loop: true,
       callback: () => {
         if (!this.holding || !this.holding.down) return;
+        // The motor whirs while the button is held.
+        if (this.holding.held % 1500 === 0) play(this, 'kitchen-blend', { volume: 0.5 });
         this.holding.held += 50;
         fill.setSize(Math.min(200, (200 * this.holding.held) / HOLD_MS), 18);
         this.applianceArt.box.setAngle(Math.sin(this.holding.held / 40) * 2);
@@ -889,7 +952,7 @@ export default class KitchenScene extends BaseScene {
       return;
     }
     this.selected = null;
-    play(this, 'correct');
+    play(this, placeId === 'fridge' ? 'kitchen-fridge' : 'kitchen-cupboard', { volume: placeId === 'fridge' ? 0.35 : 0.6 });
     const place = this.places[placeId];
     picture.disableInteractive();
     this.tweens.add({ targets: picture, x: place.box.x, y: place.box.y, scale: 0.1, duration: 350, onComplete: () => picture.setVisible(false) });
@@ -901,7 +964,7 @@ export default class KitchenScene extends BaseScene {
   toSink(entry, sink) {
     if (entry.washed) return;
     entry.washed = true;
-    play(this, 'star', { volume: 0.4 });
+    play(this, 'kitchen-clink', { volume: 0.6, detune: Phaser.Math.Between(-200, 200) });
     this.tweens.add({ targets: entry.moves, x: sink.box.x + Phaser.Math.Between(-60, 60), y: sink.box.y + 20, scale: 0.6, duration: 350 });
     const next = this.dishes.find((other) => !other.washed);
     this.cleanFocus = next ? next.hit : null;

@@ -7,21 +7,26 @@ import { grantMoreTime, session, updateProfileById } from '../services/session';
 import { appendPlayLog, clearPlayLog, loadPlayLog, loadProgress } from '../services/storage';
 import { chooseVoice, currentVoiceName, listVoices, speak, voiceChoice } from '../services/speech';
 import { exportTextFile } from '../services/exportFile';
+import { printHtml } from '../services/printFile';
+import { cardHtml, recipeCard } from '../logic/recipeCard';
+import { hasVerifiedCard } from '../logic/kitchen';
+import { RECIPES } from '../logic/recipes/index';
+import { content } from '../content/index';
 import { isOnlineVoice } from '../logic/voices';
 import { profileBand } from '../logic/profiles';
 import { getRecord, hasPassed, isMastered, toDayKey } from '../logic/progress';
 import { BONUS_MINUTES, LIMIT_OPTIONS, allowedMinutes, dailyLimitFor, minutesPlayed, recentDays } from '../logic/playTime';
 import { daysPlayed, notesOf, skillReport, toCsv } from '../logic/playLog';
 import { SUBJECTS } from '../curriculum/subjects';
-import { isPlayable, skillsFor } from '../curriculum/skills';
+import { SKILLS, isPlayable, skillsFor } from '../curriculum/skills';
 import { bandName, skillTitle, subjectName } from '../i18n/names';
-import { FALLBACK, getLanguage, languages, t } from '../i18n/index';
+import { FALLBACK, getLanguage, isRtl, languages, raw, t } from '../i18n/index';
 
 // The grown-ups' dashboard (opened from "Who's playing?" behind the
 // grown-up check): for each child, today's play time and the last week,
 // the daily limit, read-aloud, progress per subject and the play-test
-// report with session notes; the read-aloud voice; and a CSV export of every
-// child's play-test log.
+// report with session notes; the read-aloud voice; Kitchen Cove's recipe
+// cards to print; and a CSV export of every child's play-test log.
 const LEFT = 60;
 const RIGHT = 680;
 const TOP = 215;
@@ -311,8 +316,9 @@ export default class ParentDashboardScene extends BaseScene {
   showSettings() {
     if (this.page === 'language') return this.showLanguages();
     if (this.page === 'voice') return this.showVoices();
+    if (this.page === 'recipes') return this.showRecipes();
     this.text(LEFT, TOP + 10, t('parents.settingsTitle'), 26);
-    [['language', 'parents.menuLanguage'], ['voice', 'parents.menuVoice']].forEach(([page, key], i) => {
+    [['language', 'parents.menuLanguage'], ['voice', 'parents.menuVoice'], ['recipes', 'parents.menuRecipes']].forEach(([page, key], i) => {
       this.button(`settings:${page}`, LEFT + 230, TOP + 90 + i * 90, t(key), () => this.openPage(page), { width: 460, height: 72, fontSize: 26 });
     });
     this.report({ step: 'settings', page: 'menu' });
@@ -327,6 +333,40 @@ export default class ParentDashboardScene extends BaseScene {
   pageTitle(key) {
     this.button('settings:back', LEFT + 80, TOP + 10, t('parents.backToSettings'), () => this.openPage('menu'), { width: 160, height: 50 });
     this.text(LEFT + 190, TOP + 10, t(key), 26);
+  }
+
+  // ---- Kitchen Cove's recipe cards: print or save, once checked ----
+  showRecipes() {
+    this.pageTitle('parents.recipesTitle');
+    this.text(LEFT, TOP + 65, t('parents.recipesIntro'), 18, COLORS.gray, { wordWrap: { width: 1150 } });
+    const shown = [];
+    RECIPES.forEach((recipe, row) => {
+      const y = TOP + 130 + row * 68;
+      const skill = SKILLS.find((s) => s.recipe === recipe.id);
+      this.keep(glyph(this, LEFT + 24, y, recipe.emoji, 40));
+      this.text(LEFT + 60, y, skill ? skillTitle(skill) : recipe.id, 24);
+      if (!hasVerifiedCard(recipe)) {
+        this.text(LEFT + 520, y, t('parents.cardSoon'), 20, COLORS.gray);
+        return;
+      }
+      this.text(LEFT + 360, y, recipe.source.site, 18, COLORS.gray);
+      this.button(`recipe-print:${recipe.id}`, LEFT + 690, y, t('parents.print'), () => this.cardFor(recipe, 'print'), { width: 200, height: 54 });
+      this.button(`recipe-save:${recipe.id}`, LEFT + 910, y, t('parents.save'), () => this.cardFor(recipe, 'save'), { width: 200, height: 54 });
+      shown.push(recipe.id);
+    });
+    this.report({ step: 'settings', page: 'recipes', cards: shown });
+  }
+
+  // A recipe's card as a page in the dashboard's language: printed, or saved.
+  cardFor(recipe, how) {
+    const skill = SKILLS.find((s) => s.recipe === recipe.id);
+    const labels = { ...raw('kitchen.card'), title: skill ? skillTitle(skill) : recipe.id };
+    const card = recipeCard(recipe, { words: content('kitchen'), labels });
+    if (!card) return;
+    const html = cardHtml(card, { lang: getLanguage(), dir: isRtl() ? 'rtl' : 'ltr' });
+    if (how === 'print') printHtml(html);
+    else exportTextFile(`${recipe.id}-recipe.html`, html, 'text/html');
+    this.report({ cardMade: { recipe: recipe.id, how, length: html.length, steps: card.steps.length, safety: card.safety.length } });
   }
 
   // ---- each child's language: text and voice (the same, for now) ----

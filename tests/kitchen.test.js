@@ -3,11 +3,14 @@ import {
   LEVELS,
   addScoop,
   bestTool,
+  familyOf,
+  gaugeAxis,
   gatherCheck,
   gatherDone,
   hasVerifiedCard,
   jugStep,
   kitchenLevel,
+  levelRecipe,
   leftovers,
   measureStatus,
   pantryStock,
@@ -56,6 +59,21 @@ describe('kitchen measures', () => {
     expect(bestTool({ qty: 150, unit: 'g', piece: 15 }, LEVELS.sprouts)).toBe('scale');
   });
 
+  it('numbers the jug and the scale so the amount is easy to read', () => {
+    expect(gaugeAxis(250)).toEqual({ max: 350, label: 50, minor: 25 });
+    expect(gaugeAxis(80)).toEqual({ max: 120, label: 20, minor: 10 });
+    expect(gaugeAxis(150)).toEqual({ max: 200, label: 25, minor: 5 });
+    expect(gaugeAxis(500)).toEqual({ max: 700, label: 100, minor: 50 });
+    // Every jug and scale amount in the recipes falls on a mark.
+    RECIPES.flatMap((recipe) => recipe.ingredients)
+      .filter((ingredient) => ['jug', 'scale'].includes(familyOf(ingredient)))
+      .forEach((ingredient) => {
+        const axis = gaugeAxis(target(ingredient));
+        expect([ingredient.key, target(ingredient) % axis.minor]).toEqual([ingredient.key, 0]);
+        expect(axis.max).toBeGreaterThan(target(ingredient));
+      });
+  });
+
   it('pours the jug in round steps', () => {
     expect(jugStep(250)).toBe(50);
     expect(jugStep(500)).toBe(100);
@@ -97,6 +115,36 @@ describe('kitchen measures', () => {
   });
 });
 
+describe('a party: the oldest children double the recipe', () => {
+  it('doubles every amount and keeps the card’s own amount', () => {
+    const muffins = levelRecipe(getRecipe('muffins'), LEVELS.masters);
+    expect(muffins.factor).toBe(2);
+    const oats = muffins.ingredients.find((i) => i.key === 'oats');
+    expect([oats.qty, oats.unit, oats.base]).toEqual([2, 'cup', { qty: 1, unit: 'cup' }]);
+    expect(muffins.ingredients.find((i) => i.key === 'coconutOil').qty).toBe(160);
+    expect(muffins.prep.find((a) => a.action === 'crack').times).toBe(4);
+    expect(levelRecipe(getRecipe('smoothie'), LEVELS.masters).prep[0].times).toBe(4);
+    // Twice the strawberries, in pieces twice the size: still 10 on the scale.
+    const strawberries = levelRecipe(getRecipe('smoothie'), LEVELS.masters).ingredients.find((i) => i.key === 'strawberries');
+    expect(scoopsFor(strawberries, 'scale')).toBe(10);
+    // 2 cups with only the quarter cup: 8 scoops.
+    expect(scoopsFor(oats, bestTool(oats, LEVELS.masters))).toBe(8);
+  });
+
+  it('leaves the other levels as the recipe says', () => {
+    const smoothie = levelRecipe(getRecipe('smoothie'), LEVELS.builders);
+    expect(smoothie.factor).toBe(1);
+    expect(smoothie.ingredients).toBe(getRecipe('smoothie').ingredients);
+  });
+
+  it('puts every doubled jug and scale amount on a mark', () => {
+    RECIPES.map((recipe) => levelRecipe(recipe, LEVELS.masters))
+      .flatMap((recipe) => recipe.ingredients)
+      .filter((ingredient) => ['jug', 'scale'].includes(familyOf(ingredient)))
+      .forEach((ingredient) => expect([ingredient.key, target(ingredient) % gaugeAxis(target(ingredient)).minor]).toEqual([ingredient.key, 0]));
+  });
+});
+
 describe('gathering and cleaning', () => {
   const smoothie = getRecipe('smoothie');
 
@@ -105,6 +153,8 @@ describe('gathering and cleaning', () => {
     expect(gatherCheck(smoothie, counter, 'egg')).toBe('notInRecipe');
     expect(gatherCheck(smoothie, counter, 'banana')).toBe('take');
     counter.banana = 1;
+    expect(gatherCheck(smoothie, counter, 'banana')).toBe('take');
+    counter.banana = 2;
     expect(gatherCheck(smoothie, counter, 'banana')).toBe('enough');
     expect(gatherDone(smoothie, counter)).toBe(false);
     shoppingList(smoothie).forEach(({ key, count }) => (counter[key] = count));
@@ -120,7 +170,7 @@ describe('gathering and cleaning', () => {
 
   it('picks a different clean-up job from last time', () => {
     for (let i = 0; i < 20; i++) expect(pickCleanup('wipe', Math.random)).not.toBe('wipe');
-    expect(leftovers(smoothie).map((item) => item.key)).toEqual(['strawberries', 'milk', 'yogurt']);
+    expect(leftovers(smoothie).map((item) => item.key)).toEqual(['strawberries', 'milk', 'yogurt', 'honey', 'vanilla']);
   });
 
   it('builds a burger in order', () => {
@@ -144,6 +194,13 @@ describe('recipes', () => {
     expect(recipeProblems(recipe)).toEqual([]);
   });
 
+  it('fits each recipe in the fridge (9 places) and the cupboard (10)', () => {
+    RECIPES.forEach((recipe) => {
+      expect(recipe.ingredients.filter((i) => i.kept === 'fridge').length).toBeLessThanOrEqual(9);
+      expect(recipe.ingredients.filter((i) => i.kept === 'cupboard').length).toBeLessThanOrEqual(10);
+    });
+  });
+
   it('keeps every amount the same wherever an ingredient is kept', () => {
     const kept = {};
     RECIPES.forEach((recipe) =>
@@ -154,7 +211,18 @@ describe('recipes', () => {
     );
   });
 
-  it('shows no printable card until a person has checked the recipe', () => {
+  it('names every ingredient, including the card-only ones', async () => {
+    for (const language of ['en', 'he']) {
+      const { INGREDIENTS } = await import(`../src/content/${language}/kitchen.js`);
+      RECIPES.forEach((recipe) => [...recipe.ingredients, ...(recipe.cardOnly || [])].forEach(({ key }) => expect([language, key, Boolean(INGREDIENTS[key])]).toEqual([language, key, true])));
+    }
+  });
+
+  it('has every recipe checked against its source page', () => {
+    RECIPES.forEach((recipe) => expect([recipe.id, hasVerifiedCard(recipe)]).toEqual([recipe.id, true]));
+  });
+
+  it('shows no printable card until the recipe has been checked', () => {
     RECIPES.forEach((recipe) => expect(hasVerifiedCard(recipe)).toBe(Boolean(recipe.verified)));
     expect(hasVerifiedCard({ verified: { date: '2026-11-20', by: 'a grown-up', checkedUrl: 'https://x' } })).toBe(true);
     expect(hasVerifiedCard({ verified: null })).toBe(false);
