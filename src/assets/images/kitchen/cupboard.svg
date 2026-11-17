@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 220" width="380" height="220">
+  <defs>
+    <linearGradient id="wood" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#e3a873"/><stop offset="1" stop-color="#c4864f"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#f0bd88"/><stop offset="1" stop-color="#d49660"/>
+    </linearGradient>
+  </defs>
+  <rect x="6" y="10" width="370" height="208" rx="20" fill="#000" opacity="0.12"/>
+  <rect x="2" y="2" width="372" height="208" rx="20" fill="url(#wood)" stroke="#8f5a2f" stroke-width="4"/>
+  <rect x="16" y="14" width="168" height="184" rx="12" fill="url(#panel)" stroke="#a86e3e" stroke-width="3"/>
+  <rect x="192" y="14" width="168" height="184" rx="12" fill="url(#panel)" stroke="#a86e3e" stroke-width="3"/>
+  <rect x="34" y="32" width="132" height="148" rx="8" fill="none" stroke="#b97a45" stroke-width="3" opacity="0.7"/>
+  <rect x="210" y="32" width="132" height="148" rx="8" fill="none" stroke="#b97a45" stroke-width="3" opacity="0.7"/>
+  <circle cx="168" cy="106" r="9" fill="#6e4524"/><circle cx="166" cy="104" r="3" fill="#a77a55"/>
+  <circle cx="208" cy="106" r="9" fill="#6e4524"/><circle cx="206" cy="104" r="3" fill="#a77a55"/>
+  <path d="M40 40 L40 120" stroke="#fff" stroke-width="6" stroke-linecap="round" opacity="0.35"/>
+  <path d="M216 40 L216 120" stroke="#fff" stroke-width="6" stroke-linecap="round" opacity="0.35"/>
+</svg>

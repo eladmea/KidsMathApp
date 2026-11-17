@@ -28,9 +28,11 @@ async function rub(name, until) {
 
 async function gather({ wrong = false } = {}) {
   await station('gather');
+  if (wrong) await t.shot(dir, 'k1b-pantry-closed');
   await tap('fridge');
   await tap('cupboard');
   await sleep(300);
+  if (wrong) await t.shot(dir, 'k1c-pantry-open');
   const s = await state();
   if (wrong) {
     const names = await t.mp(() => window.__mathplay.names());

@@ -22,3 +22,11 @@ and hands use the default skin tone.
 `cake/cake.svg`, `cake/candle.svg` and `cake/flame.svg` were drawn for this game
 (same license as the game). Replace any of them with a PNG or WebP of the same
 name to change the art; the scene keeps working.
+
+## Kitchen Cove
+
+`kitchen/fridge.svg`, `kitchen/cupboard.svg`, `kitchen/oven.svg`, `kitchen/sink.svg`,
+`kitchen/cup.svg`, `kitchen/spoon.svg` and `kitchen/jug.svg` were drawn for this game
+(same license as the game). Replace any of them with a PNG, WebP or SVG of the
+same name to change the art; the scene keeps working, and without a picture it
+draws simple shapes instead.

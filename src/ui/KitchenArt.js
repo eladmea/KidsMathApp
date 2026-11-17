@@ -1,8 +1,14 @@
 import { textStyle } from './theme';
+import { art } from './Art';
+import { texture } from '../services/assets';
 
-// Kitchen Cove's furniture, drawn with shapes until there are pictures for
-// it: the fridge and cupboard (with doors that open), the counter, the sink
-// and the appliances. Each returns a Container centred on (x, y).
+// Kitchen Cove's furniture: the fridge and cupboard (with doors that open),
+// the counter, the sink and the appliances. Each returns a Container centred
+// on (x, y). Where there is a picture (src/assets/images/kitchen/<name>.svg)
+// it is drawn over the shapes; the shapes stay underneath for the taps, the
+// shelves and the doors' opening. Remove a picture and the shapes show.
+// `long` is the picture's longer side, in game pixels.
+const picture = (scene, key, x, y, long) => (texture(scene, key) ? art(scene, x, y, { key, size: long / 1.15 }) : null);
 
 const WHITE_GOODS = { body: 0xe9f1f6, edge: 0x9fb4c2, inside: 0xfbfdff, shelf: 0xc9d8e2, handle: 0x7d93a3 };
 const WOOD = { body: 0xc98d5a, edge: 0x8f5a2f, inside: 0xf3e2c8, shelf: 0xb07a48, handle: 0x6e4524 };
@@ -10,7 +16,7 @@ const WOOD = { body: 0xc98d5a, edge: 0x8f5a2f, inside: 0xf3e2c8, shelf: 0xb07a48
 // A fridge or cupboard: shelves inside, and doors over them that open
 // (open()) and close (close()). `shelfY(i)` is a shelf's top, `width` the
 // room on it. `doors` are the tappable door shapes.
-function storage(scene, x, y, { width, height, shelves, look, label, doors: doorCount }) {
+function storage(scene, x, y, { width, height, shelves, look, label, doors: doorCount, key }) {
   const box = scene.add.container(x, y);
   const body = scene.add.rectangle(0, 0, width + 16, height + 16, look.body).setRounded(18).setStrokeStyle(4, look.edge);
   const inside = scene.add.rectangle(0, 0, width, height, look.inside).setRounded(10);
@@ -31,6 +37,10 @@ function storage(scene, x, y, { width, height, shelves, look, label, doors: door
     box.add([door, handle]);
     doors.push({ door, handle });
   }
+  // The closed picture covers the doors; it lifts away when they open.
+  // Sized by its longer side (the fridge is tall).
+  const cover = picture(scene, key, 0, 0, Math.max(width, height) + 20);
+  if (cover) box.add(cover);
   const text = scene.add.text(0, height / 2 + 30, label, textStyle(22, 0x6e5a48)).setOrigin(0.5);
   box.add(text);
   let isOpen = false;
@@ -47,6 +57,7 @@ function storage(scene, x, y, { width, height, shelves, look, label, doors: door
     open() {
       if (isOpen) return;
       isOpen = true;
+      if (cover) cover.setVisible(false);
       doors.forEach(({ door, handle }) => {
         scene.tweens.add({ targets: door, scaleX: 0.12, duration: 260, ease: 'Back.easeOut' });
         handle.setVisible(false);
@@ -54,6 +65,7 @@ function storage(scene, x, y, { width, height, shelves, look, label, doors: door
     },
     close() {
       isOpen = false;
+      if (cover) cover.setVisible(true);
       doors.forEach(({ door, handle }) => {
         door.setScale(1);
         handle.setVisible(true);
@@ -62,8 +74,8 @@ function storage(scene, x, y, { width, height, shelves, look, label, doors: door
   };
 }
 
-export const drawFridge = (scene, x, y, label) => storage(scene, x, y, { width: 200, height: 430, shelves: 3, look: WHITE_GOODS, label, doors: 1 });
-export const drawCupboard = (scene, x, y, label) => storage(scene, x, y, { width: 360, height: 200, shelves: 2, look: WOOD, label, doors: 2 });
+export const drawFridge = (scene, x, y, label) => storage(scene, x, y, { width: 200, height: 430, shelves: 3, look: WHITE_GOODS, label, doors: 1, key: 'kitchen/fridge' });
+export const drawCupboard = (scene, x, y, label) => storage(scene, x, y, { width: 360, height: 200, shelves: 2, look: WOOD, label, doors: 2, key: 'kitchen/cupboard' });
 
 // The counter: a top and a front, from (left, top), `width` wide.
 export function drawCounter(scene, left, top, width, height = 720 - top) {
@@ -82,7 +94,11 @@ export function drawSink(scene, x, y, label) {
   const pipe = scene.add.rectangle(0, -78, 18, 70, 0x9aa8b2).setRounded(8);
   const spout = scene.add.rectangle(24, -110, 66, 18, 0x9aa8b2).setRounded(8);
   const text = scene.add.text(0, 112, label, textStyle(22, 0x6e5a48)).setOrigin(0.5);
-  box.add([basin, water, pipe, spout, text]);
+  box.add([basin, water, pipe, spout]);
+  // The picture's basin lines up with the shapes' basin.
+  const sink = picture(scene, 'kitchen/sink', 0, -22, 240);
+  if (sink) box.add(sink);
+  box.add(text);
   return { box, basin };
 }
 
@@ -91,6 +107,14 @@ export function drawAppliance(scene, x, y, kind) {
   const box = scene.add.container(x, y);
   let inside;
   if (kind === 'oven') {
+    const oven = picture(scene, 'kitchen/oven', 0, 0, 280);
+    if (oven) {
+      box.add(oven);
+      // The dish shows through the picture's window.
+      inside = scene.add.rectangle(0, 30, 196, 120, 0x000000, 0);
+      box.add(inside);
+      return { box, inside };
+    }
     box.add(scene.add.rectangle(0, 0, 280, 240, 0x5b5552).setRounded(24).setStrokeStyle(6, 0x3e3936));
     inside = scene.add.rectangle(0, 20, 200, 130, 0x2a2624).setRounded(16);
     box.add(inside);

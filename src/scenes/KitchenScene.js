@@ -5,7 +5,7 @@ import Button from '../ui/Button';
 import DragTray from '../ui/DragTray';
 import { DragSurface } from '../ui/PaintLayer';
 import { IdleHint } from '../ui/HintArrow';
-import { glyph } from '../ui/Art';
+import { art, glyph } from '../ui/Art';
 import { celebrate, oops, popIn, pulse } from '../ui/Juice';
 import { COLORS, textStyle } from '../ui/theme';
 import { drawAppliance, drawCounter, drawCupboard, drawFridge, drawSink } from '../ui/KitchenArt';
@@ -19,6 +19,7 @@ import {
   GROWN_UP,
   POINTS_PER_RECIPE,
   TIMED,
+  TOOLS,
   addScoop,
   bestTool,
   familyOf,
@@ -60,6 +61,15 @@ import { isRtl, t } from '../i18n/index';
 // job, and serving right.
 //   data: { skillId }
 
+// Pictures of the measuring tools (src/assets/images/kitchen/), with emoji
+// to fall back on; a tablespoon is drawn bigger than a teaspoon.
+const TOOL_PICTURES = {
+  cup: { key: 'kitchen/cup', emoji: '🥛', size: 34 },
+  spoon: { key: 'kitchen/spoon', emoji: '🥄', size: 36 },
+  jug: { key: 'kitchen/jug', emoji: '🫙', size: 34 },
+  scale: { key: null, emoji: '⚖️', size: 34 },
+};
+const TOOL_SIZES = { halfCup: 0.85, quarterCup: 0.7, tsp: 0.8, halfTsp: 0.65 };
 const STATIONS = ['wash', 'gather', 'measure', 'prep', 'cook', 'clean', 'serve'];
 const CARD = { x: 20, y: 192, width: 290, height: 510 };
 const STAGE_X = 800;
@@ -557,7 +567,12 @@ export default class KitchenScene extends BaseScene {
     const width = Math.min(116, 880 / tools.length - 10);
     tools.forEach((toolId, i) => {
       const x = 800 + (i - (tools.length - 1) / 2) * (width + 10);
-      const button = new Button(this, x, 640, { label: this.words.TOOLS[toolId].label, width, height: 80, fontSize: 22, color: COLORS.white, textColor: COLORS.ink, onTap: () => this.scoop(toolId) });
+      // The tool's picture above its name ("½ cup", "tsp").
+      const name = this.words.TOOLS[toolId].label.replace(/^\S+\s/, '');
+      const button = new Button(this, x, 640, { label: name, width, height: 92, fontSize: 19, color: COLORS.white, textColor: COLORS.ink, onTap: () => this.scoop(toolId) });
+      button.label.setY(24);
+      const look = TOOL_PICTURES[TOOLS[toolId].family];
+      button.add(art(this, 0, -14, { key: look.key, emoji: look.emoji, size: look.size * (TOOL_SIZES[toolId] || 1) }));
       own(button);
       this.toolButtons[toolId] = button;
       this.tag(`tool:${toolId}`, button.box);
