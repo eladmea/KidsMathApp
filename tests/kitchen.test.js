@@ -179,6 +179,10 @@ describe('gathering and cleaning', () => {
     expect(stackCheck(layers, [layers[0]], layers[2])).toBe(false);
   });
 
+  it('fries the burger patties in a pan (the bun comes at serving)', () => {
+    expect(getRecipe('burgers').cook).toMatchObject({ appliance: 'stove', dish: '🥩' });
+  });
+
   it('sets timers in counted steps', () => {
     expect(timerStep(20)).toBe(5);
     expect(timerStep(10)).toBe(1);

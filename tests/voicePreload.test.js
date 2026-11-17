@@ -33,4 +33,12 @@ describe('voice preload manifest', () => {
     expect(round.length).toBeGreaterThan(2);
     expect(round.some((url) => /what-rhymes-with-rock/.test(url))).toBe(true);
   });
+
+  it('downloads only the recipe being cooked in Kitchen Cove', async () => {
+    const all = await sceneClipUrls('Kitchen', { groups: ['say:kitchen:smoothie', 'say:kitchen:muffins', 'say:kitchen:omelette', 'say:kitchen:burgers', 'say:kitchen:hotdogs'] }, 'en');
+    const burgers = await sceneClipUrls('Kitchen', { groups: ['say:kitchen:burgers'] }, 'en');
+    expect(burgers.length).toBeLessThan(all.length - 50);
+    expect(burgers.some((url) => /ground-turkey/.test(url))).toBe(true);
+    expect(burgers.some((url) => /strawberr/.test(url))).toBe(false);
+  });
 });

@@ -147,6 +147,9 @@ const GAME_GROUPS = {
 function groupsOf(source) {
   // Memory Chips: a group per card set ('say:memory:dots'), loaded by variant.
   if (source.startsWith('game: memory ')) return `say:memory:${source.slice('game: memory '.length)}`;
+  // Kitchen Cove: a group per recipe ('say:kitchen:burgers'), loaded by the
+  // recipe being cooked; the cook's shared lines are 'say:kitchen'.
+  if (source.startsWith('game: kitchen ')) return `say:kitchen:${source.slice('game: kitchen '.length)}`;
   return GAME_GROUPS[source] || source;
 }
 
@@ -341,11 +344,12 @@ function memoryPhrases({ say }, literacy, add) {
   range(1, 12).forEach((cost) => add(memory.sayWrong({ cost }), 'game: memory'));
 }
 
-// Kitchen Cove: every recipe's lines (logic/recipes/), and the cook's.
+// Kitchen Cove: every recipe's lines (logic/recipes/), each in its recipe's
+// group, and the cook's lines every recipe says.
 function kitchenPhrases({ INGREDIENTS, DISHES, TOOLS, DECORATIONS, name, amount, say }, add) {
   const kitchen = say.kitchen;
-  const source = 'game: kitchen';
   RECIPES.forEach((recipe) => {
+    const source = `game: kitchen ${recipe.id}`;
     add(kitchen.intro({ dish: DISHES[recipe.id] }), source);
     recipe.ingredients.filter(isMeasured).forEach((ingredient) => {
       add(name(INGREDIENTS[ingredient.key]), source);
@@ -360,10 +364,11 @@ function kitchenPhrases({ INGREDIENTS, DISHES, TOOLS, DECORATIONS, name, amount,
     }
     if (recipe.serve.kind === 'decorate') add(kitchen.decorate({ count: recipe.serve.count, item: DECORATIONS[recipe.serve.item] }), source);
   });
+  const source = 'game: kitchen';
   const tools = new Set(Object.values(LEVELS).flatMap((level) => level.tools));
   tools.forEach((tool) => add(kitchen.wrongTool({ tool: TOOLS[tool].a }), source));
   CLEANUP_JOBS.forEach((job) => add(kitchen.cleanup({ job }), source));
-  ['party', 'double', 'wash', 'washed', 'gather', 'notInRecipe', 'enough', 'gathered', 'measure', 'pickTool', 'tooMuch', 'notEnough', 'measured', 'grownUp', 'blending', 'wrongPlace', 'cleaned', 'ding', 'stack', 'wrongLayer', 'served'].forEach((phrase) => add(kitchen[phrase](), source));
+  ['party', 'double', 'wash', 'washed', 'gather', 'notInRecipe', 'enough', 'gathered', 'measure', 'pickTool', 'tooMuch', 'notEnough', 'measured', 'grownUp', 'blending', 'wrongPlace', 'cleaned', 'ready', 'stack', 'wrongLayer', 'served'].forEach((phrase) => add(kitchen[phrase](), source));
 }
 
 function friendPhrases({ FRIENDS: WORDS, FEELINGS, say }, add) {
