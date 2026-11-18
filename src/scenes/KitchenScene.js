@@ -756,13 +756,13 @@ export default class KitchenScene extends BaseScene {
     if (prepKind(action) === 'tap') {
       // A row of what each tap makes (cracked eggs, filled cups, halves...).
       this.results = [];
-      // Burgers are shaped into patties (the bun comes at serving).
-      const made = { crack: '🍳', fill: '🧁', shape: action.on === 'burger' ? '🥩' : '🌭' }[action.action] || emoji;
+      // Shaping makes what then cooks (patties, sausages): no buns yet.
+      const made = { crack: '🍳', fill: '🧁' }[action.action] || emoji;
       const perRow = Math.min(action.times, 6);
       for (let i = 0; i < action.times; i++) {
         const x = STAGE_X + ((i % perRow) - (perRow - 1) / 2) * 70;
         const y = 600 + Math.floor(i / perRow) * 64;
-        this.results.push(own(glyph(this, x, y, made, 50).setAlpha(0.18)));
+        this.results.push(own((action.action === 'shape' ? this.cookedArt(x, y, 50) : glyph(this, x, y, made, 50)).setAlpha(0.18)));
       }
       this.focus.setInteractive({ useHandCursor: true }).on('pointerup', () => this.prepTap(action));
     } else {
@@ -803,7 +803,7 @@ export default class KitchenScene extends BaseScene {
     const { appliance, minutes } = this.recipe.cook;
     this.applianceArt = drawAppliance(this, STAGE_X, 400, appliance);
     this.keep(this.applianceArt.box);
-    this.dish = glyph(this, 0, appliance === 'blender' ? -40 : 10, appliance === 'blender' ? '🍓' : this.recipe.cook.dish || this.recipe.emoji, 80).setAlpha(0.9);
+    this.dish = (appliance === 'blender' ? glyph(this, 0, -40, '🍓', 80) : this.cookedArt(0, 10, 80)).setAlpha(0.9);
     this.applianceArt.box.add(this.dish);
     if (!TIMED.has(appliance)) {
       this.say([this.words.say.kitchen.cook({ appliance })]);
@@ -827,6 +827,13 @@ export default class KitchenScene extends BaseScene {
     this.startTimerButton = start;
     this.turnDial(0);
     this.say([this.words.say.kitchen.cook({ appliance }), this.words.say.kitchen.setTimer({ minutes })]);
+  }
+
+  // What cooks: the recipe's `cook.picture` (a sausage), else its `cook.dish`
+  // emoji (a patty), else the finished dish.
+  cookedArt(x, y, size) {
+    const { picture = null, dish } = this.recipe.cook;
+    return art(this, x, y, { key: picture, emoji: dish || this.recipe.emoji, size: picture ? size * 1.4 : size });
   }
 
   turnDial(change) {

@@ -34,7 +34,8 @@ export default {
     { action: 'stir', on: 'bowl' },
     { action: 'shape', on: 'burger', times: 5 },
   ],
-  // `dish`: what shows in the pan (the patties; the buns come at serving).
+  // `dish`: what shows in the pan, and what shaping makes (the patties; the
+  // buns come at serving).
   cook: { appliance: 'stove', minutes: 4, dish: '🥩' },
   // On the source's list, not played in the game. Water is "as needed";
   // baking soda is optional there; frying oil has no amount.

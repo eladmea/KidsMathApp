@@ -284,6 +284,7 @@ await rub('hands', async () => (await state()).station !== 'wash');
 await gather();
 await measureAll({ picks: true });
 await prepAll();
+await t.shot(dir, 'k10a-pot');
 await timer();
 await clean();
 await decorate();

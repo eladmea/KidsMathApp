@@ -181,6 +181,8 @@ describe('gathering and cleaning', () => {
 
   it('fries the burger patties in a pan (the bun comes at serving)', () => {
     expect(getRecipe('burgers').cook).toMatchObject({ appliance: 'stove', dish: '🥩' });
+    // Hot dogs: the sausages cook without their rolls.
+    expect(getRecipe('hotdogs').cook).toMatchObject({ appliance: 'pot', picture: 'kitchen/sausage' });
   });
 
   it('sets timers in counted steps', () => {

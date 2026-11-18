@@ -31,7 +31,9 @@ export default {
     { action: 'blend', on: 'bowl' },
     { action: 'shape', on: 'sausage', times: 5 },
   ],
-  cook: { appliance: 'pot', minutes: 15 },
+  // The sausages cook on their own (the rolls come at serving): `picture`
+  // is drawn in the pot and when they are rolled, `dish` if it is missing.
+  cook: { appliance: 'pot', minutes: 15, dish: '🌭', picture: 'kitchen/sausage' },
   // Each roll gets a sausage and becomes a hot dog.
   serve: { kind: 'decorate', dish: '🥖', plates: 5, item: '🌭', count: 5, replace: true },
   // The printable card adds: for children under 5, cut lengthwise into strips.

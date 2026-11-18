@@ -354,7 +354,7 @@ while-it-cooks-let-s-clean-up-560054fa | While it cooks, let’s clean up!
 98-c3de337e | 98.
 99-e5e0a79b | 99.
 a-big-block-can-t-sit-on-a-small-one-64917d1f | A big block can't sit on a small one.
-a-grown-up-puts-it-in-the-oven-ef942a3c | A grown-up puts it in the oven.
+a-grown-up-puts-the-pan-on-the-stove-edae46ac | A grown-up puts the pan on the stove.
 add-8-more-cdbe6e24 | Add 8 more!
 add-within-10-986431da | Add within 10.
 add-within-100-3970058a | Add within 100.
@@ -512,7 +512,6 @@ robot-loops-eb061bba | Robot Loops.
 same-pattern-new-look-9e40af6e | Same Pattern, New Look.
 scale-master-3127ffbd | Scale Master.
 see-you-tomorrow-4c7fe0e9 | See you tomorrow!
-set-the-timer-to-20-minutes-683da77d | Set the timer to 20 minutes.
 seven-e35d66ad | Seven!
 sh-ch-th-wh-ba740f74 | sh ch th wh.
 share-100-into-10-equal-groups-10-in-eac-e86c7026 | Share 100 into 10 equal groups: 10 in each, because 10 × 10 = 100.
@@ -692,7 +691,6 @@ the-part-that-repeats-is-dog-fcf1da72 | The part that repeats is Dog.
 the-part-that-repeats-is-red-square-fa139c8e | The part that repeats is Red square.
 the-part-that-repeats-is-red-f9af0105 | The part that repeats is Red.
 the-part-that-repeats-is-star-ab807fd4 | The part that repeats is Star.
-the-recipe-says-20-minutes-e229ca85 | The recipe says 20 minutes.
 there-are-3-apples-86748f8e | There are 3 apples!
 there-are-3-balloons-a7e09f4d | There are 3 balloons!
 there-are-3-cars-6a6e31a8 | There are 3 cars!
@@ -2125,7 +2123,7 @@ a-fish-eats-the-shrimp-3c333091 | A fish eats the shrimp.
 a-fox-eats-the-rabbit-90db1369 | A fox eats the rabbit.
 a-friend-opens-the-letter-efec6b34 | A friend opens the letter.
 a-group-of-flamingos-is-called-a-flamboy-712dcded | A group of flamingos is called a flamboyance.
-a-grown-up-puts-the-pan-on-the-stove-edae46ac | A grown-up puts the pan on the stove.
+a-grown-up-puts-it-in-the-oven-ef942a3c | A grown-up puts it in the oven.
 a-grown-up-puts-them-in-a-pot-of-hot-wat-5bacf5f3 | A grown-up puts them in a pot of hot water.
 a-harder-push-makes-it-roll-farther-c8b689ab | A harder push makes it roll farther.
 a-hawk-eats-the-bird-741fe98c | A hawk eats the bird.
@@ -2379,7 +2377,6 @@ dee-has-the-dog-27db63de | Dee has the dog.
 dee-has-the-fish-d5e2db0a | Dee has the fish.
 dee-has-the-rabbit-eb1b5edc | Dee has the rabbit.
 dee-has-the-turtle-98943abe | Dee has the turtle.
-ding-9eb564ec | Ding!
 dish-6b8d6234 | dish!
 divide-means-share-equally-87012c7c | Divide means share equally.
 dog-and-frog-rhyme-they-end-with-the-sam-e616f0ba | dog and frog rhyme: they end with the same sound.
@@ -3734,6 +3731,8 @@ seal-585056a0 | seal
 seal-starts-with-sss-8d40b81b | seal starts with sss!
 seal-ba347caa | Seal.
 set-the-timer-to-15-minutes-ce965819 | Set the timer to 15 minutes.
+set-the-timer-to-20-minutes-683da77d | Set the timer to 20 minutes.
+set-the-timer-to-4-minutes-ebf4da17 | Set the timer to 4 minutes.
 set-the-timer-to-5-minutes-7a06552e | Set the timer to 5 minutes.
 share-1-into-1-equal-groups-1-in-each-be-ee6e30d4 | Share 1 into 1 equal groups: 1 in each, because 1 × 1 = 1.
 share-10-into-1-equal-groups-10-in-each-ea8ca250 | Share 10 into 1 equal groups: 10 in each, because 1 × 10 = 10.
@@ -4637,6 +4636,8 @@ the-pizza-is-ready-e048e351 | The pizza is ready.
 the-plane-takes-off-bff8aa3b | The plane takes off.
 the-plant-grows-leaves-e2b23f4b | The plant grows leaves.
 the-recipe-says-15-minutes-143b4b61 | The recipe says 15 minutes.
+the-recipe-says-20-minutes-e229ca85 | The recipe says 20 minutes.
+the-recipe-says-4-minutes-9b90a02f | The recipe says 4 minutes.
 the-recipe-says-5-minutes-b343f066 | The recipe says 5 minutes.
 the-rest-goes-in-the-cupboard-f8889c02 | The rest goes in the cupboard.
 the-robot-bumped-into-something-a57cc3b9 | The robot bumped into something.
