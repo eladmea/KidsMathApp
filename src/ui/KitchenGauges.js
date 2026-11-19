@@ -1,4 +1,3 @@
-import { glyph } from './Art';
 import { COLORS, textStyle } from './theme';
 
 // The measuring jug (ml) and the kitchen scale (g), with real numbers on
@@ -46,13 +45,14 @@ const SWEEP = Math.PI * 1.5;
 const RADIUS = 100;
 
 export class Scale {
-  constructor(scene, x, y, { axis, goal, mark, unit, emoji, own }) {
+  constructor(scene, x, y, { axis, goal, mark, unit, picture, own }) {
     this.scene = scene;
     this.axis = axis;
     this.x = x;
     this.y = y;
     this.own = own;
-    this.emoji = emoji;
+    // Draws what is weighed: picture(scene, x, y, size).
+    this.picture = picture;
     this.pieces = [];
     own(scene.add.rectangle(x, y + RADIUS + 40, 230, 22, 0x8a9aa6).setRounded(10));
     own(scene.add.rectangle(x, y + 30, 250, 2 * RADIUS + 80, 0xdfe6eb).setRounded(28).setStrokeStyle(4, 0xa9b6bf));
@@ -84,7 +84,7 @@ export class Scale {
     // What is on the scale sits on top of it.
     while (this.pieces.length < pieces) {
       const i = this.pieces.length;
-      const piece = this.own(glyph(this.scene, this.x - 90 + (i % 8) * 26, this.y - RADIUS - 26 - Math.floor(i / 8) * 18, this.emoji, 34));
+      const piece = this.own(this.picture(this.scene, this.x - 90 + (i % 8) * 26, this.y - RADIUS - 26 - Math.floor(i / 8) * 18, 34));
       this.pieces.push(piece);
     }
     while (this.pieces.length > pieces) this.pieces.pop().destroy();

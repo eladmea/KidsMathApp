@@ -2,6 +2,12 @@ import { textStyle } from './theme';
 import { art } from './Art';
 import { texture } from '../services/assets';
 
+// An ingredient's picture: src/assets/images/kitchen/food/<ingredient key>
+// (made with Canva, see ARCHITECTURE.md), or its emoji when there is none.
+// A kitchen picture of its own, not the emoji's, because the same emoji
+// means something else elsewhere (🌽 is corn on a pizza, cornflour here).
+export const food = (scene, x, y, ingredient, size) => art(scene, x, y, { key: `kitchen/food/${ingredient.key}`, emoji: ingredient.emoji, size });
+
 // Kitchen Cove's furniture: the fridge and cupboard (with doors that open),
 // the counter, the sink and the appliances. Each returns a Container centred
 // on (x, y). Where there is a picture (src/assets/images/kitchen/<name>.svg)

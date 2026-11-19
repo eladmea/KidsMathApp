@@ -5,7 +5,8 @@
 // seasonings are in `cardOnly` (for the printable card). The page fries the
 // onion first in 1 tbsp of the oil, rests the mixture 25-30 minutes in the
 // fridge, then bakes at 190 °C for 20-22 minutes (turning after 12), or
-// fries 3-4 minutes a side. The olive oil is "25 ml (2 tablespoons)" there;
+// fries 3-4 minutes a side. The game fries them: the patties go in the pan
+// (not the oven, and without the bun), 4 minutes a side. The olive oil is "25 ml (2 tablespoons)" there;
 // the game measures the 25 ml.
 export default {
   id: 'burgers',
@@ -33,7 +34,9 @@ export default {
     { action: 'stir', on: 'bowl' },
     { action: 'shape', on: 'burger', times: 5 },
   ],
-  cook: { appliance: 'oven', celsius: 190, minutes: 20 },
+  // `dish`: what shows in the pan, and what shaping makes (the patties; the
+  // buns come at serving).
+  cook: { appliance: 'stove', minutes: 4, dish: '🥩' },
   // On the source's list, not played in the game. Water is "as needed";
   // baking soda is optional there; frying oil has no amount.
   cardOnly: [

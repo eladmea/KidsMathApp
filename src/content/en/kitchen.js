@@ -164,7 +164,7 @@ export const say = {
     cleanup: ({ job }) => CLEANUP_LINES[job],
     wrongPlace: () => 'Not there. Where do we keep it?',
     cleaned: () => 'All clean!',
-    ding: () => 'Ding! It’s ready!',
+    ready: () => 'It’s ready!',
     decorate: ({ count, item }) => `Now decorate it. Put on ${count} ${count === 1 ? item.one : item.many}.`,
     stack: () => 'Build it in order. Bottom bun first!',
     wrongLayer: () => 'Not that one yet. What comes next?',
@@ -211,7 +211,7 @@ export const RECIPE_STEPS = {
     'In a large bowl, put the turkey, oats, grated carrot, garlic and onion.',
     'Add the parsley, egg, the rest of the oil, cumin, paprika, salt, pepper and baking soda, and mix well. Too dry? Add cold water a little at a time. Too soft? Add a little more oats.',
     'Cover and rest in the fridge for 25–30 minutes.',
-    'Shape into burgers (the source makes meatballs). Bake on greased baking paper at 190 °C for 20–22 minutes, turning after 12, or fry 3–4 minutes a side. Burgers are bigger than meatballs: check they are cooked all the way through.',
+    'Shape into burgers (the source makes meatballs). Fry in a pan with a little oil, 3–4 minutes a side, or bake on greased baking paper at 190 °C for 20–22 minutes, turning after 12. Burgers are bigger than meatballs: check they are cooked all the way through.',
     'Serve in whole-wheat buns with lettuce and tomato (our suggestion).',
   ],
   hotdogs: [

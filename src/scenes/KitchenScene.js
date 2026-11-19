@@ -8,7 +8,7 @@ import { IdleHint } from '../ui/HintArrow';
 import { art, glyph } from '../ui/Art';
 import { celebrate, oops, popIn, pulse } from '../ui/Juice';
 import { COLORS, textStyle } from '../ui/theme';
-import { drawAppliance, drawCounter, drawCupboard, drawFridge, drawSink } from '../ui/KitchenArt';
+import { drawAppliance, drawCounter, drawCupboard, drawFridge, drawSink, food } from '../ui/KitchenArt';
 import { Jug, Scale } from '../ui/KitchenGauges';
 import { session } from '../services/session';
 import { play } from '../services/audio';
@@ -77,8 +77,20 @@ const COUNTER_TOP = 540;
 const FRIDGE_AT = { x: 455, y: 400 };
 const CUPBOARD_AT = { x: 800, y: 310 };
 const SINK_AT = { x: 800, y: 360 };
+// The sink for washing hands: drawn big, the tap's water falling on the hands.
+const SINK_WASH = { y: 440, scale: 1.55, waterX: 907, waterTop: 287, handsY: 450, meterY: 620 };
 const CORNER = { x: 1150, y: 300 };
 const RUB_GOAL = 1600;
+// The wipe job's spills: where, and their colour (juice, batter, cocoa).
+const DIRT = [
+  [470, COUNTER_TOP + 60, 0xc9783a],
+  [640, COUNTER_TOP + 120, 0xb5652b],
+  [800, COUNTER_TOP + 55, 0xd9a441],
+  [960, COUNTER_TOP + 125, 0xc9783a],
+  [1120, COUNTER_TOP + 65, 0xa8662f],
+];
+// How far the sponge rubs over a spill to clean it (game pixels).
+const WIPE_PER_SPOT = 260;
 const HOLD_MS = 1800;
 const COOK_MS = 14000;
 const SERVE_MS = 2600;
@@ -88,11 +100,22 @@ export default class KitchenScene extends BaseScene {
   static key = 'Kitchen';
   static plays = ['Kitchen'];
 
+  // Only this recipe's recordings are downloaded before the scene opens (a
+  // group per recipe, see services/voiceLines.js), the first lines first.
+  static voiceGroups({ skillId = 'kitchen-smoothie' } = {}) {
+    return [`say:kitchen:${recipeOf(skillId).id}`];
+  }
+
+  static prepare({ skillId = 'kitchen-smoothie' } = {}) {
+    const words = content('kitchen');
+    return [words.say.kitchen.intro({ dish: words.DISHES[recipeOf(skillId).id] }), words.say.kitchen.wash()];
+  }
+
   build({ skillId = 'kitchen-smoothie' } = {}) {
     this.skill = getSkill(skillId);
     this.level = kitchenLevel(profileBand(session.profile).id);
     // The oldest children cook for a party: everything doubled.
-    this.recipe = levelRecipe(getRecipe(this.skill.recipe) || RECIPES[0], this.level);
+    this.recipe = levelRecipe(recipeOf(skillId), this.level);
     this.words = content('kitchen');
     this.points = 0;
     this.station = null;
@@ -114,6 +137,8 @@ export default class KitchenScene extends BaseScene {
     this.leftovers = [];
     this.dishes = [];
     this.crumbs = [];
+    this.sponge = null;
+    this.spongeScale = 1;
     this.cornerDial = null;
     this.holdEvent = null;
     this.measureObjects = [];
@@ -184,7 +209,7 @@ export default class KitchenScene extends BaseScene {
     rows.forEach((ingredient, i) => {
       const rowY = y + 82 + i * rowHeight;
       const back = this.add.rectangle(x + 8, rowY, width - 16, rowHeight - 4, 0xfff4dd, 0).setOrigin(0, 0.5).setRounded(10);
-      const picture = glyph(this, x + 34, rowY, ingredient.emoji, Math.min(34, rowHeight - 14));
+      const picture = food(this, x + 34, rowY, ingredient, Math.min(34, rowHeight - 14));
       const text = this.add.text(x + 60, rowY, this.cardText(ingredient), textStyle(18, COLORS.ink, { align: 'left', wordWrap: { width: width - 100 } })).setOrigin(0, 0.5);
       const tick = this.add.text(x + width - 24, rowY, '✓', textStyle(24, COLORS.greenDark)).setOrigin(0.5).setVisible(false);
       this.cardRows[ingredient.key] = { back, picture, text, tick, gathered: false, measured: false };
@@ -316,22 +341,28 @@ export default class KitchenScene extends BaseScene {
   }
 
   // ---- 1. wash hands ----
+  // A big sink filling the stage, water running from the tap onto the hands.
   startWash() {
     this.clearStage();
     this.setStation('wash');
-    const sink = drawSink(this, STAGE_X, 450, '');
+    const sink = drawSink(this, STAGE_X, SINK_WASH.y, '');
+    sink.box.setScale(SINK_WASH.scale);
     this.keep(sink.box);
-    this.focus = this.keep(glyph(this, STAGE_X, 420, '👐', 120));
+    const water = this.keep(this.add.rectangle(SINK_WASH.waterX, SINK_WASH.waterTop, 22, SINK_WASH.handsY - SINK_WASH.waterTop, 0x8fd3f4, 0.75).setOrigin(0.5, 0).setRounded(10));
+    this.tweens.add({ targets: water, alpha: 0.45, scaleX: 0.8, duration: 260, yoyo: true, repeat: -1 });
+    this.focus = this.keep(glyph(this, SINK_WASH.waterX - 30, SINK_WASH.handsY + 20, '👐', 160));
     this.tag('hands', this.focus);
     this.bubbles = [];
     this.rubbed = 0;
     this.say([this.words.say.kitchen.wash()]);
     play(this, 'kitchen-tap', { volume: 0.5 });
-    this.rubArea(STAGE_X - 170, 290, 340, 250, () => this.washed(), (x, y) => {
+    const area = { left: STAGE_X - 240, top: 280, width: 480, height: 300 };
+    this.rubArea(area.left, area.top, area.width, area.height, () => this.washed(), (x, y) => {
+      this.focus.setAngle(Math.sin(this.rubbed / 50) * 8);
       if (Math.random() > 0.25) return;
-      const bubble = this.keep(glyph(this, x + Phaser.Math.Between(-20, 20), y + Phaser.Math.Between(-20, 20), '🫧', 34));
+      const bubble = this.keep(glyph(this, x + Phaser.Math.Between(-30, 30), y + Phaser.Math.Between(-30, 30), '🫧', 44));
       popIn(this, bubble);
-    });
+    }, undefined, SINK_WASH.meterY);
   }
 
   washed() {
@@ -342,11 +373,11 @@ export default class KitchenScene extends BaseScene {
 
   // A rub over an area: calls `onDone` after RUB_GOAL pixels of rubbing.
   // `own` keeps its meter with the things of the current step.
-  rubArea(left, top, width, height, onDone, onRub = () => {}, own = (object) => this.keep(object)) {
+  rubArea(left, top, width, height, onDone, onRub = () => {}, own = (object) => this.keep(object), meterY = top - 16) {
     let last = null;
     this.rubbed = 0;
-    own(this.add.rectangle(STAGE_X, top - 16, 300, 18, COLORS.white).setRounded(9).setDepth(4).setStrokeStyle(2, 0xe5d3b3));
-    this.meter = own(this.add.rectangle(STAGE_X - 150, top - 16, 0, 18, COLORS.green).setOrigin(0, 0.5).setRounded(9).setDepth(5));
+    own(this.add.rectangle(STAGE_X, meterY, 300, 18, COLORS.white).setRounded(9).setDepth(4).setStrokeStyle(2, 0xe5d3b3));
+    this.meter = own(this.add.rectangle(STAGE_X - 150, meterY, 0, 18, COLORS.green).setOrigin(0, 0.5).setRounded(9).setDepth(5));
     const move = (x, y) => {
       if (last) {
         this.rubbed += Math.hypot(x - last.x, y - last.y);
@@ -379,6 +410,8 @@ export default class KitchenScene extends BaseScene {
     this.counter = {};
     this.counterSlots = {};
     this.drawKitchen();
+    // What to bring, drawn faded on the counter.
+    this.recipe.ingredients.forEach((ingredient) => this.counterSlot(ingredient));
     this.pantryItems = {};
     const stock = pantryStock(this.recipe, RECIPES.filter((other) => other !== this.recipe));
     ['fridge', 'cupboard'].forEach((placeId) => {
@@ -393,7 +426,7 @@ export default class KitchenScene extends BaseScene {
         const slot = i % perShelf;
         const x = -place.width / 2 + (place.width / perShelf) * (slot + 0.5);
         const y = place.shelfY(shelf) - ITEM / 2 - 4;
-        const picture = glyph(this, x, y, item.emoji, ITEM);
+        const picture = food(this, x, y, item, ITEM);
         const badge = this.add.text(x + 20, y + 20, '', textStyle(16, COLORS.white, { backgroundColor: '#4a6fe3', padding: { x: 5, y: 1 } })).setOrigin(0.5);
         place.items.add([picture, badge]);
         const entry = { item, picture, badge, stock: item.stock };
@@ -455,7 +488,7 @@ export default class KitchenScene extends BaseScene {
     play(this, 'star', { detune: 100 * Object.keys(this.counter).length });
     const slot = this.counterSlot(entry.item);
     const bounds = picture.getBounds();
-    const flying = glyph(this, bounds.centerX, bounds.centerY, entry.item.emoji, ITEM).setDepth(30);
+    const flying = food(this, bounds.centerX, bounds.centerY, entry.item, ITEM).setDepth(30);
     this.tweens.add({
       targets: flying,
       x: slot.x,
@@ -477,21 +510,33 @@ export default class KitchenScene extends BaseScene {
     }
   }
 
-  // A place on the counter per ingredient (counted things stack up there).
+  // A place on the counter per ingredient, in the recipe's order. Before
+  // anything is taken it shows a faded picture of what goes there and a dot
+  // per thing to take, so a child who can't read the card sees what to look
+  // for and how many; each thing taken fills its dot.
   counterSlot(ingredient) {
     if (this.counterSlots[ingredient.key]) return this.counterSlots[ingredient.key];
-    const i = Object.keys(this.counterSlots).length;
+    const i = this.recipe.ingredients.findIndex((own) => own.key === ingredient.key);
     const x = 660 + (i % 7) * 86;
-    const y = COUNTER_TOP + 50 + Math.floor(i / 7) * 74;
-    const slot = { x, y, picture: null, badge: null, ingredient };
+    const y = COUNTER_TOP + 46 + Math.floor(i / 7) * 76;
+    const wanted = (shoppingList(this.recipe).find(({ key }) => key === ingredient.key) || { count: 1 }).count;
+    const slot = { x, y, picture: null, ingredient };
+    this.keep(this.add.rectangle(x, y + 4, 78, 70, COLORS.white, 0.45).setRounded(14).setStrokeStyle(2, 0xd9c3a0));
+    slot.ghost = this.keep(food(this, x, y - 4, ingredient, ITEM - 8).setAlpha(0.3));
+    const perRow = 4;
+    slot.pips = Array.from({ length: wanted }, (_, n) => {
+      const inRow = Math.min(perRow, wanted - Math.floor(n / perRow) * perRow);
+      const px = x + ((n % perRow) - (inRow - 1) / 2) * 15;
+      return this.keep(this.add.circle(px, y + 30 + Math.floor(n / perRow) * 13, 5, COLORS.white).setStrokeStyle(2, 0x9e9e9e));
+    });
     slot.update = () => {
       if (!slot.picture) {
-        slot.picture = this.keep(glyph(this, x, y, ingredient.emoji, ITEM));
-        slot.badge = this.keep(this.add.text(x + 22, y + 22, '', textStyle(16, COLORS.white, { backgroundColor: '#2e7d32', padding: { x: 5, y: 1 } })).setOrigin(0.5));
+        slot.ghost.setVisible(false);
+        slot.picture = this.keep(food(this, x, y - 4, ingredient, ITEM - 4));
         popIn(this, slot.picture);
       }
       const count = this.counter[ingredient.key] || 0;
-      slot.badge.setText(count > 1 ? `×${count}` : '').setVisible(count > 1);
+      slot.pips.forEach((pip, n) => pip.setFillStyle(n < count ? COLORS.green : COLORS.white).setStrokeStyle(2, n < count ? 0x2e7d32 : 0x9e9e9e));
     };
     this.counterSlots[ingredient.key] = slot;
     return slot;
@@ -535,7 +580,7 @@ export default class KitchenScene extends BaseScene {
       this.measureObjects.push(object);
       return object;
     };
-    own(glyph(this, 560, 400, ingredient.emoji, 120));
+    own(food(this, 560, 400, ingredient, 120));
     own(this.add.text(560, 490, this.cardText(ingredient), textStyle(28, COLORS.ink, { stroke: '#ffffff', strokeThickness: 6 })).setOrigin(0.5));
     // The gauge: how much is in so far, and (younger children) where to stop.
     // The jug and the scale have their own numbers to read; cups and spoons
@@ -545,7 +590,7 @@ export default class KitchenScene extends BaseScene {
     this.instrument = null;
     if (family === 'jug' || family === 'scale') {
       this.measureBowl.setVisible(false);
-      const options = { axis: gaugeAxis(goal), goal, mark: this.level.mark, own, unit: this.words.TOOLS[family].label.replace(/^\S+\s/, ''), emoji: ingredient.emoji };
+      const options = { axis: gaugeAxis(goal), goal, mark: this.level.mark, own, unit: this.words.TOOLS[family].label.replace(/^\S+\s/, ''), picture: (scene, x, y, size) => food(scene, x, y, ingredient, size) };
       this.instrument = family === 'jug' ? new Jug(this, 950, 350, options) : new Scale(this, 950, 370, options);
       this.gaugeText = own(this.add.text(950, 520, '', textStyle(22, COLORS.ink, { stroke: '#ffffff', strokeThickness: 5 })).setOrigin(0.5));
       this.gaugeFill = null;
@@ -699,7 +744,7 @@ export default class KitchenScene extends BaseScene {
     };
     const ingredient = getIngredient(this.recipe, action.on);
     const emoji = ingredient ? ingredient.emoji : { bowl: '🥣', tin: '🧁', burger: '🥣', sausage: '🥣' }[action.on] || '🥣';
-    this.focus = own(glyph(this, STAGE_X, 400, emoji, 170));
+    this.focus = own(ingredient ? food(this, STAGE_X, 400, ingredient, 170) : glyph(this, STAGE_X, 400, emoji, 170));
     this.tag('prep-target', this.focus);
     if (ingredient) this.markRow(ingredient.key, 'current');
     const lines = [this.words.say.kitchen.prep[action.action](action)];
@@ -711,12 +756,14 @@ export default class KitchenScene extends BaseScene {
     if (prepKind(action) === 'tap') {
       // A row of what each tap makes (cracked eggs, filled cups, halves...).
       this.results = [];
-      const made = { crack: '🍳', fill: '🧁', shape: action.on === 'burger' ? '🍔' : '🌭' }[action.action] || emoji;
+      // Shaping makes what then cooks (patties, sausages): no buns yet.
+      const made = { crack: '🍳', fill: '🧁' }[action.action] || emoji;
       const perRow = Math.min(action.times, 6);
       for (let i = 0; i < action.times; i++) {
         const x = STAGE_X + ((i % perRow) - (perRow - 1) / 2) * 70;
         const y = 600 + Math.floor(i / perRow) * 64;
-        this.results.push(own(glyph(this, x, y, made, 50).setAlpha(0.18)));
+        const piece = action.action === 'shape' ? this.cookedArt(x, y, 50) : made === emoji && ingredient ? food(this, x, y, ingredient, 50) : glyph(this, x, y, made, 50);
+        this.results.push(own(piece.setAlpha(0.18)));
       }
       this.focus.setInteractive({ useHandCursor: true }).on('pointerup', () => this.prepTap(action));
     } else {
@@ -757,7 +804,7 @@ export default class KitchenScene extends BaseScene {
     const { appliance, minutes } = this.recipe.cook;
     this.applianceArt = drawAppliance(this, STAGE_X, 400, appliance);
     this.keep(this.applianceArt.box);
-    this.dish = glyph(this, 0, appliance === 'blender' ? -40 : 10, appliance === 'blender' ? '🍓' : this.recipe.emoji, 80).setAlpha(0.9);
+    this.dish = (appliance === 'blender' ? glyph(this, 0, -40, '🍓', 80) : this.cookedArt(0, 10, 80)).setAlpha(0.9);
     this.applianceArt.box.add(this.dish);
     if (!TIMED.has(appliance)) {
       this.say([this.words.say.kitchen.cook({ appliance })]);
@@ -781,6 +828,13 @@ export default class KitchenScene extends BaseScene {
     this.startTimerButton = start;
     this.turnDial(0);
     this.say([this.words.say.kitchen.cook({ appliance }), this.words.say.kitchen.setTimer({ minutes })]);
+  }
+
+  // What cooks: the recipe's `cook.picture` (a sausage), else its `cook.dish`
+  // emoji (a patty), else the finished dish.
+  cookedArt(x, y, size) {
+    const { picture = null, dish } = this.recipe.cook;
+    return art(this, x, y, { key: picture, emoji: dish || this.recipe.emoji, size: picture ? size * 1.4 : size });
   }
 
   turnDial(change) {
@@ -882,7 +936,7 @@ export default class KitchenScene extends BaseScene {
     if (job === 'putAway') {
       this.drawKitchen();
       this.leftovers = leftovers(this.recipe).map((ingredient, i) => {
-        const picture = this.keep(glyph(this, 680 + i * 90, COUNTER_TOP + 60, ingredient.emoji, ITEM));
+        const picture = this.keep(food(this, 680 + i * 90, COUNTER_TOP + 60, ingredient, ITEM));
         picture.setInteractive({ useHandCursor: true }).on('pointerup', () => this.select(ingredient, picture));
         this.tag(`leftover:${ingredient.key}`, picture);
         return { ingredient, picture };
@@ -914,20 +968,40 @@ export default class KitchenScene extends BaseScene {
       this.cleanFocus = this.dishes[0].hit;
     } else {
       this.keep(drawCounter(this, 340, COUNTER_TOP, 920));
-      this.crumbs = [];
-      for (let i = 0; i < 14; i++) {
-        const crumb = this.keep(this.add.circle(420 + ((i * 137) % 760), COUNTER_TOP + 40 + ((i * 53) % 120), 9 + (i % 3) * 4, i % 2 ? 0xc98d5a : 0xf2b5b5));
-        this.crumbs.push(crumb);
-      }
+      // Spills on the counter (juice, batter, crumbs), each scrubbed away
+      // little by little with the sponge, which follows the finger.
+      this.crumbs = DIRT.map(([x, y, color], i) => {
+        const spot = this.keep(this.add.container(x, y));
+        const rand = (n) => ((i * 7919 + n * 104729) % 1000) / 1000;
+        spot.add(this.add.ellipse(0, 0, 96, 50, color, 0.55));
+        for (let n = 0; n < 4; n++) spot.add(this.add.ellipse((rand(n) - 0.5) * 70, (rand(n + 4) - 0.5) * 26, 30 + rand(n + 8) * 26, 18 + rand(n + 12) * 14, color, 0.8));
+        for (let n = 0; n < 5; n++) spot.add(this.add.circle((rand(n + 16) - 0.5) * 110, (rand(n + 20) - 0.5) * 50, 3 + rand(n + 24) * 4, 0x8a5a2b, 0.9));
+        spot.dirt = 1;
+        return spot;
+      });
       this.cleanLeft = this.crumbs.length;
       this.cleanFocus = this.crumbs[0];
-      this.keep(glyph(this, 380, COUNTER_TOP - 40, '🧽', 60));
+      this.sponge = this.keep(glyph(this, 390, COUNTER_TOP + 130, '🧽', 76).setDepth(20));
+      this.spongeScale = this.sponge.scale;
+      this.tweens.add({ targets: this.sponge, scale: this.spongeScale * 1.12, duration: 420, yoyo: true, repeat: -1 });
       this.counterZone = this.keep(this.add.zone(340, COUNTER_TOP, 920, 720 - COUNTER_TOP).setOrigin(0, 0));
       this.tag('counter', this.counterZone);
+      let last = null;
       this.surface = new DragSurface(this, 340, COUNTER_TOP, 920, 720 - COUNTER_TOP, {
-        onStart: (x, y) => this.wipe(340 + x, COUNTER_TOP + y),
-        onMove: (x, y) => this.wipe(340 + x, COUNTER_TOP + y),
-        onEnd: () => {},
+        onStart: (x, y) => {
+          last = { x: 340 + x, y: COUNTER_TOP + y };
+          this.tweens.killTweensOf(this.sponge);
+          this.sponge.setScale(this.spongeScale);
+          this.wipe(last.x, last.y, 0);
+        },
+        onMove: (x, y) => {
+          const at = { x: 340 + x, y: COUNTER_TOP + y };
+          this.wipe(at.x, at.y, last ? Math.hypot(at.x - last.x, at.y - last.y) : 0);
+          last = at;
+        },
+        onEnd: () => {
+          last = null;
+        },
       });
     }
     this.say([this.words.say.kitchen.cleanup({ job })]);
@@ -971,10 +1045,21 @@ export default class KitchenScene extends BaseScene {
     this.cleanStep();
   }
 
-  wipe(x, y) {
-    this.crumbs = this.crumbs.filter((crumb) => {
-      if (Math.hypot(crumb.x - x, crumb.y - y) > 60) return true;
-      this.tweens.add({ targets: crumb, alpha: 0, scale: 0, duration: 200 });
+  // The sponge moves to (x, y); spills under it fade by how far it rubbed.
+  wipe(x, y, rubbed) {
+    this.sponge.setPosition(x, y).setAngle(Math.sin((x + y) / 30) * 10);
+    this.crumbs = this.crumbs.filter((spot) => {
+      if (Math.hypot(spot.x - x, spot.y - y) > 75) return true;
+      spot.dirt -= rubbed / WIPE_PER_SPOT;
+      if (spot.dirt > 0) {
+        spot.setAlpha(0.25 + spot.dirt * 0.75);
+        return true;
+      }
+      this.tweens.add({ targets: spot, alpha: 0, scale: 0.6, duration: 200 });
+      const shine = this.keep(glyph(this, spot.x, spot.y - 10, '✨', 44));
+      popIn(this, shine);
+      this.tweens.add({ targets: shine, alpha: 0, delay: 500, duration: 300 });
+      play(this, 'star', { volume: 0.35, detune: 100 * (DIRT.length - this.crumbs.length) });
       this.cleanStep();
       return false;
     });
@@ -998,7 +1083,8 @@ export default class KitchenScene extends BaseScene {
 
   ready() {
     if (this.station === 'serve') return;
-    if (this.recipe.cook.appliance !== 'blender') this.say([this.words.say.kitchen.ding()]);
+    // The timer already rang (the ding sound): the narrator just says so.
+    if (this.recipe.cook.appliance !== 'blender') this.say([this.words.say.kitchen.ready()]);
     this.time.delayedCall(900, () => this.startServe());
   }
 
@@ -1131,4 +1217,9 @@ export default class KitchenScene extends BaseScene {
 
 function getIngredient(recipe, key) {
   return recipe.ingredients.find((ingredient) => ingredient.key === key);
+}
+
+function recipeOf(skillId) {
+  const skill = getSkill(skillId);
+  return (skill && getRecipe(skill.recipe)) || RECIPES[0];
 }

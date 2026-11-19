@@ -112,6 +112,7 @@ async function clean() {
   await sleep(400);
   const s = await state();
   const { job } = s.cleanup;
+  await t.shot(dir, `kc-clean-${job}`);
   if (job === 'putAway') {
     for (const { key, kept } of s.cleanup.items) {
       await tap(`leftover:${key}`);
@@ -120,7 +121,11 @@ async function clean() {
   } else if (job === 'dishes') {
     for (const { key } of s.cleanup.items) await tap(`dish:${key}`);
   } else {
-    for (const { x, y } of s.cleanup.items) await drag([[x - 30, y], [x + 30, y]], 3);
+    // One pass doesn't clean a spill: it fades as the sponge scrubs.
+    const [first] = s.cleanup.items;
+    await drag([[first.x - 40, first.y], [first.x + 40, first.y]], 3);
+    check('kitchen: a spill fades, not gone in one swipe', (await state()).cleanup.items.length === s.cleanup.items.length);
+    for (const { x, y } of s.cleanup.items) await drag([[x - 60, y], [x + 60, y], [x - 60, y], [x + 60, y], [x - 60, y], [x + 60, y]], 4);
   }
   await waitFor(() => window.__mathplay.state.cleanup.done, null, 6000);
   check(`kitchen: the clean-up job (${job}) is done`, true);
@@ -226,6 +231,8 @@ await gather();
 await measureAll({ picks: true });
 await prepAll();
 s = await state();
+check('kitchen: burgers are fried in the pan, not baked', s.cook.appliance === 'stove', s.cook.appliance);
+await t.shot(dir, 'k7a-pan');
 for (let i = 0; i < 20 && (await state()).cook.set < s.cook.minutes; i++) await tap('timer-plus');
 await tap('timer-start');
 await clean();
@@ -275,8 +282,10 @@ await openRecipe('kitchen-hotdogs');
 await station('wash');
 await rub('hands', async () => (await state()).station !== 'wash');
 await gather();
+await t.shot(dir, 'k10b-hotdog-ingredients');
 await measureAll({ picks: true });
 await prepAll();
+await t.shot(dir, 'k10a-pot');
 await timer();
 await clean();
 await decorate();

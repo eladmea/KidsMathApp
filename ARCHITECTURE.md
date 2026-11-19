@@ -59,6 +59,46 @@ Feedback animations live in `ui/Juice.js`, so every game feels the same: `celebr
 
 ---
 
+## Make a picture with Canva
+
+New pictures are made with the **Canva connector** (`generate-image`), so they match the game's Microsoft Fluent 3D emoji. PixelLab was tried and is not used: it only makes pixel art, which looks wrong next to the 3D emoji. Every agent making a picture follows these steps and uses the prompt below, so the pictures stay one family.
+
+**1. The prompt.** One subject, written as the game uses it (cornflour is a bag of white powder, not an ear of corn). Fill in `<subject>` twice, and change nothing else:
+
+```
+<Subject>. Microsoft Fluent 3D emoji style: a single <subject>, centred, soft glossy 3D cartoon render, smooth gradients, soft studio lighting, no outlines, no text, on a plain white background.
+```
+
+- Aspect ratio `SQUARE_1_1`.
+- Bottles, jars and packets: add "no label" after the subject. Generated letters come out as nonsense.
+- Look at the result before using it. Regenerate one that doesn't read as its subject at 56 px (a first raw chicken breast came out as a pink blob).
+- Each picture uses some of the Canva account's monthly AI limit. When it runs out, Canva answers `quota_exceeded`: stop and tell the user which pictures are left.
+
+**2. Full size.** `generate-image` only shows a 200 px preview, and its signed links can't be resized. Export the picture through the export frame instead. The frame is a 1080 × 1080 Canva design, "KidsMathApp picture export frame" (`DAHbTTUB81E`): one image element filling a white page.
+- Open it with `read-design` (`open_transaction: true`).
+- `edit-design`: `update_fill` the element `PB9z7wJVl0r1tykS-LB66zjjLWgfds5kr` with the new picture's media id, then `commit`.
+- `export-design` as PNG, 1024 × 1024, and download the URL with `curl`.
+- Don't use `create-design` for this: it uses the AI limit, and its layout crops the subject.
+- Canva's background remover (`remove-background`) needs a paid Canva plan. Step 3 does that job instead.
+- The environment's network must allow `www.canva.com`, `media.canva.com` and `export-download.canva.com`.
+
+**3. Into the game.** `node scripts/canva-cutout.mjs <exported.png> <image key>`. It makes the white page and the soft grey shadow transparent, trims the margins, and saves a 384 px WebP (about 15 KB) at `src/assets/images/<key>.webp`.
+- For a pale subject (garlic, an egg, flour), add `--pale`. Otherwise its light edge is eaten as background.
+- Every picture loads when the game starts, so keep the 384 px size.
+- Check the result on a dark and on a wooden background before committing. Scraps of shadow and a nibbled edge show up there.
+
+**Which key.** `emoji/<code points>` replaces that emoji everywhere in the game, and the emoji may mean something else in another game. A Kitchen Cove ingredient therefore uses `kitchen/food/<ingredient key>` instead (`food()` in `ui/KitchenArt.js`), with its emoji as the fallback. For example, 🌽 is the corn topping on a pizza but cornflour in the kitchen.
+
+**Made so far** (add a line for each new picture):
+
+| Key | Subject in the prompt | Canva media id |
+|---|---|---|
+| `emoji/1f32d` (🌭) | a hot dog | `MAHbTEAQ9eY` |
+| `kitchen/food/onion` | a whole brown onion | `MAHbVDu5iPk` |
+| `kitchen/food/garlic` (`--pale`) | an unpeeled garlic clove | `MAHbVBQp9SU` |
+
+---
+
 ## Add a language
 
 1. **UI text.** Copy `src/i18n/en/` to `src/i18n/<code>/`, for example `he`. Translate the JSON values but keep the keys.

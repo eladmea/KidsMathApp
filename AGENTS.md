@@ -12,6 +12,7 @@ Before writing Phaser code, read the guides that ship with the installed version
 - Plan and phases: `PHASER_PLAN.md`. The research and design rules are in `PLAN.md`. **How to change things (assets, languages, voice, scenes, skills): `ARCHITECTURE.md`. Follow it.**
 - No words in code: UI text through `t()` (`src/i18n/en/<feature>.json`); question words in content packs (`src/content/en/<pack>.js`).
 - No emoji drawn directly: use `art()` / `glyph()` from `src/ui/Art.js`.
+- New pictures are made with the Canva connector, always with the prompt and steps in `ARCHITECTURE.md` "Make a picture with Canva" (the same prompt, the export frame, then `scripts/canva-cutout.mjs`), and logged in its table. Don't use another image generator or your own prompt wording.
 - Never add things to a shared list: scenes, languages, packs, pictures, sounds and recordings are found by folder.
 - Game rules live in `src/curriculum/` and `src/logic/` and must stay free of Phaser, so `npm test` covers them.
 - Scenes extend `src/ui/BaseScene.js`: lay out in the 1280 x 720 safe area, and pin edges to `this.view` in `layout()`.
