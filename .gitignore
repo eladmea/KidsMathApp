@@ -17,3 +17,6 @@ npm-debug.*
 voice-lines.*.csv
 dist-e2e/
 e2e-shots/
+
+# raw ComfyUI pages (node scripts/comfy-picture.mjs)
+.comfy-pages/

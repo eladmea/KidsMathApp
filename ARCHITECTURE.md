@@ -59,43 +59,52 @@ Feedback animations live in `ui/Juice.js`, so every game feels the same: `celebr
 
 ---
 
-## Make a picture with Canva
+## Make a picture with ComfyUI
 
-New pictures are made with the **Canva connector** (`generate-image`), so they match the game's Microsoft Fluent 3D emoji. PixelLab was tried and is not used: it only makes pixel art, which looks wrong next to the 3D emoji. Every agent making a picture follows these steps and uses the prompt below, so the pictures stay one family.
+New pictures are made on this PC's **ComfyUI** (`http://127.0.0.1:8188`, workspace `D:\AI\ComfyUI`) with the **DreamShaperXL Turbo-Lightning** model (`DreamShaperXL_Turbo-Lightning.safetensors`). They are drawn as 3D cartoon objects, glossy and simple, so they sit next to the game's Microsoft Fluent 3D emoji. **BiRefNet** (the `comfyui-rmbg` node pack, model `BiRefNet_toonout`) lifts each one off its page. Every agent making a picture uses `scripts/comfy-picture.mjs`, which holds the prompt and the settings, so the pictures stay one family. Canva (used up to November 2026) and PixelLab (pixel art only) are not used any more.
 
-**1. The prompt.** One subject, written as the game uses it (cornflour is a bag of white powder, not an ear of corn). Fill in `<subject>` twice, and change nothing else:
+**1. Draw it.** ComfyUI must be running (start it with the comfy-mcp `launch_comfyui` tool, or `comfy launch --background`).
 
+```bash
+node scripts/comfy-picture.mjs <image key> "<subject>" [--seed N] [--page-only]
 ```
-<Subject>. Microsoft Fluent 3D emoji style: a single <subject>, centred, soft glossy 3D cartoon render, smooth gradients, soft studio lighting, no outlines, no text, on a plain white background.
-```
 
-- Aspect ratio `SQUARE_1_1`.
-- Bottles, jars and packets: add "no label" after the subject. Generated letters come out as nonsense.
-- Look at the result before using it. Regenerate one that doesn't read as its subject at 56 px (a first raw chicken breast came out as a pink blob).
-- Each picture uses some of the Canva account's monthly AI limit. When it runs out, Canva answers `quota_exceeded`: stop and tell the user which pictures are left.
+- `<subject>` is one thing, written as the game uses it (cornflour is a sack of white powder, not an ear of corn). The script puts it into the house prompt; don't change the prompt for one picture.
+- The script sends ComfyUI its own workflow (no template), so these two prompts are all the model is told. `(word:1.4)` gives a word more weight.
+  - Prompt: `(3D cartoon game icon:1.4) of a single <subject>, (inanimate food object:1.3), (stylized toy:1.2), simple rounded shapes, smooth glossy flat colours, minimal texture, bright saturated colours, flat even lighting, floating, centred, (pure white background:1.3)`
+  - Negative prompt: `(face, eyes, mouth, smile, character, mascot, animal, bird:1.6), (photo, realistic, photorealistic:1.5), detailed texture, (shadow, drop shadow, cast shadow, floor, ground, reflection:1.4), text, label, letters, logo, watermark`
+  - Settings: 1024 × 1024, 20 steps, CFG 7, `dpmpp_2m` / `karras`. To compare, the script takes `--steps`, `--cfg`, `--sampler`, `--scheduler`, `--model`, `--prompt`/`--negative` and `--tag` (added to the saved names); `--shape <png> --denoise N` repaints a simple drawing instead of starting from noise. Keep the house settings for game pictures.
+- The model draws real-looking objects unless told "cartoon", and "cartoon" makes it give some foods a face (an onion, most often). Draw four seeds and keep one without a face. Writing "no face" or "no eyes" in the prompt draws one.
+- Leave "chicken" out of a food's subject: it draws the bird. "Slice of raw pink poultry meat fillet (lying flat:1.2)" works.
+- An egg comes out cracked, halved or with a face; "(whole closed egg:1.4), plain light brown oval, standing upright" gives an egg in an egg cup, which reads well.
+- A bag or sack of white powder fills with sweets (the prompt's bright colours); "(heap of white flour:1.4) in a small wooden scoop" gives flour in a wooden bowl.
+- "Flat even lighting" and "floating" keep the shadow faint; BiRefNet removes what's left.
+- Bottles, jars and packets: describe a plain container ("plain red plastic squeeze bottle, blank smooth bottle") and leave the product's name out. With "no label" or the product's name, the model prints a label with nonsense letters.
+- About 20 seconds a picture on the RTX 4060, and free, so draw a few seeds (`--seed 1` to `4` with `--page-only`) and keep the one that reads best at 56 px.
+- Each try is saved in `.comfy-pages/` (not committed): `<key>.seed<N>.png` (the page) and `<key>.seed<N>.cut.png` (BiRefNet's transparent cutout).
 
-**2. Full size.** `generate-image` only shows a 200 px preview, and its signed links can't be resized. Export the picture through the export frame instead. The frame is a 1080 × 1080 Canva design, "KidsMathApp picture export frame" (`DAHbTTUB81E`): one image element filling a white page.
-- Open it with `read-design` (`open_transaction: true`).
-- `edit-design`: `update_fill` the element `PB9z7wJVl0r1tykS-LB66zjjLWgfds5kr` with the new picture's media id, then `commit`.
-- `export-design` as PNG, 1024 × 1024, and download the URL with `curl`.
-- Don't use `create-design` for this: it uses the AI limit, and its layout crops the subject.
-- Canva's background remover (`remove-background`) needs a paid Canva plan. Step 3 does that job instead.
-- The environment's network must allow `www.canva.com`, `media.canva.com` and `export-download.canva.com`.
-
-**3. Into the game.** `node scripts/canva-cutout.mjs <exported.png> <image key>`. It makes the white page and the soft grey shadow transparent, trims the margins, and saves a 384 px WebP (about 15 KB) at `src/assets/images/<key>.webp`.
-- For a pale subject (garlic, an egg, flour), add `--pale`. Otherwise its light edge is eaten as background.
+**2. Into the game.** Without `--page-only`, the script finishes with `node scripts/picture-cutout.mjs <cutout> <image key>`. Run that yourself on the try you picked. It trims the margins and saves a 384 px WebP (about 25 KB) at `src/assets/images/<key>.webp`.
 - Every picture loads when the game starts, so keep the 384 px size.
+- One file per key: when a WebP replaces an SVG or PNG of the same key, delete the old file.
 - Check the result on a dark and on a wooden background before committing. Scraps of shadow and a nibbled edge show up there.
+- `picture-cutout.mjs` can still cut a picture off a plain white page itself (`--pale` for a light subject), for a page made without BiRefNet.
 
 **Which key.** `emoji/<code points>` replaces that emoji everywhere in the game, and the emoji may mean something else in another game. A Kitchen Cove ingredient therefore uses `kitchen/food/<ingredient key>` instead (`food()` in `ui/KitchenArt.js`), with its emoji as the fallback. For example, 🌽 is the corn topping on a pizza but cornflour in the kitchen.
 
 **Made so far** (add a line for each new picture):
 
-| Key | Subject in the prompt | Canva media id |
+| Key | Subject in the prompt | Seed |
 |---|---|---|
-| `emoji/1f32d` (🌭) | a hot dog | `MAHbTEAQ9eY` |
-| `kitchen/food/onion` | a whole brown onion | `MAHbVDu5iPk` |
-| `kitchen/food/garlic` (`--pale`) | an unpeeled garlic clove | `MAHbVBQp9SU` |
+| `emoji/1f32d` (🌭) | hot dog: a pink sausage in a long soft bread bun with a wavy line of ketchup | 1 |
+| `kitchen/sausage` | plain cooked pink sausage | 3 |
+| `kitchen/food/onion` | whole brown onion | 2 |
+| `kitchen/food/garlic` | whole white garlic bulb | 3 |
+| `kitchen/food/chicken` | slice of raw pink poultry meat fillet (lying flat:1.2) | 3 |
+| `kitchen/food/ketchup` | red squeeze bottle of tomato sauce, plain blank red plastic body, white cap | 2 |
+| `kitchen/food/egg` | (whole closed egg:1.4), plain light brown oval, standing upright | 2 |
+| `kitchen/food/cornflour` | (heap of white flour:1.4) in a small wooden scoop, matte white powder | 4 |
+| `kitchen/food/soySauce` | small glass bottle of dark brown sauce with a red cap, plain blank glass | 3 |
+| `kitchen/food/oil` | tall glass bottle of golden yellow cooking oil, plain blank glass | 4 |
 
 ---
 
