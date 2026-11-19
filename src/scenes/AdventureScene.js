@@ -34,7 +34,7 @@ export default class AdventureScene extends BaseScene {
   }
 
   build() {
-    this.bg = this.add.rectangle(0, 0, 10, 10, 0xeaf4ff).setOrigin(0, 0);
+    this.bg = this.addBackdrop(0xeaf4ff, { wash: 0.55 });
     this.addBackButton();
     this.narrator = new Narrator(this, 660, 70, { width: 800, fontSize: 30 });
     this.report({ step: 'loading' });
@@ -43,11 +43,6 @@ export default class AdventureScene extends BaseScene {
       if (!isFinished(adventure) && this.timeUpGate()) return;
       this.show(adventure);
     });
-  }
-
-  layout() {
-    const v = this.view;
-    this.bg.setPosition(v.x, v.y).setSize(v.width, v.height);
   }
 
   show(adventure) {

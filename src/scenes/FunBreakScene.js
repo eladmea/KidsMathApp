@@ -16,7 +16,7 @@ export default class FunBreakScene extends BaseScene {
 
   build() {
     if (this.timeUpGate()) return;
-    this.bg = this.add.rectangle(0, 0, 10, 10, 0xfff0f6).setOrigin(0, 0);
+    this.bg = this.addBackdrop(0xfff0f6, { wash: 0.5 });
     this.addBackButton();
     this.narrator = new Narrator(this, 660, 70, { width: 800, fontSize: 30 });
     this.add.text(30, 150, t('hubs.funBreak'), textStyle(28, COLORS.gray)).setOrigin(0, 0.5);
@@ -37,11 +37,6 @@ export default class FunBreakScene extends BaseScene {
       this.tag(`mini:${game.id}`, card.box);
     });
     this.report({ step: 'fun-break', tickets, toGo: this.toGo });
-  }
-
-  layout() {
-    const v = this.view;
-    this.bg.setPosition(v.x, v.y).setSize(v.width, v.height);
   }
 
   async start(game) {

@@ -24,7 +24,7 @@ export default class GameSetupScene extends BaseScene {
     this.optionButtons = [];
     this.modeButtons = [];
 
-    this.bg = this.add.rectangle(0, 0, 10, 10, COLORS.cream).setOrigin(0, 0);
+    this.bg = this.addBackdrop(COLORS.cream);
     this.addBackButton();
     glyph(this, 470, 70, this.game.emoji, 64);
     this.add.text(520, 70, gameTitle(this.game), textStyle(44)).setOrigin(0, 0.5);
@@ -57,11 +57,6 @@ export default class GameSetupScene extends BaseScene {
     const start = new Button(this, 1080, Math.min(modeY + 70, 650), { label: t('hubs.start'), width: 240, height: 90, color: COLORS.green, onTap: () => this.start() });
     this.tag('start', start.box);
     this.refresh();
-  }
-
-  layout() {
-    const v = this.view;
-    this.bg.setPosition(v.x, v.y).setSize(v.width, v.height);
   }
 
   refresh() {

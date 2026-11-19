@@ -29,7 +29,7 @@ export default class BubblePopScene extends BaseScene {
     this.nextId = 0;
     this.over = false;
 
-    this.bg = this.add.rectangle(0, 0, 10, 10, 0xe6f4ff).setOrigin(0, 0);
+    this.bg = this.addBackdrop(0xe6f4ff);
     this.addBackButton();
     this.narrator = new Narrator(this, 660, 70, { width: 800, fontSize: 30 });
     this.addHeader('🫧', miniGameTitle('bubble-pop'));
@@ -38,11 +38,6 @@ export default class BubblePopScene extends BaseScene {
     this.clock = this.time.addEvent({ delay: 1000, loop: true, callback: () => this.tick() });
     this.spawner = this.time.addEvent({ delay: SPAWN_MS, loop: true, callback: () => this.spawn() });
     this.report({ step: 'play', popped: 0, left: this.left, bubbles: [] });
-  }
-
-  layout() {
-    const v = this.view;
-    this.bg.setPosition(v.x, v.y).setSize(v.width, v.height);
   }
 
   showCounter() {

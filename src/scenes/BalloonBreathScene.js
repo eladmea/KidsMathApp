@@ -24,7 +24,7 @@ export default class BalloonBreathScene extends BaseScene {
     this.started = 0;
     this.releaseScale = MIN_SCALE;
 
-    this.bg = this.add.rectangle(0, 0, 10, 10, 0xe8f6ff).setOrigin(0, 0);
+    this.bg = this.addBackdrop(0xe8f6ff);
     this.addBackButton();
     this.narrator = new Narrator(this, 660, 70, { width: 800, fontSize: 30 });
     this.addHeader('🎈', miniGameTitle('balloon-breath'));
@@ -42,11 +42,6 @@ export default class BalloonBreathScene extends BaseScene {
     this.events.once('shutdown', () => this.input.off('pointerup', release));
     this.narrator.say(t('mini.breath.intro'), { show: t('mini.breath.ready') });
     this.showState();
-  }
-
-  layout() {
-    const v = this.view;
-    this.bg.setPosition(v.x, v.y).setSize(v.width, v.height);
   }
 
   update() {

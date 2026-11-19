@@ -159,7 +159,7 @@ export default class KitchenScene extends BaseScene {
     this.holding = null;
     this.friendEmoji = CUSTOMERS[Math.floor(Math.random() * CUSTOMERS.length)].emoji;
 
-    this.bg = this.add.rectangle(0, 0, 10, 10, 0xfdf0e2).setOrigin(0, 0);
+    this.bg = this.addBackdrop(0xfdf0e2);
     this.tiles = this.add.graphics();
     this.addBackButton();
     this.narrator = new Narrator(this, 690, 70, { width: 820, fontSize: 26 });
@@ -174,7 +174,6 @@ export default class KitchenScene extends BaseScene {
 
   layout() {
     const v = this.view;
-    this.bg.setPosition(v.x, v.y).setSize(v.width, v.height);
     // Wall tiles behind everything.
     this.tiles.clear().fillStyle(0xf6e3cf, 1);
     for (let y = Math.floor(v.y / 60) * 60; y < v.bottom; y += 60) for (let x = Math.floor(v.x / 60) * 60 + ((y / 60) % 2) * 30; x < v.right; x += 60) this.tiles.fillRect(x + 2, y + 2, 26, 26);

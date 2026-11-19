@@ -31,6 +31,12 @@ check('no players yet: the welcome screen opens', (await t.spoken()).some((line)
 check('the first player has no back button', !(await t.box('back')));
 check("can't save without a name", (await state()).canSave === false);
 check('the welcome screen offers every language, English first', Boolean(await t.box('language:en')) && Boolean(await t.box('language:he')));
+{
+  // The last row of buddies stays above the Language row (they used to overlap).
+  const [buddy, language, save] = [await t.box('avatar:🐧'), await t.box('language:en'), await t.box('save')];
+  check('the buddies, Language and Save rows never overlap', buddy.y + buddy.height <= language.y && language.y + language.height <= save.y, JSON.stringify({ buddy, language, save }));
+}
+check('the welcome screen shows the beach backdrop', (await state()).backdrop === 'Profiles');
 await tap('save');
 check('tapping save with no name does nothing', (await t.scene()) === 'CreateProfile');
 
@@ -78,6 +84,7 @@ await page.reload();
 await t.waitScene('Profiles');
 await t.shot(dir, 'p3-profiles');
 check("a returning visit starts at Who's playing?", (await state()).players.join() === 'Mia');
+check("Who's playing? shows the beach backdrop", (await state()).backdrop === 'Profiles');
 await tap('player:Mia');
 await t.waitScene('WorldMap');
 check('narration stays off after a reload', (await state()).narration === false);

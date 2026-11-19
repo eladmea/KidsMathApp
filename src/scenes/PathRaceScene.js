@@ -40,7 +40,7 @@ export default class PathRaceScene extends BaseScene {
     this.tokens = [];
     this.buddyTimer = null;
 
-    this.bg = this.add.rectangle(0, 0, 10, 10, 0xfff8e1).setOrigin(0, 0);
+    this.bg = this.addBackdrop(0xfff8e1);
     this.addBackButton();
     this.narrator = new Narrator(this, 660, 70, { width: 800, fontSize: 30 });
     this.add.text(30, 150, t('pathRace.title', { max: this.board.length }), textStyle(24, COLORS.gray)).setOrigin(0, 0.5);
@@ -53,11 +53,6 @@ export default class PathRaceScene extends BaseScene {
     this.spinButton = new Button(this, 760, 645, { label: t('pathRace.spin'), width: 260, height: 90, color: COLORS.primary, onTap: () => this.doSpin() });
     this.tag('spin', this.spinButton.box);
     this.startTurn();
-  }
-
-  layout() {
-    const v = this.view;
-    this.bg.setPosition(v.x, v.y).setSize(v.width, v.height);
   }
 
   get buddyTurn() {

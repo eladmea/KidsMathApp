@@ -66,10 +66,15 @@ New pictures are made on this PC's **ComfyUI** (`http://127.0.0.1:8188`, workspa
 **1. Draw it.** ComfyUI must be running (start it with the comfy-mcp `launch_comfyui` tool, or `comfy launch --background`).
 
 ```bash
-node scripts/comfy-picture.mjs <image key> "<subject>" [--seed N] [--page-only]
+node scripts/comfy-picture.mjs <image key> "<subject>" [--kind food|object|place|backdrop] [--seed N] [--page-only]
 ```
 
 - `<subject>` is one thing, written as the game uses it (cornflour is a sack of white powder, not an ear of corn). The script puts it into the house prompt; don't change the prompt for one picture.
+- `--kind` picks the house prompt and the size. Each kind's prompt is in the script, next to the food one shown below:
+  - `food` (the default): one food, cut out, 384 px.
+  - `object`: anything else held or placed (a sign, a chest, a prop), cut out, 384 px. Use `picture-cutout.mjs --size 640` afterwards for a wide one shown big, like the `ui/sign` board.
+  - `place`: a whole small island, round and floating (the map shows it with its name ribbon), seen from above at three-quarters, cut out, 512 px. "Diorama" in the prompt put the islands on square display bases, so the prompt says "round tropical island" and the negative prompt has "base, platform, board".
+  - `backdrop`: a whole screen behind a scene, 1344 × 768, not cut out. It is saved as a 1280 × 720 WebP (about 50 KB) in `src/assets/backdrops/<scene key>.webp` (see "Backdrops" below). The prompt asks for open space in the middle, where the scene's buttons go.
 - The script sends ComfyUI its own workflow (no template), so these two prompts are all the model is told. `(word:1.4)` gives a word more weight.
   - Prompt: `(3D cartoon game icon:1.4) of a single <subject>, (inanimate food object:1.3), (stylized toy:1.2), simple rounded shapes, smooth glossy flat colours, minimal texture, bright saturated colours, flat even lighting, floating, centred, (pure white background:1.3)`
   - Negative prompt: `(face, eyes, mouth, smile, character, mascot, animal, bird:1.6), (photo, realistic, photorealistic:1.5), detailed texture, (shadow, drop shadow, cast shadow, floor, ground, reflection:1.4), text, label, letters, logo, watermark`
@@ -89,6 +94,8 @@ node scripts/comfy-picture.mjs <image key> "<subject>" [--seed N] [--page-only]
 - Check the result on a dark and on a wooden background before committing. Scraps of shadow and a nibbled edge show up there.
 - `picture-cutout.mjs` can still cut a picture off a plain white page itself (`--pale` for a light subject), for a page made without BiRefNet.
 
+**Backdrops.** A painted backdrop is too big to load with everything else at the start, so `src/assets/backdrops/<name>.webp` loads when its scene is opened, together with the scene's recordings (`voiceReady` in `ui/BaseScene.js`). `name` is the scene's key (`Profiles`); a scene can pick another with `static backdropName(data)`. For example, `CreateProfile` uses the `Profiles` beach, and an island will use one per subject. In `build()`, call `this.addBackdrop(color)` first. It fills the whole screen (cropping the edges on wider or squarer screens; `logic/backdrop.js`) and is resized with the screen, and without a file the scene shows `color`. Keep the middle of a backdrop calm: the scene's own buttons go there. The model still draws busy pictures. A scene with light, see-through cards or pale text passes `{ wash: 0.5 }`, which lays its old colour over the picture at that strength (Games, Sticker Book, Fun Break, Today's Adventure, Results). The islands put their stop names on white labels when painted. Every scene calls `addBackdrop`, so a scene gets its picture just by adding the file. The Parent Dashboard stays plain on purpose.
+
 **Which key.** `emoji/<code points>` replaces that emoji everywhere in the game, and the emoji may mean something else in another game. A Kitchen Cove ingredient therefore uses `kitchen/food/<ingredient key>` instead (`food()` in `ui/KitchenArt.js`), with its emoji as the fallback. For example, 🌽 is the corn topping on a pizza but cornflour in the kitchen.
 
 **Made so far** (add a line for each new picture):
@@ -105,6 +112,29 @@ node scripts/comfy-picture.mjs <image key> "<subject>" [--seed N] [--page-only]
 | `kitchen/food/cornflour` | (heap of white flour:1.4) in a small wooden scoop, matte white powder | 4 |
 | `kitchen/food/soySauce` | small glass bottle of dark brown sauce with a red cap, plain blank glass | 3 |
 | `kitchen/food/oil` | tall glass bottle of golden yellow cooking oil, plain blank glass | 4 |
+| `ui/sign` (kind `object`; the cutout cropped to the board, rows 240–462, then `--size 640`) | (big wide wooden signboard:1.3), one large blank rectangular plank on two short wooden posts, plain smooth light wood face | 2 |
+| backdrop `Profiles` (kind `backdrop`) | a sunny sandy beach at the edge of a calm turquoise sea, small green islands far away on the horizon, blue sky with a few soft white clouds | 2 |
+| `islands/math` (kind `place`, 512 px) | an island with colourful stacked toy building blocks and a little hill | 1 |
+| `islands/literacy` (kind `place`) | an island with a small forest of round green trees and big colourful toy alphabet blocks | 3 |
+| `islands/science` (kind `place`) | an island with a calm blue lagoon, palm trees, green plants and flowers | 2 |
+| `islands/logic` (kind `place`) | an island with (giant colourful jigsaw puzzle pieces:1.5) standing on a rounded green hill | 2 |
+| `islands/sel` (kind `place`; stray flowers at the page corners masked off with an ellipse before the cutout) | an island garden full of pink and yellow flowers with a small heart-shaped pond | 2 |
+| `islands/kitchen` (kind `place`) | an island with a little wooden beach hut kitchen with a red striped awning and a cooking pot | 2 |
+| `ui/boat` (kind `object`) | small red and white wooden rowing boat, empty, seen from the side | 4 |
+| `ui/chest-closed` (kind `object`) | wooden treasure chest with gold trim, lid closed | 1 |
+| `ui/chest-open` (kind `object`) | open wooden treasure chest full of shiny gold coins and colourful gems | 1 |
+| backdrop `WorldMap` | a wide calm turquoise sea seen from high above, soft gentle ripples, lighter shallow water near the bottom, a strip of light blue sky with soft white clouds at the very top | 3 |
+| backdrop `Island-math` | close-up of a tropical island with colourful stacked toy building blocks along its edges, seen from above, a wide open flat sandy clearing across the middle, the turquoise sea around the edges | 2 |
+| backdrop `Island-literacy` | close-up of a tropical island with round green trees and colourful toy blocks along its edges, seen from above, a wide open flat sandy clearing across the middle, the turquoise sea around the edges | 4 |
+| backdrop `Island-science` | close-up of a tropical island with palm trees, green plants, flowers and a small blue lagoon along its edges, seen from above, a wide open flat sandy clearing across the middle, the turquoise sea around the edges | 2 |
+| backdrop `Island-logic` | close-up of a tropical island with giant colourful jigsaw puzzle pieces and rounded hills along its edges, seen from above, a wide open flat sandy clearing across the middle, the turquoise sea around the edges | 3 |
+| backdrop `Island-sel` | close-up of a tropical island garden with pink and yellow flowers along its edges, seen from above, a wide open flat sandy clearing across the middle, the turquoise sea around the edges | 3 |
+| backdrop `Island-kitchen` | close-up of a tropical island with a little wooden beach hut kitchen and fruit trees along its edges, seen from above, a wide open flat sandy clearing across the middle, the turquoise sea around the edges | 2 |
+| backdrop `Games` (wash 0.35) | a sunny beach playground with colourful toy blocks, balls and a little slide along the edges, smooth pale sand in the middle, soft blue sky | 3 |
+| backdrop `StickerBook` (wash 0.55) | a cosy wooden treehouse room with warm golden light, wooden shelves with little toys along the edges, a plain soft yellow wall in the middle | 2 |
+| backdrop `FunBreak` (wash 0.5) | a bright party lawn with balloons and colourful bunting along the edges, soft pink and blue sky | 2 |
+| backdrop `Adventure` (wash 0.55) | a sunny calm sea with a sailing ship and a small island far away on the horizon, soft blue sky with a few clouds | 4 |
+| backdrop `Results` (wash 0.55) | a sunny beach celebration with balloons and confetti along the edges, soft blue sky | 2 |
 
 ---
 

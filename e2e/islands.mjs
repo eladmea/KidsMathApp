@@ -19,6 +19,7 @@ await tap('player:Mia');
 await t.waitScene('WorldMap');
 await sleep(500);
 check('the avatar starts on Number Island', (await state()).home === 'math');
+check('the map shows the painted sea', (await state()).backdrop === 'WorldMap');
 await t.shot(dir, 'i1-map');
 
 await tap('island:math');
@@ -28,6 +29,7 @@ let s = await state();
 const stop = Object.fromEntries(s.skills.map((x) => [x.id, x.stop]));
 check('stops show passed, mastered, ready and locked', stop['math-count-5'] === 'passed' && stop['math-shapes'] === 'mastered' && stop['math-count-10'] === 'ready' && stop['math-write-6-9'] === 'locked', JSON.stringify(stop));
 check('passed stops still open their game', s.skills.find((x) => x.id === 'math-count-5').status === 'ready');
+check('Number Island shows its own painted close-up', s.backdrop === 'Island-math');
 await tap('chest');
 check('the chest stays shut until every stop is passed', (await state()).message.startsWith('Finish every stop'));
 await t.shot(dir, 'i2-island');

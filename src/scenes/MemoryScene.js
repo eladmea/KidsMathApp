@@ -89,7 +89,7 @@ export default class MemoryScene extends BaseScene {
     this.dialog = null;
     this.cards = [];
 
-    this.bg = this.add.rectangle(0, 0, 10, 10, 0xf4f1ff).setOrigin(0, 0);
+    this.bg = this.addBackdrop(0xf4f1ff);
     this.addBackButton();
     this.narrator = new Narrator(this, 660, 70, { width: 800, fontSize: 30 });
     const option = t(`curriculum.games.memory-chips.options.${this.variant.id}.label`);
@@ -97,11 +97,6 @@ export default class MemoryScene extends BaseScene {
     this.playerCards = [1, 2].map((n) => this.makePlayerCard(n));
     this.layoutGrid();
     this.refresh();
-  }
-
-  layout() {
-    const v = this.view;
-    this.bg.setPosition(v.x, v.y).setSize(v.width, v.height);
   }
 
   get buddyTurn() {

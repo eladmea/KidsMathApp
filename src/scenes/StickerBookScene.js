@@ -19,7 +19,7 @@ export default class StickerBookScene extends BaseScene {
     const stickers = session.profile.stickers || [];
     const pages = stickerPages(stickers);
     this.page = Math.min(page ?? pages.length - 1, pages.length - 1);
-    this.bg = this.add.rectangle(0, 0, 10, 10, 0xfff1c7).setOrigin(0, 0);
+    this.bg = this.addBackdrop(0xfff1c7, { wash: 0.55 });
     this.addBackButton();
     this.add.text(SAFE.width / 2, 60, t('stickers.title'), textStyle(48, COLORS.orange)).setOrigin(0.5);
     this.add.text(SAFE.width / 2, 118, t('stickers.count', { count: stickers.length }), textStyle(26, COLORS.gray)).setOrigin(0.5);
@@ -42,8 +42,4 @@ export default class StickerBookScene extends BaseScene {
     this.report({ count: stickers.length, page: this.page, pages: pages.length, perPage: PAGE_SIZE });
   }
 
-  layout() {
-    const v = this.view;
-    this.bg.setPosition(v.x, v.y).setSize(v.width, v.height);
-  }
 }

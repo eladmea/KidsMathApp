@@ -14,7 +14,7 @@ export default class GamesScene extends BaseScene {
 
   build() {
     if (this.timeUpGate()) return;
-    this.bg = this.add.rectangle(0, 0, 10, 10, COLORS.cream).setOrigin(0, 0);
+    this.bg = this.addBackdrop(COLORS.cream, { wash: 0.35 });
     this.addBackButton();
     this.add.text(640, 70, t('hubs.games'), textStyle(48)).setOrigin(0.5);
     // The cards share the screen's width (3 at 390 apart, 4 at 300).
@@ -30,11 +30,6 @@ export default class GamesScene extends BaseScene {
     });
     speak(t('hubs.sayGames'));
     this.report({ step: 'games', games: LEARNING_GAMES.map((g) => g.id) });
-  }
-
-  layout() {
-    const v = this.view;
-    this.bg.setPosition(v.x, v.y).setSize(v.width, v.height);
   }
 
   open(game) {

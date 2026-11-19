@@ -3,6 +3,8 @@ import { reportScene, reportState, tag } from '../services/testBridge';
 import { stop as stopSpeech } from '../services/speech';
 import { preloadScene } from '../services/voicePreload';
 import { glyph } from './Art';
+import { backdropKey, loadBackdrop } from '../services/assets';
+import { coverFit } from '../logic/backdrop';
 import * as router from '../services/router';
 import { enterScene } from '../services/playClock';
 import { isTimeUp } from '../services/session';
@@ -31,15 +33,21 @@ const TEST_SPEED = typeof location !== 'undefined' && new URLSearchParams(locati
 const LOADING_AFTER_MS = 250;
 const MAX_VOICE_WAIT_MS = 6000;
 
-// Waits for a scene's recordings, at most `ms`.
+// The name of a scene's backdrop (src/assets/backdrops/<name>.webp): the
+// scene's key, unless the scene picks one for its data with
+// `static backdropName(data)` (an island per subject, say).
+const backdropOf = (Scene, key, data) => (Scene && Scene.backdropName ? Scene.backdropName(data) : key);
+
+// Waits for a scene's recordings and its backdrop, at most `ms`.
 export function voiceReady(key, data = {}, scenes = null, ms = MAX_VOICE_WAIT_MS) {
   const target = scenes && scenes.getScene(key);
   const Scene = target && target.constructor;
   // prepare() first: it can settle what the scene will use (a round's numbers).
   const lines = Scene && Scene.prepare ? Scene.prepare(data) : [];
   const groups = Scene && Scene.voiceGroups ? Scene.voiceGroups(data) : [];
+  const backdrop = scenes ? loadBackdrop(scenes.game.textures, backdropOf(Scene, key, data)) : Promise.resolve();
   const capped = new Promise((resolve) => setTimeout(resolve, ms));
-  return Promise.race([preloadScene(key, { groups, lines }).catch(() => 0), capped]);
+  return Promise.race([Promise.all([preloadScene(key, { groups, lines }).catch(() => 0), backdrop]), capped]);
 }
 
 // Each scene names itself with `static key = 'Quiz'` (the registry in
@@ -55,6 +63,8 @@ export default class BaseScene extends Phaser.Scene {
     this.waitingForVoice = false;
     this.startData = data || {};
     this.backButton = null;
+    this.backdrop = null;
+    this.backdropWash = null;
     // A twinkle wherever a finger touches. A scene where that would get in
     // the way (drawing, for one) sets this to false in build().
     this.tapSparkles = true;
@@ -116,8 +126,35 @@ export default class BaseScene extends Phaser.Scene {
     camera.centerOn(SAFE.width / 2, SAFE.height / 2);
     this.view.setTo((SAFE.width - width) / 2, (SAFE.height - height) / 2, width, height);
     if (!this.built || this.leaving) return;
+    this.fitBackdrop();
     if (this.backButton) this.backButton.setPosition(this.view.x + 70, this.view.y + 70);
     this.layout();
+  }
+
+  // The scene's painted backdrop filling the screen behind everything, or
+  // `color` when it has none (or it hasn't loaded). Call it first in build().
+  // `wash` (0 to 1) lays `color` over the picture at that strength, for a
+  // scene whose light cards and text need a calmer background.
+  addBackdrop(color, { wash = 0 } = {}) {
+    const name = backdropOf(this.constructor, this.scene.key, this.startData);
+    const key = backdropKey(name);
+    const painted = this.textures.exists(key);
+    this.backdrop = painted ? this.add.image(0, 0, key) : this.add.rectangle(0, 0, 10, 10, color);
+    this.backdropWash = painted && wash ? this.add.rectangle(0, 0, 10, 10, color, wash) : null;
+    this.report({ backdrop: painted ? name : null });
+    return this.backdrop;
+  }
+
+  fitBackdrop() {
+    if (!this.backdrop) return;
+    const v = this.view;
+    if (this.backdrop.type === 'Image') {
+      const { x, y, scale } = coverFit(this.backdrop, v);
+      this.backdrop.setPosition(x, y).setScale(scale);
+    } else {
+      this.backdrop.setPosition(v.centerX, v.centerY).setSize(v.width, v.height);
+    }
+    if (this.backdropWash) this.backdropWash.setPosition(v.centerX, v.centerY).setSize(v.width, v.height);
   }
 
   // Scenes create their objects here (called once)...

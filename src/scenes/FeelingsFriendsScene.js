@@ -31,7 +31,7 @@ export default class FeelingsFriendsScene extends BaseScene {
     this.friendArt = null;
     this.mood = null;
 
-    this.bg = this.add.rectangle(0, 0, 10, 10, 0xfff4e6).setOrigin(0, 0);
+    this.bg = this.addBackdrop(0xfff4e6);
     this.addBackButton();
     this.narrator = new Narrator(this, 660, 70, { width: 800, fontSize: 30 });
     this.addGameHeader(this.skill);
@@ -43,11 +43,6 @@ export default class FeelingsFriendsScene extends BaseScene {
     this.question = this.add.text(760, 375, '', textStyle(34, COLORS.primary)).setOrigin(0.5);
     this.message = this.add.text(FRIEND_AT.x, 560, '', textStyle(24, COLORS.ink, { wordWrap: { width: 320 } })).setOrigin(0.5, 0);
     this.startFriend();
-  }
-
-  layout() {
-    const v = this.view;
-    this.bg.setPosition(v.x, v.y).setSize(v.width, v.height);
   }
 
   get turn() {

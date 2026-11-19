@@ -44,7 +44,7 @@ export default class BlockFitScene extends BaseScene {
     this.boardParts = [];
     this.busy = true;
 
-    this.bg = this.add.rectangle(0, 0, 10, 10, 0xfdf3e3).setOrigin(0, 0);
+    this.bg = this.addBackdrop(0xfdf3e3);
     this.addBackButton();
     this.narrator = new Narrator(this, 660, 70, { width: 800, fontSize: 30 });
     this.addGameHeader(this.skill);
@@ -58,11 +58,6 @@ export default class BlockFitScene extends BaseScene {
     const intro = this.level.turn ? 'blockFit.introTurn' : this.level.source === 'digits' ? 'blockFit.introDigit' : 'blockFit.introLetter';
     this.narrator.say(t(intro), { show: this.instructions(), force: true });
     this.newShape();
-  }
-
-  layout() {
-    const v = this.view;
-    this.bg.setPosition(v.x, v.y).setSize(v.width, v.height);
   }
 
   instructions() {
