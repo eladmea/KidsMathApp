@@ -30,7 +30,7 @@ export default class FreezeZooScene extends BaseScene {
     this.animal = null;
     this.rules = null;
 
-    this.bg = this.addBackdrop(0xeaf7e4);
+    this.bg = this.addBackdrop(0xeaf7e4, { wash: 0.45 });
     this.addBackButton();
     this.narrator = new Narrator(this, 660, 70, { width: 800, fontSize: 30 });
     this.addGameHeader(this.skill);

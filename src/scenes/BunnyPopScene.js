@@ -28,7 +28,7 @@ export default class BunnyPopScene extends BaseScene {
     this.tapped = false;
     this.animal = null;
 
-    this.bg = this.addBackdrop(0xe4f5d8);
+    this.bg = this.addBackdrop(0xe4f5d8, { wash: 0.3 });
     this.addBackButton();
     this.narrator = new Narrator(this, 660, 70, { width: 800, fontSize: 30 });
     this.addGameHeader(this.skill);

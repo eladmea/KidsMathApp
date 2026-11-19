@@ -69,7 +69,7 @@ export default class BirthdayCakeScene extends BaseScene {
     this.layer = null;
     this.friendArt = null;
 
-    this.bg = this.addBackdrop(0xfff0f6);
+    this.bg = this.addBackdrop(0xfff0f6, { wash: 0.62 });
     this.addBackButton();
     this.narrator = new Narrator(this, 660, 70, { width: 800, fontSize: 30 });
     this.addGameHeader(this.skill);

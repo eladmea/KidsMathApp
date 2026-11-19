@@ -31,9 +31,9 @@ export default {
     { action: 'stir', on: 'bowl' },
   ],
   // The first side: 4-5 minutes (then turned for 3-4 more).
-  cook: { appliance: 'stove', minutes: 5 },
+  cook: { appliance: 'stove', minutes: 5, picture: 'kitchen/cooking/omelette' },
   // Served with a fresh salad, as the page suggests.
-  serve: { kind: 'decorate', dish: '🍳', plates: 4, item: '🥗', count: 4 },
+  serve: { kind: 'decorate', dish: '🍳', plates: 4, item: '🥗', count: 4, dishPicture: 'kitchen/serve/omelette', itemPicture: 'kitchen/serve/salad' },
   cardOnly: [
     { key: 'dill', qty: 0.25, unit: 'cup', optional: true },
     { key: 'salt', toTaste: true },

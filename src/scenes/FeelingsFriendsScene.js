@@ -31,7 +31,7 @@ export default class FeelingsFriendsScene extends BaseScene {
     this.friendArt = null;
     this.mood = null;
 
-    this.bg = this.addBackdrop(0xfff4e6);
+    this.bg = this.addBackdrop(0xfff4e6, { wash: 0.45 });
     this.addBackButton();
     this.narrator = new Narrator(this, 660, 70, { width: 800, fontSize: 30 });
     this.addGameHeader(this.skill);

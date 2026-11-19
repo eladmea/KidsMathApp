@@ -40,7 +40,7 @@ export default class PathRaceScene extends BaseScene {
     this.tokens = [];
     this.buddyTimer = null;
 
-    this.bg = this.addBackdrop(0xfff8e1);
+    this.bg = this.addBackdrop(0xfff8e1, { wash: 0.45 });
     this.addBackButton();
     this.narrator = new Narrator(this, 660, 70, { width: 800, fontSize: 30 });
     this.add.text(30, 150, t('pathRace.title', { max: this.board.length }), textStyle(24, COLORS.gray)).setOrigin(0, 0.5);

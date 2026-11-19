@@ -68,7 +68,7 @@ export default class LetterCatcherScene extends BaseScene {
     this.clock = 0;
     this.lastReport = 0;
 
-    this.bg = this.addBackdrop(0xe6f7ea);
+    this.bg = this.addBackdrop(0xe6f7ea, { wash: 0.45 });
     this.ground = this.add.rectangle(0, 0, 10, 10, 0x9bd48a).setOrigin(0, 0);
     this.addBackButton();
     this.narrator = new Narrator(this, 660, 70, { width: 800, fontSize: 30 });

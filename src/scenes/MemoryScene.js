@@ -89,7 +89,7 @@ export default class MemoryScene extends BaseScene {
     this.dialog = null;
     this.cards = [];
 
-    this.bg = this.addBackdrop(0xf4f1ff);
+    this.bg = this.addBackdrop(0xf4f1ff, { wash: 0.45 });
     this.addBackButton();
     this.narrator = new Narrator(this, 660, 70, { width: 800, fontSize: 30 });
     const option = t(`curriculum.games.memory-chips.options.${this.variant.id}.label`);

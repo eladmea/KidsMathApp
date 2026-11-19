@@ -28,7 +28,7 @@ export default class ChipTossScene extends BaseScene {
     this.flying = false;
     this.over = false;
 
-    this.bg = this.addBackdrop(0xfff1e0).setInteractive();
+    this.bg = this.addBackdrop(0xfff1e0, { wash: 0.45 }).setInteractive();
     this.bg.on('pointerdown', () => this.toss());
     this.tag('toss', this.bg);
     this.addBackButton();

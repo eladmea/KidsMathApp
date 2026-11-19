@@ -24,7 +24,7 @@ export default class BalloonBreathScene extends BaseScene {
     this.started = 0;
     this.releaseScale = MIN_SCALE;
 
-    this.bg = this.addBackdrop(0xe8f6ff);
+    this.bg = this.addBackdrop(0xe8f6ff, { wash: 0.3 });
     this.addBackButton();
     this.narrator = new Narrator(this, 660, 70, { width: 800, fontSize: 30 });
     this.addHeader('🎈', miniGameTitle('balloon-breath'));

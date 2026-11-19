@@ -199,7 +199,8 @@ export default class BaseScene extends Phaser.Scene {
   // The same for anything else (a mini-game): headerCounter.setText() shows
   // its counter.
   addHeader(emoji, title) {
-    this.headerTitle = new IconText(this, 30, 150, t('quiz.title', { emoji, title }), textStyle(24, COLORS.gray)).setOrigin(0, 0.5);
+    // A white edge keeps the title readable over a painted backdrop.
+    this.headerTitle = new IconText(this, 30, 150, t('quiz.title', { emoji, title }), textStyle(24, COLORS.gray, { stroke: '#ffffff', strokeThickness: 5 })).setOrigin(0, 0.5);
     this.headerCounter = new IconText(this, 1250, 150, '', textStyle(28)).setOrigin(1, 0.5);
     this.headerScore = null;
   }
