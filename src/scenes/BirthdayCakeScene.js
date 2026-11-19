@@ -69,7 +69,7 @@ export default class BirthdayCakeScene extends BaseScene {
     this.layer = null;
     this.friendArt = null;
 
-    this.bg = this.add.rectangle(0, 0, 10, 10, 0xfff0f6).setOrigin(0, 0);
+    this.bg = this.addBackdrop(0xfff0f6);
     this.addBackButton();
     this.narrator = new Narrator(this, 660, 70, { width: 800, fontSize: 30 });
     this.addGameHeader(this.skill);
@@ -87,11 +87,6 @@ export default class BirthdayCakeScene extends BaseScene {
 
     this.hint = new IdleHint(this, () => this.hintPoint(), { onShow: () => this.report({ reminder: this.step }) });
     this.startCake();
-  }
-
-  layout() {
-    const v = this.view;
-    this.bg.setPosition(v.x, v.y).setSize(v.width, v.height);
   }
 
   startCake() {

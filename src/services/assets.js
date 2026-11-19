@@ -14,6 +14,9 @@
 //     quickly. scripts/fluent-emoji.mjs makes the emoji ones. A picture
 //     in src/assets/images with the same key wins over an atlas frame.
 //   src/assets/sounds/<name>.wav|mp3|ogg       sound effects by file name
+//   src/assets/backdrops/<name>.webp|jpg|png    a painted backdrop behind a
+//     whole scene, named after the scene ('Profiles'). Big, so each one
+//     loads when its scene is opened, not at the start (loadBackdrop).
 //
 // Anything without a picture falls back to its emoji, so art can arrive a
 // piece at a time.
@@ -21,6 +24,7 @@ import { getLanguage } from '../i18n/index';
 
 const imageFiles = import.meta.glob('../assets/images/**/*.{png,webp,jpg,jpeg,svg}', { eager: true, query: '?url', import: 'default' });
 const atlasFiles = import.meta.glob('../assets/atlases/*.{png,webp,json}', { eager: true, query: '?url', import: 'default' });
+const backdropFiles = import.meta.glob('../assets/backdrops/*.{webp,jpg,jpeg,png}', { eager: true, query: '?url', import: 'default' });
 const soundFiles = import.meta.glob('../assets/sounds/*.{wav,mp3,ogg,m4a}', { eager: true, query: '?url', import: 'default' });
 
 const keyOf = (path, folder) => path.slice(path.indexOf(folder) + folder.length).replace(/\.[a-z0-9]+$/, '');
@@ -47,6 +51,31 @@ Object.entries(atlasFiles).forEach(([path, url]) => {
   atlases[name][ext === 'json' ? 'data' : 'image'] = url;
 });
 const atlasKey = (name) => `atlas:${name}`;
+
+// { [name]: url } for the backdrops, which load one at a time (loadBackdrop).
+export const BACKDROPS = Object.fromEntries(Object.entries(backdropFiles).map(([path, url]) => [keyOf(path, '/assets/backdrops/'), url]));
+export const backdropKey = (name) => `backdrop:${name}`;
+
+// Loads the backdrop called `name` into the game's textures, once. Resolves
+// whether or not there is one (or it fails to load): the scene then keeps
+// its plain colour.
+const loadingBackdrops = {};
+export function loadBackdrop(textures, name) {
+  const url = BACKDROPS[name];
+  if (!url || textures.exists(backdropKey(name))) return Promise.resolve();
+  loadingBackdrops[name] =
+    loadingBackdrops[name] ||
+    new Promise((resolve) => {
+      const picture = new Image();
+      picture.onload = () => {
+        if (!textures.exists(backdropKey(name))) textures.addImage(backdropKey(name), picture);
+        resolve();
+      };
+      picture.onerror = () => resolve();
+      picture.src = url;
+    }).finally(() => delete loadingBackdrops[name]);
+  return loadingBackdrops[name];
+}
 
 export const SOUNDS = Object.fromEntries(Object.entries(soundFiles).map(([path, url]) => [keyOf(path, '/assets/sounds/'), url]));
 

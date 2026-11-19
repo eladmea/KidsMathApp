@@ -34,7 +34,7 @@ export default class DanceTapScene extends BaseScene {
     this.beatMs = START_BEAT_MS;
     this.over = false;
 
-    this.bg = this.add.rectangle(0, 0, 10, 10, 0xf3ecff).setOrigin(0, 0);
+    this.bg = this.addBackdrop(0xf3ecff);
     this.addBackButton();
     this.narrator = new Narrator(this, 660, 70, { width: 800, fontSize: 30 });
     this.addHeader('🕺', miniGameTitle('dance-tap'));
@@ -51,11 +51,6 @@ export default class DanceTapScene extends BaseScene {
     this.narrator.say(t('mini.dance.intro'));
     this.showCounter();
     this.time.delayedCall(800, () => this.nextBeat());
-  }
-
-  layout() {
-    const v = this.view;
-    this.bg.setPosition(v.x, v.y).setSize(v.width, v.height);
   }
 
   showCounter() {

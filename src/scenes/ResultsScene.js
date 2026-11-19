@@ -43,9 +43,8 @@ export default class ResultsScene extends BaseScene {
     return lines;
   }
 
-
   build({ mode, score, total, tallies, replay, adventureStep }) {
-    this.bg = this.add.rectangle(0, 0, 10, 10, COLORS.cream).setOrigin(0, 0);
+    this.bg = this.addBackdrop(COLORS.cream, { wash: 0.55 });
     const stars = calculateStars(score, total);
     this.cheer();
     // The stars fill in one by one, each a little higher chime, then confetti.
@@ -96,11 +95,6 @@ export default class ResultsScene extends BaseScene {
         ticket: result.earnedTicket,
       });
     });
-  }
-
-  layout() {
-    const v = this.view;
-    this.bg.setPosition(v.x, v.y).setSize(v.width, v.height);
   }
 
   // "Yaaay!" bounces in with a jingle and kids cheering, then keeps wiggling.

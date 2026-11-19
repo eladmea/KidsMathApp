@@ -41,7 +41,7 @@ export default class RoboPathScene extends BaseScene {
     this.controls = [];
     this.robot = null;
 
-    this.bg = this.add.rectangle(0, 0, 10, 10, 0xeef0ff).setOrigin(0, 0);
+    this.bg = this.addBackdrop(0xeef0ff);
     this.addBackButton();
     this.narrator = new Narrator(this, 660, 70, { width: 800, fontSize: 30 });
     this.addGameHeader(this.skill);
@@ -51,11 +51,6 @@ export default class RoboPathScene extends BaseScene {
     this.message = this.add.text(PANEL_X, 380, '', textStyle(30, COLORS.ink, { wordWrap: { width: 520 } })).setOrigin(0.5);
     this.stageText = this.add.text(GRID.x, GRID.y + GRID.size / 2 + 32, '', textStyle(24, COLORS.primaryDark)).setOrigin(0.5);
     this.startPuzzle();
-  }
-
-  layout() {
-    const v = this.view;
-    this.bg.setPosition(v.x, v.y).setSize(v.width, v.height);
   }
 
   startPuzzle() {

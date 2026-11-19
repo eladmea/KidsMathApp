@@ -41,7 +41,7 @@ export default class BalanceScaleScene extends BaseScene {
     this.busy = false;
     this.heavy = false;
 
-    this.bg = this.add.rectangle(0, 0, 10, 10, 0xeef4ff).setOrigin(0, 0);
+    this.bg = this.addBackdrop(0xeef4ff);
     this.addBackButton();
     this.narrator = new Narrator(this, 660, 70, { width: 800, fontSize: 30 });
     this.addGameHeader(this.skill);
@@ -67,11 +67,6 @@ export default class BalanceScaleScene extends BaseScene {
 
     this.narrator.say(t(this.levelId === 'times' ? 'balance.introTimes' : 'balance.introSum'), { show: t('balance.instructions'), force: true });
     this.newPuzzle();
-  }
-
-  layout() {
-    const v = this.view;
-    this.bg.setPosition(v.x, v.y).setSize(v.width, v.height);
   }
 
   // ---- a puzzle ----

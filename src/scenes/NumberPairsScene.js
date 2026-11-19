@@ -72,7 +72,7 @@ export default class NumberPairsScene extends BaseScene {
     this.buddy = buddyLevel(profileBand(session.profile).id);
     this.words = content('math').NUMBER_WORDS;
 
-    this.bg = this.add.rectangle(0, 0, 10, 10, 0xf3efff).setOrigin(0, 0);
+    this.bg = this.addBackdrop(0xf3efff);
     this.addBackButton();
     this.narrator = new Narrator(this, 660, 70, { width: 800, fontSize: 30 });
     if (this.skill) {
@@ -89,11 +89,6 @@ export default class NumberPairsScene extends BaseScene {
     this.refresh();
     if (this.level.peekMs) this.peek();
     else this.startTurn();
-  }
-
-  layout() {
-    const v = this.view;
-    this.bg.setPosition(v.x, v.y).setSize(v.width, v.height);
   }
 
   // ---- the cards ----

@@ -107,7 +107,7 @@ export default class PizzaShopScene extends BaseScene {
     this.layer = null;
     this.timer = null;
 
-    this.bg = this.add.rectangle(0, 0, 10, 10, 0xfff3e0).setOrigin(0, 0);
+    this.bg = this.addBackdrop(0xfff3e0);
     this.addBackButton();
     this.narrator = new Narrator(this, 660, 70, { width: 800, fontSize: 30 });
     this.addGameHeader(this.skill);
@@ -128,11 +128,6 @@ export default class PizzaShopScene extends BaseScene {
     });
     this.hint = new IdleHint(this, () => this.hintPoint(), { onShow: () => this.sayIdle() });
     this.startPizza();
-  }
-
-  layout() {
-    const v = this.view;
-    this.bg.setPosition(v.x, v.y).setSize(v.width, v.height);
   }
 
   // ---- building the screen ----

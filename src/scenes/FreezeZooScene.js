@@ -30,7 +30,7 @@ export default class FreezeZooScene extends BaseScene {
     this.animal = null;
     this.rules = null;
 
-    this.bg = this.add.rectangle(0, 0, 10, 10, 0xeaf7e4).setOrigin(0, 0);
+    this.bg = this.addBackdrop(0xeaf7e4);
     this.addBackButton();
     this.narrator = new Narrator(this, 660, 70, { width: 800, fontSize: 30 });
     this.addGameHeader(this.skill);
@@ -41,11 +41,6 @@ export default class FreezeZooScene extends BaseScene {
     this.tag('stage', this.stage);
     this.feedback = this.add.text(640, 668, '', textStyle(28, COLORS.greenDark)).setOrigin(0.5);
     this.showRules(1);
-  }
-
-  layout() {
-    const v = this.view;
-    this.bg.setPosition(v.x, v.y).setSize(v.width, v.height);
   }
 
   showRules(part) {

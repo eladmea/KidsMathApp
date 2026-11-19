@@ -29,13 +29,20 @@ const ROAD = 0xe9cf96;
 export default class IslandScene extends BaseScene {
   static key = 'Island';
 
+  // Each island has its own painted close-up (backdrops/Island-<subject>).
+  static backdropName({ subjectId } = {}) {
+    return `Island-${subjectId}`;
+  }
+
   build({ subjectId, bandId }) {
     if (this.timeUpGate()) return;
     this.subject = getSubject(subjectId);
     this.bandId = bandId || profileBand(session.profile).id;
     const color = colorOf(this.subject.color);
-    this.bg = this.add.rectangle(0, 0, 10, 10, COLORS.sea).setOrigin(0, 0);
-    drawIsland(this, SAFE.width / 2, 445, { width: 1230, height: 470, seed: 7, land: colorOf(this.subject.light) });
+    // The painted island, or the drawn one when there's no picture.
+    this.addBackdrop(COLORS.sea);
+    this.painted = this.backdrop.type === 'Image';
+    if (!this.painted) drawIsland(this, SAFE.width / 2, 445, { width: 1230, height: 470, seed: 7, land: colorOf(this.subject.light) });
     this.addBackButton();
     this.add.text(SAFE.width / 2, 60, t('island.title', { emoji: this.subject.emoji, name: subjectName(this.subject) }), textStyle(48, color, { stroke: '#ffffff', strokeThickness: 8 })).setOrigin(0.5);
     // An open island shows every skill to every age, so it has no age pills.
@@ -71,14 +78,18 @@ export default class IslandScene extends BaseScene {
     this.report({ subject: subjectId, band: this.bandId, skills: report, next: next ? next.id : null, complete: this.complete });
   }
 
-  layout() {
-    const v = this.view;
-    this.bg.setPosition(v.x, v.y).setSize(v.width, v.height);
-  }
-
-  // A sandy road through the stops, with a dashed middle line.
+  // A sandy road through the stops, with a dashed middle line. On a painted
+  // island it gets a soft light edge, so it stands out from the ground.
   drawRoad(points) {
     const road = this.add.graphics();
+    if (this.painted) {
+      road.lineStyle(46, COLORS.white, 0.55);
+      road.beginPath();
+      points.forEach(({ x, y }, i) => (i ? road.lineTo(x, y) : road.moveTo(x, y)));
+      road.strokePath();
+      road.fillStyle(COLORS.white, 0.55);
+      points.forEach(({ x, y }) => road.fillCircle(x, y, 23));
+    }
     road.lineStyle(34, ROAD, 1);
     road.beginPath();
     points.forEach(({ x, y }, i) => (i ? road.lineTo(x, y) : road.moveTo(x, y)));
@@ -109,7 +120,9 @@ export default class IslandScene extends BaseScene {
     circle.on('pointerdown', () => this.tweens.add({ targets: circle, scale: 0.92, duration: 70, yoyo: true }));
     this.tag(`skill:${skill.id}`, circle);
     art(this, x, y, { key: `skills/${skill.id}`, emoji: skill.emoji, size: 52 }).setAlpha(closed ? 0.45 : 1);
-    this.add.text(x, y + STOP_RADIUS + 22, skillTitle(skill), textStyle(18, closed ? COLORS.gray : COLORS.ink, { wordWrap: { width: 170 }, stroke: '#ffffff', strokeThickness: 4 })).setOrigin(0.5, 0);
+    // On a painted island the name sits on a soft white label, to stay readable.
+    const label = this.painted ? { backgroundColor: '#ffffffd9', padding: { x: 8, y: 2 } } : { stroke: '#ffffff', strokeThickness: 4 };
+    this.add.text(x, y + STOP_RADIUS + 22, skillTitle(skill), textStyle(18, closed ? COLORS.gray : COLORS.ink, { wordWrap: { width: 170 }, align: 'center', ...label })).setOrigin(0.5, 0);
     if (stop === 'locked') glyph(this, x + 36, y - 36, '🔒', 28);
     if (stop === 'soon') glyph(this, x + 36, y - 36, '🚧', 28);
     if (stop === 'mastered') glyph(this, x + 38, y - 38, '🏅', 30);
@@ -126,11 +139,16 @@ export default class IslandScene extends BaseScene {
     const key = `${this.subject.id}-${this.bandId}`;
     const opened = (session.profile.stickers || []).some((s) => s.key === `chest:${key}`);
     this.add.circle(x, y, STOP_RADIUS + 6, this.complete ? 0xffe08a : 0xf3e6c4).setStrokeStyle(5, 0xc9873a);
-    this.chest = glyph(this, x, y, opened ? '👑' : '🎁', 60);
+    this.chest = this.chestPicture(x, y, opened);
     if (this.complete && !opened) this.tweens.add({ targets: this.chest, angle: { from: -8, to: 8 }, duration: 300, yoyo: true, repeat: -1 });
     const zone = this.add.zone(x, y, (STOP_RADIUS + 10) * 2, (STOP_RADIUS + 10) * 2).setInteractive({ useHandCursor: true });
     zone.on('pointerup', () => this.openChest(key));
     this.tag('chest', zone);
+  }
+
+  // A treasure chest picture (ui/chest-closed, ui/chest-open), or 🎁 / 👑.
+  chestPicture(x, y, opened) {
+    return opened ? art(this, x, y, { key: 'ui/chest-open', emoji: '👑', size: 70 }) : art(this, x, y, { key: 'ui/chest-closed', emoji: '🎁', size: 64 });
   }
 
   async openChest(key) {
@@ -145,7 +163,7 @@ export default class IslandScene extends BaseScene {
     if (earned.length) {
       play(this, 'correct');
       this.chest.destroy();
-      this.chest = glyph(this, this.chest.x, this.chest.y, '👑', 60);
+      this.chest = this.chestPicture(this.chest.x, this.chest.y, true);
       this.celebrate(this.chest.x, this.chest.y);
       this.say(t('island.chestSticker', { emoji: earned[0].emoji }), t('island.chestSay'));
     } else {

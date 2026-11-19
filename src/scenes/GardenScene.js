@@ -31,7 +31,7 @@ export default class GardenScene extends BaseScene {
     this.plant = null;
     this.stageDots = [];
 
-    this.bg = this.add.rectangle(0, 0, 10, 10, 0xeaf7e4).setOrigin(0, 0);
+    this.bg = this.addBackdrop(0xeaf7e4);
     this.addBackButton();
     this.narrator = new Narrator(this, 660, 70, { width: 800, fontSize: 30 });
     this.add.text(30, 150, t('garden.title'), textStyle(24, COLORS.gray)).setOrigin(0, 0.5);
@@ -47,11 +47,6 @@ export default class GardenScene extends BaseScene {
       this.show();
       this.greet();
     });
-  }
-
-  layout() {
-    const v = this.view;
-    this.bg.setPosition(v.x, v.y).setSize(v.width, v.height);
   }
 
   choiceWords(id) {

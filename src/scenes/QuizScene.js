@@ -99,7 +99,7 @@ export default class QuizScene extends BaseScene {
     this.finished = false;
     this.replays = 0;
 
-    this.bg = this.add.rectangle(0, 0, 10, 10, COLORS.cream).setOrigin(0, 0);
+    this.bg = this.addBackdrop(COLORS.cream);
     this.addBackButton(() => this.quit());
     this.narrator = new Narrator(this, 660, 70, { width: 800, fontSize: 30, onReplay: () => (this.replays += 1) });
     this.title = this.add.text(30, 150, titleOf(mode, this.baseSkill), textStyle(26, COLORS.gray)).setOrigin(0, 0.5);
@@ -113,11 +113,6 @@ export default class QuizScene extends BaseScene {
     const skill = this.currentSkill();
     if (this.adaptive && skill.generator && !hasPassed(getRecord(session.progress, skill.id))) this.showExample();
     else this.showQuestion();
-  }
-
-  layout() {
-    const v = this.view;
-    this.bg.setPosition(v.x, v.y).setSize(v.width, v.height);
   }
 
   // Keeps the title / progress row just under the narrator bubble, which grows

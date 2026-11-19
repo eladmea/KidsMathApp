@@ -7,8 +7,16 @@ import { AVATARS, MAX_NAME_LENGTH, isValidName } from '../logic/profiles';
 import { MAX_AGE, MIN_AGE, bandForAge } from '../curriculum/ageBands';
 import { getLanguage, languages, setLanguage, t } from '../i18n/index';
 import { bandName } from '../i18n/names';
+import { glyph } from '../ui/Art';
 
 const AGES = Array.from({ length: MAX_AGE - MIN_AGE + 1 }, (_, i) => MIN_AGE + i);
+
+// The buddies sit in rows of five, and the Language row goes under the last
+// one, so adding a buddy never pushes them into each other.
+const BUDDY = { perRow: 5, top: 386, step: 90, height: 80 };
+const BUDDY_ROWS = Math.ceil(AVATARS.length / BUDDY.perRow);
+const buddyY = (row) => BUDDY.top + row * BUDDY.step;
+const LANGUAGE_Y = buddyY(BUDDY_ROWS - 1) + BUDDY.height / 2 + 52;
 
 // A new player: name (a real text field over the canvas, so phones show
 // their keyboard), age and an animal buddy. A grown-up helps fill it in.
@@ -16,18 +24,24 @@ const AGES = Array.from({ length: MAX_AGE - MIN_AGE + 1 }, (_, i) => MIN_AGE + i
 export default class CreateProfileScene extends BaseScene {
   static key = 'CreateProfile';
 
+  // The same beach as "Who's playing?".
+  static backdropName() {
+    return 'Profiles';
+  }
 
   build({ first = !session.profiles.length }) {
     this.first = first;
     this.age = 4;
     this.avatar = AVATARS[0];
-    this.bg = this.add.rectangle(0, 0, 10, 10, COLORS.cream).setOrigin(0, 0);
+    this.addBackdrop(COLORS.cream);
+    // A soft cream card for the form, so it reads well over the beach.
+    this.add.graphics().fillStyle(COLORS.cream, 0.93).fillRoundedRect(20, 12, SAFE.width - 40, SAFE.height - 24, 36);
     if (!first) this.addBackButton();
     this.add.text(SAFE.width / 2, 56, first ? t('players.welcome') : t('players.newPlayerTitle'), textStyle(52, COLORS.primary)).setOrigin(0.5);
     this.add.text(SAFE.width / 2, 108, t('players.grownUpHelp'), textStyle(24, COLORS.gray)).setOrigin(0.5);
 
-    this.add.text(250, 180, t('players.name'), textStyle(30)).setOrigin(1, 0.5);
-    this.nameField = this.add.dom(SAFE.width / 2, 180, 'input', `width: 560px; height: 64px; box-sizing: border-box; border: 4px solid #4A6FE3; border-radius: 20px; padding: 0 20px; font: 600 34px ${FONT}; color: #2D3142; background: #fff; outline: none;`);
+    this.add.text(250, 170, t('players.name'), textStyle(30)).setOrigin(1, 0.5);
+    this.nameField = this.add.dom(SAFE.width / 2, 170, 'input', `width: 560px; height: 64px; box-sizing: border-box; border: 4px solid #4A6FE3; border-radius: 20px; padding: 0 20px; font: 600 34px ${FONT}; color: #2D3142; background: #fff; outline: none;`);
     const input = this.nameField.node;
     Object.assign(input, { type: 'text', placeholder: t('players.namePlaceholder'), maxLength: MAX_NAME_LENGTH, autocomplete: 'off', ariaLabel: t('players.name') });
     // No spellcheck: false here. With autocomplete off, Android keyboards can
@@ -38,21 +52,23 @@ export default class CreateProfileScene extends BaseScene {
     input.addEventListener('input', () => this.refresh());
     input.addEventListener('keydown', (event) => event.key === 'Enter' && this.save());
 
-    this.add.text(250, 290, t('players.age'), textStyle(30)).setOrigin(1, 0.5);
+    this.add.text(250, 262, t('players.age'), textStyle(30)).setOrigin(1, 0.5);
     this.ageButtons = AGES.map((age, i) => {
-      const button = new Button(this, 320 + i * 92, 290, { label: String(age), width: 80, height: 80, fontSize: 36, color: COLORS.white, textColor: COLORS.ink, onTap: () => this.setAge(age) });
+      const button = new Button(this, 320 + i * 92, 262, { label: String(age), width: 80, height: 80, fontSize: 36, color: COLORS.white, textColor: COLORS.ink, onTap: () => this.setAge(age) });
       this.tag(`age:${age}`, button.box);
       return button;
     });
-    this.bandNote = this.add.text(SAFE.width / 2 + 60, 352, '', textStyle(26)).setOrigin(0.5);
+    this.bandNote = this.add.text(SAFE.width / 2 + 60, 318, '', textStyle(26)).setOrigin(0.5);
 
-    this.add.text(250, 450, t('players.buddy'), textStyle(30)).setOrigin(1, 0.5);
+    const buddiesMiddle = (buddyY(0) + buddyY(BUDDY_ROWS - 1)) / 2;
+    this.add.text(250, buddiesMiddle, t('players.buddy'), textStyle(30)).setOrigin(1, 0.5);
     this.avatarButtons = AVATARS.map((avatar, i) => {
-      const button = new Button(this, 320 + (i % 5) * 110, 420 + Math.floor(i / 5) * 100, { label: avatar, width: 92, height: 88, fontSize: 52, color: COLORS.white, onTap: () => this.setAvatar(avatar) });
+      const button = new Button(this, 320 + (i % BUDDY.perRow) * 110, buddyY(Math.floor(i / BUDDY.perRow)), { label: avatar, width: 92, height: BUDDY.height, fontSize: 50, color: COLORS.white, onTap: () => this.setAvatar(avatar) });
       this.tag(`avatar:${avatar}`, button.box);
       return button;
     });
-    this.preview = this.add.text(1040, 470, '', textStyle(130)).setOrigin(0.5);
+    this.previewSpot = { x: 1040, y: buddiesMiddle };
+    this.preview = null;
 
     // Shown once there's more than one language to pick from.
     this.language = getLanguage();
@@ -63,11 +79,6 @@ export default class CreateProfileScene extends BaseScene {
     this.setAge(this.age);
     this.setAvatar(this.avatar);
     speak(first ? t('players.sayWelcome') : t('players.sayNewPlayer'));
-  }
-
-  layout() {
-    const v = this.view;
-    this.bg.setPosition(v.x, v.y).setSize(v.width, v.height);
   }
 
   setAge(age) {
@@ -83,10 +94,10 @@ export default class CreateProfileScene extends BaseScene {
   }
 
   languagePicker() {
-    this.add.text(250, 568, t('players.language'), textStyle(30)).setOrigin(1, 0.5);
+    this.add.text(250, LANGUAGE_Y, t('players.language'), textStyle(30)).setOrigin(1, 0.5);
     languages().forEach((language, i) => {
       const selected = language.id === this.language;
-      const button = new Button(this, 380 + i * 200, 568, {
+      const button = new Button(this, 380 + i * 200, LANGUAGE_Y, {
         label: language.name,
         width: 180,
         height: 64,
@@ -110,8 +121,11 @@ export default class CreateProfileScene extends BaseScene {
       button.setColor(selected ? COLORS.yellow : COLORS.white);
       button.setScale(selected ? 1.08 : 1);
     });
-    this.preview.setText(avatar);
-    this.tweens.add({ targets: this.preview, scale: { from: 1.2, to: 1 }, duration: 200 });
+    // The chosen buddy, big (its picture, like everywhere else).
+    if (this.preview) this.preview.destroy();
+    this.preview = glyph(this, this.previewSpot.x, this.previewSpot.y, avatar, 130);
+    const scale = this.preview.scale;
+    this.tweens.add({ targets: this.preview, scale: { from: scale * 1.2, to: scale }, duration: 200 });
     this.refresh();
   }
 

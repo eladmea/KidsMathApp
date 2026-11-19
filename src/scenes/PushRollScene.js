@@ -29,7 +29,7 @@ export default class PushRollScene extends BaseScene {
     this.phase = 'aim';
     this.holdStart = 0;
 
-    this.bg = this.add.rectangle(0, 0, 10, 10, 0xe8f6ff).setOrigin(0, 0);
+    this.bg = this.addBackdrop(0xe8f6ff);
     this.addBackButton();
     this.narrator = new Narrator(this, 660, 70, { width: 800, fontSize: 30 });
     this.addGameHeader(this.skill);
@@ -53,11 +53,6 @@ export default class PushRollScene extends BaseScene {
 
     this.narrator.say(t('pushRoll.intro'), { show: t('pushRoll.instructions'), force: true });
     this.newShot();
-  }
-
-  layout() {
-    const v = this.view;
-    this.bg.setPosition(v.x, v.y).setSize(v.width, v.height);
   }
 
   newShot() {

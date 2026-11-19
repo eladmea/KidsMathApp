@@ -28,7 +28,7 @@ export default class ChipTossScene extends BaseScene {
     this.flying = false;
     this.over = false;
 
-    this.bg = this.add.rectangle(0, 0, 10, 10, 0xfff1e0).setOrigin(0, 0).setInteractive();
+    this.bg = this.addBackdrop(0xfff1e0).setInteractive();
     this.bg.on('pointerdown', () => this.toss());
     this.tag('toss', this.bg);
     this.addBackButton();
@@ -43,11 +43,6 @@ export default class ChipTossScene extends BaseScene {
     this.sweep();
     this.showCounter();
     this.report({ step: 'play', score: 0, left: this.left });
-  }
-
-  layout() {
-    const v = this.view;
-    this.bg.setPosition(v.x, v.y).setSize(v.width, v.height);
   }
 
   showCounter() {

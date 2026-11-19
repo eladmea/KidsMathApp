@@ -35,7 +35,7 @@ export default class BlockTowerScene extends BaseScene {
     this.busy = false;
     this.fell = false;
 
-    this.bg = this.add.rectangle(0, 0, 10, 10, 0xfff3e0).setOrigin(0, 0);
+    this.bg = this.addBackdrop(0xfff3e0);
     this.addBackButton();
     this.narrator = new Narrator(this, 660, 70, { width: 800, fontSize: 30 });
     this.addGameHeader(this.skill);
@@ -49,11 +49,6 @@ export default class BlockTowerScene extends BaseScene {
 
     this.narrator.say(t(this.level.numbers ? 'blockTower.introBig' : 'blockTower.introSmall'), { show: t('blockTower.instructions'), force: true });
     this.newTower();
-  }
-
-  layout() {
-    const v = this.view;
-    this.bg.setPosition(v.x, v.y).setSize(v.width, v.height);
   }
 
   // ---- a tower ----

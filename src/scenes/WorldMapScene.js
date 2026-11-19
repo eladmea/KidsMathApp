@@ -15,6 +15,7 @@ import { t } from '../i18n/index';
 import { bandName, subjectName } from '../i18n/names';
 import { art, glyph } from '../ui/Art';
 import { drawIsland } from '../ui/IslandArt';
+import { texture } from '../services/assets';
 
 // Where the islands sit in the sea: spread across it, zigzagging between two
 // rows, and smaller when there are more of them. Worked out from how many
@@ -41,15 +42,16 @@ export default class WorldMapScene extends BaseScene {
     return [coachIntro()];
   }
 
-
   build() {
     if (this.timeUpGate()) return;
     const { profile, progress } = session;
     const band = profileBand(profile);
-    this.sea = this.add.rectangle(0, 0, 10, 10, COLORS.sea).setOrigin(0, 0);
-    this.sky = this.add.rectangle(0, 0, 10, 10, COLORS.sky).setOrigin(0, 0);
+    // The painted sea and sky, or flat colours with drawn clouds.
+    this.addBackdrop(COLORS.sea);
+    const painted = this.backdrop.type === 'Image';
+    this.sky = this.add.rectangle(0, 0, 10, 10, COLORS.sky).setOrigin(0, 0).setVisible(!painted);
     this.drawWaves();
-    this.drawClouds();
+    if (!painted) this.drawClouds();
     this.add.text(SAFE.width / 2, 150, t('map.greeting', { name: profile.name }), textStyle(40, COLORS.white, { stroke: '#3552B5', strokeThickness: 8 })).setOrigin(0.5);
     this.add.text(SAFE.width / 2, 196, `${band.emoji} ${bandName(band)}`, textStyle(24, colorOf(band.color), { stroke: '#ffffff', strokeThickness: 5 })).setOrigin(0.5);
 
@@ -62,8 +64,9 @@ export default class WorldMapScene extends BaseScene {
       const next = recommendNextSkill(skills.filter((skill) => isAvailable(skill)), progress);
       const { x, y } = spots[i];
       const island = this.add.container(x, y);
-      island.add(drawIsland(this, 0, 0, { ...SIZE, seed: i + 1, land: colorOf(subject.light) }));
-      island.add(art(this, 0, -12, { key: `islands/${subject.id}`, emoji: subject.emoji, size: Math.round(72 * k) }));
+      // The island's picture, or a drawn island with the subject's emoji on it.
+      if (texture(this, `islands/${subject.id}`)) island.add(art(this, 0, -14, { key: `islands/${subject.id}`, size: Math.round(SIZE.width * 0.86) }));
+      else island.add([drawIsland(this, 0, 0, { ...SIZE, seed: i + 1, land: colorOf(subject.light) }), art(this, 0, -12, { emoji: subject.emoji, size: Math.round(72 * k) })]);
       const ribbon = this.add.text(0, SIZE.height / 2 + 4, subjectName(subject), textStyle(Math.round(24 * Math.max(k, 0.9)), COLORS.white, { backgroundColor: subject.color, padding: { x: 14, y: 4 } })).setOrigin(0.5);
       const count = this.add.text(0, SIZE.height / 2 + 34, t('map.passed', { passed, total: skills.length }) + (mastered ? t('map.mastered', { mastered }) : ''), textStyle(20, COLORS.ink, { stroke: '#ffffff', strokeThickness: 4 })).setOrigin(0.5);
       island.add([ribbon, count]);
@@ -75,9 +78,12 @@ export default class WorldMapScene extends BaseScene {
       // A gentle bob, each island in its own time.
       this.tweens.add({ targets: island, y: y - 5, duration: 1800 + i * 230, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
       if (subject.id === home) {
-        const avatar = glyph(this, 62, -40, profile.avatar, 52);
+        // The child's buddy, in a little boat when there's a picture of one.
+        const avatar = this.add.container(SIZE.width / 2 - 6, -30);
+        if (texture(this, 'ui/boat')) avatar.add(art(this, 0, 22, { key: 'ui/boat', size: 76 }));
+        avatar.add(glyph(this, 0, -6, profile.avatar, 50));
         island.add(avatar);
-        this.tweens.add({ targets: avatar, y: -52, duration: 500, yoyo: true, repeat: -1, ease: 'Quad.easeOut' });
+        this.tweens.add({ targets: avatar, y: avatar.y - 10, angle: { from: -4, to: 4 }, duration: 700, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
       }
       return { subject: subject.id, passed, total: skills.length, next: next ? next.id : null };
     });
@@ -123,7 +129,6 @@ export default class WorldMapScene extends BaseScene {
 
   layout() {
     const v = this.view;
-    this.sea.setPosition(v.x, v.y).setSize(v.width, v.height);
     this.sky.setPosition(v.x, v.y).setSize(v.width, 110 - v.y);
     this.fullscreen.setPosition(v.right - 70, v.y + 60);
     this.narration.setPosition(v.right - 170, v.y + 60);

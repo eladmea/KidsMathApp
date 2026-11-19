@@ -18,7 +18,7 @@ export default class TimeUpScene extends BaseScene {
 
   build() {
     const { profile } = session;
-    this.bg = this.add.rectangle(0, 0, 10, 10, 0x2b3a67).setOrigin(0, 0);
+    this.bg = this.addBackdrop(0x2b3a67);
     glyph(this, SAFE.width / 2, 110, '🌙', 110);
     this.add.text(SAFE.width / 2, 225, t('timeUp.title', { name: profile.name }), textStyle(46, COLORS.white)).setOrigin(0.5);
     this.add.text(SAFE.width / 2, 285, t('timeUp.subtitle'), textStyle(30, 0xdfe6ff)).setOrigin(0.5);
@@ -39,11 +39,6 @@ export default class TimeUpScene extends BaseScene {
     });
     speak(t('timeUp.say'));
     this.report({ step: 'time-up', stickers: stickers.length });
-  }
-
-  layout() {
-    const v = this.view;
-    this.bg.setPosition(v.x, v.y).setSize(v.width, v.height);
   }
 
   askForTime() {

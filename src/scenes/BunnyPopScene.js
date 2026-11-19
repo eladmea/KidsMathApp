@@ -28,7 +28,7 @@ export default class BunnyPopScene extends BaseScene {
     this.tapped = false;
     this.animal = null;
 
-    this.bg = this.add.rectangle(0, 0, 10, 10, 0xe4f5d8).setOrigin(0, 0);
+    this.bg = this.addBackdrop(0xe4f5d8);
     this.addBackButton();
     this.narrator = new Narrator(this, 660, 70, { width: 800, fontSize: 30 });
     this.addGameHeader(this.skill);
@@ -55,11 +55,6 @@ export default class BunnyPopScene extends BaseScene {
     });
     this.narrator.say(t('bunnyPop.intro'), { show: t('bunnyPop.rulesTitle'), force: true });
     this.report({ step: 'rules', total: POPS });
-  }
-
-  layout() {
-    const v = this.view;
-    this.bg.setPosition(v.x, v.y).setSize(v.width, v.height);
   }
 
   start() {
