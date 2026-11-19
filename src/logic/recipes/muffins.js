@@ -29,7 +29,7 @@ export default {
     { action: 'stir', on: 'bowl' },
     { action: 'fill', on: 'tin', times: 12 },
   ],
-  cook: { appliance: 'oven', celsius: 180, minutes: 20 },
-  serve: { kind: 'decorate', dish: '🧁', plates: 6, item: '🍌', count: 6 },
+  cook: { appliance: 'oven', celsius: 180, minutes: 20, picture: 'kitchen/cooking/muffins' },
+  serve: { kind: 'decorate', dish: '🧁', plates: 6, item: '🍌', count: 6, dishPicture: 'kitchen/serve/muffin', itemPicture: 'kitchen/food/banana' },
   cardOnly: [{ key: 'salt', pinch: true }],
 };

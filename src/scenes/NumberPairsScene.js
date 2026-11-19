@@ -72,7 +72,7 @@ export default class NumberPairsScene extends BaseScene {
     this.buddy = buddyLevel(profileBand(session.profile).id);
     this.words = content('math').NUMBER_WORDS;
 
-    this.bg = this.addBackdrop(0xf3efff);
+    this.bg = this.addBackdrop(0xf3efff, { wash: 0.45 });
     this.addBackButton();
     this.narrator = new Narrator(this, 660, 70, { width: 800, fontSize: 30 });
     if (this.skill) {

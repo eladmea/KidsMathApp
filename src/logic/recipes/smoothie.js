@@ -22,7 +22,7 @@ export default {
   ],
   prep: [{ action: 'peel', on: 'banana', times: 2 }],
   cook: { appliance: 'blender' },
-  serve: { kind: 'decorate', dish: '🥤', plates: 4, item: '🍓', count: 4 },
+  serve: { kind: 'decorate', dish: '🥤', plates: 4, item: '🍓', count: 4, dishPicture: 'kitchen/serve/smoothie', itemPicture: 'kitchen/serve/strawberry' },
   cardOnly: [
     { key: 'lemonJuice', qty: 1, unit: 'tbsp', optional: true },
     { key: 'ice', qty: 0.25, unit: 'cup', optional: true },

@@ -107,7 +107,7 @@ export default class PizzaShopScene extends BaseScene {
     this.layer = null;
     this.timer = null;
 
-    this.bg = this.addBackdrop(0xfff3e0);
+    this.bg = this.addBackdrop(0xfff3e0, { wash: 0.62 });
     this.addBackButton();
     this.narrator = new Narrator(this, 660, 70, { width: 800, fontSize: 30 });
     this.addGameHeader(this.skill);
@@ -164,7 +164,7 @@ export default class PizzaShopScene extends BaseScene {
     this.toppingsLayer = this.add.container(0, 0);
     this.cuts = this.add.graphics();
     this.pizza.add([this.shadow, this.dough, this.crust, this.base, this.sauce.rt, this.sauceDisc, this.cheese, this.toppingsLayer, this.cuts]);
-    this.rollingPin = glyph(this, LEFT + SIZE - 30, TOP + SIZE - 30, '🥖', 64);
+    this.rollingPin = art(this, LEFT + SIZE - 30, TOP + SIZE - 30, { key: 'pizza/rollingPin', emoji: '🥖', size: 64 });
     this.slices = [];
     this.makeShredTextures();
     this.tag('pizza', this.crust);
@@ -216,7 +216,7 @@ export default class PizzaShopScene extends BaseScene {
     this.ovenWindow = this.add.rectangle(0, 10, width * 0.72, height * 0.48, 0x2a2624).setRounded(16);
     const knobs = [this.add.circle(width / 2 - 26, -height / 2 + 22, 8, 0xc8c2be), this.add.circle(width / 2 - 52, -height / 2 + 22, 8, 0xc8c2be)];
     this.flames = glyph(this, 0, height / 2 - 26, '🔥', 26);
-    this.ovenPizza = glyph(this, 0, 10, '🍕', 56).setVisible(false);
+    this.ovenPizza = art(this, 0, 10, { key: 'pizza/baked', emoji: '🍕', size: 56 }).setVisible(false);
     this.oven.add([this.ovenBox, this.ovenWindow, ...knobs, this.flames, this.ovenPizza]);
     this.tag('oven', this.ovenBox);
   }

@@ -67,7 +67,7 @@ const TOOL_PICTURES = {
   cup: { key: 'kitchen/cup', emoji: '🥛', size: 34 },
   spoon: { key: 'kitchen/spoon', emoji: '🥄', size: 36 },
   jug: { key: 'kitchen/jug', emoji: '🫙', size: 34 },
-  scale: { key: null, emoji: '⚖️', size: 34 },
+  scale: { key: 'kitchen/scale', emoji: '⚖️', size: 34 },
 };
 const TOOL_SIZES = { halfCup: 0.85, quarterCup: 0.7, tsp: 0.8, halfTsp: 0.65 };
 const STATIONS = ['wash', 'gather', 'measure', 'prep', 'cook', 'clean', 'serve'];
@@ -201,7 +201,7 @@ export default class KitchenScene extends BaseScene {
   buildCard() {
     const { x, y, width, height } = CARD;
     this.add.rectangle(x, y, width, height, 0xfffdf6).setOrigin(0, 0).setRounded(18).setStrokeStyle(4, 0xe5d3b3);
-    glyph(this, x + 34, y + 32, this.recipe.emoji, 38);
+    art(this, x + 34, y + 32, { key: `skills/${this.skill.id}`, emoji: this.recipe.emoji, size: 38 });
     this.add.text(x + 62, y + 32, t('kitchen.recipe'), textStyle(26, COLORS.ink)).setOrigin(0, 0.5);
     const rows = this.recipe.ingredients;
     const rowHeight = Math.min(58, (height - 110) / rows.length);
@@ -551,7 +551,7 @@ export default class KitchenScene extends BaseScene {
     // The card's ticks now count what is measured (counted things are done).
     this.clearTicks();
     this.recipe.ingredients.filter((ingredient) => !isMeasured(ingredient)).forEach((ingredient) => this.cardRows[ingredient.key].tick.setVisible(true));
-    this.measureBowl = this.keep(glyph(this, 1000, 430, '🥣', 150));
+    this.measureBowl = this.keep(art(this, 1000, 430, { key: 'kitchen/bowl', emoji: '🥣', size: 150 }));
     this.say([this.words.say.kitchen.measure()]);
     this.time.delayedCall(700, () => this.nextMeasure());
   }
@@ -743,7 +743,9 @@ export default class KitchenScene extends BaseScene {
     };
     const ingredient = getIngredient(this.recipe, action.on);
     const emoji = ingredient ? ingredient.emoji : { bowl: '🥣', tin: '🧁', burger: '🥣', sausage: '🥣' }[action.on] || '🥣';
-    this.focus = own(ingredient ? food(this, STAGE_X, 400, ingredient, 170) : glyph(this, STAGE_X, 400, emoji, 170));
+    // A bowl (kitchen/bowl) or the muffin tin's emoji when it isn't an ingredient.
+    const vessel = emoji === '🥣' ? 'kitchen/bowl' : null;
+    this.focus = own(ingredient ? food(this, STAGE_X, 400, ingredient, 170) : art(this, STAGE_X, 400, { key: vessel, emoji, size: 170 }));
     this.tag('prep-target', this.focus);
     if (ingredient) this.markRow(ingredient.key, 'current');
     const lines = [this.words.say.kitchen.prep[action.action](action)];
@@ -803,7 +805,7 @@ export default class KitchenScene extends BaseScene {
     const { appliance, minutes } = this.recipe.cook;
     this.applianceArt = drawAppliance(this, STAGE_X, 400, appliance);
     this.keep(this.applianceArt.box);
-    this.dish = (appliance === 'blender' ? glyph(this, 0, -40, '🍓', 80) : this.cookedArt(0, 10, 80)).setAlpha(0.9);
+    this.dish = (appliance === 'blender' ? art(this, 0, -40, { key: 'kitchen/serve/strawberry', emoji: '🍓', size: 80 }) : this.cookedArt(0, 10, 80)).setAlpha(0.9);
     this.applianceArt.box.add(this.dish);
     if (!TIMED.has(appliance)) {
       this.say([this.words.say.kitchen.cook({ appliance })]);
@@ -954,7 +956,7 @@ export default class KitchenScene extends BaseScene {
         const y = COUNTER_TOP + 60;
         const entry = { dish, washed: false };
         if (dish === 'bowl') {
-          entry.moves = this.keep(glyph(this, x, y, '🥣', ITEM));
+          entry.moves = this.keep(art(this, x, y, { key: 'kitchen/bowl', emoji: '🥣', size: ITEM }));
           entry.hit = entry.moves.setInteractive({ useHandCursor: true });
         } else {
           entry.moves = this.keep(new Button(this, x, y, { label: this.words.TOOLS[dish].label, width: 96, height: 60, fontSize: 18, color: COLORS.white, textColor: COLORS.ink }));
@@ -980,7 +982,7 @@ export default class KitchenScene extends BaseScene {
       });
       this.cleanLeft = this.crumbs.length;
       this.cleanFocus = this.crumbs[0];
-      this.sponge = this.keep(glyph(this, 390, COUNTER_TOP + 130, '🧽', 76).setDepth(20));
+      this.sponge = this.keep(art(this, 390, COUNTER_TOP + 130, { key: 'kitchen/sponge', emoji: '🧽', size: 76 }).setDepth(20));
       this.spongeScale = this.sponge.scale;
       this.tweens.add({ targets: this.sponge, scale: this.spongeScale * 1.12, duration: 420, yoyo: true, repeat: -1 });
       this.counterZone = this.keep(this.add.zone(340, COUNTER_TOP, 920, 720 - COUNTER_TOP).setOrigin(0, 0));
@@ -1106,14 +1108,14 @@ export default class KitchenScene extends BaseScene {
       const x = STAGE_X + (i - (plates - 1) / 2) * spacing;
       const size = plates === 1 ? 240 : Math.min(120, spacing - 10);
       const y = COUNTER_TOP - size * 0.42;
-      const picture = this.keep(glyph(this, x, y, serve.dish, size));
+      const picture = this.keep(this.servePicture(x, y, serve.dishPicture, serve.dish, size));
       return { x, y, size, picture, items: 0 };
     });
     this.plates.forEach((plate, i) => this.tag(`plate:${i}`, plate.picture));
     this.serveFocus = this.plates[0].picture;
     const area = () => new Phaser.Geom.Rectangle(STAGE_X - 440, 240, 880, COUNTER_TOP - 220);
     this.tray = new DragTray(this, STAGE_X - 60, 640, {
-      draw: (scene, x, y, size) => glyph(scene, x, y, serve.item, size),
+      draw: (scene, x, y, size) => art(scene, x, y, { key: serve.itemPicture, emoji: serve.item, size }),
       label: '',
       target: area,
       onDrop: (x, y) => this.decorate(serve, area().x + x, area().y + y, perPlate),
@@ -1134,13 +1136,13 @@ export default class KitchenScene extends BaseScene {
     play(this, 'star', { detune: 60 * this.placed.length });
     if (serve.replace) {
       plate.picture.destroy();
-      plate.picture = this.keep(glyph(this, plate.x, plate.y, serve.item, plate.size));
+      plate.picture = this.keep(this.servePicture(plate.x, plate.y, serve.itemPicture, serve.item, plate.size));
       popIn(this, plate.picture);
     } else {
       const spread = perPlate > 1 ? plate.size * 0.32 : 0;
       const angle = (plate.items / perPlate) * Math.PI * 2;
       const top = plate.size > 200 ? 0 : -plate.size * 0.3;
-      const piece = this.keep(glyph(this, plate.x + Math.cos(angle) * spread, plate.y + top + Math.sin(angle) * spread * 0.6, serve.item, perPlate > 1 ? 34 : Math.min(56, plate.size * 0.5)));
+      const piece = this.keep(this.servePicture(plate.x + Math.cos(angle) * spread, plate.y + top + Math.sin(angle) * spread * 0.6, serve.itemPicture, serve.item, perPlate > 1 ? 34 : Math.min(56, plate.size * 0.5)));
       popIn(this, piece);
     }
     this.serveFocus = (open.find((p) => p.items < perPlate) || {}).picture || null;
@@ -1155,7 +1157,7 @@ export default class KitchenScene extends BaseScene {
     options.forEach((layer, i) => {
       const x = STAGE_X + 160 + (i % 2) * 120;
       const y = 330 + Math.floor(i / 2) * 120;
-      const button = this.keep(glyph(this, x, y, layer, 90));
+      const button = this.keep(this.servePicture(x, y, (serve.pictures || [])[serve.layers.indexOf(layer)], layer, 90));
       button.setInteractive({ useHandCursor: true }).on('pointerup', () => this.stack(serve, layer, button));
       this.tag(`layer:${layer}`, button);
       this.layerButtons[layer] = button;
@@ -1178,7 +1180,7 @@ export default class KitchenScene extends BaseScene {
     this.placed.push(layer);
     play(this, 'star', { detune: 80 * this.placed.length });
     // Each layer squashed flat, dropping onto the one below.
-    const piece = this.keep(glyph(this, STAGE_X - 160, this.stackY - 120, layer, 120));
+    const piece = this.keep(this.servePicture(STAGE_X - 160, this.stackY - 120, (serve.pictures || [])[this.placed.length - 1], layer, 120));
     piece.setScale(piece.scaleX, piece.scaleY * 0.42).setDepth(this.placed.length);
     this.tweens.add({ targets: piece, y: this.stackY, duration: 260, ease: 'Bounce.easeOut' });
     this.stackY -= 30;
@@ -1186,6 +1188,12 @@ export default class KitchenScene extends BaseScene {
     this.serveFocus = this.layerButtons[next] || null;
     this.report(this.snapshot());
     if (this.placed.length === serve.layers.length) this.served();
+  }
+
+  // A serving picture (kitchen/serve/<name>, named in the recipe's `serve`),
+  // or its emoji when there is none.
+  servePicture(x, y, key, emoji, size) {
+    return art(this, x, y, { key: key || null, emoji, size });
   }
 
   served() {

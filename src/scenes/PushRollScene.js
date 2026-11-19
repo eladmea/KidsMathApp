@@ -29,7 +29,7 @@ export default class PushRollScene extends BaseScene {
     this.phase = 'aim';
     this.holdStart = 0;
 
-    this.bg = this.addBackdrop(0xe8f6ff);
+    this.bg = this.addBackdrop(0xe8f6ff, { wash: 0.45 });
     this.addBackButton();
     this.narrator = new Narrator(this, 660, 70, { width: 800, fontSize: 30 });
     this.addGameHeader(this.skill);

@@ -35,7 +35,7 @@ export default class BlockTowerScene extends BaseScene {
     this.busy = false;
     this.fell = false;
 
-    this.bg = this.addBackdrop(0xfff3e0);
+    this.bg = this.addBackdrop(0xfff3e0, { wash: 0.45 });
     this.addBackButton();
     this.narrator = new Narrator(this, 660, 70, { width: 800, fontSize: 30 });
     this.addGameHeader(this.skill);

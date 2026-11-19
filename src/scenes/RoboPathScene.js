@@ -41,7 +41,7 @@ export default class RoboPathScene extends BaseScene {
     this.controls = [];
     this.robot = null;
 
-    this.bg = this.addBackdrop(0xeef0ff);
+    this.bg = this.addBackdrop(0xeef0ff, { wash: 0.45 });
     this.addBackButton();
     this.narrator = new Narrator(this, 660, 70, { width: 800, fontSize: 30 });
     this.addGameHeader(this.skill);

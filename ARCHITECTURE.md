@@ -81,6 +81,8 @@ node scripts/comfy-picture.mjs <image key> "<subject>" [--kind food|object|place
   - Settings: 1024 × 1024, 20 steps, CFG 7, `dpmpp_2m` / `karras`. To compare, the script takes `--steps`, `--cfg`, `--sampler`, `--scheduler`, `--model`, `--prompt`/`--negative` and `--tag` (added to the saved names); `--shape <png> --denoise N` repaints a simple drawing instead of starting from noise. Keep the house settings for game pictures.
 - The model draws real-looking objects unless told "cartoon", and "cartoon" makes it give some foods a face (an onion, most often). Draw four seeds and keep one without a face. Writing "no face" or "no eyes" in the prompt draws one.
 - Leave "chicken" out of a food's subject: it draws the bird. "Slice of raw pink poultry meat fillet (lying flat:1.2)" works.
+- A burger's parts on their own (a bun half, a patty) come out as whole burgers or loaves, so the burger stack keeps its emoji. Slices (banana, olive) come out whole or as rings; the muffins are decorated with the whole banana picture.
+- Faces keep coming back on fruit and cakes (pineapple, muffin, carrot): draw four and keep one without. A cake comes with its own candles, so Birthday Cake keeps its SVG cake (its candles are placed by the scene).
 - An egg comes out cracked, halved or with a face; "(whole closed egg:1.4), plain light brown oval, standing upright" gives an egg in an egg cup, which reads well.
 - A bag or sack of white powder fills with sweets (the prompt's bright colours); "(heap of white flour:1.4) in a small wooden scoop" gives flour in a wooden bowl.
 - "Flat even lighting" and "floating" keep the shadow faint; BiRefNet removes what's left.
@@ -135,6 +137,60 @@ node scripts/comfy-picture.mjs <image key> "<subject>" [--kind food|object|place
 | backdrop `FunBreak` (wash 0.5) | a bright party lawn with balloons and colourful bunting along the edges, soft pink and blue sky | 2 |
 | backdrop `Adventure` (wash 0.55) | a sunny calm sea with a sailing ship and a small island far away on the horizon, soft blue sky with a few clouds | 4 |
 | backdrop `Results` (wash 0.55) | a sunny beach celebration with balloons and confetti along the edges, soft blue sky | 2 |
+| `kitchen/food/turkey` | (raw minced meat:1.4) in a small white bowl, soft pale pink, fine crumbly texture | 2 |
+| `kitchen/food/oats` | small wooden bowl of dry rolled oat flakes | 1 |
+| `kitchen/food/carrot` | whole orange carrot with green leaves | 4 |
+| `kitchen/food/oliveOil` | small green glass bottle of olive oil, plain blank glass | 4 |
+| `kitchen/food/banana` | single ripe yellow banana | 3 |
+| `kitchen/food/coconutOil` | small white jar of coconut oil, plain blank jar, half a brown coconut beside it | 4 |
+| `kitchen/food/honey` | small glass jar of golden honey with a wooden honey dipper, plain blank jar | 4 |
+| `kitchen/food/wholeFlour` | (heap of light brown flour:1.4) in a small wooden scoop, matte powder | 4 |
+| `kitchen/food/bakingSoda` | small round white tub with a white lid, plain blank tub | 3 |
+| `kitchen/food/bakingPowder` | small round blue tub with a blue lid, plain blank tub | 4 |
+| `kitchen/food/cinnamon` | two brown cinnamon sticks | 4 |
+| `kitchen/food/zucchini` | whole green zucchini courgette | 3 |
+| `kitchen/food/parsley` | small bunch of fresh green parsley | 3 |
+| `kitchen/food/strawberries` | three red strawberries with green leaves | 2 |
+| `kitchen/food/milk` | glass bottle of white milk, plain blank glass | 2 |
+| `kitchen/food/yogurt` | small white bowl of white yogurt | 3 |
+| `kitchen/food/vanilla` | two long dark brown vanilla pods | 1 |
+| `kitchen/cooking/burgers` (`cook.picture`) | two round turkey burger patties cooking in a black frying pan | 4 |
+| `kitchen/cooking/omelette` | round yellow vegetable omelette in a black frying pan | 4 |
+| `kitchen/cooking/muffins` | six banana muffins in a metal muffin tray | 4 |
+| `kitchen/serve/muffin` (also `skills/kitchen-muffins`) | (plain brown muffin cake:1.3) in a paper case, domed golden brown top | 4 |
+| `kitchen/serve/omelette` (also `skills/kitchen-omelette`) | folded yellow vegetable omelette on a small white plate | 3 |
+| `kitchen/serve/smoothie` (also `skills/kitchen-smoothie`) | tall glass of pink strawberry smoothie with a straw | 1 |
+| `skills/kitchen-burgers` | turkey burger with lettuce and tomato in a sesame bun | 3 |
+| `kitchen/serve/strawberry` | single red strawberry with green leaves | 3 |
+| `kitchen/serve/salad` | small white bowl of green salad | 2 |
+| `kitchen/cup` (kind `object`) | small white measuring cup with a handle, plain blank cup | 3 |
+| `kitchen/spoon` (kind `object`) | single silver measuring spoon | 1 |
+| `kitchen/jug` (kind `object`) | clear glass measuring jug with a handle, plain blank glass | 2 |
+| `kitchen/scale` (kind `object`) | small white kitchen scale with a round dial and a flat top | 1 |
+| `kitchen/bowl` (kind `object`) | big empty light blue mixing bowl | 1 |
+| `kitchen/sponge` (kind `object`) | yellow and green kitchen sponge | 1 |
+| `pizza/rollingPin` (kind `object`) | wooden rolling pin with two handles | 1 |
+| `pizza/baked` | whole round baked cheese pizza seen from above, no toppings | 1 |
+| `toppings/mushroom` | single white mushroom slice seen from above | 1 |
+| backdrop `PizzaShop` (wash 0.62) | a cosy little pizzeria with a brick pizza oven and a wooden counter along the edges, warm light | 2 |
+| backdrop `BirthdayCake` (wash 0.62) | a happy birthday party room with balloons and bunting along the edges, pastel colours | 2 |
+| backdrop `Memory` (wash 0.45) | a cosy wooden table top seen from above, soft warm light | 3 |
+| backdrop `NumberPairs` (wash 0.45) | a calm soft purple playroom with toy shelves along the edges | 3 |
+| backdrop `Garden` (wash 0.45) | a sunny garden with a fence and flowers along the edges, a soft lawn in the middle | 2 |
+| backdrop `PathRace` (wash 0.45) | a sunny meadow with a little toy race track along the edges | 2 |
+| backdrop `BubblePop` (wash 0.3) | a calm underwater scene with soft blue water, seaweed and coral along the edges | 2 |
+| backdrop `ChipToss` (wash 0.45) | a cheerful fairground stall with striped awning along the top edge | 3 |
+| backdrop `DanceTap` (wash 0.45) | a colourful little party stage with soft spotlights along the top | 2 |
+| backdrop `BalloonBreath` (wash 0.3) | a calm soft blue sky with a few fluffy clouds, peaceful | 2 |
+| backdrop `BalanceScale` (wash 0.45) | a sunny market stall with wooden crates of fruit along the edges | 2 |
+| backdrop `BlockFit` (wash 0.45) | a cosy playroom floor with soft rugs, toy shelves along the edges | 2 |
+| backdrop `BlockTower` (wash 0.45) | a sunny playroom with a wooden floor and toy shelves along the edges | 2 |
+| backdrop `BunnyPop` (wash 0.3) | a sunny green meadow with flowers and little hills along the edges | 2 |
+| backdrop `FeelingsFriends` (wash 0.45) | a cosy living room with soft cushions along the edges, warm light | 3 |
+| backdrop `FreezeZoo` (wash 0.45) | a friendly sunny zoo with trees and fences along the edges | 2 |
+| backdrop `LetterCatcher` (wash 0.45) | a sunny park with trees along the edges, soft grass in the middle | 2 |
+| backdrop `PushRoll` (wash 0.45) | a sunny park lawn with trees along the edges | 3 |
+| backdrop `RoboPath` (wash 0.45) | a soft futuristic toy workshop with gentle blue light | 3 |
 
 ---
 

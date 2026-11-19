@@ -29,7 +29,7 @@ export default class BubblePopScene extends BaseScene {
     this.nextId = 0;
     this.over = false;
 
-    this.bg = this.addBackdrop(0xe6f4ff);
+    this.bg = this.addBackdrop(0xe6f4ff, { wash: 0.3 });
     this.addBackButton();
     this.narrator = new Narrator(this, 660, 70, { width: 800, fontSize: 30 });
     this.addHeader('🫧', miniGameTitle('bubble-pop'));
