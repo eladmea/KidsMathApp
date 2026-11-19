@@ -282,6 +282,7 @@ await openRecipe('kitchen-hotdogs');
 await station('wash');
 await rub('hands', async () => (await state()).station !== 'wash');
 await gather();
+await t.shot(dir, 'k10b-hotdog-ingredients');
 await measureAll({ picks: true });
 await prepAll();
 await t.shot(dir, 'k10a-pot');

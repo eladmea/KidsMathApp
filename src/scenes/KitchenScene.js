@@ -8,7 +8,7 @@ import { IdleHint } from '../ui/HintArrow';
 import { art, glyph } from '../ui/Art';
 import { celebrate, oops, popIn, pulse } from '../ui/Juice';
 import { COLORS, textStyle } from '../ui/theme';
-import { drawAppliance, drawCounter, drawCupboard, drawFridge, drawSink } from '../ui/KitchenArt';
+import { drawAppliance, drawCounter, drawCupboard, drawFridge, drawSink, food } from '../ui/KitchenArt';
 import { Jug, Scale } from '../ui/KitchenGauges';
 import { session } from '../services/session';
 import { play } from '../services/audio';
@@ -209,7 +209,7 @@ export default class KitchenScene extends BaseScene {
     rows.forEach((ingredient, i) => {
       const rowY = y + 82 + i * rowHeight;
       const back = this.add.rectangle(x + 8, rowY, width - 16, rowHeight - 4, 0xfff4dd, 0).setOrigin(0, 0.5).setRounded(10);
-      const picture = glyph(this, x + 34, rowY, ingredient.emoji, Math.min(34, rowHeight - 14));
+      const picture = food(this, x + 34, rowY, ingredient, Math.min(34, rowHeight - 14));
       const text = this.add.text(x + 60, rowY, this.cardText(ingredient), textStyle(18, COLORS.ink, { align: 'left', wordWrap: { width: width - 100 } })).setOrigin(0, 0.5);
       const tick = this.add.text(x + width - 24, rowY, '✓', textStyle(24, COLORS.greenDark)).setOrigin(0.5).setVisible(false);
       this.cardRows[ingredient.key] = { back, picture, text, tick, gathered: false, measured: false };
@@ -426,7 +426,7 @@ export default class KitchenScene extends BaseScene {
         const slot = i % perShelf;
         const x = -place.width / 2 + (place.width / perShelf) * (slot + 0.5);
         const y = place.shelfY(shelf) - ITEM / 2 - 4;
-        const picture = glyph(this, x, y, item.emoji, ITEM);
+        const picture = food(this, x, y, item, ITEM);
         const badge = this.add.text(x + 20, y + 20, '', textStyle(16, COLORS.white, { backgroundColor: '#4a6fe3', padding: { x: 5, y: 1 } })).setOrigin(0.5);
         place.items.add([picture, badge]);
         const entry = { item, picture, badge, stock: item.stock };
@@ -488,7 +488,7 @@ export default class KitchenScene extends BaseScene {
     play(this, 'star', { detune: 100 * Object.keys(this.counter).length });
     const slot = this.counterSlot(entry.item);
     const bounds = picture.getBounds();
-    const flying = glyph(this, bounds.centerX, bounds.centerY, entry.item.emoji, ITEM).setDepth(30);
+    const flying = food(this, bounds.centerX, bounds.centerY, entry.item, ITEM).setDepth(30);
     this.tweens.add({
       targets: flying,
       x: slot.x,
@@ -522,7 +522,7 @@ export default class KitchenScene extends BaseScene {
     const wanted = (shoppingList(this.recipe).find(({ key }) => key === ingredient.key) || { count: 1 }).count;
     const slot = { x, y, picture: null, ingredient };
     this.keep(this.add.rectangle(x, y + 4, 78, 70, COLORS.white, 0.45).setRounded(14).setStrokeStyle(2, 0xd9c3a0));
-    slot.ghost = this.keep(glyph(this, x, y - 4, ingredient.emoji, ITEM - 8).setAlpha(0.3));
+    slot.ghost = this.keep(food(this, x, y - 4, ingredient, ITEM - 8).setAlpha(0.3));
     const perRow = 4;
     slot.pips = Array.from({ length: wanted }, (_, n) => {
       const inRow = Math.min(perRow, wanted - Math.floor(n / perRow) * perRow);
@@ -532,7 +532,7 @@ export default class KitchenScene extends BaseScene {
     slot.update = () => {
       if (!slot.picture) {
         slot.ghost.setVisible(false);
-        slot.picture = this.keep(glyph(this, x, y - 4, ingredient.emoji, ITEM - 4));
+        slot.picture = this.keep(food(this, x, y - 4, ingredient, ITEM - 4));
         popIn(this, slot.picture);
       }
       const count = this.counter[ingredient.key] || 0;
@@ -580,7 +580,7 @@ export default class KitchenScene extends BaseScene {
       this.measureObjects.push(object);
       return object;
     };
-    own(glyph(this, 560, 400, ingredient.emoji, 120));
+    own(food(this, 560, 400, ingredient, 120));
     own(this.add.text(560, 490, this.cardText(ingredient), textStyle(28, COLORS.ink, { stroke: '#ffffff', strokeThickness: 6 })).setOrigin(0.5));
     // The gauge: how much is in so far, and (younger children) where to stop.
     // The jug and the scale have their own numbers to read; cups and spoons
@@ -590,7 +590,7 @@ export default class KitchenScene extends BaseScene {
     this.instrument = null;
     if (family === 'jug' || family === 'scale') {
       this.measureBowl.setVisible(false);
-      const options = { axis: gaugeAxis(goal), goal, mark: this.level.mark, own, unit: this.words.TOOLS[family].label.replace(/^\S+\s/, ''), emoji: ingredient.emoji };
+      const options = { axis: gaugeAxis(goal), goal, mark: this.level.mark, own, unit: this.words.TOOLS[family].label.replace(/^\S+\s/, ''), picture: (scene, x, y, size) => food(scene, x, y, ingredient, size) };
       this.instrument = family === 'jug' ? new Jug(this, 950, 350, options) : new Scale(this, 950, 370, options);
       this.gaugeText = own(this.add.text(950, 520, '', textStyle(22, COLORS.ink, { stroke: '#ffffff', strokeThickness: 5 })).setOrigin(0.5));
       this.gaugeFill = null;
@@ -744,7 +744,7 @@ export default class KitchenScene extends BaseScene {
     };
     const ingredient = getIngredient(this.recipe, action.on);
     const emoji = ingredient ? ingredient.emoji : { bowl: '🥣', tin: '🧁', burger: '🥣', sausage: '🥣' }[action.on] || '🥣';
-    this.focus = own(glyph(this, STAGE_X, 400, emoji, 170));
+    this.focus = own(ingredient ? food(this, STAGE_X, 400, ingredient, 170) : glyph(this, STAGE_X, 400, emoji, 170));
     this.tag('prep-target', this.focus);
     if (ingredient) this.markRow(ingredient.key, 'current');
     const lines = [this.words.say.kitchen.prep[action.action](action)];
@@ -762,7 +762,8 @@ export default class KitchenScene extends BaseScene {
       for (let i = 0; i < action.times; i++) {
         const x = STAGE_X + ((i % perRow) - (perRow - 1) / 2) * 70;
         const y = 600 + Math.floor(i / perRow) * 64;
-        this.results.push(own((action.action === 'shape' ? this.cookedArt(x, y, 50) : glyph(this, x, y, made, 50)).setAlpha(0.18)));
+        const piece = action.action === 'shape' ? this.cookedArt(x, y, 50) : made === emoji && ingredient ? food(this, x, y, ingredient, 50) : glyph(this, x, y, made, 50);
+        this.results.push(own(piece.setAlpha(0.18)));
       }
       this.focus.setInteractive({ useHandCursor: true }).on('pointerup', () => this.prepTap(action));
     } else {
@@ -935,7 +936,7 @@ export default class KitchenScene extends BaseScene {
     if (job === 'putAway') {
       this.drawKitchen();
       this.leftovers = leftovers(this.recipe).map((ingredient, i) => {
-        const picture = this.keep(glyph(this, 680 + i * 90, COUNTER_TOP + 60, ingredient.emoji, ITEM));
+        const picture = this.keep(food(this, 680 + i * 90, COUNTER_TOP + 60, ingredient, ITEM));
         picture.setInteractive({ useHandCursor: true }).on('pointerup', () => this.select(ingredient, picture));
         this.tag(`leftover:${ingredient.key}`, picture);
         return { ingredient, picture };
