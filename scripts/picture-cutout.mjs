@@ -1,14 +1,14 @@
-// Turns a picture exported from Canva (a subject on a plain white page, see
-// "Make a picture with Canva" in ARCHITECTURE.md) into a game picture: the
-// white background and the soft grey shadow under the subject become
-// transparent, the empty margins are trimmed, and the result is saved as a
-// small square WebP. Every picture loads when the game starts, so keep them
-// small.
-//   node scripts/canva-cutout.mjs <exported.png> <image key> [--size 384]
-//   node scripts/canva-cutout.mjs page.png emoji/1f32d   -> src/assets/images/emoji/1f32d.webp
+// Turns a picture into a game picture (see "Make a picture with ComfyUI" in
+// ARCHITECTURE.md): the empty margins are trimmed, and the result is saved
+// as a small square WebP. A transparent cutout (BiRefNet's, from
+// scripts/comfy-picture.mjs) is used as it is; on a plain white page, the
+// white and the soft grey shadow under the subject are made transparent.
+// Every picture loads when the game starts, so keep them small.
+//   node scripts/picture-cutout.mjs <page.png> <image key> [--size 384]
+//   node scripts/picture-cutout.mjs page.png emoji/1f32d   -> src/assets/images/emoji/1f32d.webp
 //   --pale   for a light subject (garlic, an egg, flour): only near-pure white
 //            and the darker grey of the shadow go, so its pale edge stays.
-// The page can be a downloaded file or the export's https URL.
+// The page can be a file or an https URL.
 import fs from 'fs';
 import path from 'path';
 import sharp from 'sharp';
@@ -19,7 +19,7 @@ const sizeAt = args.indexOf('--size');
 const SIZE = sizeAt >= 0 ? Number(args[sizeAt + 1]) : 384;
 const PALE = args.includes('--pale');
 if (!source || !key) {
-  console.error('Usage: node scripts/canva-cutout.mjs <exported.png | url> <image key, e.g. emoji/1f32d> [--size 384] [--pale]');
+  console.error('Usage: node scripts/picture-cutout.mjs <page.png | url> <image key, e.g. emoji/1f32d> [--size 384] [--pale]');
   process.exit(1);
 }
 
@@ -28,6 +28,11 @@ const { data, info } = await sharp(input).ensureAlpha().raw().toBuffer({ resolve
 const W = info.width;
 const H = info.height;
 const at = (x, y) => (y * W + x) * 4;
+// A cutout that is already transparent (BiRefNet, from comfy-picture.mjs)
+// only needs trimming and sizing.
+let clear = 0;
+for (let p = 3; p < data.length; p += 4) if (data[p] < 128) clear++;
+const CUT = clear > (W * H) / 20;
 
 // Background: white, and the grey of the shadow (no colour, not black).
 // Food and objects have colour, so they stop the fill; only grey connected
@@ -42,7 +47,7 @@ const seen = new Uint8Array(W * H);
 const stack = [];
 for (let x = 0; x < W; x++) stack.push([x, 0], [x, H - 1]);
 for (let y = 0; y < H; y++) stack.push([0, y], [W - 1, y]);
-while (stack.length) {
+while (stack.length && !CUT) {
   const [x, y] = stack.pop();
   if (x < 0 || y < 0 || x >= W || y >= H || seen[y * W + x]) continue;
   seen[y * W + x] = 1;
@@ -56,7 +61,7 @@ while (stack.length) {
 // subject. Anything thinner than 2 x THIN pixels goes (an opening of the
 // shape: shrink it, grow it back, keep only what came back).
 const THIN = 9;
-if (PALE) {
+if (!CUT && PALE) {
   const solid = (mask, x, y) => (x >= 0 && y >= 0 && x < W && y < H ? mask[y * W + x] : 0);
   const step = (mask, keepIf) => {
     const next = new Uint8Array(W * H);
@@ -104,7 +109,7 @@ if (PALE) {
 
 // A soft edge: kept pixels next to removed ones fade by how light they are.
 const before = Buffer.from(data);
-for (let y = 1; y < H - 1; y++) {
+for (let y = 1; y < H - 1 && !CUT; y++) {
   for (let x = 1; x < W - 1; x++) {
     const i = at(x, y);
     if (!before[i + 3]) continue;

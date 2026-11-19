@@ -3,7 +3,7 @@ import { art } from './Art';
 import { texture } from '../services/assets';
 
 // An ingredient's picture: src/assets/images/kitchen/food/<ingredient key>
-// (made with Canva, see ARCHITECTURE.md), or its emoji when there is none.
+// (made with ComfyUI, see ARCHITECTURE.md), or its emoji when there is none.
 // A kitchen picture of its own, not the emoji's, because the same emoji
 // means something else elsewhere (🌽 is corn on a pizza, cornflour here).
 export const food = (scene, x, y, ingredient, size) => art(scene, x, y, { key: `kitchen/food/${ingredient.key}`, emoji: ingredient.emoji, size });
