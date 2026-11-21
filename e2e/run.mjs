@@ -13,7 +13,7 @@ import { availableParallelism } from 'os';
 import { promisify } from 'util';
 import { fileURLToPath } from 'url';
 import { serve } from './serve.mjs';
-import { renderer, SCALE } from './helpers.mjs';
+import { GPU, renderer, SCALE } from './helpers.mjs';
 
 const run = promisify(execFile);
 const args = process.argv.slice(2);
@@ -53,6 +53,14 @@ if (server) process.env.URL = server.url;
 // Shows whether the graphics card is used (E2E_GPU, helpers.mjs).
 const graphics = await renderer().catch((error) => `unknown (${error.message.split('\n')[0]})`);
 console.log(`Graphics: ${graphics}, pixel density ${SCALE}`);
+// GPU mode that still draws in software is the slow CPU path in disguise:
+// the timing-sensitive walkthroughs choke on it. Stop instead (README,
+// "Walkthroughs on your own PC"); E2E_GPU=0 runs on the CPU on purpose.
+if (GPU && /software|unknown/.test(graphics)) {
+  console.log('GPU mode is on, but Chromium did not reach the graphics card. Set E2E_GPU=0 to run on the CPU anyway.');
+  if (server) await server.close();
+  process.exit(1);
+}
 const jobs = Math.min(chosen.length, Number(process.env.E2E_JOBS) || Math.max(1, Math.min(4, Math.floor(availableParallelism() / 2))));
 let failed = 0;
 let done = 0;

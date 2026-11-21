@@ -63,7 +63,7 @@ Feedback animations live in `ui/Juice.js`, so every game feels the same: `celebr
 
 New pictures are made on this PC's **ComfyUI** (`http://127.0.0.1:8188`, workspace `D:\AI\ComfyUI`) with the **DreamShaperXL Turbo-Lightning** model (`DreamShaperXL_Turbo-Lightning.safetensors`). They are drawn as 3D cartoon objects, glossy and simple, so they sit next to the game's Microsoft Fluent 3D emoji. **BiRefNet** (the `comfyui-rmbg` node pack, model `BiRefNet_toonout`) lifts each one off its page. Every agent making a picture uses `scripts/comfy-picture.mjs`, which holds the prompt and the settings, so the pictures stay one family. Canva (used up to November 2026) and PixelLab (pixel art only) are not used any more.
 
-**1. Draw it.** ComfyUI must be running (start it with the comfy-mcp `launch_comfyui` tool, or `comfy launch --background`).
+**1. Draw it.** ComfyUI must be running (start it with the comfy-mcp `launch_comfyui` tool, or `comfy launch --background`). Don't draw while walkthroughs run on this PC (`npm run e2e:local`, or the GitHub runner after a push): they share the graphics card and the walkthroughs choke. Draw everything first, stop ComfyUI, then run the walkthroughs or push.
 
 ```bash
 node scripts/comfy-picture.mjs <image key> "<subject>" [--kind food|object|place|backdrop] [--seed N] [--page-only]

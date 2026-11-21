@@ -6,14 +6,18 @@ import { chromium } from 'playwright';
 export const URL = process.env.URL || 'http://localhost:8765/KidsMathApp/';
 export const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-// How the walkthroughs start Chromium. By default Playwright's headless
-// shell, which has no GPU: WebGL is drawn by the CPU (SwiftShader).
-// E2E_GPU=1 uses the full Chromium in its new headless mode, which can draw
-// with the graphics card (Direct3D 11 on Windows). E2E_GPU=headed opens
-// real windows (always on the graphics card, but needs a logged-in desktop:
-// on Windows, start the runner with run.cmd, not as a service).
-// CHROMIUM=path uses that browser instead.
-export const GPU = ['1', 'headed'].includes(process.env.E2E_GPU) ? process.env.E2E_GPU : null;
+// How the walkthroughs start Chromium. GPU mode (the default on your own
+// PC, and on the self-hosted PC runner) uses the full Chromium in its new
+// headless mode, which draws with the graphics card (Direct3D 11 on
+// Windows). On GitHub's own machines, which have no graphics card, the
+// default is Playwright's headless shell, where the CPU draws WebGL
+// (SwiftShader). E2E_GPU=0 forces that anywhere; E2E_GPU=1 forces GPU mode;
+// E2E_GPU=headed opens real windows (always on the graphics card, but needs
+// a logged-in desktop: on Windows, start the runner with run.cmd, not as a
+// service). CHROMIUM=path uses that browser instead.
+const githubHosted = process.env.GITHUB_ACTIONS === 'true' && process.env.RUNNER_ENVIRONMENT !== 'self-hosted';
+const gpuSetting = process.env.E2E_GPU || (githubHosted ? '0' : '1');
+export const GPU = ['1', 'headed'].includes(gpuSetting) ? gpuSetting : null;
 export function launchOptions() {
   const options = process.env.CHROMIUM ? { executablePath: process.env.CHROMIUM } : {};
   if (GPU) {
@@ -34,7 +38,8 @@ export const SCALE = Number(process.env.E2E_SCALE) || 2;
 // Which GPU (or software renderer) Chromium draws WebGL with, and how it
 // was started.
 export async function renderer() {
-  const mode = GPU ? `GPU mode ${GPU === 'headed' ? 'headed (windows)' : 'on (headless)'}` : `GPU mode off (E2E_GPU=${process.env.E2E_GPU ? JSON.stringify(process.env.E2E_GPU) : 'not set'})`;
+  const how = process.env.E2E_GPU ? `E2E_GPU=${JSON.stringify(process.env.E2E_GPU)}` : githubHosted ? "GitHub's machine" : 'default';
+  const mode = GPU ? `GPU mode ${GPU === 'headed' ? 'headed (windows)' : 'on (headless)'} (${how})` : `GPU mode off (${how})`;
   const browser = await chromium.launch(launchOptions());
   try {
     const page = await browser.newPage();

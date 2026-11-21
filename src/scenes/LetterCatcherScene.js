@@ -67,6 +67,7 @@ export default class LetterCatcherScene extends BaseScene {
     this.busy = true;
     this.clock = 0;
     this.lastReport = 0;
+    this.reports = 0;
 
     this.bg = this.addBackdrop(0xe6f7ea, { wash: 0.45 });
     this.ground = this.add.rectangle(0, 0, 10, 10, 0x9bd48a).setOrigin(0, 0);
@@ -247,11 +248,15 @@ export default class LetterCatcherScene extends BaseScene {
     }));
   }
 
-  // What a browser test needs to aim: the kid and the bubbles, a few times a second.
+  // What a browser test needs to aim: the kid and the bubbles, a few times a
+  // second, and right after a hit (so `needed` and `bubbles` never lag behind
+  // `caught`). `reports` counts them, so a test can wait for a fresh one.
   reportPlay(now = false) {
     if (!now && this.clock - this.lastReport < 0.08) return;
     this.lastReport = this.clock;
+    this.reports += 1;
     this.report({
+      reports: this.reports,
       kidX: Math.round(this.kid.x),
       needed: this.target ? this.needed() : null,
       caught: this.caught,
@@ -272,6 +277,7 @@ export default class LetterCatcherScene extends BaseScene {
       this.tweens.add({ targets: bubble, angle: { from: -12, to: 12 }, duration: 70, yoyo: true, repeat: 2, onComplete: () => bubble.setAngle(0) });
       this.tweens.add({ targets: ball, y: KID.y - 112, alpha: 0.3, duration: 380, ease: 'Quad.easeIn', onComplete: () => this.dropBall() });
       this.report({ step: 'play', lastHit: { tile: bubble.tile, right: false }, wrong: this.wrong });
+      this.reportPlay(true);
       return;
     }
     this.dropBall();
@@ -289,6 +295,7 @@ export default class LetterCatcherScene extends BaseScene {
     if (result.done) return this.wordDone();
     this.addBubble();
     this.lowerNeeded();
+    this.reportPlay(true);
   }
 
   wordDone() {
