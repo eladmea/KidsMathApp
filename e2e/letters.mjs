@@ -76,6 +76,11 @@ const [BUBBLE_MIN, BUBBLE_MAX, BUBBLE_GAP] = [380, 1060, 84];
 async function aimAndThrow(pick, { buttons = false, bottom = false } = {}) {
   const why = { busy: 0, blocked: 0, moves: 0, throws: 0 };
   for (let tries = 0; tries < 200; tries++) {
+    // Aim from a report made after this moment: one read straight after a
+    // hit, or while the kid was still moving, shows bubbles where they were
+    // (or a letter already caught), and the ball flies past into another.
+    const seen = (await state()).reports || 0;
+    await waitFor((n) => (window.__mathplay.state.reports || 0) > n || window.__mathplay.state.step !== 'play' || window.__mathplay.scene !== 'LetterCatcher', seen, 2000).catch(() => {});
     const s = await state();
     // The word (or round) already finished: nothing left to throw at.
     if (['word', 'results'].includes(s.step) || (await t.scene()) !== 'LetterCatcher') return { right: null };
@@ -163,11 +168,7 @@ async function catchRest(fromIndex) {
   }
 }
 
-// Letter Catcher is skipped for now (its walkthrough fails; to be fixed).
-// E2E_LETTER_CATCHER=1 runs it again.
-const CATCHER = Boolean(process.env.E2E_LETTER_CATCHER);
 let s;
-if (CATCHER) {
 // ---- Ages 3-4: one letter ----
 await openSkill('Mia', 'lit-catch-letter');
 s = await state();
@@ -216,7 +217,6 @@ await catchRest(0);
 await results();
 s = await state();
 check('catch 7-8: the round ends on Results, clean words scored', s.score === s.total - strayWords.size && strayWords.size <= 2, `${s.score}/${s.total}, stray in words ${[...strayWords]}`);
-} else console.log('SKIP Letter Catcher (set E2E_LETTER_CATCHER=1 to run it)');
 
 // ---- Block Fit helpers ----
 // Drags a piece by its middle to a point in game coordinates.

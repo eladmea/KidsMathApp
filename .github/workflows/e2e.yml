@@ -36,7 +36,7 @@ jobs:
     env:
       # How many walkthroughs at once (empty: half the CPUs, up to 4).
       E2E_JOBS: ${{ vars.E2E_JOBS }}
-      # "1": draw with the PC's graphics card instead of the CPU.
+      # Empty: draw with the PC's graphics card; "0": with the CPU instead.
       E2E_GPU: ${{ vars.E2E_GPU }}
       # "1": draw at normal resolution (a quarter of the pixels; empty: 2).
       E2E_SCALE: ${{ vars.E2E_SCALE }}

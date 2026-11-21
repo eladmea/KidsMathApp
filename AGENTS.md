@@ -25,4 +25,5 @@ Before writing Phaser code, read the guides that ship with the installed version
 - Resize shapes with `setSize(width, height)`. Assigning `rect.width = …` changes nothing on screen in Phaser 4.
 - Don't pass functions with optional parameters straight to `.filter`/`.map` (`skills.filter(isAvailable)` passes the index as the language). Wrap them: `.filter((s) => isAvailable(s))`.
 - After changing a scene, run `npm run lint`, `npm test` and the walkthroughs (`npm run e2e` against a build; see README), and add checks for new behaviour.
+- Never draw pictures (ComfyUI) while walkthroughs run on this PC, and never run them at the same time: both use the one RTX 4060, and the walkthroughs choke (hang, then time out). Finish every picture, then run `npm run e2e:local`. The GitHub runner on this PC also runs the walkthroughs on every push and pull request, so finish drawing before you push. If ComfyUI is still running, stop it first (comfy-mcp `stop_comfyui`, or `comfy stop`).
 - The old Expo app was removed in P5. If you need how it did something, it is in the git history up to commit `86c82f2`.
