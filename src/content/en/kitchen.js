@@ -166,6 +166,7 @@ export const say = {
     cleaned: () => 'All clean!',
     ready: () => 'It’s ready!',
     decorate: ({ count, item }) => `Now decorate it. Put on ${count} ${count === 1 ? item.one : item.many}.`,
+    dress: () => 'Now decorate it! Choose anything you like.',
     stack: () => 'Build it in order. Bottom bun first!',
     wrongLayer: () => 'Not that one yet. What comes next?',
     served: () => 'It looks delicious! Thank you, chef!',

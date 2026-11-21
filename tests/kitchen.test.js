@@ -3,6 +3,7 @@ import {
   LEVELS,
   addScoop,
   bestTool,
+  dressSpot,
   familyOf,
   gaugeAxis,
   gatherCheck,
@@ -177,6 +178,26 @@ describe('gathering and cleaning', () => {
     const layers = getRecipe('burgers').serve.layers;
     expect(stackCheck(layers, [], layers[0])).toBe(true);
     expect(stackCheck(layers, [layers[0]], layers[2])).toBe(false);
+  });
+
+  it('dresses the smoothie: one straw, rim fruit until the rim is full', () => {
+    const { choices } = smoothie.serve;
+    const placed = [];
+    const add = (id) => {
+      const spot = dressSpot(choices, placed, id);
+      if (spot) placed.push({ id, ...spot });
+      return spot;
+    };
+    expect(add('straw')).toEqual({ place: 'back', spot: 0 });
+    expect(add('straw')).toBe(null);
+    expect(add('umbrella')).toEqual({ place: 'back', spot: 1 });
+    expect(add('cream')).toEqual({ place: 'cap', spot: 0 });
+    ['strawberry', 'kiwi', 'strawberry', 'cherry'].forEach((id, i) => expect(add(id)).toEqual({ place: 'rim', spot: i }));
+    expect(add('strawberry')).toBe(null);
+    expect(add('mint')).toEqual({ place: 'top', spot: 0 });
+    // Taking one off frees its spot.
+    placed.splice(placed.findIndex((one) => one.id === 'kiwi'), 1);
+    expect(add('strawberry')).toEqual({ place: 'rim', spot: 1 });
   });
 
   it('fries the burger patties in a pan (the bun comes at serving)', () => {

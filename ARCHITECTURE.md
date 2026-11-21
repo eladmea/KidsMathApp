@@ -73,6 +73,7 @@ node scripts/comfy-picture.mjs <image key> "<subject>" [--kind food|object|place
 - `--kind` picks the house prompt and the size. Each kind's prompt is in the script, next to the food one shown below:
   - `food` (the default): one food, cut out, 384 px.
   - `object`: anything else held or placed (a sign, a chest, a prop), cut out, 384 px. Use `picture-cutout.mjs --size 640` afterwards for a wide one shown big, like the `ui/sign` board.
+  - `character`: a friendly animal, head and shoulders (the Pizza Shop customers), cut out, 384 px. The only kind with a face, so its negative prompt leaves out "face, eyes, mouth, animal".
   - `place`: a whole small island, round and floating (the map shows it with its name ribbon), seen from above at three-quarters, cut out, 512 px. "Diorama" in the prompt put the islands on square display bases, so the prompt says "round tropical island" and the negative prompt has "base, platform, board".
   - `backdrop`: a whole screen behind a scene, 1344 × 768, not cut out. It is saved as a 1280 × 720 WebP (about 50 KB) in `src/assets/backdrops/<scene key>.webp` (see "Backdrops" below). The prompt asks for open space in the middle, where the scene's buttons go.
 - The script sends ComfyUI its own workflow (no template), so these two prompts are all the model is told. `(word:1.4)` gives a word more weight.
@@ -87,6 +88,8 @@ node scripts/comfy-picture.mjs <image key> "<subject>" [--kind food|object|place
 - A bag or sack of white powder fills with sweets (the prompt's bright colours); "(heap of white flour:1.4) in a small wooden scoop" gives flour in a wooden bowl.
 - "Flat even lighting" and "floating" keep the shadow faint; BiRefNet removes what's left.
 - Bottles, jars and packets: describe a plain container ("plain red plastic squeeze bottle, blank smooth bottle") and leave the product's name out. With "no label" or the product's name, the model prints a label with nonsense letters.
+- **When the model won't draw it** (a peeled banana, a straw on its own, plain whipped cream, an empty board: it adds a glass, a cup or a knife every time), draw the shape simply yourself (a 1024 × 1024 PNG on white: flat colours, a few outlines) and let the model paint over it: `--shape <png> --denoise 0.55` to `0.65`. Less denoise keeps the shape, more makes it look like the house style.
+- **Two frames of an animation** (an animal with its mouth shut and open): the model can't be told to draw the same animal twice. Pick one page, paint the change onto it (a dark open mouth, or the muzzle's colour and a smile line over the mouth), and repaint it with `--shape <painted page> --denoise 0.4`: the animal stays the same and only the mouth changes. Then cut both out with `picture-cutout.mjs <one> <key> --frame <other>`, so the two are trimmed to the same box and don't jump when swapped.
 - About 20 seconds a picture on the RTX 4060, and free, so draw a few seeds (`--seed 1` to `4` with `--page-only`) and keep the one that reads best at 56 px.
 - Each try is saved in `.comfy-pages/` (not committed): `<key>.seed<N>.png` (the page) and `<key>.seed<N>.cut.png` (BiRefNet's transparent cutout).
 
@@ -191,6 +194,18 @@ node scripts/comfy-picture.mjs <image key> "<subject>" [--kind food|object|place
 | backdrop `LetterCatcher` (wash 0.45) | a sunny park with trees along the edges, soft grass in the middle | 2 |
 | backdrop `PushRoll` (wash 0.45) | a sunny park lawn with trees along the edges | 3 |
 | backdrop `RoboPath` (wash 0.45) | a soft futuristic toy workshop with gentle blue light | 3 |
+| `kitchen/sink` (kind `object`; replaces the SVG) | white kitchen sink with a wide empty basin and a curved silver tap, seen from the front | 3 |
+| `kitchen/serve/smoothieCup` (the glass the child dresses) | big tall clear drinking glass filled with smooth plain pink milk, flat smooth top, (empty glass rim:1.3) | 3 |
+| `kitchen/food/bananaPeeled` (`--shape` a drawn half-peeled banana, denoise 0.6) | half-peeled banana, soft pale cream banana fruit on top, yellow peel folded down in three strips | 1 |
+| `kitchen/deco/straw` (kind `object`, `--shape` a drawn bent striped straw, denoise 0.55) | single red and white striped bendy drinking straw | 1 |
+| `kitchen/deco/cream` (`--shape` a drawn stacked swirl, denoise 0.6) | swirl of fluffy white whipped cream | 2 |
+| `kitchen/deco/umbrella` (kind `object`) | small open paper cocktail umbrella, pink and yellow, on a thin wooden stick | 2 |
+| `kitchen/deco/cherry` | single red cherry with a stem | 3 |
+| `kitchen/deco/kiwi` | (round slice of green kiwi fruit:1.4), seen from above, little black seeds | 2 |
+| `kitchen/deco/blueberries` | three round dark blue blueberries | 2 |
+| `kitchen/deco/mint` | two fresh green mint leaves | 3 |
+| `pizza/board` (kind `object`, `--shape` a drawn round board with wood lines, denoise 0.65, `--size 640`) | round wooden chopping board with a short handle, warm brown wood with wood grain, seen from directly above | 2 |
+| `pizza/animals/<id>` and `<id>-open` (kind `character`; one frame drawn, the other painted and repainted at denoise 0.4, cut out with `--frame`) | brown bear, white bunny with long ears, orange fox, panda, green frog, brown monkey, lion with a golden mane, pink pig (… with its mouth closed / wide open) | bear 2, bunny 2, fox 2, panda 1, frog 2, monkey 1, lion 1, pig 4 |
 
 ---
 
@@ -266,6 +281,7 @@ Letter sounds for Word Builder (`soundSpeech` in the literacy pack: "mmm", "buh"
 1. Add `src/logic/recipes/<id>.js`: its ingredients (key, emoji, `qty`, `unit`: `whole`, `cup`, `tbsp`, `tsp`, `ml` or `g`, `piece` grams for the scale, and `kept`: `fridge` or `cupboard`), its `prep` steps, how it is cooked and served, and its `source` URL. Leave `verified: null` until a person has checked every amount against the source page.
    - Measures are Israeli metric: 1 cup = 240 ml, 1 tablespoon = 15 ml, 1 teaspoon = 5 ml (`logic/kitchen.js`).
    - `npm test` checks the recipe at every age level (every amount can be measured with that level's tools).
+   - Serving (`serve.kind`): `decorate` puts `count` of one thing on the plates, `stack` builds the dish in order (a burger), and `dress` gives one big dish and a row of `choices` the child picks from freely (the smoothie's straw, cream and fruit). Each choice has a `place` on the dish (`back`, `cap`, `rim`, `top`; `DRESS_SPOTS` in `logic/kitchen.js`). The blender's `cook.pieces` are the pictures that whirl in it.
 2. Add a skill to `curriculum/skills.js` with `screen: 'Kitchen'` and `recipe: '<id>'`, and its title to `i18n/<language>/curriculum.json`.
 3. Add the new ingredient names, the dish and any new step lines to `content/<language>/kitchen.js`.
 4. Kitchen Cove is an open island (`open: true` in `curriculum/subjects.js`): every age sees every recipe, and the child's age band sets the level (`LEVELS` in `logic/kitchen.js`).

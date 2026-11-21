@@ -66,13 +66,17 @@ const BAKE_MS = 2400;
 const NEXT_MS = 2600;
 const TRACE_WIDTH = SIZE * 0.56;
 const SAUCE_LOOK = { dot: 19, guide: 0xebcb9c, guideCurrent: 0xe2b47a, done: COLORS.sauce, trail: COLORS.sauce, trailSize: 34, road: 0xfff7e8, demo: '🥄' };
-const CUSTOMER_AT = { x: 170, y: 300, size: 110 };
+// The customer: a picture with its mouth shut (pizza/animals/<id>) and one
+// with it open (<id>-open), swapped to eat.
+const CUSTOMER_AT = { x: 170, y: 292, size: 160 };
 const PANEL_X = 1030;
 const OVEN = { x: PANEL_X, y: 430, width: 260, height: 190 };
 const CHEESE = { color: 0xffe066, edge: 0xf2c230, melt: 0xffe27a, meltLight: 0xfff3b8, bakedColor: 0xffd25e, bakedLight: 0xffe9a0, browned: 0xd9902f };
 // Toppings on the pizza, and how near the tray a dragged one must be let go
 // to go back.
 const TOPPING_SIZE = 46 * K;
+// The board under the pizza, turned this many degrees.
+const BOARD_TURN = 135;
 const TRAY_REACH = 50;
 
 export default class PizzaShopScene extends BaseScene {
@@ -153,6 +157,13 @@ export default class PizzaShopScene extends BaseScene {
   }
 
   buildPizza() {
+    // A wooden board under the pizza, so the pale dough shows on any backdrop.
+    // Its round part (0.82 of the picture, centred 0.07 below the middle) sits
+    // under the pizza, the handle turned to the bottom right, clear of the
+    // stations along the top.
+    const board = SIZE + 50;
+    const turn = Phaser.Math.DegToRad(BOARD_TURN);
+    this.board = art(this, CX + Math.sin(turn) * board * 0.085, CY - Math.cos(turn) * board * 0.085, { key: 'pizza/board', emoji: '', size: board / 0.82 }).setAngle(BOARD_TURN);
     this.pizza = this.add.container(CX, CY);
     this.shadow = this.add.circle(0, 10, SIZE / 2, 0x000000, 0.12);
     this.dough = this.add.circle(0, 0, SIZE / 2, 0xf3d9a4).setStrokeStyle(4 * K, 0xe2bd78);
@@ -241,7 +252,7 @@ export default class PizzaShopScene extends BaseScene {
     this.swipeStart = null;
     this.grabbed = null;
 
-    this.setCustomer(this.friend.emoji);
+    this.setCustomer(this.friend);
     this.orderNumber.setText(String(this.number));
     this.pizza.setPosition(CX, CY).setScale(1).setAlpha(1).setVisible(true).setDepth(0);
     this.sauce.clear();
@@ -257,10 +268,35 @@ export default class PizzaShopScene extends BaseScene {
     this.say(this.words.say.pizza.order({ friend: this.friendName, number: this.number, word: this.numberWord }));
   }
 
-  setCustomer(emoji) {
+  setCustomer(friend) {
     if (this.customerArt) this.customerArt.destroy();
-    this.customerArt = glyph(this, CUSTOMER_AT.x, CUSTOMER_AT.y, emoji, CUSTOMER_AT.size);
-    this.tag('customer', this.customerArt);
+    const { x, y, size } = CUSTOMER_AT;
+    const key = `pizza/animals/${friend.id}`;
+    this.customerArt = this.add.container(x, y);
+    const shut = art(this, 0, 0, { key, emoji: friend.emoji, size });
+    const open = texture(this, `${key}-open`) ? art(this, 0, 0, { key: `${key}-open`, emoji: friend.emoji, size }).setVisible(false) : null;
+    this.customerArt.add(open ? [shut, open] : [shut]);
+    this.mouth = { shut, open, isOpen: false };
+    this.tag('customer', shut);
+  }
+
+  // Opens the customer's mouth (a slice is on its way) or shuts it.
+  openMouth(isOpen) {
+    if (!this.mouth || this.mouth.isOpen === isOpen) return;
+    this.mouth.isOpen = isOpen;
+    if (!this.mouth.open) return;
+    this.mouth.open.setVisible(isOpen);
+    this.mouth.shut.setVisible(!isOpen);
+  }
+
+  // A slice eaten: a few chomps, the head bobbing with each bite.
+  chomp() {
+    const box = this.customerArt;
+    this.tweens.killTweensOf(box);
+    box.setScale(1);
+    this.tweens.add({ targets: box, scaleY: 0.9, scaleX: 1.06, duration: 120, yoyo: true, repeat: 2, onComplete: () => box.setScale(1) });
+    let bites = 0;
+    this.time.addEvent({ delay: 120, repeat: 5, callback: () => this.openMouth(++bites % 2 === 1 && bites < 6) });
   }
 
   setStep(step) {
@@ -640,7 +676,6 @@ export default class PizzaShopScene extends BaseScene {
     this.pizza.setVisible(false);
     this.ovenPizza.setVisible(true);
     this.setStep('baking');
-    this.say(this.words.say.pizza.baking());
     this.timer = this.time.delayedCall(BAKE_MS, () => this.baked());
   }
 
@@ -715,6 +750,8 @@ export default class PizzaShopScene extends BaseScene {
     const [fx, fy] = this.grabbed.from;
     slice.setPosition(slice.home.x + x - fx, slice.home.y + y - fy).setAlpha(0.9).setDepth(10);
     this.grabbed.at = [LEFT + x, TOP + y];
+    // The customer opens wide as the slice comes near.
+    this.openMouth(Math.hypot(LEFT + x - CUSTOMER_AT.x, TOP + y - CUSTOMER_AT.y) < 330);
   }
 
   dropSlice() {
@@ -725,12 +762,14 @@ export default class PizzaShopScene extends BaseScene {
     const reach = CUSTOMER_AT.size / 2 + 30;
     const at = grabbed.at;
     if (!at || Math.abs(at[0] - CUSTOMER_AT.x) > reach || Math.abs(at[1] - CUSTOMER_AT.y) > reach) {
+      this.openMouth(false);
       slice.setPosition(slice.home.x, slice.home.y).setAlpha(1).setDepth(0);
       return;
     }
     slice.setVisible(false);
     this.eaten.push(grabbed.slice);
-    this.setCustomer('😋');
+    this.openMouth(false);
+    this.chomp();
     play(this, 'correct');
     if (this.eaten.length < SLICES) {
       this.showBubble(this.words.say.pizza.ate({ eaten: this.eaten.length }));

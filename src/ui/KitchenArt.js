@@ -100,10 +100,10 @@ export function drawSink(scene, x, y, label) {
   const pipe = scene.add.rectangle(0, -78, 18, 70, 0x9aa8b2).setRounded(8);
   const spout = scene.add.rectangle(24, -110, 66, 18, 0x9aa8b2).setRounded(8);
   const text = scene.add.text(0, 112, label, textStyle(22, 0x6e5a48)).setOrigin(0.5);
-  box.add([basin, water, pipe, spout]);
-  // The picture's basin lines up with the shapes' basin.
+  // The picture (src/assets/images/kitchen/sink), or the shapes without one.
   const sink = picture(scene, 'kitchen/sink', 0, -22, 240);
-  if (sink) box.add(sink);
+  if (sink) [water, pipe, spout].forEach((shape) => shape.destroy());
+  box.add(sink ? [basin.setVisible(false), sink] : [basin, water, pipe, spout]);
   box.add(text);
   return { box, basin };
 }

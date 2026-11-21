@@ -6,6 +6,9 @@
 // Every picture loads when the game starts, so keep them small.
 //   node scripts/picture-cutout.mjs <page.png> <image key> [--size 384]
 //   node scripts/picture-cutout.mjs page.png emoji/1f32d   -> src/assets/images/emoji/1f32d.webp
+//   --frame OTHER  trim to the box that holds both this cutout and OTHER (a
+//            page of the same size), so two frames of an animation line
+//            up: an animal with its mouth shut and with it open.
 //   --pale   for a light subject (garlic, an egg, flour): only near-pure white
 //            and the darker grey of the shadow go, so its pale edge stays.
 // The page can be a file or an https URL.
@@ -14,7 +17,9 @@ import path from 'path';
 import sharp from 'sharp';
 
 const args = process.argv.slice(2);
-const [source, key] = args.filter((arg) => !arg.startsWith('--') && !/^\d+$/.test(arg));
+const [source, key] = args.filter((arg, i) => !arg.startsWith('--') && !/^\d+$/.test(arg) && args[i - 1] !== '--frame');
+const frameAt = args.indexOf('--frame');
+const FRAME = frameAt >= 0 ? args[frameAt + 1] : null;
 const sizeAt = args.indexOf('--size');
 const SIZE = sizeAt >= 0 ? Number(args[sizeAt + 1]) : 384;
 const PALE = args.includes('--pale');
@@ -120,7 +125,24 @@ for (let y = 1; y < H - 1 && !CUT; y++) {
 }
 
 // Trimmed, then centred on a square (pictures are sized by their longer side).
-const trimmed = await sharp(data, { raw: info }).trim({ threshold: 0 }).png().toBuffer({ resolveWithObject: true });
+const trimmed = FRAME ? await frameTrim() : await sharp(data, { raw: info }).trim({ threshold: 0 }).png().toBuffer({ resolveWithObject: true });
+
+// --frame: the box around what shows in this picture or in the other one.
+async function frameTrim() {
+  const other = (await sharp(fs.readFileSync(FRAME)).ensureAlpha().raw().toBuffer({ resolveWithObject: true })).data;
+  let [left, top, right, bottom] = [W, H, -1, -1];
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      const i = at(x, y) + 3;
+      if (!data[i] && !other[i]) continue;
+      left = Math.min(left, x);
+      right = Math.max(right, x);
+      top = Math.min(top, y);
+      bottom = Math.max(bottom, y);
+    }
+  }
+  return sharp(data, { raw: info }).extract({ left, top, width: right - left + 1, height: bottom - top + 1 }).png().toBuffer({ resolveWithObject: true });
+}
 const side = Math.max(trimmed.info.width, trimmed.info.height);
 const pad = Math.round(side * 0.02);
 const square = side + pad * 2;

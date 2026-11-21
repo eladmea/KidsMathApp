@@ -10,6 +10,7 @@ import { celebrate, oops, popIn, pulse } from '../ui/Juice';
 import { COLORS, textStyle } from '../ui/theme';
 import { drawAppliance, drawCounter, drawCupboard, drawFridge, drawSink, food } from '../ui/KitchenArt';
 import { Jug, Scale } from '../ui/KitchenGauges';
+import Blender from '../ui/Blender';
 import { session } from '../services/session';
 import { play } from '../services/audio';
 import { content } from '../content/index';
@@ -22,6 +23,7 @@ import {
   TOOLS,
   addScoop,
   bestTool,
+  dressSpot,
   familyOf,
   gaugeAxis,
   gatherCheck,
@@ -77,8 +79,10 @@ const COUNTER_TOP = 540;
 const FRIDGE_AT = { x: 455, y: 400 };
 const CUPBOARD_AT = { x: 800, y: 310 };
 const SINK_AT = { x: 800, y: 360 };
+// Where thrown dishes land in the sink picture, from its middle.
+const SINK_BASIN = { x: 0, y: 10 };
 // The sink for washing hands: drawn big, the tap's water falling on the hands.
-const SINK_WASH = { y: 440, scale: 1.55, waterX: 907, waterTop: 287, handsY: 450, meterY: 620 };
+const SINK_WASH = { y: 440, scale: 1.55, waterX: 803, waterTop: 300, handsY: 450, meterY: 620 };
 const CORNER = { x: 1150, y: 300 };
 const RUB_GOAL = 1600;
 // The wipe job's spills: where, and their colour (juice, batter, cocoa).
@@ -95,6 +99,11 @@ const HOLD_MS = 1800;
 const COOK_MS = 14000;
 const SERVE_MS = 2600;
 const ITEM = 56;
+// Dressing the smoothie: the glass standing on the counter (its picture's
+// glass is this much of the picture's width and height), the row of
+// choices under it, and what is drawn in front of what.
+const DRESS = { x: 760, y: 412, size: 280, glass: { width: 0.55, height: 0.955 }, cardsY: 650 };
+const DRESS_DEPTH = { back: 1, cup: 2, cap: 3, rim: 4, top: 5 };
 
 export default class KitchenScene extends BaseScene {
   static key = 'Kitchen';
@@ -132,6 +141,11 @@ export default class KitchenScene extends BaseScene {
     this.timerMinutes = 0;
     this.cooking = null;
     this.cookTimer = null;
+    this.blender = null;
+    this.dressed = [];
+    this.dressDone = null;
+    this.choiceCards = null;
+    this.cup = null;
     this.instrument = null;
     this.measureBowl = null;
     this.leftovers = [];
@@ -291,7 +305,7 @@ export default class KitchenScene extends BaseScene {
       prep: this.recipe.prep[this.prepIndex] ? { index: this.prepIndex, action: this.recipe.prep[this.prepIndex].action, kind: prepKind(this.recipe.prep[this.prepIndex]), progress: this.progress } : null,
       cook: { appliance: this.recipe.cook.appliance, minutes: this.recipe.cook.minutes || 0, set: this.timerMinutes, cooking: Boolean(this.cooking), ding: this.ding },
       cleanup: { job: this.cleanupJob, left: this.cleanLeft, done: this.cleaned, items: this.cleanItems() },
-      serve: { kind: this.recipe.serve.kind, placed: this.placed.length, count: this.recipe.serve.kind === 'stack' ? this.recipe.serve.layers.length : this.recipe.serve.count },
+      serve: { kind: this.recipe.serve.kind, placed: this.placed.length, count: { stack: (this.recipe.serve.layers || []).length, dress: null }[this.recipe.serve.kind] ?? this.recipe.serve.count, dressed: this.dressed.map(({ id, place, spot }) => ({ id, place, spot })) },
       mistakes: { ...this.mistakes },
     };
   }
@@ -763,7 +777,7 @@ export default class KitchenScene extends BaseScene {
       for (let i = 0; i < action.times; i++) {
         const x = STAGE_X + ((i % perRow) - (perRow - 1) / 2) * 70;
         const y = 600 + Math.floor(i / perRow) * 64;
-        const piece = action.action === 'shape' ? this.cookedArt(x, y, 50) : made === emoji && ingredient ? food(this, x, y, ingredient, 50) : glyph(this, x, y, made, 50);
+        const piece = action.action === 'shape' ? this.cookedArt(x, y, 50) : action.action === 'peel' && ingredient ? this.peeledArt(x, y, ingredient, 56) : made === emoji && ingredient ? food(this, x, y, ingredient, 50) : glyph(this, x, y, made, 50);
         this.results.push(own(piece.setAlpha(0.18)));
       }
       this.focus.setInteractive({ useHandCursor: true }).on('pointerup', () => this.prepTap(action));
@@ -780,19 +794,67 @@ export default class KitchenScene extends BaseScene {
     this.progress += 1;
     if (['cut', 'crack', 'shape'].includes(action.action)) play(this, 'kitchen-chop', { volume: 0.7, detune: 40 * this.progress });
     else play(this, 'star', { volume: 0.4, detune: 80 * this.progress });
-    result.setAlpha(1);
-    popIn(this, result);
+    if (action.action === 'peel') this.peel(result);
+    else {
+      result.setAlpha(1);
+      popIn(this, result);
+    }
     this.tweens.add({ targets: this.focus, scale: this.focus.scale * 0.9, yoyo: true, duration: 90 });
     this.hint.reset();
     this.report(this.snapshot());
     if (this.progress >= action.times) this.prepDone();
   }
 
+  // A peeled ingredient (kitchen/food/<key>Peeled), or its emoji.
+  peeledArt(x, y, ingredient, size) {
+    return art(this, x, y, { key: `kitchen/food/${ingredient.key}Peeled`, emoji: ingredient.emoji, size });
+  }
+
+  // One tap peels one: the peel falls away in strips, the peeled fruit shows
+  // where the whole one was, then moves down to its place in the row (and a
+  // whole one comes back while there are more to peel).
+  peel(result) {
+    const action = this.recipe.prep[this.prepIndex];
+    const ingredient = getIngredient(this.recipe, action.on);
+    const { x, y } = this.focus;
+    [-1, 0, 1].forEach((side) => {
+      const strip = this.add.ellipse(x + side * 30, y + 10, 30, 110, 0xf2cf3a).setStrokeStyle(3, 0xc9a227).setAngle(side * 25).setDepth(12);
+      this.tweens.add({ targets: strip, x: x + side * 120 + 10, y: y + 150, angle: side * 80 + 30, alpha: 0, duration: 650, ease: 'Quad.easeIn', onComplete: () => strip.destroy() });
+    });
+    const peeled = this.peeledArt(x, y, ingredient, 170).setDepth(11);
+    this.prepObjects.push(peeled);
+    this.focus.setAlpha(0.02);
+    popIn(this, peeled);
+    this.time.delayedCall(450, () => {
+      if (!peeled.active) return;
+      this.tweens.add({
+        targets: peeled,
+        x: result.x,
+        y: result.y,
+        scale: result.scale,
+        duration: 320,
+        ease: 'Quad.easeIn',
+        onComplete: () => {
+          peeled.destroy();
+          if (!result.active) return;
+          result.setAlpha(1);
+          popIn(this, result);
+        },
+      });
+      if (this.focus && this.focus.active && this.progress < action.times) {
+        this.focus.setAlpha(1);
+        popIn(this, this.focus);
+      }
+    });
+  }
+
   prepDone() {
     play(this, 'correct');
+    // A peeled one is still on its way down to the row.
+    const settle = this.recipe.prep[this.prepIndex].action === 'peel' ? 1100 : 700;
     this.prepIndex += 1;
     this.report(this.snapshot());
-    this.time.delayedCall(700, () => this.nextPrep());
+    this.time.delayedCall(settle, () => this.nextPrep());
   }
 
   // ---- 5. cook ----
@@ -803,6 +865,14 @@ export default class KitchenScene extends BaseScene {
     Object.values(this.cardRows).forEach((row) => row.back.setFillStyle(0xfff4dd, 0));
     this.setStation('cook');
     const { appliance, minutes } = this.recipe.cook;
+    if (appliance === 'blender') {
+      // The fruit goes in whole and comes out smooth (ui/Blender.js).
+      const pieces = (this.recipe.cook.pieces || []).flatMap(({ count = 1, ...piece }) => Array.from({ length: count }, () => piece));
+      this.blender = this.keep(new Blender(this, STAGE_X - 40, 390, { pieces, color: this.recipe.cook.color }));
+      this.say([this.words.say.kitchen.cook({ appliance })]);
+      this.holdButton(() => this.blended());
+      return;
+    }
     this.applianceArt = drawAppliance(this, STAGE_X, 400, appliance);
     this.keep(this.applianceArt.box);
     this.dish = (appliance === 'blender' ? art(this, 0, -40, { key: 'kitchen/serve/strawberry', emoji: '🍓', size: 80 }) : this.cookedArt(0, 10, 80)).setAlpha(0.9);
@@ -896,16 +966,18 @@ export default class KitchenScene extends BaseScene {
       delay: 50,
       loop: true,
       callback: () => {
-        if (!this.holding || !this.holding.down) return;
-        // The motor whirs while the button is held.
-        if (this.holding.held % 1500 === 0) play(this, 'kitchen-blend', { volume: 0.5 });
-        this.holding.held += 50;
-        fill.setSize(Math.min(200, (200 * this.holding.held) / HOLD_MS), 18);
-        this.applianceArt.box.setAngle(Math.sin(this.holding.held / 40) * 2);
-        this.dish.setAngle(this.holding.held / 3);
+        if (!this.holding) return;
+        const { down } = this.holding;
+        if (down) {
+          // The motor whirs while the button is held.
+          if (this.holding.held % 1500 === 0) play(this, 'kitchen-blend', { volume: 0.5 });
+          this.holding.held += 50;
+          fill.setSize(Math.min(200, (200 * this.holding.held) / HOLD_MS), 18);
+        }
+        // Let go, and the blender slows down and the whirl settles.
+        this.blender.update(50, down, this.holding.held / HOLD_MS);
         if (this.holding.held >= HOLD_MS) {
           this.holdEvent.remove();
-          this.applianceArt.box.setAngle(0);
           back.setVisible(false);
           onDone();
         }
@@ -918,7 +990,10 @@ export default class KitchenScene extends BaseScene {
     play(this, 'correct');
     this.holding = null;
     this.ding = true;
-    this.time.delayedCall(700, () => this.startCleanup());
+    // It spins down, smooth and pink, before the clean-up.
+    const blender = this.blender;
+    this.time.addEvent({ delay: 50, repeat: 16, callback: () => blender.active && blender.update(50, false, 1) });
+    this.time.delayedCall(1100, () => this.startCleanup());
   }
 
   // ---- 6. one clean-up job ----
@@ -950,18 +1025,17 @@ export default class KitchenScene extends BaseScene {
       this.keep(sink.box);
       const dishes = ['bowl', ...usedTools(this.measures)];
       this.cleanLeft = dishes.length;
-      // Each dish: what moves to the sink, and what is tapped.
+      // Each dish is its picture (no words): tap it and it is thrown into the
+      // sink. Smaller cups and spoons are drawn smaller.
+      const spacing = Math.min(130, 860 / dishes.length);
       this.dishes = dishes.map((dish, i) => {
-        const x = 420 + i * 110;
-        const y = COUNTER_TOP + 60;
+        const x = 800 + (i - (dishes.length - 1) / 2) * spacing;
+        const y = COUNTER_TOP + 80;
         const entry = { dish, washed: false };
-        if (dish === 'bowl') {
-          entry.moves = this.keep(art(this, x, y, { key: 'kitchen/bowl', emoji: '🥣', size: ITEM }));
-          entry.hit = entry.moves.setInteractive({ useHandCursor: true });
-        } else {
-          entry.moves = this.keep(new Button(this, x, y, { label: this.words.TOOLS[dish].label, width: 96, height: 60, fontSize: 18, color: COLORS.white, textColor: COLORS.ink }));
-          entry.hit = entry.moves.box;
-        }
+        const look = dish === 'bowl' ? { key: 'kitchen/bowl', emoji: '🥣', size: 100 } : TOOL_PICTURES[TOOLS[dish].family];
+        const size = dish === 'bowl' ? 100 : look.size * 2.4 * (TOOL_SIZES[dish] || 1);
+        entry.moves = this.keep(art(this, x, y, { key: look.key, emoji: look.emoji, size }).setDepth(6));
+        entry.hit = entry.moves.setInteractive({ useHandCursor: true });
         entry.hit.on('pointerup', () => this.toSink(entry, sink));
         this.tag(`dish:${dish}`, entry.hit);
         return entry;
@@ -1039,8 +1113,33 @@ export default class KitchenScene extends BaseScene {
   toSink(entry, sink) {
     if (entry.washed) return;
     entry.washed = true;
-    play(this, 'kitchen-clink', { volume: 0.6, detune: Phaser.Math.Between(-200, 200) });
-    this.tweens.add({ targets: entry.moves, x: sink.box.x + Phaser.Math.Between(-60, 60), y: sink.box.y + 20, scale: 0.6, duration: 350 });
+    // Thrown in a high arc, spinning, into the basin: a splash of bubbles,
+    // and it sinks out of sight under the water.
+    const dish = entry.moves;
+    dish.disableInteractive().setDepth(30);
+    const from = { x: dish.x, y: dish.y, scale: dish.scale };
+    const to = { x: sink.box.x + SINK_BASIN.x + Phaser.Math.Between(-50, 50), y: sink.box.y + SINK_BASIN.y };
+    const height = 160 + Math.abs(to.x - from.x) * 0.25;
+    this.tweens.addCounter({
+      from: 0,
+      to: 1,
+      duration: 520,
+      onUpdate: (tween) => {
+        const p = tween.getValue();
+        dish.setPosition(from.x + (to.x - from.x) * p, from.y + (to.y - from.y) * p - height * 4 * p * (1 - p));
+        dish.setAngle(p * 360 * (to.x > from.x ? 1 : -1)).setScale(from.scale * (1 - 0.35 * p));
+      },
+      onComplete: () => {
+        play(this, 'kitchen-clink', { volume: 0.6, detune: Phaser.Math.Between(-200, 200) });
+        dish.setAngle(Phaser.Math.Between(-20, 20));
+        for (let i = 0; i < 5; i++) {
+          const bubble = this.keep(glyph(this, to.x + Phaser.Math.Between(-50, 50), to.y - Phaser.Math.Between(0, 30), '🫧', Phaser.Math.Between(26, 40)).setDepth(31));
+          popIn(this, bubble);
+          this.tweens.add({ targets: bubble, y: bubble.y - 60, alpha: 0, delay: 200 + i * 60, duration: 600 });
+        }
+        this.tweens.add({ targets: dish, y: to.y + 24, alpha: 0, delay: 250, duration: 450 });
+      },
+    });
     const next = this.dishes.find((other) => !other.washed);
     this.cleanFocus = next ? next.hit : null;
     this.cleanStep();
@@ -1097,7 +1196,105 @@ export default class KitchenScene extends BaseScene {
     this.placed = [];
     const { serve } = this.recipe;
     if (serve.kind === 'stack') this.startStack(serve);
+    else if (serve.kind === 'dress') this.startDress(serve);
     else this.startDecorate(serve);
+  }
+
+  // One big glass, and a row of things to put on it: the child chooses what
+  // and how much (logic/kitchen.js dressSpot), takes things off again with a
+  // tap, and taps ✓ when it looks right.
+  startDress(serve) {
+    this.dressed = [];
+    this.cup = this.keep(this.servePicture(DRESS.x, DRESS.y, serve.dishPicture, serve.dish, DRESS.size).setDepth(DRESS_DEPTH.cup));
+    this.tag('cup', this.cup);
+    const spacing = Math.min(104, 860 / serve.choices.length);
+    this.choiceCards = {};
+    serve.choices.forEach((choice, i) => {
+      const x = STAGE_X + (i - (serve.choices.length - 1) / 2) * spacing;
+      const card = this.keep(this.add.rectangle(x, DRESS.cardsY, spacing - 10, 96, COLORS.white).setRounded(20).setStrokeStyle(4, 0xe5d3b3));
+      const picture = this.keep(this.servePicture(x, DRESS.cardsY, choice.picture, choice.emoji, 66));
+      // Only a tap that starts on the card: a wipe from the clean-up can end here.
+      card.setInteractive({ useHandCursor: true }).on('pointerdown', () => (card.pressed = true));
+      card.on('pointerout', () => (card.pressed = false));
+      card.on('pointerup', () => {
+        if (card.pressed) this.dress(serve, choice, card);
+        card.pressed = false;
+      });
+      this.tag(`deco:${choice.id}`, card);
+      this.choiceCards[choice.id] = { card, picture };
+      if (i === 0) this.serveFocus = card;
+    });
+    this.dressDone = this.keep(new Button(this, 1150, 420, { label: t('kitchen.done'), width: 170, height: 76, fontSize: 26, color: COLORS.green, onTap: () => this.served() }));
+    this.dressDone.setVisible(false);
+    this.tag('serve-done', this.dressDone.box);
+    this.say([this.words.say.kitchen.dress()]);
+    this.report(this.snapshot());
+  }
+
+  // Where a spot is, around the glass: [x, y, size, angle, depth].
+  dressPlace({ place, spot }) {
+    const cx = DRESS.x;
+    const w = DRESS.size * DRESS.glass.width;
+    const h = DRESS.size * DRESS.glass.height;
+    const top = DRESS.y - h / 2;
+    const cream = this.dressed.some((one) => one.place === 'cap');
+    switch (place) {
+      case 'back':
+        return spot === 0 ? [cx + w * 0.18, top - h * 0.1, h * 0.55, 8, DRESS_DEPTH.back] : [cx - w * 0.24, top - h * 0.16, h * 0.45, -14, DRESS_DEPTH.back];
+      case 'cap':
+        return [cx, top - h * 0.1, w * 1.05, 0, DRESS_DEPTH.cap];
+      case 'rim':
+        return [[cx - w * 0.48, top + h * 0.02, -20], [cx + w * 0.48, top + h * 0.02, 20], [cx - w * 0.22, top + h * 0.05, -8], [cx + w * 0.22, top + h * 0.05, 8]].map(([x, y, angle]) => [x, y, w * 0.42, angle, DRESS_DEPTH.rim])[spot];
+      default: {
+        const lift = cream ? h * 0.14 : 0;
+        const [dx, dy] = [[-0.2, 0], [0.2, 0], [0, -0.05], [-0.1, 0.04], [0.1, 0.04], [0, 0.02]][spot];
+        return [cx + dx * w, top + dy * h - lift - h * 0.02, w * 0.3, (spot % 2 ? 1 : -1) * 15, DRESS_DEPTH.top];
+      }
+    }
+  }
+
+  dress(serve, choice, card) {
+    if (this.station !== 'serve') return;
+    const spot = dressSpot(serve.choices, this.dressed, choice.id);
+    if (!spot) {
+      // On already (one straw), or no room left there.
+      this.tweens.add({ targets: card, angle: { from: -6, to: 6 }, duration: 60, yoyo: true, repeat: 2, onComplete: () => card.setAngle(0) });
+      return;
+    }
+    const [x, y, size, angle, depth] = this.dressPlace(spot);
+    const piece = this.keep(this.servePicture(card.x, card.y, choice.picture, choice.emoji, size).setDepth(depth));
+    const scale = piece.scale;
+    piece.setScale(scale * 0.4);
+    this.tweens.add({ targets: piece, x, y, angle, scale, duration: 380, ease: 'Back.easeOut' });
+    const entry = { id: choice.id, ...spot, piece };
+    this.dressed.push(entry);
+    this.placed = this.dressed;
+    piece.setInteractive({ useHandCursor: true }).on('pointerup', () => this.undress(entry));
+    play(this, 'star', { detune: 60 * this.dressed.length });
+    this.dressDone.setVisible(true);
+    this.serveFocus = this.dressDone.box;
+    this.tagDressed();
+    this.hint.reset();
+    this.report(this.snapshot());
+  }
+
+  // Tapped on the glass: it goes back to its card.
+  undress(entry) {
+    if (this.station !== 'serve') return;
+    this.dressed = this.dressed.filter((one) => one !== entry);
+    this.placed = this.dressed;
+    const { card } = this.choiceCards[entry.id];
+    entry.piece.disableInteractive();
+    this.tweens.add({ targets: entry.piece, x: card.x, y: card.y, scale: entry.piece.scale * 0.4, alpha: 0, duration: 260, onComplete: () => entry.piece.destroy() });
+    play(this, 'star', { volume: 0.3, detune: -300 });
+    this.dressDone.setVisible(this.dressed.length > 0);
+    this.serveFocus = this.dressed.length ? this.dressDone.box : this.choiceCards[this.recipe.serve.choices[0].id].card;
+    this.tagDressed();
+    this.report(this.snapshot());
+  }
+
+  tagDressed() {
+    this.dressed.forEach((entry, i) => this.tag(`dressed:${i}`, entry.piece));
   }
 
   startDecorate(serve) {
@@ -1197,9 +1394,12 @@ export default class KitchenScene extends BaseScene {
   }
 
   served() {
+    if (this.station === 'done') return;
     if (!this.mistakes.serve) this.addPoint();
     this.hint.pause();
     if (this.tray) this.tray.setVisible(false);
+    if (this.dressDone) this.dressDone.setVisible(false);
+    Object.values(this.choiceCards || {}).forEach(({ card, picture }) => card.disableInteractive() && picture.setAlpha(0.5));
     const friend = this.keep(glyph(this, 1185, 250, this.friendEmoji, 100));
     popIn(this, friend);
     celebrate(this, STAGE_X, 400, { count: 30 });

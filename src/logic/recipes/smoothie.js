@@ -21,8 +21,31 @@ export default {
     { key: 'vanilla', emoji: '🫙', qty: 0.5, unit: 'tsp', kept: 'cupboard' },
   ],
   prep: [{ action: 'peel', on: 'banana', times: 2 }],
-  cook: { appliance: 'blender' },
-  serve: { kind: 'decorate', dish: '🥤', plates: 4, item: '🍓', count: 4, dishPicture: 'kitchen/serve/smoothie', itemPicture: 'kitchen/serve/strawberry' },
+  // What whirls in the blender: the peeled bananas and the strawberries.
+  cook: {
+    appliance: 'blender',
+    color: 0xf28cb0,
+    pieces: [
+      { key: 'kitchen/food/bananaPeeled', emoji: '🍌', count: 2, size: 70 },
+      { key: 'kitchen/serve/strawberry', emoji: '🍓', count: 5, size: 42 },
+    ],
+  },
+  // One big glass, dressed the way the child likes it.
+  serve: {
+    kind: 'dress',
+    dish: '🥤',
+    dishPicture: 'kitchen/serve/smoothieCup',
+    choices: [
+      { id: 'straw', emoji: '🥤', place: 'back', picture: 'kitchen/deco/straw' },
+      { id: 'umbrella', emoji: '⛱️', place: 'back', picture: 'kitchen/deco/umbrella' },
+      { id: 'cream', emoji: '🍦', place: 'cap', picture: 'kitchen/deco/cream' },
+      { id: 'strawberry', emoji: '🍓', place: 'rim', picture: 'kitchen/serve/strawberry' },
+      { id: 'cherry', emoji: '🍒', place: 'rim', picture: 'kitchen/deco/cherry' },
+      { id: 'kiwi', emoji: '🥝', place: 'rim', picture: 'kitchen/deco/kiwi' },
+      { id: 'blueberries', emoji: '🫐', place: 'top', picture: 'kitchen/deco/blueberries' },
+      { id: 'mint', emoji: '🌿', place: 'top', picture: 'kitchen/deco/mint' },
+    ],
+  },
   cardOnly: [
     { key: 'lemonJuice', qty: 1, unit: 'tbsp', optional: true },
     { key: 'ice', qty: 0.25, unit: 'cup', optional: true },

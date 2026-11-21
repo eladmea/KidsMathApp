@@ -14,8 +14,8 @@ describe('writing games in English', () => {
     const mushroom = TOPPING_NAMES.mushroom;
     expect(say.pizza.right({ number: 1, topping: mushroom })).toMatch(/^1 mushroom!/);
     expect(say.pizza.right({ number: 3, topping: mushroom })).toMatch(/^3 mushrooms!/);
-    expect(say.pizza.ate({ eaten: 1 })).toBe('One slice! Yum!');
-    expect(say.pizza.ate({ eaten: 2 })).toBe('Two slices! Yum!');
+    expect(say.pizza.ate({ eaten: 1 })).toBe('One slice!');
+    expect(say.pizza.ate({ eaten: 2 })).toBe('Two slices!');
     expect(say.cake.right({ number: 1 })).toMatch(/^1 candle!/);
     expect(say.pizza.idle.place({ topping: TOPPING_NAMES.olive })).toMatch(/^Drag an olive slice/);
     expect(say.pizza.written({ word: 'three' })).toMatch(/^Three!/);
