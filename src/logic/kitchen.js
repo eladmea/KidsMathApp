@@ -242,7 +242,27 @@ export const prepKind = (action) => PREP_KINDS[action.action];
 export const timerStep = (minutes) => (minutes > 10 && minutes % 5 === 0 ? 5 : 1);
 
 // Serving: 'decorate' puts `count` things on the dish; 'stack' builds it in
-// the right order.
+// the right order; 'dress' lets the child choose what goes on (a straw,
+// cream, fruit...), as much or as little as they like.
+//
+// Dressing: each choice has a `place` on the dish, and each place a few
+// spots. 'back' things stand in the glass behind the rim (a straw, an
+// umbrella), 'cap' sits on top (cream), 'rim' fruit hang on the edge, and
+// 'top' bits are sprinkled over. A 'back' or 'cap' choice goes on once.
+export const DRESS_SPOTS = { back: 2, cap: 1, rim: 4, top: 6 };
+const ONCE = new Set(['back', 'cap']);
+
+// Where choice `id` goes next: { place, spot }, or null when there is no
+// room (or it is on already). `placed` is a list of { id, place, spot }.
+export function dressSpot(choices, placed, id) {
+  const choice = choices.find((one) => one.id === id);
+  if (!choice || !DRESS_SPOTS[choice.place]) return null;
+  if (ONCE.has(choice.place) && placed.some((one) => one.id === id)) return null;
+  const taken = new Set(placed.filter((one) => one.place === choice.place).map((one) => one.spot));
+  for (let spot = 0; spot < DRESS_SPOTS[choice.place]; spot++) if (!taken.has(spot)) return { place: choice.place, spot };
+  return null;
+}
+
 export function stackCheck(layers, placed, layer) {
   return layers[placed.length] === layer;
 }
@@ -301,7 +321,8 @@ export function recipeProblems(recipe) {
   const { serve } = recipe;
   if (serve.kind === 'decorate' && !(serve.count > 0)) problems.push('serve: no count');
   if (serve.kind === 'stack' && !(serve.layers && serve.layers.length > 1)) problems.push('serve: no layers');
-  if (!['decorate', 'stack'].includes(serve.kind)) problems.push(`serve ${serve.kind}`);
+  if (serve.kind === 'dress' && !(serve.choices && serve.choices.length > 1 && serve.choices.every((choice) => DRESS_SPOTS[choice.place]))) problems.push('serve: no choices');
+  if (!['decorate', 'stack', 'dress'].includes(serve.kind)) problems.push(`serve ${serve.kind}`);
   (recipe.cardOnly || []).forEach((ingredient) => {
     if (ingredient.toTaste || ingredient.pinch) return;
     if (!['cup', 'tbsp', 'tsp', 'ml', 'g'].includes(ingredient.unit) || !Number.isInteger(ingredient.qty * 4)) problems.push(`card only ${ingredient.key}`);

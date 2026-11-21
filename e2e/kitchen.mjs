@@ -149,6 +149,32 @@ async function decorate() {
   check('kitchen: decorated and served', (await state()).serve.placed === s.serve.count);
 }
 
+// The smoothie: one big glass, dressed as the child chooses.
+async function dress() {
+  await station('serve', 20000);
+  await sleep(500);
+  let s = await state();
+  check('kitchen: the smoothie is one glass to dress, with things to choose from', s.serve.kind === 'dress' && (await t.box('cup')) && (await t.box('deco:straw')));
+  await t.shot(dir, 'k4a-dress');
+  await tap('deco:straw');
+  await tap('deco:straw');
+  s = await state();
+  check('kitchen: one straw in the glass, not two', s.serve.dressed.filter((one) => one.id === 'straw').length === 1, JSON.stringify(s.serve.dressed));
+  for (const id of ['cream', 'strawberry', 'strawberry', 'kiwi', 'blueberries', 'mint']) await tap(`deco:${id}`);
+  s = await state();
+  check('kitchen: the child put on what they chose', s.serve.dressed.length === 7, JSON.stringify(s.serve.dressed));
+  // The first strawberry, on the rim's left.
+  await tap('dressed:2');
+  s = await state();
+  check('kitchen: a tap takes one off again', s.serve.dressed.length === 6 && s.serve.dressed.filter((one) => one.id === 'strawberry').length === 1, JSON.stringify(s.serve.dressed));
+  await tap('deco:cherry');
+  await sleep(500);
+  await t.shot(dir, 'k4b-dressed');
+  await tap('serve-done');
+  await waitFor(() => window.__mathplay.state.done === true, null, 6000);
+  check('kitchen: dressed and served', (await state()).serve.placed === 7);
+}
+
 async function openRecipe(skill) {
   await t.waitScene('WorldMap');
   const map = await state();
@@ -181,10 +207,12 @@ await t.shot(dir, 'k3-cook');
 const hold = await t.box('blender-hold');
 await page.mouse.move(hold.x + hold.width / 2, hold.y + hold.height / 2);
 await page.mouse.down();
+await sleep(250);
+await t.shot(dir, 'k3b-blending');
 await station('clean', 8000).catch(() => {});
 await page.mouse.up();
 await clean();
-await decorate();
+await dress();
 await t.shot(dir, 'k4-served');
 await t.waitScene('Results', 10000);
 let results = await state();

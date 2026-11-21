@@ -43,7 +43,7 @@ describe('Hebrew math pack', () => {
     expect(say.pizza.right({ number: 5, topping: TOPPING_NAMES.olive })).toMatch(/^חמישה זיתים!/);
     expect(say.pizza.order({ friend: 'דובי', number: 3, word: NUMBER_WORDS[3] })).toMatch(/^דובי רוצה פיצה! שלוש תוספות, בבקשה!/);
     expect(say.cake.iced({ number: 4, word: NUMBER_WORDS[4] })).toMatch(/ארבעה נרות/);
-    expect(say.pizza.ate({ eaten: 1 })).toBe('פרוסה אחת! יאמי!');
+    expect(say.pizza.ate({ eaten: 1 })).toBe('פרוסה אחת!');
     expect(say.memory.face({ kind: 'fraction', top: 3, bottom: 4 })).toBe('שלושה רבעים');
   });
 

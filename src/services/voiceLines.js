@@ -320,7 +320,7 @@ function mathPhrases({ NUMBER_WORDS, STROKE_NAMES, CUSTOMER_NAMES, TOPPING_NAMES
   });
   toppings.forEach((topping) => add(pizza.idle.place({ topping }), 'game: pizza'));
   range(1, 3).forEach((eaten) => add(pizza.ate({ eaten }), 'game: pizza'));
-  ['sauced', 'ovenMiss', 'baking', 'ready', 'cutMiss', 'cutOne', 'allGone'].forEach((phrase) => add(pizza[phrase](), 'game: pizza'));
+  ['sauced', 'ovenMiss', 'ready', 'cutMiss', 'cutOne', 'allGone'].forEach((phrase) => add(pizza[phrase](), 'game: pizza'));
   ['dough', 'sauce', 'cheese', 'topping', 'oven', 'slice'].forEach((step) => add(pizza.idle[step]({}), 'game: pizza'));
 }
 
@@ -368,7 +368,7 @@ function kitchenPhrases({ INGREDIENTS, DISHES, TOOLS, DECORATIONS, name, amount,
   const tools = new Set(Object.values(LEVELS).flatMap((level) => level.tools));
   tools.forEach((tool) => add(kitchen.wrongTool({ tool: TOOLS[tool].a }), source));
   CLEANUP_JOBS.forEach((job) => add(kitchen.cleanup({ job }), source));
-  ['party', 'double', 'wash', 'washed', 'gather', 'notInRecipe', 'enough', 'gathered', 'measure', 'pickTool', 'tooMuch', 'notEnough', 'measured', 'grownUp', 'blending', 'wrongPlace', 'cleaned', 'ready', 'stack', 'wrongLayer', 'served'].forEach((phrase) => add(kitchen[phrase](), source));
+  ['party', 'double', 'wash', 'washed', 'gather', 'notInRecipe', 'enough', 'gathered', 'measure', 'pickTool', 'tooMuch', 'notEnough', 'measured', 'grownUp', 'blending', 'wrongPlace', 'cleaned', 'ready', 'dress', 'stack', 'wrongLayer', 'served'].forEach((phrase) => add(kitchen[phrase](), source));
 }
 
 function friendPhrases({ FRIENDS: WORDS, FEELINGS, say }, add) {

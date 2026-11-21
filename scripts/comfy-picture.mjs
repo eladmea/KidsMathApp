@@ -8,7 +8,8 @@
 //   --seed N         another seed when the first one doesn't read as its subject
 //   --page-only      draw and save, don't put it in the game yet
 //   --kind KIND      what it is, which picks the house prompt and size:
-//                    food (the default), object, place (an island or a spot
+//                    food (the default), object, character (an animal with
+//                    a face), place (an island or a spot
 //                    seen from above) or backdrop (a whole screen behind a
 //                    scene, saved to src/assets/backdrops/<key>.webp)
 // To compare settings (the defaults are the house settings below):
@@ -48,6 +49,11 @@ const KINDS = {
   object: {
     prompt: '(3D cartoon game icon:1.4) of a single {subject}, (inanimate object:1.3), (stylized toy:1.2), simple rounded shapes, smooth glossy flat colours, minimal texture, bright saturated colours, flat even lighting, floating, centred, (pure white background:1.3)',
     negative: NEGATIVE,
+  },
+  // A friendly animal (a Pizza Shop customer): the one kind with a face.
+  character: {
+    prompt: '(3D cartoon game icon:1.4) of a cute {subject}, (friendly cartoon animal character:1.3), head and shoulders, facing forward, (stylized toy:1.2), simple rounded shapes, smooth glossy flat colours, minimal texture, bright saturated colours, flat even lighting, floating, centred, (pure white background:1.3)',
+    negative: '(human, person, girl, boy:1.5), (photo, realistic, photorealistic:1.5), detailed texture, fur strands, (shadow, drop shadow, cast shadow, floor, ground, reflection:1.4), hands, food, text, label, letters, logo, watermark',
   },
   place: {
     prompt: '(3D cartoon game illustration:1.3) of {subject}, (small round tropical island:1.3) floating in the air, a sandy beach all around its edge, seen from above at a three-quarter view, (stylized toy world:1.2), simple rounded shapes, smooth glossy colours, bright cheerful colours, flat even lighting, centred, whole island in view, (pure white background:1.3)',
