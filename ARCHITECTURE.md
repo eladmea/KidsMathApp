@@ -294,6 +294,22 @@ Letter sounds for Word Builder (`soundSpeech` in the literacy pack: "mmm", "buh"
 
 ---
 
+## The DEV button and the version
+
+A small **DEV v0.0.1** button sits in the bottom-left corner (`src/dev/DevPanel.js`, an HTML panel over the game). It shows:
+- the version (from `package.json`), when the build was made, and its commit (on GitHub builds);
+- **Open all levels**: every island stop is open, with no prerequisites (`devFlags.openAll`, read by `isUnlocked()` in `logic/progress.js`);
+- **Unlimited time**: no daily time limit (`devFlags.unlimitedTime`, read by `timeLeft()` in `services/session.js`);
+- **English / עברית**: switches the language on the spot. A signed-in child keeps it, as if a grown-up changed it in Settings.
+
+The switches are kept in the browser (`localStorage`, key `mathplay.dev`), and the screen redraws after each change. The browser walkthroughs don't see the button unless the address has `?dev`.
+
+**Version.** It starts at 0.0.1. Each time a new version is asked for, run `npm run bump` (0.0.1 → 0.0.2 → …), which updates `package.json` and `package-lock.json`, and commit it.
+
+**Turning it off for production.** Build with `VITE_DEV_TOOLS=off` (for example in `.github/workflows/deploy-pages.yml`, under the Build step's `env`). Every switch then stays off and the button isn't added. To remove it for good, delete `src/dev/`, `src/i18n/en/dev.json` and `tests/devFlags.test.js`, and the lines that import `dev/` (`grep -rn "dev/" src`: `main.js`, `logic/progress.js`, `services/session.js`).
+
+---
+
 ## Rules that keep it safe to change
 
 - **Never edit a shared list to add something.** Scenes, languages, content packs, pictures, sounds and recordings are all found by folder.

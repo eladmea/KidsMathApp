@@ -10,6 +10,8 @@ import { languageInfo, onLanguageChange, t } from './i18n/index';
 import { SCENES } from './scenes/registry';
 import { installRtlText } from './ui/rtlText';
 import { installStrokeFix } from './ui/strokeFix';
+import { DEV_TOOLS } from './dev/flags';
+import { installDevPanel } from './dev/DevPanel';
 
 async function start() {
   // Canvas text needs the font loaded before the first scene draws.
@@ -50,6 +52,8 @@ async function start() {
     scene: SCENES,
   });
   installBridge(game);
+  // The DEV button (version, test switches). Off with VITE_DEV_TOOLS=off.
+  if (DEV_TOOLS) installDevPanel(game);
   // The game is up: drop the loading / error message.
   game.events.once('ready', () => {
     window.__started = true;

@@ -1,4 +1,13 @@
+import { readFileSync } from 'fs';
 import { defineConfig } from 'vite';
+
+// Shown by the DEV button (src/dev/DevPanel.js): the version in package.json
+// (`npm run bump` adds 1 to the last number), when this build was made, and
+// its commit on GitHub.
+const { version } = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8'));
+process.env.VITE_APP_VERSION = version;
+process.env.VITE_BUILD_TIME = new Date().toISOString();
+process.env.VITE_BUILD_COMMIT = (process.env.GITHUB_SHA || '').slice(0, 7);
 
 // BASE_URL is the GitHub Pages path (e.g. /KidsMathApp/); "/" when developing.
 export default defineConfig({

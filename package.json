@@ -1,6 +1,6 @@
 {
   "name": "mathplay",
-  "version": "2.0.0",
+  "version": "0.0.1",
   "private": true,
   "type": "module",
   "scripts": {
@@ -8,6 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
+    "bump": "npm version patch --no-git-tag-version",
     "e2e": "node e2e/run.mjs",
     "e2e:local": "vite build --base /KidsMathApp/ --outDir dist-e2e --emptyOutDir && node e2e/run.mjs e2e-shots --serve dist-e2e",
     "voice:lines": "node scripts/voice-lines.mjs",

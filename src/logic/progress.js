@@ -11,6 +11,7 @@
 //   review), struggling moves it back down.
 import { SKILLS, getSkill, isPlayable, isQuizSkill } from '../curriculum/skills';
 import { calculateStars } from './scoring';
+import { devFlags } from '../dev/flags';
 
 export const PASS_RATIO = 0.8;
 export const STRUGGLE_RATIO = 0.5;
@@ -128,6 +129,7 @@ export function missingPrereqs(skill, progress) {
 }
 
 export function isUnlocked(skill, progress) {
+  if (devFlags.openAll) return true;
   return missingPrereqs(skill, progress).length === 0;
 }
 

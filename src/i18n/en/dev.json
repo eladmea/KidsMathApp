@@ -1,0 +1,10 @@
+{
+  "button": "DEV",
+  "version": "Version {version}",
+  "built": "Built {time}",
+  "commit": "Commit {commit}",
+  "openAll": "Open all levels",
+  "unlimitedTime": "Unlimited time",
+  "language": "Language",
+  "close": "Close"
+}

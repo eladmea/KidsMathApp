@@ -7,6 +7,7 @@ import { createProfile, profileBand } from '../logic/profiles';
 import { applySession, toDayKey } from '../logic/progress';
 import { awardStickers, roundStickerEvents } from '../logic/stickers';
 import * as storage from './storage';
+import { devFlags } from '../dev/flags';
 import { setNarration } from './speech';
 import { FALLBACK, getLanguage, setLanguage } from '../i18n/index';
 
@@ -97,7 +98,7 @@ export async function updateProfileById(id, patch) {
 
 // Whole minutes the signed-in child has left today, or null with no limit.
 export function timeLeft() {
-  if (!session.profile) return null;
+  if (!session.profile || devFlags.unlimitedTime) return null;
   return minutesLeft(session.profile, session.playTime[session.profile.id], toDayKey());
 }
 
