@@ -22,6 +22,7 @@ import { createDeck, getVariant } from '../logic/memoryGame';
 import { PREWRITING_PATHS } from '../logic/tracing';
 import { STEP_INFO } from '../logic/adventure';
 import { DIGIT_SHAPES } from '../logic/blockFit';
+import { allLines as letterCatcherLines } from '../logic/letterCatcher';
 import { CLEANUP_JOBS, LEVELS, TIMED, isMeasured, levelRecipe } from '../logic/kitchen';
 import { RECIPES } from '../logic/recipes/index';
 import { answerLine } from '../logic/quizRound';
@@ -29,7 +30,7 @@ import { splitSentences } from '../logic/voices';
 import { content, hasContent } from '../content/index';
 import { has, keysOf, list, raw, setLanguage, t } from '../i18n/index';
 import { coachIntro, skillTitle, subjectName } from '../i18n/names';
-import { clipId, clipUrl } from './voiceClips';
+import { clipUrl, recordedClipId } from './voiceClips';
 
 const SAMPLES = 3000;
 // Older children's questions are recorded too, so a level doesn't mix the
@@ -141,6 +142,7 @@ const GAME_GROUPS = {
   'game: bunny pop': 'say:bunnyOops',
   'game: kitchen': 'say:kitchen',
   'game: block fit': 'say:blockFit',
+  'game: letter catcher': 'say:letterCatcher',
   'island name': 'islands',
   number: 'numbers',
   'letter sound': 'letters',
@@ -249,6 +251,8 @@ export function voiceLines(language, { samples = SAMPLES } = {}) {
     const pictures = [...Object.values(literacy.FIRST_SOUND_WORDS || {}).flat(), ...(literacy.RHYME_FAMILIES || []).flat()];
     pictures.forEach(([, word]) => add(literacy.listWords([word]), 'answer word'));
   }
+  // Letter Catcher: its words and the sound of every letter in a bubble.
+  if (literacy && literacy.CVC_WORDS) letterCatcherLines(literacy).forEach((line) => add(line, 'game: letter catcher'));
   if (hasContent('math', language)) memoryPhrases(content('math', language), literacy, add);
   // Block Fit's answers: each digit, and each letter it draws.
   if (hasContent('math', language)) {
@@ -277,9 +281,25 @@ export function voiceLines(language, { samples = SAMPLES } = {}) {
     if (!DEVICE_VOICE_GENERATORS.includes(id)) found.forEach((source, sentence) => add(sentence, source, questionGroup(id)));
   });
 
-  const result = [...lines.values()]
+  // The same words with and without a full stop share one recording
+  // (services/voiceClips.js), so they are one line: the recorded spelling,
+  // or else the one without the full stop.
+  const merged = new Map();
+  [...lines.values()]
     .filter((entry) => entry.text.trim())
-    .map((entry) => ({ ...entry, groups: [...entry.groups].sort(), id: clipId(entry.text), recorded: Boolean(clipUrl(entry.text, language)) }))
+    .forEach((entry) => {
+      const bare = entry.text.trim().replace(/\.$/, '');
+      const other = merged.get(bare);
+      if (!other) return merged.set(bare, { ...entry, groups: new Set(entry.groups) });
+      entry.groups.forEach((group) => other.groups.add(group));
+      other.count += entry.count;
+      if (!entry.text.endsWith('.')) Object.assign(other, { text: entry.text, source: entry.source });
+    });
+  merged.forEach((entry, bare) => {
+    if (!clipUrl(entry.text, language)) entry.text = bare;
+  });
+  const result = [...merged.values()]
+    .map((entry) => ({ ...entry, groups: [...entry.groups].sort(), id: recordedClipId(entry.text, language), recorded: Boolean(clipUrl(entry.text, language)) }))
     .sort((a, b) => b.count - a.count || a.text.localeCompare(b.text));
   // Spoken templates with no values listed above (add them to templateValues).
   result.missingTemplates = missing;

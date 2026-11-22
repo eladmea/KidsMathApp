@@ -1,6 +1,8 @@
 import * as en from '../src/content/en/literacy';
 import * as he from '../src/content/he/literacy';
-import { LEVELS, bubblePool, catchTile, makeTargets, nextBubble, touches, touchesOnTheWay } from '../src/logic/letterCatcher';
+import { LEVELS, allLines, bubblePool, catchTile, makeTargets, nextBubble, touches, touchesOnTheWay, wordLine } from '../src/logic/letterCatcher';
+import { splitSentences } from '../src/logic/voices';
+import { clipUrl } from '../src/services/voiceClips';
 
 describe('Letter Catcher', () => {
   it.each([
@@ -58,5 +60,21 @@ describe('Letter Catcher', () => {
     // Not one off to the side, nor one still above the ball.
     expect(touchesOnTheWay(ball, 506, { x: 1000, y: 468 }, 54)).toBe(false);
     expect(touchesOnTheWay(ball, 506, { x: 900, y: 200 }, 54)).toBe(false);
+  });
+
+  it.each([
+    ['en', en],
+    ['he', he],
+  ])('%s: says every word and letter sound from a recording, never the device voice', (language, pack) => {
+    const lines = allLines(pack);
+    Object.keys(LEVELS).forEach((id) => makeTargets(id, pack).forEach((target) => expect(lines).toContain(wordLine(id, target, pack))));
+    const unrecorded = lines.flatMap((line) => splitSentences(line)).filter((sentence) => !clipUrl(sentence, language));
+    expect(unrecorded).toEqual([]);
+  });
+
+  it('says a one-letter word and then its sound, as two sentences', () => {
+    expect(wordLine('letter', { word: 'sun', tiles: ['s'] }, en)).toBe('sun. sss.');
+    expect(splitSentences(wordLine('letter', { word: 'sun', tiles: ['s'] }, en))).toEqual(['sun.', 'sss.']);
+    expect(wordLine('word', { word: 'cat', tiles: ['c', 'a', 't'] }, en)).toBe('cat');
   });
 });

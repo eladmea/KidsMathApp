@@ -35,6 +35,15 @@ async function openSkill(player, skill) {
   await waitFor(() => window.__mathplay.state.step === 'play' && window.__mathplay.state.bubbles, null, 8000);
 }
 
+// Every sentence Letter Catcher said since `from` (an index into the voice
+// log) came from a recording: the words and the letter sounds are all
+// recorded, and the device voice could hold up the game on some tablets.
+const voiceCount = () => t.mp(() => window.__mathplay.voice.length);
+async function checkRecorded(label, from) {
+  const device = await t.mp((n) => window.__mathplay.voice.slice(n).filter((v) => v.source !== 'recording').map((v) => v.text), from);
+  check(`${label}: every word and letter sound is a recording`, device.length === 0, JSON.stringify(device));
+}
+
 async function toMap() {
   await tap('map');
   await t.waitScene('Island');
@@ -171,6 +180,7 @@ async function catchRest(fromIndex) {
 let s;
 // ---- Ages 3-4: one letter ----
 await openSkill('Mia', 'lit-catch-letter');
+let voiceFrom = await voiceCount();
 s = await state();
 check('catch 3-4: one letter, with a picture word that starts with it', s.tiles.length === 1 && s.word.startsWith(s.tiles[0]), `${s.tiles} ${s.word}`);
 await sleep(300);
@@ -185,6 +195,7 @@ check('catch: the on-screen arrows and throw button catch the letter', true);
 check('catch: a word with a wrong hit scores nothing', (await state()).score === 0);
 strayWords.clear();
 await catchRest(1);
+await checkRecorded('catch 3-4', voiceFrom);
 await results();
 s = await state();
 check('catch 3-4: the round ends on Results', s.score === s.total - 1 - strayWords.size && strayWords.size <= 2, `${s.score}/${s.total}, stray in words ${[...strayWords]}`);
@@ -192,6 +203,7 @@ await toMap();
 
 // ---- Ages 5-6: words, in order ----
 await openSkill('Leo', 'lit-catch-word');
+voiceFrom = await voiceCount();
 strayWords.clear();
 s = await state();
 check('catch 5-6: a short word', s.tiles.length >= 2);
@@ -201,6 +213,7 @@ await t.shot(dir, 'l2-word');
 await catchWord();
 check('catch 5-6: letters caught in order fill the word', (await state()).score === 1 - strayWords.size, `strays ${[...strayWords]}`);
 await catchRest(1);
+await checkRecorded('catch 5-6', voiceFrom);
 await results();
 s = await state();
 check('catch 5-6: every word caught cleanly scores', s.score === s.total - strayWords.size && strayWords.size <= 2, `${s.score}/${s.total}, stray in words ${[...strayWords]}`);
@@ -208,12 +221,14 @@ await toMap();
 
 // ---- Ages 7-8: letter pairs ----
 await openSkill('Sam', 'lit-catch-sounds');
+voiceFrom = await voiceCount();
 strayWords.clear();
 s = await state();
 check('catch 7-8: words with a letter pair in one bubble', s.tiles.some((tile) => tile.length === 2), JSON.stringify(s.tiles));
 await sleep(200);
 await t.shot(dir, 'l3-pairs');
 await catchRest(0);
+await checkRecorded('catch 7-8', voiceFrom);
 await results();
 s = await state();
 check('catch 7-8: the round ends on Results, clean words scored', s.score === s.total - strayWords.size && strayWords.size <= 2, `${s.score}/${s.total}, stray in words ${[...strayWords]}`);

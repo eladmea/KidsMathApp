@@ -300,7 +300,10 @@ export function speak(text, { force = false } = {}) {
 }
 
 function silence() {
-  if (synth) synth.cancel();
+  // Only when the device voice is talking: on some tablets cancel() holds up
+  // the page for a moment, and a game calls speak() in the middle of its
+  // frame (Letter Catcher, when the ball hits a letter).
+  if (synth && (synth.speaking || synth.pending)) synth.cancel();
   if (player) {
     player.onended = null;
     player.onerror = null;

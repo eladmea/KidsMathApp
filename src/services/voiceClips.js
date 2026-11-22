@@ -46,7 +46,24 @@ export function clipId(text) {
   return slug ? `${slug}-${hash(clean)}` : hash(clean);
 }
 
+// The same words with and without a full stop at the end ("sss." and
+// "sss", "sun." and "sun") sound the same, so one recording serves both: a
+// letter sound or a word recorded on its own is reused when a line says it
+// as a sentence of its own, and the other way round.
+function spellings(text) {
+  const clean = normalize(text);
+  const bare = clean.replace(/\.$/, '');
+  return bare === clean ? [clean, `${clean}.`] : [clean, bare];
+}
+
+// The id of the recording a sentence plays (its own, or the same words with
+// or without the full stop), or its own id when there is none.
+export function recordedClipId(text, language) {
+  const clips = CLIPS[language] || {};
+  return spellings(text).map(clipId).find((id) => clips[id]) || clipId(text);
+}
+
 // The recording for a sentence in a language, or null.
 export function clipUrl(text, language) {
-  return (CLIPS[language] && CLIPS[language][clipId(text)]) || null;
+  return (CLIPS[language] && CLIPS[language][recordedClipId(text, language)]) || null;
 }

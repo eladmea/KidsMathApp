@@ -21,6 +21,16 @@ describe('voice clips', () => {
     expect(clipUrl('How many apples?', 'xx')).toBeNull();
     expect(normalize(' a  b ')).toBe('a b');
   });
+
+  it('plays the same words with or without a full stop from one recording', () => {
+    // A letter sound recorded alone ("sss") is reused as a sentence ("sun. sss.").
+    expect(clipUrl('sss.', 'en')).toBe(clipUrl('sss', 'en'));
+    expect(clipUrl('sss', 'en')).not.toBeNull();
+    expect(clipUrl('מֵם.', 'he')).toBe(clipUrl('מֵם', 'he'));
+    expect(clipUrl('מֵם', 'he')).not.toBeNull();
+    // Only a full stop: a question is a different sentence.
+    expect(clipUrl('sss?', 'en')).toBeNull();
+  });
 });
 
 describe('picking a voice for the language', async () => {

@@ -259,6 +259,10 @@ Hebrew works the same way with `he` and `sentences_hebrew.txt`, using a Hebrew K
 
 Letter sounds for Word Builder (`soundSpeech` in the literacy pack: "mmm", "buh") are sentences too, so they are recorded the same way.
 
+**One recording for "sss" and "sss."** The same words with and without a full stop at the end play the same recording (`clipUrl()` in `services/voiceClips.js`), and `npm run voice:lines` lists them as one line. So a letter sound or a word recorded on its own is reused when a game says it as a sentence of its own (Letter Catcher's "sun. sss."). Any other difference (a question mark, a capital letter) is a different recording.
+
+**Letters and numbers.** They stay in the one folder per language, like every recording: the file name comes from the text, so the same letter or number said anywhere already plays the same file. `groups.json` keeps track of them as the `letters` and `numbers` groups, and `tests/letterCatcher.test.js` fails if a letter sound or a Letter Catcher word has no recording.
+
 ---
 
 ## Add a screen or a game

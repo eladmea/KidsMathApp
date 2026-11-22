@@ -68,3 +68,32 @@ export function touchesOnTheWay(ball, fromY, bubble, reach) {
   const nearestY = Math.min(Math.max(bubble.y, Math.min(ball.y, fromY)), Math.max(ball.y, fromY));
   return touches({ x: ball.x, y: nearestY }, bubble, reach);
 }
+
+// ---- What the game says ----
+
+// How a letter (or letter pair) is said: its sound in English ("sss"), its
+// name in Hebrew ("מֵם").
+export function tileSound(pack, tile) {
+  return pack.soundSpeech ? pack.soundSpeech(tile) : tile;
+}
+
+// The line for a new word: the word, and for one letter also its sound
+// ("sun. sss."). Each is a sentence of its own, so the recordings of the word
+// and the sound said alone are reused (services/voiceClips.js).
+export function wordLine(levelId, target, pack) {
+  return levelId === 'letter' ? `${target.word}. ${tileSound(pack, target.tiles[0])}.` : target.word;
+}
+
+// Every line the game can say in a language, for the list of lines to
+// record (services/voiceLines.js): each word at each level, and the sound of
+// every letter a bubble can hold.
+export function allLines(pack) {
+  const letterTargets = pack.FIRST_SOUNDS_EARLY.flatMap((letter) => pack.FIRST_SOUND_WORDS[letter].map(([emoji, word]) => ({ emoji, word, tiles: [letter] })));
+  const words = [
+    ...letterTargets.map((target) => wordLine('letter', target, pack)),
+    ...letterTargets.map((target) => target.word),
+    ...[...pack.CVC_WORDS, ...(pack.DIGRAPH_WORDS || [])].map((target) => target.word),
+  ];
+  const tiles = new Set([...bubblePool('letter', pack), ...(pack.DIGRAPH_TILES ? bubblePool('pairs', pack) : [])]);
+  return [...new Set([...words, ...[...tiles].map((tile) => tileSound(pack, tile))])];
+}
