@@ -45,7 +45,8 @@ const FLAME_HEIGHT = 36;
 // Where the two rows of candles stand on the top, and how wide a row is.
 const ROW_Y = [TOP.y + TOP.ry * 0.35, TOP.y - TOP.ry * 0.3];
 const ROW_WIDTH = TOP.rx * 1.6;
-const PARTY_MS = 2800;
+// Long enough for "Zero! Happy birthday, …!" to be said in full (about 4 s in Hebrew).
+const PARTY_MS = 4500;
 const FRIEND_AT = { x: 170, y: 330, size: 110 };
 const PANEL_X = 1030;
 

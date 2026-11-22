@@ -214,7 +214,7 @@ export const say = {
   // Birthday Cake. No "בן/בת 3": the age is said without the friend's gender.
   cake: {
     intro: ({ friend, number, word }) => `היום יום ההולדת של ${friend}! ${count(number, CANDLE)} היום! כתבו ${word} על העוגה בקרם.`,
-    iced: ({ number }) => `יפהפה! עכשיו שימו ${count(number, CANDLE)} על העוגה. גררו מהמגש.`,
+    iced: ({ number }) => `יפה! עכשיו שימו ${count(number, CANDLE)} על העוגה. גררו מהמגש.`,
     right: ({ number }) =>
       number === 1 ? `${count(1, CANDLE)}! עכשיו כבו אותו. לחצו על הנר!` : `${count(number, CANDLE)}! עכשיו כבו אותם. לחצו על כל נר!`,
     tooFewShow: ({ friend, number, placed }) => `יום הולדת ${number} ל${friend}! יש לנו ${placed}. הוסיפו עוד!`,
