@@ -106,7 +106,8 @@ export const say = {
   drive: {
     prompt: ({ digit }) => `סעו על ה-${digit}!`,
     intro: ({ word }) => `בואו ניסע על המספר ${word}! מתחילים ברמזור.`,
-    praise: ({ word }) => `נסעתם על המספר ${word}!`,
+    // Nothing said: the engine's vroom is the praise.
+    praise: () => '',
   },
   fly: {
     prompt: ({ name }) => `עופו ${name}!`,

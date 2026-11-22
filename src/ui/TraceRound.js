@@ -17,7 +17,8 @@ const TRACE_WIDTH = 330;
 // A round of tracing items (digits to write, roads to drive, bee paths):
 // one item at a time, a point for each one done with at most one restart,
 // then the Results scene. Subclasses give the items and how they look:
-//   makeItems()      [{ key, strokes, prompt, intro, praise, celebrate? }]
+//   makeItems()      [{ key, strokes, prompt, intro, praise, celebrate?, sound? }]
+//                    praise '' = nothing said, only the sound plays
 //   lookOf(item)     { look, startMarker, endMarker } for the TraceLayer
 //   hintText(kind)   { show, say } for 'start' | 'next' | 'almost'
 //   idleText()       what the message line says before the first touch
@@ -123,8 +124,11 @@ export default class TraceRound extends BaseScene {
     if (this.idle) this.idle.remove();
     if (restarts <= MAX_RESTARTS_FOR_POINT) this.points += 1;
     play(this, item.sound || 'correct');
-    this.narrator.say(item.praise, { force: true });
-    this.message.setText(item.celebrate || item.praise).setColor('#2e7d32');
+    // A language can leave the praise empty and let the sound say it (Hebrew
+    // Race Track: only the engine's vroom).
+    if (item.praise) this.narrator.say(item.praise, { force: true });
+    const shown = item.celebrate || item.praise;
+    if (shown) this.message.setText(shown).setColor('#2e7d32');
     this.tweens.add({ targets: this.message, scale: { from: 1.25, to: 1 }, duration: 300, ease: 'Back.easeOut' });
     // The chosen car drives the whole number once more, then the next one.
     const replayMs = this.replayOnDone ? this.layer.replay() : 0;
