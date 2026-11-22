@@ -214,6 +214,17 @@ def english_sounds(kokoro, text, language):
 # "יששש!" is a stretched "יש!" (yes!) on screen; renikud reads it as a word.
 HEBREW_SOUNDS = {'יששש!': 'jˈeʃ!'}
 
+# Sounds the Hebrew voice says wrong, and what to give it instead. "שש" (six)
+# on its own came out as "sesh": its first sh blurs into an s. A doubled sh
+# keeps it a clear "shesh".
+HEBREW_SOUND_FIXES = [(re.compile(r'(?<![^\s.,!?:;"])ʃˈeʃ(?![^\s.,!?:;"])'), 'ʃʃˈeʃ')]
+
+
+def fix_hebrew_sounds(phonemes):
+    for pattern, sounds in HEBREW_SOUND_FIXES:
+        phonemes = pattern.sub(sounds, phonemes)
+    return phonemes
+
 
 def synthesize(kokoro, text, voice, speed, language, g2p=None):
     import numpy as np
@@ -224,7 +235,7 @@ def synthesize(kokoro, text, voice, speed, language, g2p=None):
     if g2p is not None:
         # Hebrew: words -> sounds (with the vowels worked out), then speak the sounds.
         spoken = spoken.replace('+', ' ועוד ').replace('−', ' פחות ').replace('×', ' כפול ').replace('=', ' שווה ')
-        phonemes = HEBREW_SOUNDS.get(spoken) or g2p.phonemize(hebrew_numbers(spoken))
+        phonemes = HEBREW_SOUNDS.get(spoken) or fix_hebrew_sounds(g2p.phonemize(hebrew_numbers(spoken)))
         audio, rate = kokoro.create(phonemes, voice=voice, speed=speed, is_phonemes=True)
     elif (phonemes := english_sounds(kokoro, spoken, language)) is not None:
         audio, rate = kokoro.create(phonemes, voice=voice, speed=speed, is_phonemes=True)
