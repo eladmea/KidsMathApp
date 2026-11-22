@@ -111,7 +111,7 @@ export const say = {
   fly: {
     prompt: ({ name }) => `עופו ${name}!`,
     intro: ({ name }) => `עזרו לדבורה לעוף ${name} אל הפרח. מתחילים בצנצנת הדבש.`,
-    praise: () => 'בזזז! הדבורה מצאה את הפרח!',
+    praise: () => 'הדבורה מצאה את הפרח!',
   },
   // Pizza Shop. `word` is the number's word, `friend` the customer's name,
   // `topping` a TOPPING_NAMES entry.

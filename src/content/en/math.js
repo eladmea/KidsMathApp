@@ -77,7 +77,7 @@ export const say = {
   fly: {
     prompt: ({ name }) => `Fly ${name}!`,
     intro: ({ name }) => `Help the bee fly ${name} to the flower. Start at the honey pot.`,
-    praise: () => 'Buzz buzz! The bee found the flower!',
+    praise: () => 'The bee found the flower!',
   },
   // Pizza Shop. `word` is the number's word, `friend` the customer's name,
   // `topping` a TOPPING_NAMES entry.
