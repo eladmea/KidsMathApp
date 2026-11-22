@@ -66,7 +66,7 @@ export const say = {
   write: {
     prompt: ({ digit }) => `Write ${digit}`,
     intro: ({ word }) => `Let's write ${word}! Watch me, then start at the green dot.`,
-    praise: ({ word }) => `${capital(word)}! You wrote ${word}!`,
+    praise: ({ word }) => `${capital(word)}!`,
     celebrate: ({ digit, emoji }) => (digit === 0 ? '0: nothing at all! 🫙' : `${digit}! ${emoji.repeat(digit)}`),
   },
   drive: {
