@@ -206,9 +206,10 @@ const DRAW = {
   // The Sound Snack monster: hungry, then yum (right) or yuck (wrong).
   snackMonster(scene, box, v, { result }) {
     const face = result === 'correct' ? '😋' : result === 'wrong' ? '🤢' : '👾';
-    const words = result === 'correct' ? t('quiz.yum') : result === 'wrong' ? t('quiz.yuck') : `${v.sound}!`;
+    // Before an answer: the letter, big, so children learn to know it.
+    const words = result === 'correct' ? t('quiz.yum') : result === 'wrong' ? t('quiz.yuck') : v.letter;
     box.add(pic(scene, -70, 0, face, 170));
     box.add(scene.add.rectangle(140, -90, 180, 90, COLORS.white).setRounded(40));
-    box.add(text(scene, 140, -90, words, 40, COLORS.primary));
+    box.add(text(scene, 140, -90, words, result ? 40 : 72, COLORS.primary));
   },
 };

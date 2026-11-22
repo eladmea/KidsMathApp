@@ -718,6 +718,7 @@ there-were-5-dots-6408247f | There were 5 dots.
 times-2-5-10-8e3288e5 | Times 2, 5 & 10.
 times-means-groups-of-fdd5cd10 | Times means groups of.
 times-tables-to-10-9d16e2ce | Times Tables to 10.
+to-build-a-stable-tower-put-the-big-bloc-507d9c06 | To build a stable tower, put the big blocks at the bottom.
 tricky-patterns-49f1f6a0 | Tricky Patterns.
 turkey-burgers-4e7a22fd | Turkey Burgers.
 turn-fit-a9e758fb | Turn & Fit.
@@ -2210,7 +2211,6 @@ ben-has-the-fish-255a48e5 | Ben has the fish.
 ben-has-the-rabbit-938b1003 | Ben has the rabbit.
 ben-has-the-turtle-72637045 | Ben has the turtle.
 ben-worked-hard-on-a-drawing-but-it-isn-3246a516 | Ben worked hard on a drawing, but it isn't very neat.
-big-blocks-go-at-the-bottom-3e5a2faa | Big blocks go at the bottom.
 bite-into-an-apple-ccc7ef4c | Bite into an apple.
 boat-dcb746fb | boat
 boat-and-coat-rhyme-they-end-with-the-sa-3401368f | boat and coat rhyme: they end with the same sound.
@@ -2244,8 +2244,6 @@ buh-oo-kuh-cfe4f024 | buh, oo, kuh…
 buh-uh-guh-659537cf | buh, uh, guh…
 buh-uh-sss-c9aa36e2 | buh, uh, sss…
 build-a-sandcastle-94340f80 | Build a sandcastle.
-build-a-tall-tower-from-the-biggest-bloc-fed0cce4 | Build a tall tower, from the biggest block to the smallest.
-build-a-tower-2eaabbec | Build a tower!
 build-it-in-order-17cb08a7 | Build it in order.
 build-the-food-chain-3f7c3909 | Build the food chain.
 build-the-word-bat-412ae791 | Build the word: bat.
@@ -3839,7 +3837,6 @@ shorts-956060d4 | Shorts.
 shrimp-eat-the-tiny-plants-a8a992ab | Shrimp eat the tiny plants.
 sit-together-1cfbf17b | Sit together.
 sleep-under-the-stars-068128c6 | Sleep under the stars.
-small-blocks-go-on-top-7a071438 | Small blocks go on top.
 snake-and-cake-rhyme-they-end-with-the-s-c2f3ebfa | snake and cake rhyme: they end with the same sound.
 snake-and-steak-rhyme-they-end-with-the-e63c7494 | snake and steak rhyme: they end with the same sound.
 snake-starts-with-sss-bcc9e7fa | snake starts with sss!

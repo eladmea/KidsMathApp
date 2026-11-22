@@ -218,7 +218,13 @@ HEBREW_SOUNDS = {'יששש!': 'jˈeʃ!', 'איזו אות זאת?': 'ʔˈejzo ʔ
 # Sounds the Hebrew voice says wrong, and what to give it instead. "שש" (six)
 # on its own came out as "sesh": its first sh blurs into an s. A doubled sh
 # keeps it a clear "shesh".
-HEBREW_SOUND_FIXES = [(re.compile(r'(?<![^\s.,!?:;"])ʃˈeʃ(?![^\s.,!?:;"])'), 'ʃʃˈeʃ')]
+# "בחרו" is read "bacharu" (they chose); in the game it is always "bachru"
+# (choose!).
+WORD = r'(?<![^\s.,!?:;"]){}(?![^\s.,!?:;"])'
+HEBREW_SOUND_FIXES = [
+    (re.compile(WORD.format('ʃˈeʃ')), 'ʃʃˈeʃ'),
+    (re.compile(WORD.format('baχaʁˈu')), 'baχʁˈu'),
+]
 
 
 def fix_hebrew_sounds(phonemes):
