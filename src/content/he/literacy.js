@@ -209,6 +209,10 @@ export const BLOCK_LETTERS = {
 };
 
 export const say = {
+  // Block Fit: the answer to "What letter is it?": its name with nikud (האות בֵּית).
+  blockFit: {
+    letter: ({ letter }) => `האות ${soundSpeech(letter)}`,
+  },
   rhymes: {
     prompt: ({ target }) => `מה מתחרז עם ${target}?`,
     speech: ({ target, names }) => `מה מתחרז עם ${target}? ${names}?`,

@@ -26,6 +26,7 @@ we-need-9-ea55fd26 | We need 9.
 fun-fact-55315583 | Fun fact!
 start-at-the-traffic-light-9baa798c | Start at the traffic light.
 watch-me-then-start-at-the-green-dot-1a3ac24d | Watch me, then start at the green dot.
+zero-e8e54806 | Zero!
 add-1-more-efcd9da3 | Add 1 more!
 bear-wants-a-pizza-e4d58788 | Bear wants a pizza!
 beautiful-c6b2f2cf | Beautiful!
@@ -57,7 +58,6 @@ take-2-off-a89fdac1 | Take 2 off.
 take-3-off-84617b70 | Take 3 off.
 tap-each-candle-e112abaf | Tap each candle!
 we-have-0-8012f651 | We have 0.
-zero-e8e54806 | Zero!
 add-2-more-a56e803a | Add 2 more!
 eight-candles-today-4661d35a | Eight candles today!
 eight-toppings-please-b898ee75 | Eight toppings, please!
@@ -128,6 +128,7 @@ green-square-c92261e7 | Green square.
 mash-the-bananas-7f8ffd29 | Mash the bananas.
 mouse-299b757e | Mouse.
 one-scoop-in-each-ba69cc7f | One scoop in each.
+one-d9bab4ea | One!
 red-square-4698f487 | Red square.
 red-b3134916 | Red.
 roll-5-sausages-d9c980d3 | Roll 5 sausages.
@@ -192,6 +193,9 @@ car-047458e1 | car
 cat-06745c07 | cat
 crack-the-egg-into-the-bowl-6dae6fa6 | Crack the egg into the bowl.
 dog-e668bd09 | dog
+eight-04ba5223 | Eight!
+five-5f8205fc | Five!
+four-4d89b9ec | Four!
 fox-b6f3934e | fox
 frog-9bcd89e7 | frog
 grapes-4a48d4b5 | Grapes.
@@ -202,13 +206,17 @@ it-grew-into-a-sprout-6927c002 | It grew into a sprout!
 it-grew-into-a-young-plant-9b5421b2 | It grew into a young plant!
 kuh-593cc03f | kuh
 look-at-your-plant-f483e647 | Look at your plant.
+nine-f83ce53c | Nine!
 now-decorate-it-da830203 | Now decorate it.
-one-d9bab4ea | One!
 peel-2-bananas-cff965e3 | Peel 2 bananas.
+seven-e35d66ad | Seven!
+six-d6435cde | Six!
 something-cfc7b03f | Something.
 sun-6a5abefd | Sun.
 take-9-off-9f1bd0fa | Take 9 off.
 tap-the-line-where-the-number-belongs-762ef3d4 | Tap the line where the number belongs.
+three-1585ffe6 | Three!
+two-5baf3a38 | Two!
 we-have-6-a0041e27 | We have 6.
 what-does-it-need-203ed574 | What does it need?
 what-is-10-times-10-426cb6f2 | What is 10 times 10?
@@ -386,7 +394,6 @@ divide-within-100-0447f7f6 | Divide within 100.
 dress-for-weather-c5207dcf | Dress for Weather.
 drum-c26f9aed | drum
 duck-bb323378 | duck
-eight-04ba5223 | Eight!
 fair-play-c3476f43 | Fair Play.
 feelings-faces-78191e78 | Feelings Faces.
 feelings-friends-0bb99cfd | Feelings Friends.
@@ -394,9 +401,7 @@ fill-the-number-3574ca6e | Fill the Number.
 find-the-pairs-5318a63f | Find the pairs!
 find-the-shape-a9244d42 | Find the Shape.
 fish-afad8963 | fish
-five-5f8205fc | Five!
 food-chains-b3dc84d5 | Food Chains.
-four-4d89b9ec | Four!
 fox-feels-angry-def4f894 | Fox feels angry.
 fox-e19d4c40 | Fox.
 freeze-zoo-98fc21ec | Freeze Zoo.
@@ -460,7 +465,7 @@ more-patterns-65da217f | More Patterns.
 mouse-592318c4 | mouse
 my-amazing-body-e02f8c2e | My Amazing Body.
 my-eyes-keep-closing-781e374b | My eyes keep closing.
-nine-f83ce53c | Nine!
+nice-a9587307 | Nice!
 number-line-drop-100-1931364a | Number Line Drop: 100.
 number-line-drop-1000-2c7d4efa | Number Line Drop: 1000.
 number-line-drop-f8ce1b07 | Number Line Drop.
@@ -506,7 +511,6 @@ robot-loops-eb061bba | Robot Loops.
 same-pattern-new-look-9e40af6e | Same Pattern, New Look.
 scale-master-3127ffbd | Scale Master.
 see-you-tomorrow-4c7fe0e9 | See you tomorrow!
-seven-e35d66ad | Seven!
 sh-ch-th-wh-ba740f74 | sh ch th wh.
 share-100-into-10-equal-groups-10-in-eac-e86c7026 | Share 100 into 10 equal groups: 10 in each, because 10 × 10 = 100.
 share-25-into-5-equal-groups-5-in-each-b-43ff01da | Share 25 into 5 equal groups: 5 in each, because 5 × 5 = 25.
@@ -545,7 +549,6 @@ share-81-into-9-equal-groups-9-in-each-b-75786b06 | Share 81 into 9 equal groups
 share-90-into-10-equal-groups-9-in-each-f9e7a33e | Share 90 into 10 equal groups: 9 in each, because 10 × 9 = 90.
 share-90-into-9-equal-groups-10-in-each-f7226070 | Share 90 into 9 equal groups: 10 in each, because 9 × 10 = 90.
 sight-words-94128bbb | Sight Words.
-six-d6435cde | Six!
 skip-counting-f80d8d7f | Skip Counting.
 snake-aff5e25b | snake
 snake-a454ac4f | Snake.
@@ -712,7 +715,6 @@ there-are-5-stars-58ce6710 | There are 5 stars!
 there-were-3-dots-8a2256f1 | There were 3 dots.
 there-were-4-dots-028e7d8c | There were 4 dots.
 there-were-5-dots-6408247f | There were 5 dots.
-three-1585ffe6 | Three!
 times-2-5-10-8e3288e5 | Times 2, 5 & 10.
 times-means-groups-of-fdd5cd10 | Times means groups of.
 times-tables-to-10-9d16e2ce | Times Tables to 10.
@@ -720,7 +722,6 @@ tricky-patterns-49f1f6a0 | Tricky Patterns.
 turkey-burgers-4e7a22fd | Turkey Burgers.
 turn-fit-a9e758fb | Turn & Fit.
 turn-over-two-cards-59d435cd | Turn over two cards.
-two-5baf3a38 | Two!
 vegetable-omelette-32d68f37 | Vegetable Omelette.
 we-have-7-7e01aa0a | We have 7.
 what-comes-next-7854f082 | What Comes Next?.
@@ -2144,6 +2145,7 @@ a-tadpole-swims-with-its-tail-cb833368 | A tadpole swims with its tail.
 a-teddy-bear-5eea031e | A teddy bear.
 a-tooth-feels-wobbly-8f516eae | A tooth feels wobbly.
 a-warm-coat-5c759ee2 | A warm coat.
+a-8bd5b717 | A!
 aah-3d45e18d | aah
 add-9-more-15450bcb | Add 9 more!
 add-more-d4f781b1 | Add more.
@@ -2288,6 +2290,7 @@ bus-9adc4a15 | Bus.
 but-when-you-see-the-owl-freeze-b9811941 | But when you see the owl, freeze!
 butterflies-taste-with-their-feet-a6e96eaf | Butterflies taste with their feet.
 buy-the-tickets-81098f81 | Buy the tickets.
+c-97da4729 | C!
 cake-and-snake-rhyme-they-end-with-the-s-080494c4 | cake and snake rhyme: they end with the same sound.
 cake-and-steak-rhyme-they-end-with-the-s-e2d6c54e | cake and steak rhyme: they end with the same sound.
 cal-does-not-have-the-cat-19c5474c | Cal does not have the cat.
@@ -2401,6 +2404,7 @@ duh-eb3117ee | duh
 duh-aw-guh-37e2c378 | duh, aw, guh…
 duh-ih-shh-666f5886 | duh, ih, shh…
 duh-uh-kuh-05bb9ba1 | duh, uh, kuh…
+e-f3cbcd73 | E!
 each-friend-has-a-different-pet-a83d9d33 | Each friend has a different pet.
 each-letter-says-its-sound-d3590751 | Each letter says its sound.
 each-one-uses-a-ticket-e57e0931 | Each one uses a ticket.
@@ -2423,6 +2427,7 @@ eli-has-the-rabbit-4b2cc172 | Eli has the rabbit.
 eli-has-the-turtle-b567003c | Eli has the turtle.
 energy-starts-with-the-sun-5dbb5413 | Energy starts with the sun.
 everyone-cheers-10486cfc | Everyone cheers.
+f-23d2d4c8 | F!
 fair-means-everyone-gets-a-chance-47aa64aa | Fair means everyone gets a chance.
 fay-does-not-have-the-cat-e24490f8 | Fay does not have the cat.
 fay-does-not-have-the-dog-dafc208a | Fay does not have the dog.
@@ -2572,6 +2577,7 @@ ground-turkey-fe77843e | Ground turkey.
 guh-38351db3 | guh
 guitar-af274f0f | guitar
 guitar-0f04d593 | Guitar.
+h-9feb9ce2 | H!
 halfway-is-50-17cbeff0 | Halfway is 50.
 halfway-is-500-3405eaec | Halfway is 500.
 hang-it-on-the-wall-84226c1e | Hang it on the wall.
@@ -3019,6 +3025,7 @@ it-s-ready-fde6d42a | It’s ready!
 it-s-snowy-today-fa317f10 | It's snowy today!
 it-s-sunny-today-695f599f | It's sunny today!
 it-s-time-for-a-break-3437d09e | It's time for a break.
+j-2bf0f674 | J!
 juh-dbbc27d0 | juh
 jump-2-at-a-time-number-10-lands-on-bana-af9fda6e | Jump 2 at a time: number 10 lands on banana.
 jump-2-at-a-time-number-10-lands-on-blue-dc7dc645 | Jump 2 at a time: number 10 lands on blue.
@@ -3241,6 +3248,7 @@ ks-563d18db | ks
 kuh-aah-tuh-5958c5d2 | kuh, aah, tuh…
 kuh-uh-puh-4c206ad7 | kuh, uh, puh…
 kwuh-f6a3905a | kwuh
+l-07e1b33e | L!
 land-on-a-sunny-island-de8e2df4 | Land on a sunny island.
 leaf-2648cd55 | leaf
 leaf-6556ea41 | Leaf.
@@ -3580,6 +3588,7 @@ or-tree-66070299 | Or tree?
 or-turtle-3bf1ed8b | Or turtle?
 or-tv-f70097df | Or TV?
 or-water-507204fc | Or water?
+p-0fffd4ea | P!
 pack-a-bag-for-the-beach-af3beb70 | Pack a bag for the beach.
 pack-a-suitcase-75866c82 | Pack a suitcase.
 paint-a-picture-f6db8fcc | Paint a picture.
@@ -4236,6 +4245,7 @@ super-aim-0af1354c | Super aim!
 swipe-all-the-way-across-583fe3de | Swipe all the way across!
 swipe-to-cut-it-6d5dc5cf | Swipe to cut it.
 swipe-your-finger-across-the-pizza-to-cu-b2ef4d2d | Swipe your finger across the pizza to cut it.
+t-77f5eb46 | T!
 take-11-off-5093f549 | Take 11 off.
 take-a-bath-9ace9014 | Take a bath.
 take-a-block-off-84132a7d | Take a block off.
@@ -4763,6 +4773,7 @@ two-cookies-each-5807c86f | Two cookies each.
 two-kids-both-want-the-slide-0c5e52bb | Two kids both want the slide.
 two-letters-can-make-one-sound-like-sh-i-a63db832 | Two letters can make one sound, like sh in ship.
 two-slices-9dd19d43 | Two slices!
+u-13f30f43 | U!
 uh-5b4330e8 | uh
 use-repeat-blocks-you-can-use-1-blocks-2365ea02 | Use repeat blocks: you can use 1 blocks.
 use-repeat-blocks-you-can-use-2-blocks-cd0af067 | Use repeat blocks: you can use 2 blocks.
@@ -5389,6 +5400,8 @@ what-letter-does-tent-start-with-cd3c82b6 | What letter does tent start with?
 what-letter-does-tiger-start-with-9061890c | What letter does tiger start with?
 what-letter-does-tomato-start-with-8e72a059 | What letter does tomato start with?
 what-letter-does-turtle-start-with-38a9e8fd | What letter does turtle start with?
+what-letter-is-it-ba392589 | What letter is it?
+what-number-is-it-88796076 | What number is it?
 what-rhymes-with-bat-8a782f71 | What rhymes with bat?
 what-rhymes-with-bear-aa429de8 | What rhymes with bear?
 what-rhymes-with-bee-3c9cfe34 | What rhymes with bee?
@@ -5582,6 +5595,7 @@ write-the-six-with-your-finger-709ce2e9 | Write the six with your finger.
 write-the-three-with-your-finger-659d2f31 | Write the three with your finger.
 write-the-two-with-your-finger-7888b6b7 | Write the two with your finger.
 wuh-eh-buh-a61c0b0d | wuh, eh, buh…
+y-1c1130ef | Y!
 yogurt-f7024f27 | Yogurt.
 you-both-want-the-red-crayon-1f1ef2eb | You both want the red crayon.
 you-can-do-this-any-time-you-need-to-fee-9f37d729 | You can do this any time you need to feel calm.
@@ -5589,7 +5603,6 @@ you-did-it-92f7ec51 | You did it!
 you-earned-a-fun-break-ticket-847c7cf9 | You earned a Fun Break ticket!
 you-fall-off-0c2729f6 | You fall off.
 you-feel-hot-and-sick-fa74a96a | You feel hot and sick.
-you-filled-it-364d8860 | You filled it!
 you-found-them-all-17060f64 | You found them all!
 you-go-down-the-big-slide-with-your-best-d8cf9aff | You go down the big slide with your best friend.
 you-got-0-out-of-10-8983add6 | You got 0 out of 10.

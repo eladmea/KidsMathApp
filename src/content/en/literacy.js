@@ -192,6 +192,10 @@ export const BLOCK_LETTERS = {
 };
 
 export const say = {
+  // Block Fit: the answer to "What letter is it?" ("A!" is read as the letter's name).
+  blockFit: {
+    letter: ({ letter }) => `${letter}!`,
+  },
   rhymes: {
     prompt: ({ target }) => `What rhymes with ${target}?`,
     speech: ({ target, names }) => `What rhymes with ${target}? ${names}?`,

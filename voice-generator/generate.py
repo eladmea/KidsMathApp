@@ -212,7 +212,8 @@ def english_sounds(kokoro, text, language):
 
 # Hebrew sentences renikud reads wrong, and the sounds to say instead.
 # "יששש!" is a stretched "יש!" (yes!) on screen; renikud reads it as a word.
-HEBREW_SOUNDS = {'יששש!': 'jˈeʃ!'}
+# "איזו" (which, feminine) is read "eize", the masculine form.
+HEBREW_SOUNDS = {'יששש!': 'jˈeʃ!', 'איזו אות זאת?': 'ʔˈejzo ʔˈot zˈot?'}
 
 # Sounds the Hebrew voice says wrong, and what to give it instead. "שש" (six)
 # on its own came out as "sesh": its first sh blurs into an s. A doubled sh

@@ -96,6 +96,10 @@ const tooFew = ({ number, placed }) => `צריך ${number}. יש לנו ${placed
 const tooMany = ({ number, placed }) => `יותר מדי! צריך ${number}. הורידו ${placed - number}.`;
 
 export const say = {
+  // Block Fit: the answer to "What number is it?" once the shape is filled.
+  blockFit: {
+    number: ({ word }) => `${word}!`,
+  },
   // Writing games (Write 1 to 5, Race Track, Bee Paths).
   write: {
     prompt: ({ digit }) => `כתבו ${digit}`,

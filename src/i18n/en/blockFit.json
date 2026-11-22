@@ -5,5 +5,6 @@
   "instructions": "Drag the blocks to cover the shape.",
   "instructionsTurn": "Tap a block to turn it. Drag it to cover the shape.",
   "noFit": "That block doesn't fit there. Try another spot!",
-  "done": "You filled it!"
+  "whatNumber": "Nice! What number is it?",
+  "whatLetter": "Nice! What letter is it?"
 }

@@ -62,6 +62,10 @@ const tooFew = ({ number, placed }) => `We need ${number}. We have ${placed}. Ad
 const tooMany = ({ number, placed }) => `Too many! We need ${number}. Take ${placed - number} off.`;
 
 export const say = {
+  // Block Fit: the answer to "What number is it?" once the shape is filled.
+  blockFit: {
+    number: ({ word }) => `${capital(word)}!`,
+  },
   // Writing games (Write 1 to 5, Race Track, Bee Paths).
   write: {
     prompt: ({ digit }) => `Write ${digit}`,
