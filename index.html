@@ -39,6 +39,15 @@
         position: fixed;
         inset: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
       }
+      /* Phaser's layer of HTML fields (a child's name) and the fields in it
+         are placed by transforms from their default spot, which is the
+         top-right corner once the page is right to left (Hebrew). Pin both
+         to the top-left in every language. */
+      #game > div,
+      #game > div > * {
+        left: 0;
+        top: 0;
+      }
       /* MathPlay is landscape only: ask to turn a phone held upright. */
       #rotate {
         display: none;

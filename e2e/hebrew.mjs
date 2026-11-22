@@ -157,9 +157,21 @@ await t.waitScene('CreateProfile');
 await sleep(300);
 check('"New player" offers both languages', Boolean(await t.box('language:en')) && Boolean(await t.box('language:he')));
 await t.shot(dir, 'h8-new-player');
+// The name field is centred on the screen in both directions (in right to
+// left it once sat at the screen's right edge).
+const fieldOffset = () =>
+  t.mp(() => {
+    const field = document.querySelector('#game input').getBoundingClientRect();
+    const canvas = document.querySelector('#game canvas').getBoundingClientRect();
+    return Math.round(field.left + field.width / 2 - (canvas.left + canvas.width / 2));
+  });
+const rtlOffset = await fieldOffset();
+check('the name field is in the middle in Hebrew', (await t.mp(() => document.documentElement.dir)) === 'rtl' && Math.abs(rtlOffset) < 10, rtlOffset);
 await tap('language:en');
 await t.waitScene('CreateProfile');
 await sleep(300);
 check('picking English turns the form English', (await t.mp(() => document.documentElement.lang)) === 'en');
+const ltrOffset = await fieldOffset();
+check('the name field is in the middle in English', Math.abs(ltrOffset) < 10, ltrOffset);
 
 process.exit(await t.finish());
