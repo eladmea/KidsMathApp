@@ -100,7 +100,7 @@ export const say = {
   write: {
     prompt: ({ digit }) => `כתבו ${digit}`,
     intro: ({ word }) => `בואו נכתוב ${word}! הסתכלו עליי, ואז התחילו בנקודה הירוקה.`,
-    praise: ({ word }) => `${word}! כתבתם ${word}!`,
+    praise: ({ word }) => `${word}!`,
     celebrate: ({ digit, emoji }) => (digit === 0 ? '0: אין כלום! 🫙' : `${digit}! ${emoji.repeat(digit)}`),
   },
   drive: {
