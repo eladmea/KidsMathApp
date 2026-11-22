@@ -19,7 +19,7 @@ function texts(q) {
     q.speech,
     q.explain,
     q.visual && q.visual.caption,
-    q.visual && q.visual.sound,
+    q.visual && q.visual.letter,
     ...(q.choices || []),
     ...(q.tiles || []).map((tile) => tile.text),
     ...(q.parts || []),
@@ -45,6 +45,16 @@ describe('Hebrew literacy pack', () => {
 
   it('is the pack the game uses in Hebrew', () => {
     expect(content('literacy').SOUND_SPEECH).toBe(he.SOUND_SPEECH);
+  });
+
+  it('sound-snack shows the letter itself and says its name', () => {
+    for (let i = 0; i < 50; i++) {
+      const q = generateQuestion('sound-snack');
+      expect(q.visual.letter).toMatch(HEBREW_LETTER);
+      expect(q.prompt).toContain(q.visual.letter);
+      expect(q.visual.say).toBe(he.SOUND_SPEECH[q.visual.letter]);
+      expect(q.speech).toContain(q.visual.say);
+    }
   });
 
   it('every literacy skill has a generator that runs in Hebrew', () => {

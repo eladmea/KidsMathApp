@@ -21,6 +21,7 @@ import { OTHERS } from '../logic/bunnyPop';
 import { createDeck, getVariant } from '../logic/memoryGame';
 import { PREWRITING_PATHS } from '../logic/tracing';
 import { STEP_INFO } from '../logic/adventure';
+import { DIGIT_SHAPES } from '../logic/blockFit';
 import { CLEANUP_JOBS, LEVELS, TIMED, isMeasured, levelRecipe } from '../logic/kitchen';
 import { RECIPES } from '../logic/recipes/index';
 import { answerLine } from '../logic/quizRound';
@@ -139,6 +140,7 @@ const GAME_GROUPS = {
   'game: garden': 'say:garden',
   'game: bunny pop': 'say:bunnyOops',
   'game: kitchen': 'say:kitchen',
+  'game: block fit': 'say:blockFit',
   'island name': 'islands',
   number: 'numbers',
   'letter sound': 'letters',
@@ -248,6 +250,12 @@ export function voiceLines(language, { samples = SAMPLES } = {}) {
     pictures.forEach(([, word]) => add(literacy.listWords([word]), 'answer word'));
   }
   if (hasContent('math', language)) memoryPhrases(content('math', language), literacy, add);
+  // Block Fit's answers: each digit, and each letter it draws.
+  if (hasContent('math', language)) {
+    const { NUMBER_WORDS, say } = content('math', language);
+    Object.keys(DIGIT_SHAPES).forEach((digit) => add(say.blockFit.number({ word: NUMBER_WORDS[digit] }), 'game: block fit'));
+  }
+  if (literacy && literacy.BLOCK_LETTERS) Object.keys(literacy.BLOCK_LETTERS).forEach((letter) => add(literacy.say.blockFit.letter({ letter }), 'game: block fit'));
   if (hasContent('kitchen', language)) kitchenPhrases(content('kitchen', language), add);
 
   // ---- questions ----

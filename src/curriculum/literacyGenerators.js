@@ -47,10 +47,12 @@ function soundSnack(soundsKey) {
     ).map((s) => pick(FIRST_SOUND_WORDS[s]));
     const { choices, names, choiceWords } = pictureChoices([answer, ...distractors]);
     const spoken = soundSpeech(sound);
+    // The screen shows the letter itself (ר), so children learn to know it;
+    // the narrator says its name (רֵישׁ) or sound (sss).
     return {
-      prompt: say.soundSnack.prompt({ sound: spoken }),
+      prompt: say.soundSnack.prompt({ sound }),
       speech: say.soundSnack.speech({ sound: spoken, names }),
-      visual: { type: 'snackMonster', sound: spoken, say: spoken },
+      visual: { type: 'snackMonster', letter: sound, say: spoken },
       answer: answer[0],
       explain: say.soundSnack.explain({ word: answer[1], sound: spoken }),
       choices,

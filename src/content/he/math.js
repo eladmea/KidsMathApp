@@ -96,22 +96,27 @@ const tooFew = ({ number, placed }) => `צריך ${number}. יש לנו ${placed
 const tooMany = ({ number, placed }) => `יותר מדי! צריך ${number}. הורידו ${placed - number}.`;
 
 export const say = {
+  // Block Fit: the answer to "What number is it?" once the shape is filled.
+  blockFit: {
+    number: ({ word }) => `${word}!`,
+  },
   // Writing games (Write 1 to 5, Race Track, Bee Paths).
   write: {
     prompt: ({ digit }) => `כתבו ${digit}`,
     intro: ({ word }) => `בואו נכתוב ${word}! הסתכלו עליי, ואז התחילו בנקודה הירוקה.`,
-    praise: ({ word }) => `${word}! כתבתם ${word}!`,
+    praise: ({ word }) => `${word}!`,
     celebrate: ({ digit, emoji }) => (digit === 0 ? '0: אין כלום! 🫙' : `${digit}! ${emoji.repeat(digit)}`),
   },
   drive: {
     prompt: ({ digit }) => `סעו על ה-${digit}!`,
     intro: ({ word }) => `בואו ניסע על המספר ${word}! מתחילים ברמזור.`,
-    praise: ({ word }) => `נסעתם על המספר ${word}!`,
+    // Nothing said: the engine's vroom is the praise.
+    praise: () => '',
   },
   fly: {
     prompt: ({ name }) => `עופו ${name}!`,
     intro: ({ name }) => `עזרו לדבורה לעוף ${name} אל הפרח. מתחילים בצנצנת הדבש.`,
-    praise: () => 'בזזז! הדבורה מצאה את הפרח!',
+    praise: () => 'הדבורה מצאה את הפרח!',
   },
   // Pizza Shop. `word` is the number's word, `friend` the customer's name,
   // `topping` a TOPPING_NAMES entry.
@@ -213,7 +218,7 @@ export const say = {
   // Birthday Cake. No "בן/בת 3": the age is said without the friend's gender.
   cake: {
     intro: ({ friend, number, word }) => `היום יום ההולדת של ${friend}! ${count(number, CANDLE)} היום! כתבו ${word} על העוגה בקרם.`,
-    iced: ({ number }) => `יפהפה! עכשיו שימו ${count(number, CANDLE)} על העוגה. גררו מהמגש.`,
+    iced: ({ number }) => `יפה! עכשיו שימו ${count(number, CANDLE)} על העוגה. גררו מהמגש.`,
     right: ({ number }) =>
       number === 1 ? `${count(1, CANDLE)}! עכשיו כבו אותו. לחצו על הנר!` : `${count(number, CANDLE)}! עכשיו כבו אותם. לחצו על כל נר!`,
     tooFewShow: ({ friend, number, placed }) => `יום הולדת ${number} ל${friend}! יש לנו ${placed}. הוסיפו עוד!`,

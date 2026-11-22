@@ -21,3 +21,4 @@ required, but it is kind.
 | `kitchen-sizzle.wav` | BigSoundBank [#0485 Fried egg](https://bigsoundbank.com/fried-egg-s0485.html) | `0485.mp3`, 2.0–3.8 s | fades, loudness-levelled, mono, 22 kHz wav |
 | `kitchen-boil.wav` | BigSoundBank [#0149 Boiling water](https://bigsoundbank.com/boiling-water-s0149.html) | `0149.mp3`, 2.0–3.8 s | fades, loudness-levelled, mono, 22 kHz wav |
 | `kitchen-clink.wav` | BigSoundBank [#1383 Drops, metal sink](https://bigsoundbank.com/drops-metal-sink-s1383.html) | `1383.mp3`, 0–0.42 s (one drop) | fades, loudness-levelled, mono, 22 kHz wav |
+| `bee-buzz.wav` | BigSoundBank [#1001 Bumblebee 2](https://bigsoundbank.com/bumblebee-2-s1001.html) | `1001.mp3`, 0.5–2.0 s | fades, loudness-levelled, mono, 22 kHz wav |

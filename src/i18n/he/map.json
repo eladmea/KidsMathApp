@@ -1,6 +1,6 @@
 {
   "greeting": "היי, {name}! בואו נבחר אי.",
-  "sayGreeting": "היי! בואו נבחר אי ונשחק.",
+  "sayGreeting": "היי! בחרו אי לשחק בו.",
   "passed": "✅ {passed} / {total}",
   "mastered": "  🏅 {mastered}",
   "review": "⭐ חזרה יומית",

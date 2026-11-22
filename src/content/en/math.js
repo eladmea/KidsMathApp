@@ -62,22 +62,27 @@ const tooFew = ({ number, placed }) => `We need ${number}. We have ${placed}. Ad
 const tooMany = ({ number, placed }) => `Too many! We need ${number}. Take ${placed - number} off.`;
 
 export const say = {
+  // Block Fit: the answer to "What number is it?" once the shape is filled.
+  blockFit: {
+    number: ({ word }) => `${capital(word)}!`,
+  },
   // Writing games (Write 1 to 5, Race Track, Bee Paths).
   write: {
     prompt: ({ digit }) => `Write ${digit}`,
     intro: ({ word }) => `Let's write ${word}! Watch me, then start at the green dot.`,
-    praise: ({ word }) => `${capital(word)}! You wrote ${word}!`,
+    praise: ({ word }) => `${capital(word)}!`,
     celebrate: ({ digit, emoji }) => (digit === 0 ? '0: nothing at all! 🫙' : `${digit}! ${emoji.repeat(digit)}`),
   },
   drive: {
     prompt: ({ digit }) => `Drive the ${digit}!`,
     intro: ({ word }) => `Let's drive the number ${word}! Start at the traffic light.`,
-    praise: ({ word }) => `You drove ${an(word)}!`,
+    // Nothing said: the engine's vroom is the praise.
+    praise: () => '',
   },
   fly: {
     prompt: ({ name }) => `Fly ${name}!`,
     intro: ({ name }) => `Help the bee fly ${name} to the flower. Start at the honey pot.`,
-    praise: () => 'Buzz buzz! The bee found the flower!',
+    praise: () => 'The bee found the flower!',
   },
   // Pizza Shop. `word` is the number's word, `friend` the customer's name,
   // `topping` a TOPPING_NAMES entry.

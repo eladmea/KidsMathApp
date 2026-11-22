@@ -449,10 +449,18 @@ await dragPiece(s.pieces[0].id, { x: 60, y: 690 });
 await waitFor(() => window.__mathplay.state.lastDrop === 'miss', null, 4000);
 s = await state();
 check('fit: a block dropped where it does not fit goes back to the tray', s.misses === 1 && !s.pieces[0].placed);
+const firstShape = s.shape;
 await fillShape();
 s = await state();
 check('fit: every block in place fills the shape', s.step === 'done' || s.index === 1, `${s.step} ${s.index}`);
 check('fit: a shape with a miss scores nothing', s.score === 0);
+await waitFor(() => window.__mathplay.state.answer || window.__mathplay.state.index !== 0, null, 8000);
+{
+  const spoken = await t.spoken();
+  const asked = spoken.lastIndexOf('Nice! What number is it?');
+  const word = { 0: 'Zero!', 1: 'One!', 4: 'Four!', 7: 'Seven!' }[firstShape];
+  check('fit: a filled shape asks what number it is, then says it', asked >= 0 && spoken[asked + 1] === word, spoken.slice(-3).join(' | '));
+}
 await fillRest(1);
 await results();
 s = await state();

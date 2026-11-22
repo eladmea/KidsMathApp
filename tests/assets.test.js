@@ -9,6 +9,6 @@ describe('assets by folder', () => {
   });
 
   it('finds the sound effects by file name', () => {
-    expect(Object.keys(SOUNDS).sort()).toEqual(['cheer', 'correct', 'ding', 'kids-yay', 'kitchen-blend', 'kitchen-boil', 'kitchen-chop', 'kitchen-clink', 'kitchen-cupboard', 'kitchen-fridge', 'kitchen-pour', 'kitchen-sizzle', 'kitchen-tap', 'star', 'vroom', 'wrong']);
+    expect(Object.keys(SOUNDS).sort()).toEqual(['bee-buzz', 'cheer', 'correct', 'ding', 'kids-yay', 'kitchen-blend', 'kitchen-boil', 'kitchen-chop', 'kitchen-clink', 'kitchen-cupboard', 'kitchen-fridge', 'kitchen-pour', 'kitchen-sizzle', 'kitchen-tap', 'star', 'vroom', 'wrong']);
   });
 });

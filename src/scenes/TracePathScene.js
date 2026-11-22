@@ -55,7 +55,15 @@ const MODES = {
       const { STROKE_NAMES, say } = content('math');
       return PREWRITING_PATHS.slice(0, BEE_PATHS_PER_ROUND).map((path) => {
         const name = STROKE_NAMES[path.id];
-        return { key: path.id, strokes: pathCheckpoints(path), prompt: say.fly.prompt({ name }), intro: say.fly.intro({ name }), praise: say.fly.praise() };
+        return {
+          key: path.id,
+          strokes: pathCheckpoints(path),
+          prompt: say.fly.prompt({ name }),
+          intro: say.fly.intro({ name }),
+          praise: say.fly.praise(),
+          // A real bee buzzing instead of the narrator saying "Bzzz!".
+          sound: 'bee-buzz',
+        };
       });
     },
   },

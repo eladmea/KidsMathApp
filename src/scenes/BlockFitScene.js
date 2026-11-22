@@ -3,9 +3,9 @@ import Narrator from '../ui/Narrator';
 import { celebrate } from '../ui/Juice';
 import { COLORS } from '../ui/theme';
 import { play } from '../services/audio';
-import { speak } from '../services/speech';
+import { isSpeaking } from '../services/speech';
 import { content } from '../content/index';
-import { bounds, cellKey, cellsOf, fits, getLevel, isCovered, makeRound, sizeOf, turn } from '../logic/blockFit';
+import { DIGIT_SHAPES, bounds, cellKey, cellsOf, fits, getLevel, isCovered, makeRound, sizeOf, turn } from '../logic/blockFit';
 import { getSkill } from '../curriculum/skills';
 import { t } from '../i18n/index';
 
@@ -20,15 +20,22 @@ const S = 64;
 const BOARD = { x: 330, y: 450 };
 const TRAY = { left: 620, top: 215, width: 600, height: 480, gap: 26 };
 const COLOURS = [0xff6b6b, 0x4a8cff, 0xffd23f, 0x7ed957, 0x8e5ce0, 0xff9a3d, 0x3ccfcf, 0xff6fa8, 0xa0785a];
+// After a shape is filled: a pause between the question ("What number is
+// it?") ending and its answer, and how long the answer stays before the next
+// shape. ASK_MAX_MS caps the wait for the question, should speech never end.
+const ANSWER_PAUSE_MS = 1000;
 const NEXT_MS = 1700;
+const ASK_MAX_MS = 5000;
 
 export default class BlockFitScene extends BaseScene {
   static key = 'BlockFit';
 
-  // What a filled shape says: every digit's word and every letter (a few
+  // What a filled shape says: every digit's answer and every letter's (a few
   // dozen), downloaded before the round opens (services/voicePreload.js).
   static prepare() {
-    return [...Object.values(content('math').NUMBER_WORDS), ...Object.keys(content('literacy').BLOCK_LETTERS || {})];
+    const numbers = Object.keys(DIGIT_SHAPES).map((digit) => content('math').say.blockFit.number({ word: content('math').NUMBER_WORDS[digit] }));
+    const letters = Object.keys(content('literacy').BLOCK_LETTERS || {}).map((letter) => content('literacy').say.blockFit.letter({ letter }));
+    return [...numbers, ...letters];
   }
   static plays = ['BlockFit'];
 
@@ -90,7 +97,7 @@ export default class BlockFitScene extends BaseScene {
     this.placeTray();
     this.busy = false;
     this.setCounter(this.index + 1, this.level.shapes, this.score, '🧩');
-    this.report({ step: 'play', shape: this.shape.id, index: this.index, total: this.level.shapes, level: this.levelId, score: this.score });
+    this.report({ step: 'play', shape: this.shape.id, index: this.index, total: this.level.shapes, level: this.levelId, score: this.score, answer: null });
     this.refresh();
   }
 
@@ -246,16 +253,40 @@ export default class BlockFitScene extends BaseScene {
     if (this.misses === 0) this.score += 1;
     play(this, 'correct');
     this.time.delayedCall(200, () => celebrate(this, BOARD.x, BOARD.y));
-    // Say what it was: the digit's word, or the letter.
-    const name = this.level.source === 'digits' ? content('math').NUMBER_WORDS[Number(this.shape.id)] : this.shape.id;
-    speak(name, { force: true });
-    this.narrator.say(t('blockFit.done'), { show: this.instructions() });
+    // Ask what it is, then (a second after the question) say it.
+    const digits = this.level.source === 'digits';
+    const answer = digits
+      ? content('math').say.blockFit.number({ word: content('math').NUMBER_WORDS[Number(this.shape.id)] })
+      : content('literacy').say.blockFit.letter({ letter: this.shape.id });
+    this.narrator.say(t(digits ? 'blockFit.whatNumber' : 'blockFit.whatLetter'), { force: true });
+    const question = this.narrator.text.text;
     this.setCounter(this.index + 1, this.level.shapes, this.score, '🧩');
     this.report({ step: 'done', score: this.score, clean: this.misses === 0 });
-    this.time.delayedCall(NEXT_MS, () => {
-      this.index += 1;
-      if (this.index >= this.level.shapes) this.finishRound(this.skill.id, this.score, this.level.shapes);
-      else this.newShape();
+    this.afterSpeech(() => {
+      // On screen a letter is itself (ב), though its name is said (האות בֵּית).
+      this.narrator.say(answer, { show: `${question} ${digits ? answer : this.shape.id}`, force: true });
+      this.report({ answer });
+      this.time.delayedCall(NEXT_MS, () => {
+        this.index += 1;
+        if (this.index >= this.level.shapes) this.finishRound(this.skill.id, this.score, this.level.shapes);
+        else this.newShape();
+      });
+    });
+  }
+
+  // `then`, ANSWER_PAUSE_MS after the narrator stops talking.
+  afterSpeech(then) {
+    let waited = 0;
+    const check = this.time.addEvent({
+      delay: 100,
+      loop: true,
+      callback: () => {
+        waited += 100;
+        // Speech starts a moment after it is asked for, so look after 300 ms.
+        if (waited < 300 || (isSpeaking() && waited < ASK_MAX_MS)) return;
+        check.remove();
+        this.time.delayedCall(ANSWER_PAUSE_MS, then);
+      },
     });
   }
 }
