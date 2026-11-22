@@ -72,7 +72,8 @@ export const say = {
   drive: {
     prompt: ({ digit }) => `Drive the ${digit}!`,
     intro: ({ word }) => `Let's drive the number ${word}! Start at the traffic light.`,
-    praise: ({ word }) => `You drove ${an(word)}!`,
+    // Nothing said: the engine's vroom is the praise.
+    praise: () => '',
   },
   fly: {
     prompt: ({ name }) => `Fly ${name}!`,
