@@ -7,7 +7,7 @@ import { COLORS, textStyle } from '../ui/theme';
 import { play } from '../services/audio';
 import { speak } from '../services/speech';
 import { content } from '../content/index';
-import { bubblePool, catchTile, getLevel, makeTargets, nextBubble, touchesOnTheWay } from '../logic/letterCatcher';
+import { bubblePool, catchTile, getLevel, makeTargets, nextBubble, tileSound, touchesOnTheWay, wordLine } from '../logic/letterCatcher';
 import { getSkill } from '../curriculum/skills';
 import { isRtl, t } from '../i18n/index';
 
@@ -25,7 +25,7 @@ const BUBBLE = { radius: 38, count: 6, rows: [294, 378, 462], min: 380, max: 106
 const SLOT = { y: 212, size: 60, gap: 12 };
 const NEXT_WORD_MS = 1600;
 
-const sound = (tile) => (content('literacy').soundSpeech || ((g) => g))(tile);
+const sound = (tile) => tileSound(content('literacy'), tile);
 
 export default class LetterCatcherScene extends BaseScene {
   static key = 'LetterCatcher';
@@ -40,7 +40,7 @@ export default class LetterCatcherScene extends BaseScene {
     const levelId = getSkill(skillId).catchLevel || 'letter';
     const targets = makeTargets(levelId, content('literacy'));
     LetterCatcherScene.prepared = { data, targets };
-    return targets.flatMap((target) => [target.word, levelId === 'letter' ? `${target.word}. ${sound(target.tiles[0])}.` : null]).filter(Boolean);
+    return targets.flatMap((target) => [target.word, wordLine(levelId, target, content('literacy'))]);
   }
 
   static voiceGroups() {
@@ -143,7 +143,7 @@ export default class LetterCatcherScene extends BaseScene {
     this.lowerNeeded();
     this.busy = false;
     // Say the word (and, for one letter, its sound); 🔊 says it again.
-    const spoken = this.levelId === 'letter' ? `${this.target.word}. ${sound(tiles[0])}.` : this.target.word;
+    const spoken = wordLine(this.levelId, this.target, content('literacy'));
     if (this.wordIndex > 0) this.narrator.say(spoken, { show: t('letterCatcher.instructions'), force: true });
     else this.time.delayedCall(2600, () => this.target === this.targets[0] && this.narrator.say(spoken, { show: t('letterCatcher.instructions'), force: true }));
     this.setCounter(this.wordIndex + 1, this.level.words, this.score, '⚾');

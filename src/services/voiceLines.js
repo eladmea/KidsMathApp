@@ -22,6 +22,7 @@ import { createDeck, getVariant } from '../logic/memoryGame';
 import { PREWRITING_PATHS } from '../logic/tracing';
 import { STEP_INFO } from '../logic/adventure';
 import { DIGIT_SHAPES } from '../logic/blockFit';
+import { allLines as letterCatcherLines } from '../logic/letterCatcher';
 import { CLEANUP_JOBS, LEVELS, TIMED, isMeasured, levelRecipe } from '../logic/kitchen';
 import { RECIPES } from '../logic/recipes/index';
 import { answerLine } from '../logic/quizRound';
@@ -141,6 +142,7 @@ const GAME_GROUPS = {
   'game: bunny pop': 'say:bunnyOops',
   'game: kitchen': 'say:kitchen',
   'game: block fit': 'say:blockFit',
+  'game: letter catcher': 'say:letterCatcher',
   'island name': 'islands',
   number: 'numbers',
   'letter sound': 'letters',
@@ -249,6 +251,8 @@ export function voiceLines(language, { samples = SAMPLES } = {}) {
     const pictures = [...Object.values(literacy.FIRST_SOUND_WORDS || {}).flat(), ...(literacy.RHYME_FAMILIES || []).flat()];
     pictures.forEach(([, word]) => add(literacy.listWords([word]), 'answer word'));
   }
+  // Letter Catcher: its words and the sound of every letter in a bubble.
+  if (literacy && literacy.CVC_WORDS) letterCatcherLines(literacy).forEach((line) => add(line, 'game: letter catcher'));
   if (hasContent('math', language)) memoryPhrases(content('math', language), literacy, add);
   // Block Fit's answers: each digit, and each letter it draws.
   if (hasContent('math', language)) {

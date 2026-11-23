@@ -42,6 +42,16 @@ describe('voice clips', () => {
     expect(clipUrl('How many apples?', 'xx')).toBeNull();
     expect(normalize(' a  b ')).toBe('a b');
   });
+
+  it('plays the same words with or without punctuation from one recording', () => {
+    // A letter sound recorded alone ("sss") is reused as a sentence ("sun. sss.").
+    expect(clipUrl('sss.', 'en')).toBe(clipUrl('sss', 'en'));
+    expect(clipUrl('sss', 'en')).not.toBeNull();
+    expect(clipUrl('מֵם.', 'he')).toBe(clipUrl('מֵם', 'he'));
+    expect(clipUrl('מֵם', 'he')).not.toBeNull();
+    // A question mark or a capital doesn't change the words either.
+    expect(clipUrl('Sss?', 'en')).toBe(clipUrl('sss', 'en'));
+  });
 });
 
 describe('picking a voice for the language', async () => {
