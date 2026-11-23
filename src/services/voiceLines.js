@@ -277,9 +277,22 @@ export function voiceLines(language, { samples = SAMPLES } = {}) {
     if (!DEVICE_VOICE_GENERATORS.includes(id)) found.forEach((source, sentence) => add(sentence, source, questionGroup(id)));
   });
 
-  const result = [...lines.values()]
+  // Sentences with the same spoken words ("Cat." / "cat!", "9!" / "Nine.")
+  // share one recording (voiceClips.js spokenForm): one line each, recorded
+  // from its most common text, used wherever any of them is.
+  const byClip = new Map();
+  [...lines.values()]
     .filter((entry) => entry.text.trim())
-    .map((entry) => ({ ...entry, groups: [...entry.groups].sort(), id: clipId(entry.text), recorded: Boolean(clipUrl(entry.text, language)) }))
+    .sort((a, b) => b.count - a.count || a.text.localeCompare(b.text))
+    .forEach((entry) => {
+      const id = clipId(entry.text, language);
+      const same = byClip.get(id);
+      if (!same) return byClip.set(id, { ...entry, groups: new Set(entry.groups), id, recorded: Boolean(clipUrl(entry.text, language)) });
+      same.count += entry.count;
+      entry.groups.forEach((group) => same.groups.add(group));
+    });
+  const result = [...byClip.values()]
+    .map((entry) => ({ ...entry, groups: [...entry.groups].sort() }))
     .sort((a, b) => b.count - a.count || a.text.localeCompare(b.text));
   // Spoken templates with no values listed above (add them to templateValues).
   result.missingTemplates = missing;

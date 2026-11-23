@@ -1,10 +1,31 @@
-import { clipId, clipUrl, normalize } from '../src/services/voiceClips';
+import { clipId, clipUrl, normalize, spokenForm } from '../src/services/voiceClips';
 
 describe('voice clips', () => {
   it('gives each sentence a stable, readable file name', () => {
     expect(clipId('How many apples?')).toMatch(/^how-many-apples-[0-9a-f]{8}$/);
     expect(clipId('How many apples?')).toBe(clipId('  How  many apples? '));
     expect(clipId('How many apples?')).not.toBe(clipId('How many stars?'));
+  });
+
+  // Listening showed the voice says these the same way, so they share one
+  // recording (ARCHITECTURE.md "Record the voice").
+  it('gives sentences with the same spoken words one recording', () => {
+    expect(spokenForm('Cat.', 'en')).toBe('cat');
+    ['cat', 'cat!', 'CAT?', ' Cat… '].forEach((text) => expect(clipId(text, 'en')).toBe(clipId('Cat.', 'en')));
+    ['9', '9.', '9!', 'Nine!', 'nine'].forEach((text) => expect(clipId(text, 'en')).toBe(clipId('9.', 'en')));
+    expect(clipId('So apple goes there!', 'en')).toBe(clipId('so apple goes there.', 'en'));
+    ['5', '5.', 'חמש!'].forEach((text) => expect(clipId(text, 'he')).toBe(clipId('5!', 'he')));
+    expect(clipId('אותה תבנית, מראה חדש!', 'he')).toBe(clipId('אותה תבנית, מראה חדש.', 'he'));
+    expect(clipUrl('cat!', 'en')).toBe(clipUrl('Cat.', 'en'));
+    expect(clipUrl('cat!', 'en')).toBeTruthy();
+  });
+
+  it('keeps different words apart', () => {
+    expect(clipId('10 × 10 = 100', 'en')).not.toBe(clipId('10 10 100', 'en'));
+    expect(clipId('Or 9?', 'en')).not.toBe(clipId('9?', 'en'));
+    expect(clipId('3.5', 'en')).not.toBe(clipId('3, 5', 'en'));
+    expect(spokenForm('What is 55 plus 37?', 'en')).toBe('what is 55 plus 37');
+    expect(clipId('Cat.', 'en')).not.toBe(clipId('Hat.', 'en'));
   });
 
   it('names sentences without Latin letters by their hash', () => {

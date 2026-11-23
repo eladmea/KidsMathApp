@@ -3,11 +3,14 @@
 import { voiceLines } from '../src/services/voiceLines';
 import { splitSentences } from '../src/logic/voices';
 import { content } from '../src/content/index';
+import { clipId } from '../src/services/voiceClips';
 import { setLanguage, t } from '../src/i18n/index';
 
 const lines = voiceLines('en', { samples: 400 });
 const texts = new Set(lines.map((line) => line.text));
-const has = (text) => splitSentences(text).every((sentence) => texts.has(sentence));
+// Listed means its recording is: "7" is recorded as "7." (same spoken words).
+const ids = new Set(lines.map((line) => line.id));
+const has = (text) => splitSentences(text).every((sentence) => ids.has(clipId(sentence, 'en')));
 
 describe('sentences to record', () => {
   afterAll(() => setLanguage('en'));
@@ -41,7 +44,7 @@ describe('sentences to record', () => {
 
 describe('Hebrew sentences to record', () => {
   const hebrew = voiceLines('he', { samples: 400 });
-  const spoken = new Set(hebrew.map((line) => line.text));
+  const spoken = new Set(hebrew.map((line) => line.id));
   afterAll(() => setLanguage('en'));
 
   it('lists every spoken template, in Hebrew, without gaps', () => {
@@ -55,7 +58,7 @@ describe('Hebrew sentences to record', () => {
   it('has the lines every child hears', () => {
     setLanguage('he');
     [t('map.sayGreeting'), t('timeUp.say'), t('adventure.sayComplete'), t('pathRace.saySpin')].forEach((line) =>
-      expect(splitSentences(line).every((sentence) => spoken.has(sentence))).toBe(true)
+      expect(splitSentences(line).every((sentence) => spoken.has(clipId(sentence, 'he')))).toBe(true)
     );
   });
 });

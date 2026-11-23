@@ -238,7 +238,12 @@ Right-to-left (`dir: "rtl"`, e.g. Hebrew):
 
 ## Record the voice
 
-The game speaks sentence by sentence. Each sentence has a **clip ID** made from its text. A recording saved as `src/voice/<language>/<clip id>.mp3` (or `.m4a`, `.ogg`, `.wav`) plays instead of the device's text-to-speech. Anything not recorded still uses the device voice, so recordings can be added a few at a time.
+The game speaks sentence by sentence. Each sentence has a **clip ID** made from the words it speaks. A recording saved as `src/voice/<language>/<clip id>.mp3` (or `.m4a`, `.ogg`, `.wav`) plays instead of the device's text-to-speech. Anything not recorded still uses the device voice, so recordings can be added a few at a time.
+
+**One recording per spoken words (decided November 2026).** Listening side by side showed that the voice says a sentence the same way whatever its ending (`.` `!` `?` `…` or none), its capital letters, or whether a number is written as a digit or a word. "Cat.", "cat", "cat!" and "Cat?" are one recording; so are "5", "5!" and "Five!", and in Hebrew "5" and "חמש!". So the clip ID is made from the sentence's **spoken form** (`spokenForm()` in `src/services/voiceClips.js`): lower case, punctuation removed, and whole numbers 0–20 written as the language's number words (`NUMBER_WORDS` in its math pack). Math signs (`+`, `×`, `=`) and bigger numbers stay as they are. Only the recording is shared: the screen still shows the text exactly as written, so never change on-screen text to get a match.
+- **Before adding a spoken line, look for its recording first.** `npm run voice:lines -- <language> --missing` lists only lines that have no recording under their spoken form. A line that differs from a recorded one only by punctuation, capitals or digits vs words needs no new recording.
+- `npm run voice:lines` lists each spoken form once (its most common text is the one recorded), and every place it's used.
+- A new rule like this one changes every clip ID. Rename the recordings rather than recording them again: work out each file's new ID from its sentence (the old `voice-generator/sentences_*.txt` gives the text), keep one file per new ID, then run `npm run voice:lines -- <language> --txt`. That is how the merge of November 2026 was done (390 recordings, 1.9 MB, removed).
 
 English recordings are made with a free AI voice (Kokoro) by **`voice-generator/`**, a separate folder that isn't part of the game. Use it like this:
 
