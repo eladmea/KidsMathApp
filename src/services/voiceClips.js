@@ -1,14 +1,22 @@
 // Recorded voice: a sound file can replace text-to-speech for any sentence.
 //
-// Every sentence the game says has a clip id made from its text
-// (clipId('How many apples?') -> 'how-many-apples-3f9c2a1b'). A recording saved
-// as src/voice/<language>/<clip id>.mp3 (or .m4a, .ogg, .wav) is played
+// Every sentence the game says has a clip id made from the words it speaks
+// (clipId('How many apples?') -> 'how-many-apples-1a2b3c4d'). A recording
+// saved as src/voice/<language>/<clip id>.mp3 (or .m4a, .ogg, .wav) is played
 // instead of the device voice. The rest still uses text-to-speech, so
 // recordings can be added a few at a time, and a sentence with a name in it
 // ("Hi, Mia!") can be spoken while the next one is a recording.
 //
+// Only the spoken words make the id (spokenForm): no punctuation, lower case,
+// and the numbers 0-20 as words. "Cat.", "cat", "cat!" and "Cat?" share one
+// recording, and so do "5!", "5." and "Five!". Listening showed the voice
+// says them the same way. The text on screen doesn't change.
+//
 // `npm run voice:lines -- <language>` lists every line to record with its
 // file name (see scripts/voice-lines.mjs).
+import { content, hasContent } from '../content/index';
+import { getLanguage } from '../i18n/index';
+
 const files = import.meta.glob('../voice/*/*.{mp3,m4a,ogg,wav}', { eager: true, query: '?url', import: 'default' });
 
 // { [language]: { [clipId]: url } }
@@ -19,9 +27,24 @@ Object.entries(files).forEach(([path, url]) => {
   CLIPS[language][id] = url;
 });
 
-// The same sentence always gets the same id; spacing and case don't matter.
+// The same sentence always gets the same id; spacing doesn't matter.
 export function normalize(text) {
   return String(text).trim().replace(/\s+/g, ' ');
+}
+
+// The words a sentence speaks, which is all a recording depends on: lower
+// case, punctuation gone, and whole numbers 0-20 written as the language's
+// number words (its math pack's NUMBER_WORDS), so "9!" and "Nine." match.
+// Math signs (+, ×, =) and bigger numbers stay as they are.
+export function spokenForm(text, language = getLanguage()) {
+  const words = hasContent('math', language) ? content('math', language).NUMBER_WORDS || [] : [];
+  return normalize(text)
+    .normalize('NFC')
+    .toLowerCase()
+    .replace(/\d+(?:[.,:]\d+)*/g, (number) => (/^(0|[1-9]\d*)$/.test(number) && words[Number(number)]) || number)
+    .replace(/\p{P}+/gu, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 // FNV-1a: a short stable hash, so ids stay unique and file names short.
@@ -34,36 +57,18 @@ function hash(text) {
   return h.toString(16).padStart(8, '0');
 }
 
-export function clipId(text) {
-  const clean = normalize(text);
-  const slug = clean
-    .toLowerCase()
+export function clipId(text, language = getLanguage()) {
+  const spoken = spokenForm(text, language);
+  const slug = spoken
     .normalize('NFKD')
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '')
     .slice(0, 40)
     .replace(/-+$/, '');
-  return slug ? `${slug}-${hash(clean)}` : hash(clean);
-}
-
-// The same words with and without a full stop at the end ("sss." and
-// "sss", "sun." and "sun") sound the same, so one recording serves both: a
-// letter sound or a word recorded on its own is reused when a line says it
-// as a sentence of its own, and the other way round.
-function spellings(text) {
-  const clean = normalize(text);
-  const bare = clean.replace(/\.$/, '');
-  return bare === clean ? [clean, `${clean}.`] : [clean, bare];
-}
-
-// The id of the recording a sentence plays (its own, or the same words with
-// or without the full stop), or its own id when there is none.
-export function recordedClipId(text, language) {
-  const clips = CLIPS[language] || {};
-  return spellings(text).map(clipId).find((id) => clips[id]) || clipId(text);
+  return slug ? `${slug}-${hash(spoken)}` : hash(spoken);
 }
 
 // The recording for a sentence in a language, or null.
 export function clipUrl(text, language) {
-  return (CLIPS[language] && CLIPS[language][recordedClipId(text, language)]) || null;
+  return (CLIPS[language] && CLIPS[language][clipId(text, language)]) || null;
 }

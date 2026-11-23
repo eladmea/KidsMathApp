@@ -18,8 +18,9 @@ kokoro-onnx (no PyTorch needed). The first run downloads the model files
 Reads sentences_english.txt:
     line 1    the settings, e.g.  VOICE=af_heart SPEED=0.9 LANG=a  # why
     then      one sentence per line:  <file name> | <sentence>
-              (or just the sentence: the file name is then worked out the
-              same way the game does it). Lines starting with # are skipped.
+              Lines starting with # are skipped. Make the file with
+              `npm run voice:lines -- en --txt`: the file names come from the
+              game (src/services/voiceClips.js clipId).
 
 Writes voices_export/<file name>.mp3 (or .wav without ffmpeg). The game
 plays src/voice/en/<file name>.mp3 instead of the device voice, so copying
@@ -31,7 +32,6 @@ import urllib.request
 import shutil
 import subprocess
 import sys
-import unicodedata
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -69,26 +69,6 @@ EMOJI = re.compile('[\U0001F000-\U0001FAFF\u2600-\u27BF\u2B00-\u2BFF\uFE0F\u200D
 SAMPLE_VOICES = ['af_heart', 'af_bella', 'af_nicole', 'af_sarah', 'af_sky', 'bf_emma', 'am_michael', 'am_puck']
 
 
-# ---- the game's clip ids (src/services/voiceClips.js clipId) ----
-def normalize(text):
-    return re.sub(r'\s+', ' ', text.strip())
-
-
-def fnv1a(text):
-    h = 0x811C9DC5
-    for ch in text:
-        h ^= ord(ch)
-        h = (h * 0x01000193) & 0xFFFFFFFF
-    return f'{h:08x}'
-
-
-def clip_id(text):
-    clean = normalize(text)
-    slug = unicodedata.normalize('NFKD', clean.lower())
-    slug = re.sub(r'[^a-z0-9]+', '-', slug).strip('-')[:40].rstrip('-')
-    return f'{slug}-{fnv1a(clean)}' if slug else fnv1a(clean)
-
-
 # ---- reading the sentence file ----
 def read_sentences(path):
     lines = path.read_text(encoding='utf-8').splitlines()
@@ -104,10 +84,9 @@ def read_sentences(path):
         line = line.strip()
         if not line or line.startswith('#'):
             continue
-        if '|' in line:
-            name, text = (part.strip() for part in line.split('|', 1))
-        else:
-            name, text = clip_id(line), line
+        if '|' not in line:
+            sys.exit(f'{path.name} line {number} has no file name. Make the list with: npm run voice:lines -- <language> --txt')
+        name, text = (part.strip() for part in line.split('|', 1))
         if not text:
             print(f'  line {number}: no sentence, skipped')
             continue
@@ -325,7 +304,11 @@ def main():
         return
 
     export.mkdir(parents=True, exist_ok=True)
-    todo = [(n, t) for n, t in sentences if args.force or not any((export / f'{n}{ext}').exists() for ext in ('.mp3', '.wav'))]
+    # Done: recorded here, or already in the game (its file names can change
+    # when the game's clip ids do, so the game folder counts too).
+    game = GAME_VOICE.get(args.file.name)
+    done = lambda n: any((folder / f'{n}{ext}').exists() for folder in (export, game) if folder for ext in ('.mp3', '.wav'))
+    todo = [(n, t) for n, t in sentences if args.force or not done(n)]
     if args.part:
         part, parts = (int(n) for n in args.part.split('/'))
         todo = todo[part - 1 :: parts]
@@ -346,7 +329,8 @@ def main():
 
 
 # Copies the recording of every listed sentence into the game, and removes
-# recordings there whose sentence is no longer in the list.
+# recordings there whose sentence is no longer in the list. A listed sentence
+# already in the game and not recorded here keeps its game recording.
 def install(sentences, export, folder):
     if folder is None:
         sys.exit('No game folder known for this sentence file.')
@@ -359,6 +343,8 @@ def install(sentences, export, folder):
                 shutil.copy2(source, folder / source.name)
                 wanted.add(source.name)
                 break
+        else:
+            wanted.update(f'{name}{ext}' for ext in ('.mp3', '.wav') if (folder / f'{name}{ext}').exists())
     removed = 0
     for old in folder.iterdir():
         if old.suffix in ('.mp3', '.wav', '.ogg', '.m4a') and old.name not in wanted:

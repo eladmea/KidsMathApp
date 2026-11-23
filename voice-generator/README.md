@@ -67,7 +67,9 @@ The list holds every sentence the game says to a child:
 - the questions of the ages 3-6 skills;
 - the numbers 0-20.
 
-To keep it small, spoken lines have no names, and choices and numbers are read as short sentences of their own, so one recording serves many questions. See "Record the voice" in `ARCHITECTURE.md`.
+To keep it small, spoken lines have no names, and choices and numbers are read as short sentences of their own, so one recording serves many questions. Sentences that differ only by punctuation, capital letters or digits vs number words ("Cat." and "cat!", "5" and "Five!") are listed once and share one recording, because the voice says them the same way. See "Record the voice" in `ARCHITECTURE.md`.
+
+A sentence already in the game's voice folder counts as recorded, even if `voices_export/` has no copy (or has it under an older file name), and `--install` keeps it.
 
 ## Hebrew
 

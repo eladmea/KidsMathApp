@@ -30,7 +30,7 @@ import { splitSentences } from '../logic/voices';
 import { content, hasContent } from '../content/index';
 import { has, keysOf, list, raw, setLanguage, t } from '../i18n/index';
 import { coachIntro, skillTitle, subjectName } from '../i18n/names';
-import { clipUrl, recordedClipId } from './voiceClips';
+import { clipId, clipUrl } from './voiceClips';
 
 const SAMPLES = 3000;
 // Older children's questions are recorded too, so a level doesn't mix the
@@ -281,25 +281,22 @@ export function voiceLines(language, { samples = SAMPLES } = {}) {
     if (!DEVICE_VOICE_GENERATORS.includes(id)) found.forEach((source, sentence) => add(sentence, source, questionGroup(id)));
   });
 
-  // The same words with and without a full stop share one recording
-  // (services/voiceClips.js), so they are one line: the recorded spelling,
-  // or else the one without the full stop.
-  const merged = new Map();
+  // Sentences with the same spoken words ("Cat." / "cat!", "9!" / "Nine.")
+  // share one recording (voiceClips.js spokenForm): one line each, recorded
+  // from its most common text, used wherever any of them is.
+  const byClip = new Map();
   [...lines.values()]
     .filter((entry) => entry.text.trim())
+    .sort((a, b) => b.count - a.count || a.text.localeCompare(b.text))
     .forEach((entry) => {
-      const bare = entry.text.trim().replace(/\.$/, '');
-      const other = merged.get(bare);
-      if (!other) return merged.set(bare, { ...entry, groups: new Set(entry.groups) });
-      entry.groups.forEach((group) => other.groups.add(group));
-      other.count += entry.count;
-      if (!entry.text.endsWith('.')) Object.assign(other, { text: entry.text, source: entry.source });
+      const id = clipId(entry.text, language);
+      const same = byClip.get(id);
+      if (!same) return byClip.set(id, { ...entry, groups: new Set(entry.groups), id, recorded: Boolean(clipUrl(entry.text, language)) });
+      same.count += entry.count;
+      entry.groups.forEach((group) => same.groups.add(group));
     });
-  merged.forEach((entry, bare) => {
-    if (!clipUrl(entry.text, language)) entry.text = bare;
-  });
-  const result = [...merged.values()]
-    .map((entry) => ({ ...entry, groups: [...entry.groups].sort(), id: recordedClipId(entry.text, language), recorded: Boolean(clipUrl(entry.text, language)) }))
+  const result = [...byClip.values()]
+    .map((entry) => ({ ...entry, groups: [...entry.groups].sort() }))
     .sort((a, b) => b.count - a.count || a.text.localeCompare(b.text));
   // Spoken templates with no values listed above (add them to templateValues).
   result.missingTemplates = missing;
