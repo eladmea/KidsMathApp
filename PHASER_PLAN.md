@@ -458,7 +458,7 @@ A first take on the island design, drawn in code so it can be reviewed and steer
 The device's robotic text-to-speech is replaced by recordings made with Kokoro, a free AI voice (`af_heart`, speed 0.9). The device voice remains the fallback.
 
 **What was done**
-- **`voice-generator/`**, a separate folder that isn't built into the game. `generate.py` reads `sentences_english.txt` (line 1 is the voice settings), records each sentence with kokoro-onnx (no PyTorch), and writes 32 kbit/s MP3s to `voices_export/`. `--install` copies them into `src/voice/en/` and removes old ones. `--samples` makes voice samples, and `--part 1/2` splits the work over two windows.
+- **`voice-generator/`**, a separate folder that isn't built into the game. `generate.py` reads `sentences_english.txt` (line 1 is the voice settings), records each sentence with kokoro-onnx (no PyTorch), and writes 16 kbit/s MP3s to `voices_export/`. `--install` copies them into `src/voice/en/` and removes old ones. `--samples` makes voice samples, and `--part 1/2` splits the work over two windows.
 - **Fewer, reusable sentences:**
   - Spoken lines have no names (the screen still shows them).
   - Choices, patterns and number lists are read as one short sentence each ("Ring. Tree. Or goat?", "Which number is bigger? 81. Or 64?").
