@@ -55,7 +55,7 @@ HEBREW_FILES = {
     'renikud.onnx': 'https://huggingface.co/thewh1teagle/renikud/resolve/neobert-130m/model.onnx',
 }
 RATE = 24000
-BITRATE = '32k'
+BITRATE = '16k'
 # A little silence before and after each sentence, in seconds.
 PAD = 0.08
 # The game's folder of recordings for each sentence file.
@@ -240,7 +240,7 @@ def save(audio, target_without_extension, use_mp3):
     if not use_mp3:
         return wav
     mp3 = target_without_extension.with_suffix('.mp3')
-    # Mono, 32 kbit/s: clear speech at about 4 KB a second.
+    # Mono, 16 kbit/s: clear speech at about 2 KB a second (half of 32k, chosen by ear).
     subprocess.run(['ffmpeg', '-y', '-loglevel', 'error', '-i', str(wav), '-ac', '1', '-b:a', BITRATE, str(mp3)], check=True)
     wav.unlink()
     return mp3
