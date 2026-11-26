@@ -3,7 +3,7 @@
 // falls back.
 import fs from 'fs';
 import path from 'path';
-import { FALLBACK, keysOf, languages, list, raw, setLanguage, t } from '../src/i18n/index';
+import { DEFAULT_LANGUAGE, FALLBACK, keysOf, languages, list, raw, setLanguage, t } from '../src/i18n/index';
 
 function sources(dir) {
   return fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
@@ -14,8 +14,10 @@ function sources(dir) {
 }
 
 describe('language files', () => {
-  it('has English', () => {
-    expect(languages()[0]).toMatchObject({ id: 'en', name: 'English', dir: 'ltr', speech: 'en-US' });
+  it('has English and Hebrew, Hebrew first: the game opens in Hebrew', () => {
+    expect(DEFAULT_LANGUAGE).toBe('he');
+    expect(languages()[0]).toMatchObject({ id: 'he', dir: 'rtl', speech: 'he-IL' });
+    expect(languages().find((l) => l.id === 'en')).toMatchObject({ name: 'English', dir: 'ltr', speech: 'en-US' });
   });
 
   it('has every key the code asks for', () => {

@@ -26,5 +26,6 @@ export default defineConfig({
   test: {
     globals: true,
     include: ['tests/**/*.test.js'],
+    setupFiles: ['tests/setup/english.js'],
   },
 });

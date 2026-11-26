@@ -3,13 +3,13 @@
 import { applyFinishedRound, canSpendTicket } from '../logic/funTickets';
 import { completeStep, isFinished, newAdventure, planAdventure } from '../logic/adventure';
 import { addPlayTime, grantBonus, minutesLeft } from '../logic/playTime';
-import { createProfile, profileBand } from '../logic/profiles';
+import { createProfile, profileBand, startLanguage } from '../logic/profiles';
 import { applySession, toDayKey } from '../logic/progress';
 import { awardStickers, roundStickerEvents } from '../logic/stickers';
 import * as storage from './storage';
 import { devFlags } from '../dev/flags';
 import { setNarration } from './speech';
-import { FALLBACK, getLanguage, setLanguage } from '../i18n/index';
+import { DEFAULT_LANGUAGE, FALLBACK, getLanguage, setLanguage } from '../i18n/index';
 
 // The parent dashboard shows the last week of finished adventures.
 const MAX_ADVENTURE_DAYS_KEPT = 30;
@@ -34,6 +34,8 @@ export const session = {
 export async function loadSession() {
   session.profiles = await storage.loadProfiles();
   session.profile = null;
+  // Hebrew by default; the children's language when they all share one.
+  setLanguage(startLanguage(session.profiles, DEFAULT_LANGUAGE, FALLBACK));
   session.progress = {};
   session.playTime = await storage.loadPlayTime();
 }

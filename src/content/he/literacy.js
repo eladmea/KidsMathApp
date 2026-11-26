@@ -54,6 +54,16 @@ export const FIRST_SOUND_WORDS = {
 export const FIRST_SOUNDS_EARLY = ['מ', 'ס', 'ש', 'ל', 'נ', 'ר'];
 export const FIRST_SOUNDS_ALL = Object.keys(FIRST_SOUND_WORDS);
 
+// מחבואים עם אותיות: the name of each thing a letter can hide in, by its id
+// in logic/letterHide.js. The letter it hides is the word's first letter.
+// כ, ב and פ words start with their hard sound (כּוֹבַע, בָּנָנָה, פִּיצָה).
+export const HIDE_WORDS = {
+  book: 'ספר', hat: 'כובע', clock: 'שעון', guitar: 'גיטרה', robot: 'רובוט', ball: 'כדור',
+  banana: 'בננה', apple: 'תפוח', lemon: 'לימון', pizza: 'פיצה', carrot: 'גזר', cake: 'עוגה',
+  bear: 'דוב', fox: 'שועל', lion: 'אריה', monkey: 'קוף', frog: 'צפרדע', panda: 'פנדה', rabbit: 'ארנב', pig: 'חזיר',
+  car: 'מכונית', flower: 'פרח', bucket: 'דלי', balloon: 'בלון', train: 'רכבת',
+};
+
 // Rhyme families: every word in a family rhymes with the others.
 // (Emoji are kept to Unicode 13 or older so they render on older devices.)
 export const RHYME_FAMILIES = [

@@ -42,6 +42,16 @@ export const FIRST_SOUND_WORDS = {
 export const FIRST_SOUNDS_EARLY = ['s', 'm', 't', 'p', 'f', 'n'];
 export const FIRST_SOUNDS_ALL = Object.keys(FIRST_SOUND_WORDS);
 
+// Letter Hide and Seek: the name of each thing a letter can hide in, by its
+// id in logic/letterHide.js. The letter it hides is the word's first letter,
+// so every word here starts with its usual sound (c as in cat, not city).
+export const HIDE_WORDS = {
+  book: 'book', hat: 'hat', clock: 'clock', guitar: 'guitar', robot: 'robot', ball: 'ball',
+  banana: 'banana', apple: 'apple', lemon: 'lemon', pizza: 'pizza', carrot: 'carrot', cake: 'cake',
+  bear: 'bear', fox: 'fox', lion: 'lion', monkey: 'monkey', frog: 'frog', panda: 'panda', rabbit: 'rabbit', pig: 'pig',
+  car: 'car', flower: 'flower', bucket: 'bucket', balloon: 'balloon', train: 'train',
+};
+
 // Rhyme families: every word in a family rhymes with the others.
 // (Emoji are kept to Unicode 13 or older so they render on older devices.)
 export const RHYME_FAMILIES = [

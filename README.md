@@ -1,6 +1,6 @@
 # MathPlay 🧮
 
-Learning games for kids ages 3-10, built around a research-based skill map (learning trajectories, spaced review, read-aloud prompts for pre-readers).
+Learning games for kids ages 3-10, in Hebrew (the default) and English, built around a research-based skill map (learning trajectories, spaced review, read-aloud prompts for pre-readers).
 
 > Built with [Phaser 4](https://phaser.io) for landscape phones and tablets (and any browser). [PHASER_PLAN.md](PHASER_PLAN.md) has the plan and what each phase built; [ARCHITECTURE.md](ARCHITECTURE.md) explains how to change things. The old Expo app it replaced is in the git history (up to commit `86c82f2`).
 
@@ -13,6 +13,7 @@ Learning games for kids ages 3-10, built around a research-based skill map (lear
 - **Mastery + spaced review** — a round is passed at ≥ 80%. A skill is **mastered** after passing on **2 different days**. Passed skills return in Daily Review on a Leitner schedule (1, 2, 4, 8, 16 days), interleaving several skills in one round.
 - **Worked examples** — until a child passes a skill, each practice round opens with "Let's try one together!": how to play, a question with the answer shown, and why. A ❓ button shows another example any time.
 - **Generic quiz engine** — one generator per skill (`curriculum/generators.js`) with optional pictures (count the apples, add two groups, fade out the "taken away" ones), 2-4 big answer buttons, green/red feedback with sounds.
+- **Letter Hide and Seek (ages 3-4)** — a letter hides behind, under or in one of four things in a room, a kitchen, a forest or a park: the one whose name starts with it. The letter shows at the top and the narrator names it; tap a thing or drag it away to look. An empty thing says its name, so the child hears its first sound.
 - **Word Woods (reading)** — Rhyme Time, Sound Snack (feed the monster the right first sound), Letter Sounds, Sight Words, Word Builder (letter tiles that play their sounds and blend back into the word), digraph and vowel-team words, Story Strip (put panels in order), Compound Words and Word Parts. Listening tasks are always read aloud.
 - **Nature Bay (science)** — Dress for Weather, Where Do I Live?, What Plants Need, Push or Pull?, Push & Roll (hold to push harder and roll farther), Life Cycles, Solid/Liquid/Gas, Food Chains and My Amazing Body.
 - **Puzzle Peak (logic)** — Bunny Pop (ages 3-4: whack-a-mole, boop only the bunny), Freeze Zoo (ages 5-6: tap / freeze with a rule switch), a pattern ladder for every age (fill the gap in AB → longer patterns → same pattern in new things → which part repeats → growing patterns → pattern position and number rules), Robo Path and Robot Loops (program a robot with arrow and repeat blocks) and Logic Grids.
@@ -84,7 +85,7 @@ tests/                    Vitest unit tests for curriculum and logic
 e2e/                      Playwright walkthroughs through the window.__mathplay test hook: players, games, learning (the learning
                           loop), writing (the tracing games), pizza (Pizza Shop, Birthday Cake), thinking (Bunny Pop, Freeze Zoo, Robo Path,
                           Push & Roll, Feelings Friends), fun (Games, Fun Break and tickets), grownups (adventure, time limit,
-                          dashboard), islands (map, stops, chest), numbers (Block Tower, Balance Scale, Number Pairs, Block Fit), letters (Letter Catcher, Block Fit), quiz (every quiz skill once), smoke (a deployed site); run.mjs runs them all
+                          dashboard), islands (map, stops, chest), numbers (Block Tower, Balance Scale, Number Pairs, Block Fit), letters (Letter Catcher, Letter Hide and Seek, Block Fit), quiz (every quiz skill once), smoke (a deployed site); run.mjs runs them all
 ```
 
 ## Play online

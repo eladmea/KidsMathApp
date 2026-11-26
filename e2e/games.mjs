@@ -57,5 +57,5 @@ await tap('map');
 await t.waitScene('Island');
 
 const utter = await t.mp(() => window.__utter);
-check('speech uses the natural voice', utter.length > 0 && utter.every((u) => u.voice === 'aria-natural'), utter.at(-1)?.voice);
+check('speech uses the natural voice', utter.length > 0 && utter.every((u) => u.voice === 'aria-natural'), JSON.stringify(utter.filter((u) => u.voice !== 'aria-natural')));
 process.exit(await t.finish());

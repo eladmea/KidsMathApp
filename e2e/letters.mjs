@@ -1,4 +1,4 @@
-// Walkthrough: Letter Catcher on Word Woods. Runs at normal speed: the kid
+// Walkthrough: Letter Catcher and Letter Hide and Seek on Word Woods. Runs at normal speed: the kid
 // is steered under a bubble (with the arrow keys, and once with the
 // on-screen arrows) and throws when lined up. One letter for ages 3-4 (with
 // a wrong hit first), words for 5-6, letter pairs for 7-8. Block Fit with
@@ -199,6 +199,57 @@ await checkRecorded('catch 3-4', voiceFrom);
 await results();
 s = await state();
 check('catch 3-4: the round ends on Results', s.score === s.total - 1 - strayWords.size && strayWords.size <= 2, `${s.score}/${s.total}, stray in words ${[...strayWords]}`);
+await toMap();
+
+// ---- Letter Hide and Seek (ages 3-4) ----
+// A letter hides in one of four things; a wrong thing says its name, the
+// right one shows the letter. Tapped, and once dragged away by hand.
+await tap(`player:Mia`);
+await t.waitScene('WorldMap');
+await tap('island:literacy');
+await t.waitScene('Island');
+await sleep(200);
+check('lit-letter-hide is open on Word Woods', (await state()).skills.find((x) => x.id === 'lit-letter-hide').status === 'ready');
+await tap('skill:lit-letter-hide');
+await t.waitScene('LetterHide');
+const finding = (n) => waitFor((i) => window.__mathplay.state.step === 'find' && window.__mathplay.state.index === i, n, 15000);
+await finding(0);
+voiceFrom = await voiceCount();
+s = await state();
+const target = s.things.find((thing) => thing.id === s.target);
+check('hide: four things, each starting with a different letter', s.things.length === 4 && new Set(s.things.map((thing) => thing.letter)).size === 4, JSON.stringify(s.things.map((thing) => thing.word)));
+check('hide: the letter shown is the first letter of the thing it hides in', target.word.startsWith(s.letter), `${s.letter} ${target.word}`);
+await sleep(300);
+await t.shot(dir, 'l1b-hide');
+const empty = s.things.find((thing) => thing.id !== s.target);
+await tap(`thing:${empty.id}`);
+await waitFor(() => window.__mathplay.state.wrong === 1, null, 4000);
+const said = await t.mp((n) => window.__mathplay.voice.slice(n).map((v) => v.text).join(' '), voiceFrom);
+check('hide: an empty thing says its name', said.includes(empty.word), said);
+await tap(`thing:${s.target}`);
+await waitFor(() => window.__mathplay.state.step === 'found', null, 4000);
+await sleep(300);
+await t.shot(dir, 'l1c-found');
+check('hide: a letter found after a miss scores nothing', (await state()).score === 0);
+// The next one dragged away by hand, the rest tapped.
+await finding(1);
+s = await state();
+const from = await t.box(`thing:${s.target}`);
+await t.page.mouse.move(from.x + from.width / 2, from.y + from.height / 2);
+await t.page.mouse.down();
+await t.page.mouse.move(from.x + from.width / 2, from.y - from.height, { steps: 8 });
+await t.page.mouse.up();
+await waitFor(() => window.__mathplay.state.step === 'found', null, 4000);
+check('hide: dragging the thing away finds the letter too', (await state()).score === 1);
+for (let i = 2; i < s.total; i++) {
+  await finding(i);
+  await tap(`thing:${(await state()).target}`);
+  await waitFor(() => window.__mathplay.state.step === 'found', null, 4000);
+}
+await checkRecorded('hide', voiceFrom);
+await results();
+s = await state();
+check('hide: the round ends on Results, letters found first time scored', s.score === s.total - 1, `${s.score}/${s.total}`);
 await toMap();
 
 // ---- Ages 5-6: words, in order ----

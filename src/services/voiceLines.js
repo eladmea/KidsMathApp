@@ -23,6 +23,7 @@ import { PREWRITING_PATHS } from '../logic/tracing';
 import { STEP_INFO } from '../logic/adventure';
 import { DIGIT_SHAPES } from '../logic/blockFit';
 import { allLines as letterCatcherLines } from '../logic/letterCatcher';
+import { allLines as letterHideLines } from '../logic/letterHide';
 import { CLEANUP_JOBS, LEVELS, TIMED, isMeasured, levelRecipe } from '../logic/kitchen';
 import { RECIPES } from '../logic/recipes/index';
 import { answerLine } from '../logic/quizRound';
@@ -40,7 +41,7 @@ const SAMPLES = 3000;
 const DEVICE_VOICE_GENERATORS = ['add-100', 'sub-100', 'number-line-1000'];
 const range = (from, to) => Array.from({ length: to - from + 1 }, (_, i) => from + i);
 // Round sizes of every game and quiz (for "You got 3 out of 5.").
-const ROUND_TOTALS = [2, 3, 5, 6, 8, 10, 16, 24];
+const ROUND_TOTALS = [2, 3, 4, 5, 6, 8, 10, 16, 24];
 // Memory Chips variants for the ages that hear them.
 const MEMORY_VARIANTS = ['dots', 'letters', 'classic'];
 
@@ -66,6 +67,7 @@ const SHOWN = new Set([
   'numberPairs.instructions',
   'numberPairs.score',
   'letterCatcher.instructions',
+  'letterHide.instructions',
   'blockFit.instructions',
   'blockFit.instructionsTurn',
   'pushRoll.hold',
@@ -143,6 +145,7 @@ const GAME_GROUPS = {
   'game: kitchen': 'say:kitchen',
   'game: block fit': 'say:blockFit',
   'game: letter catcher': 'say:letterCatcher',
+  'game: letter hide': 'say:letterHide',
   'island name': 'islands',
   number: 'numbers',
   'letter sound': 'letters',
@@ -253,6 +256,8 @@ export function voiceLines(language, { samples = SAMPLES } = {}) {
   }
   // Letter Catcher: its words and the sound of every letter in a bubble.
   if (literacy && literacy.CVC_WORDS) letterCatcherLines(literacy).forEach((line) => add(line, 'game: letter catcher'));
+  // Letter Hide and Seek: each thing's name, its found line and its letter.
+  if (literacy && literacy.HIDE_WORDS) letterHideLines(literacy).forEach((line) => add(line, 'game: letter hide'));
   if (hasContent('math', language)) memoryPhrases(content('math', language), literacy, add);
   // Block Fit's answers: each digit, and each letter it draws.
   if (hasContent('math', language)) {

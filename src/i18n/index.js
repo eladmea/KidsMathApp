@@ -23,13 +23,16 @@ Object.entries(files).forEach(([path, data]) => {
   else catalog[language].text[file] = data;
 });
 
-let current = FALLBACK;
+// The language the game opens in: the one marked "default" in its _meta.json.
+export const DEFAULT_LANGUAGE = Object.keys(catalog).find((id) => catalog[id].meta.default) || FALLBACK;
+
+let current = DEFAULT_LANGUAGE;
 const listeners = new Set();
 
-// [{ id, name, dir, speech }], English first.
+// [{ id, name, dir, speech }], the default language first.
 export function languages() {
   return Object.keys(catalog)
-    .sort((a, b) => (a === FALLBACK ? -1 : b === FALLBACK ? 1 : a.localeCompare(b)))
+    .sort((a, b) => (a === DEFAULT_LANGUAGE ? -1 : b === DEFAULT_LANGUAGE ? 1 : a.localeCompare(b)))
     .map((id) => ({ id, name: id, dir: 'ltr', speech: id, ...catalog[id].meta }));
 }
 
