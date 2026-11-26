@@ -27,10 +27,19 @@ check('landscape shows the game, not the turn message', !rotate);
 // ---- First run: the welcome screen ----
 await t.waitScene('CreateProfile');
 await sleep(400);
-check('no players yet: the welcome screen opens', (await t.spoken()).some((line) => line.startsWith('Welcome')));
+check('no players yet: the welcome screen opens, in Hebrew (the default)', (await t.spoken()).some((line) => line.startsWith('ברוכים הבאים')) && (await page.evaluate(() => document.documentElement.lang)) === 'he');
+check('the welcome screen offers every language', Boolean(await t.box('language:en')) && Boolean(await t.box('language:he')));
+{
+  const [he, en] = [await t.box('language:he'), await t.box('language:en')];
+  check('Hebrew is offered first', he.x < en.x, JSON.stringify({ he, en }));
+}
+// The rest of this walkthrough plays in English: the form switches on the spot.
+await tap('language:en');
+await t.waitFor(() => window.__mathplay.scene === 'CreateProfile' && document.documentElement.lang === 'en', null, 8000);
+await sleep(400);
+check('choosing English redraws the welcome screen in English', (await t.spoken()).some((line) => line.startsWith('Welcome')));
 check('the first player has no back button', !(await t.box('back')));
 check("can't save without a name", (await state()).canSave === false);
-check('the welcome screen offers every language, English first', Boolean(await t.box('language:en')) && Boolean(await t.box('language:he')));
 {
   // The last row of buddies stays above the Language row (they used to overlap).
   const [buddy, language, save] = [await t.box('avatar:🐧'), await t.box('language:en'), await t.box('save')];

@@ -206,6 +206,24 @@ node scripts/comfy-picture.mjs <image key> "<subject>" [--kind food|object|place
 | `kitchen/deco/mint` | two fresh green mint leaves | 3 |
 | `pizza/board` (kind `object`, `--shape` a drawn round board with wood lines, denoise 0.65, `--size 640`) | round wooden chopping board with a short handle, warm brown wood with wood grain, seen from directly above | 2 |
 | `pizza/animals/<id>` and `<id>-open` (kind `character`; one frame drawn, the other painted and repainted at denoise 0.4, cut out with `--frame`) | brown bear, white bunny with long ears, orange fox, panda, green frog, brown monkey, lion with a golden mane, pink pig (… with its mouth closed / wide open) | bear 2, bunny 2, fox 2, panda 1, frog 2, monkey 1, lion 1, pig 4 |
+| `letterHide/book` (kind `object`) | closed thick red picture book standing upright | 2 |
+| `letterHide/hat` (kind `object`) | round blue sun hat with a wide brim | 2 |
+| `letterHide/clock` (kind `object`) | round red alarm clock with two silver bells on top | 2 |
+| `letterHide/guitar` (kind `object`) | small orange toy guitar | 1 |
+| `letterHide/robot` (kind `object`) | small silver and blue toy robot standing | 2 |
+| `letterHide/ball` (kind `object`; seeds 1-2, a red and white ball, looked like a famous game's ball) | colourful striped beach ball with red, yellow and blue stripes | 3 |
+| `letterHide/apple` | single shiny red apple with a green leaf | 1 |
+| `letterHide/lemon` | single yellow lemon with a green leaf | 2 |
+| `letterHide/cake` | round pink birthday cake with white cream | 1 |
+| `letterHide/car` (kind `object`) | small red toy car seen from the side | 1 |
+| `letterHide/flower` (kind `object`) | big pink flower in a small clay flower pot | 2 |
+| `letterHide/bucket` (kind `object`) | yellow plastic beach bucket with a handle | 2 |
+| `letterHide/balloon` (kind `object`) | single round red balloon on a string | 2 |
+| `letterHide/train` (kind `object`) | small green toy steam train engine seen from the side | 1 |
+| backdrop `LetterHide-room` (wash 0.3; seed 2 had letters painted on the wall) | a cosy children's bedroom seen from the front, a soft rug on a wooden floor, toy shelves and a window along the edges, a wide open floor in the middle | 1 |
+| backdrop `LetterHide-kitchen` (wash 0.3) | a bright cheerful kitchen seen from the front, cupboards and a window along the edges, a long wooden table top across the bottom half | 1 |
+| backdrop `LetterHide-forest` (wash 0.3) | a sunny friendly forest clearing seen from the front, round green trees and bushes along the edges, soft green grass across the bottom half | 1 |
+| backdrop `LetterHide-park` (wash 0.3) | a sunny children's park seen from the front, trees, flowers and a little fence along the edges, soft green lawn across the bottom half | 1 |
 
 ---
 
@@ -213,6 +231,7 @@ node scripts/comfy-picture.mjs <image key> "<subject>" [--kind food|object|place
 
 1. **UI text.** Copy `src/i18n/en/` to `src/i18n/<code>/`, for example `he`. Translate the JSON values but keep the keys.
    - In `_meta.json`, set `name` (shown in the picker), `dir` (`"rtl"` for Hebrew or Arabic) and `speech` (the BCP 47 code for voices, for example `"he-IL"`).
+   - `"default": true` in one language's `_meta.json` makes the game open in it (and list it first in the picker) before a child is picked. **Hebrew is the default** (November 2026). When every child on the device plays in one language, "Who's playing?" opens in theirs instead (`startLanguage()` in `logic/profiles.js`), so an all-English family sees English; English stays the fallback for keys a language leaves out. The unit tests start in English (`tests/setup/english.js`); a test that needs Hebrew calls `setLanguage('he')`.
    - Keys you leave out fall back to English.
    - Plurals are objects with forms `one` / `two` / `few` / `many` / `other` (`Intl.PluralRules`), and `{name}` fills in a value.
 2. **Question content.** Add `src/content/<code>/<pack>.js` for each subject the language has: `math`, `literacy`, `science`, `logic`, `sel`.

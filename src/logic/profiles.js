@@ -25,3 +25,12 @@ export function profileBand(profile) {
 export function isValidName(name) {
   return name.trim().length > 0;
 }
+
+// The language "Who's playing?" opens in, before a child is picked: the
+// children's language when they all play in one (an all-English family sees
+// English), otherwise the game's default. A profile saved before languages
+// existed plays in `fallback`.
+export function startLanguage(profiles, defaultLanguage, fallback = 'en') {
+  const used = [...new Set(profiles.map((profile) => profile.language || fallback))];
+  return used.length === 1 ? used[0] : defaultLanguage;
+}

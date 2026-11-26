@@ -1,4 +1,4 @@
-import { createProfile, isValidName, profileBand, MAX_NAME_LENGTH } from '../src/logic/profiles';
+import { createProfile, isValidName, profileBand, startLanguage, MAX_NAME_LENGTH } from '../src/logic/profiles';
 
 describe('profiles', () => {
   it('turns narration on by default for children who are not reading yet', () => {
@@ -22,5 +22,14 @@ describe('profiles', () => {
   it('rejects blank names', () => {
     expect(isValidName('   ')).toBe(false);
     expect(isValidName('Sam')).toBe(true);
+  });
+
+  it("opens Who's playing in the children's language when they share one, else the default", () => {
+    expect(startLanguage([], 'he')).toBe('he');
+    expect(startLanguage([{ language: 'en' }, { language: 'en' }], 'he')).toBe('en');
+    expect(startLanguage([{ language: 'he' }], 'he')).toBe('he');
+    expect(startLanguage([{ language: 'en' }, { language: 'he' }], 'he')).toBe('he');
+    // Saved before languages existed: English.
+    expect(startLanguage([{}], 'he')).toBe('en');
   });
 });

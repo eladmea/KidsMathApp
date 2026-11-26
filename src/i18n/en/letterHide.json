@@ -1,0 +1,9 @@
+{
+  "intro": "Letter hide and seek! Each letter hides in something that starts with its sound. Find it!",
+  "instructions": "Tap things, or move them, to find the letter.",
+  "hiding": "Close your eyes! The letter is hiding.",
+  "where": "Where is the letter hiding?",
+  "look": "Look for something that starts with this letter.",
+  "notHere": "Not here!",
+  "found": "Well done!"
+}

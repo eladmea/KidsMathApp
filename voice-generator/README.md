@@ -16,7 +16,7 @@ This folder is separate from the game: nothing in it is built into the app. Only
 
 ## Set up (once)
 
-You need **Python 3.10 or newer**, and preferably **ffmpeg**. ffmpeg makes small MP3 files, about 7 KB a sentence; without it you get WAV files, about 8× bigger.
+You need **Python 3.12 or newer** (Hebrew's `renikud-onnx` won't install on older ones; on a PC with only an older Python, `pip install uv` and `python -m uv python install 3.12` fetch one, then make the `.venv` with it), and preferably **ffmpeg**. ffmpeg makes small MP3 files, about 7 KB a sentence; without it you get WAV files, about 8× bigger.
 
 ```bash
 cd voice-generator
@@ -28,6 +28,8 @@ pip install -r requirements.txt
 Install ffmpeg: Mac `brew install ffmpeg`, Windows `winget install ffmpeg`, Linux `sudo apt install ffmpeg`.
 
 ## Run
+
+On Windows, set `PYTHONIOENCODING=utf-8` first, so Hebrew sentences print instead of stopping the run.
 
 ```bash
 python generate.py --samples    # the first sentence in 8 voices: voices_export/_samples/
