@@ -271,7 +271,7 @@ npm run voice:lines -- en --txt            # every sentence to record -> voice-g
 cd voice-generator && python generate.py --install   # records the new ones, copies them into src/voice/en/
 ```
 
-Hebrew works the same way with `he` and `sentences_hebrew.txt`, using a Hebrew Kokoro model (`--file sentences_hebrew.txt`). See `voice-generator/README.md` for setup.
+Hebrew works the same way with `he` and `sentences_hebrew.txt` (`--file sentences_hebrew.txt`), but is recorded with Google's Gemini text-to-speech, voice Erinome: paid (about $3 for every Hebrew sentence), allowed in a game that is sold, and each sentence is told how to sound (excited praise, gentle misses, curious questions). It needs `GEMINI_API_KEY`. See `voice-generator/README.md` for setup.
 
 `npm run voice:lines -- en` (without `--txt`) writes a CSV instead, with where each line is used. `--missing` lists only what isn't recorded yet.
 

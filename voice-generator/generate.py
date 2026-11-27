@@ -128,8 +128,16 @@ HUNDREDS = ['', 'מאה', 'מאתיים', 'שלוש מאות', 'ארבע מאו�
 
 
 def hebrew_number(n):
-    if n >= 1000:
+    if n >= 10000:
         return str(n)
+    if n >= 1000:
+        # אלף, אלפיים, שלושת אלפים ... תשעת אלפים, then the rest.
+        thousands = ['', 'אלף', 'אלפיים', 'שלושת אלפים', 'ארבעת אלפים', 'חמשת אלפים', 'ששת אלפים', 'שבעת אלפים', 'שמונת אלפים', 'תשעת אלפים'][n // 1000]
+        rest = n % 1000
+        if not rest:
+            return thousands
+        tail = hebrew_number(rest)
+        return f'{thousands} {tail if " " in tail else "ו" + tail}'
     if n < 10:
         return UNITS[n]
     parts = []
@@ -257,10 +265,17 @@ def main():
     parser.add_argument('--wav', action='store_true', help='keep WAV files instead of MP3')
     parser.add_argument('--install', action='store_true', help="copy the recordings into the game's voice folder")
     parser.add_argument('--part', help='record only part of the list, e.g. 1/2 and 2/2 in two windows at once')
+    parser.add_argument('--fresh', action='store_true', help="re-record sentences the game already has, skipping only those recorded here (a new voice)")
+    parser.add_argument('--budget', type=float, default=10.0, help='Gemini only: stop once this many US dollars are spent (default 10)')
+    parser.add_argument('--workers', type=int, default=4, help='Gemini only: requests sent at once (default 4)')
+    parser.add_argument('--batch', type=int, default=80, help='Gemini only: sentences in one request (default 80; 100 requests a day is the limit)')
+    parser.add_argument('--model', help='Gemini only: a model, instead of line 1')
     args = parser.parse_args()
 
     settings, sentences = read_sentences(args.file)
     export = EXPORT_FOLDERS.get(args.file.name, EXPORT / args.file.stem)
+    if settings.get('ENGINE') == 'gemini':
+        return main_gemini(args, settings, sentences, export)
     hebrew = settings.get('ENGINE') == 'kokoro-hebrew'
     voice = args.voice or settings.get('VOICE', 'he_shaul' if hebrew else 'af_heart')
     speed = args.speed or float(settings.get('SPEED', '0.9'))
@@ -304,16 +319,7 @@ def main():
         return
 
     export.mkdir(parents=True, exist_ok=True)
-    # Done: recorded here, or already in the game (its file names can change
-    # when the game's clip ids do, so the game folder counts too).
-    game = GAME_VOICE.get(args.file.name)
-    done = lambda n: any((folder / f'{n}{ext}').exists() for folder in (export, game) if folder for ext in ('.mp3', '.wav'))
-    todo = [(n, t) for n, t in sentences if args.force or not done(n)]
-    if args.part:
-        part, parts = (int(n) for n in args.part.split('/'))
-        todo = todo[part - 1 :: parts]
-    if args.limit:
-        todo = todo[: args.limit]
+    todo = todo_list(args, sentences, export, GAME_VOICE.get(args.file.name))
     print(f'Voice {voice}, speed {speed}: {len(todo)} to record ({len(sentences) - len(todo)} already done).')
     failed = 0
     for i, (name, text) in enumerate(todo, start=1):
@@ -324,6 +330,125 @@ def main():
             failed += 1
             print(f'  [{i}/{len(todo)}] FAILED "{text}": {error}')
     print(f'Done: {len(todo) - failed} recorded{f", {failed} failed" if failed else ""}, in {export.relative_to(HERE)}/.')
+    if args.install:
+        install(sentences, export, GAME_VOICE.get(args.file.name))
+
+
+def todo_list(args, sentences, export, game):
+    # Done: recorded here, or already in the game (its file names can change
+    # when the game's clip ids do, so the game folder counts too).
+    # --fresh (a new voice for the whole game): only what is recorded here counts,
+    # so a stopped run picks up where it left off.
+    folders = (export,) if args.fresh else (export, game)
+    done = lambda n: any((folder / f'{n}{ext}').exists() for folder in folders if folder for ext in ('.mp3', '.wav'))
+    todo = [(n, t) for n, t in sentences if args.force or not done(n)]
+    if args.part:
+        part, parts = (int(n) for n in args.part.split('/'))
+        todo = todo[part - 1 :: parts]
+    if args.limit:
+        todo = todo[: args.limit]
+    return todo
+
+
+# Hebrew with Gemini (ENGINE=gemini on line 1): recorded over the internet,
+# several at once, with a style note for each sentence (see gemini_tts.py).
+# Sentences the screen spells in a way the voice would misread, and what to send instead.
+GEMINI_TEXT = {'יששש!': 'יֵשׁ!'}
+
+
+def main_gemini(args, settings, sentences, export):
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+
+    import gemini_tts
+
+    voice = args.voice or settings.get('VOICE', 'Erinome')
+    model = args.model or settings.get('MODEL', 'gemini-3.8-flash-tts')
+    gemini = gemini_tts.Gemini(voice, model, args.budget)
+    use_mp3 = not args.wav and shutil.which('ffmpeg') is not None
+
+    def record(name, text, folder, who=None):
+        style, kind = gemini_tts.hebrew_delivery(text)
+        spoken = gemini_tts.with_breaths(GEMINI_TEXT.get(text) or gemini_tts.prepare(text, hebrew_numbers))
+        audio, rate = gemini_tts.wav_to_audio(gemini.say(spoken, style, who))
+        if rate != RATE:
+            raise RuntimeError(f'unexpected sample rate {rate}')
+        return save(gemini_tts.level(trim(audio)), folder / name, use_mp3), kind, spoken
+
+    if args.samples:
+        folder = export / '_samples'
+        folder.mkdir(parents=True, exist_ok=True)
+        name, text = sentences[0]
+        for who in gemini_tts.SAMPLE_VOICES:
+            path, kind, _ = record(who, text, folder, who)
+            print(f'  {path.relative_to(HERE)}  ({kind})')
+        print(f'Cost ${gemini.cost:.4f}. Put the voice you like on line 1 of {args.file.name} (VOICE=...).')
+        return
+
+    export.mkdir(parents=True, exist_ok=True)
+    todo = todo_list(args, sentences, export, GAME_VOICE.get(args.file.name))
+    print(f'Gemini {model}, voice {voice}: {len(todo)} to record ({len(sentences) - len(todo)} already done), '
+          f'{args.batch} a request, budget ${args.budget:.2f}.')
+
+    def record_batch(items):
+        """One request for several sentences of the same kind. Returns (saved, to retry)."""
+        if len(items) == 1:
+            return [(*items[0], *record(*items[0], export))], []
+        style, _ = gemini_tts.hebrew_delivery(items[0][1])
+        spoken = [gemini_tts.with_breaths(GEMINI_TEXT.get(t) or gemini_tts.prepare(t, hebrew_numbers)) for _, t in items]
+        audio, rate = gemini_tts.wav_to_audio(gemini.say(gemini_tts.batch_text(spoken), style + gemini_tts.BATCH_STYLE))
+        if rate != RATE:
+            raise RuntimeError(f'unexpected sample rate {rate}')
+        pieces, fits = gemini_tts.split_batch(audio, rate, spoken)
+        saved, retry = [], []
+        for (name, text), said, piece, fit in zip(items, spoken, pieces, fits):
+            if gemini_tts.FIT[0] <= fit <= gemini_tts.FIT[1]:
+                path = save(gemini_tts.level(trim(piece)), export / name, use_mp3)
+                saved.append((name, text, path, gemini_tts.hebrew_delivery(text)[1], said))
+            else:
+                retry.append((name, text))
+        return saved, retry
+
+    # Sentences of one kind share a request (they share its style note). A piece
+    # whose length doesn't fit its words was probably cut in the wrong place: it
+    # is recorded again in a smaller batch, and at last on its own.
+    left, size, done, failed, stopped = todo, max(1, args.batch), 0, [], None
+    with open(export / '_styles.tsv', 'a', encoding='utf-8') as log:
+        while left and not stopped:
+            kinds = {}
+            for name, text in left:
+                kinds.setdefault(gemini_tts.hebrew_delivery(text)[1], []).append((name, text))
+            batches = [group[i : i + size] for group in kinds.values() for i in range(0, len(group), size)]
+            left = []
+            with ThreadPoolExecutor(args.workers) as pool:
+                jobs = {pool.submit(record_batch, items): items for items in batches}
+                for job in as_completed(jobs):
+                    items = jobs[job]
+                    try:
+                        saved, retry = job.result()
+                    except gemini_tts.DailyLimit as error:
+                        stopped = error
+                        left += items
+                        continue
+                    except Exception as error:  # keep going: one bad batch shouldn't stop the rest
+                        print(f'  FAILED {len(items)} sentences ("{items[0][1]}"...): {error}')
+                        (failed if len(items) == 1 else left).extend(items)
+                        continue
+                    for name, text, path, kind, said in saved:
+                        log.write(f'{name}\t{kind}\t{said}\n')
+                    log.flush()
+                    done += len(saved)
+                    left += retry
+                    print(f'  [{done}/{len(todo)}] ${gemini.cost:.3f} {gemini.requests} requests: {len(saved)} saved'
+                          f'{f", {len(retry)} to retry" if retry else ""}  ("{items[0][1]}"...)')
+            if size == 1:
+                break
+            size = max(1, size // 8)
+    failed += [] if stopped else left
+    print(f'Done: {done} recorded in {export.relative_to(HERE)}/ with {gemini.requests} requests'
+          f'{f", {len(failed)} failed" if failed else ""}. '
+          f'Cost about ${gemini.cost:.2f} ({gemini.tokens_out / 25 / 60:.0f} minutes of speech).')
+    if stopped:
+        print(f"Stopped: today's requests for {model} are used up, {len(left)} sentences left. Run again tomorrow. ({stopped})")
     if args.install:
         install(sentences, export, GAME_VOICE.get(args.file.name))
 

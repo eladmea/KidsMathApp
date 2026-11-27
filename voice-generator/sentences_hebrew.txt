@@ -1,4 +1,4 @@
-ENGINE=kokoro-hebrew VOICE=he_shaul SPEED=0.9  # Kokoro trained on Hebrew, with renikud working out the vowels. he_shaul is a clear, calm male voice (run --samples to hear every voice the model has). 0.9 is a little slower for young listeners. Free for non-commercial use.
+ENGINE=gemini VOICE=Erinome MODEL=gemini-3.8-flash-tts  # Google Gemini text-to-speech (paid, allowed in a product that is sold). Erinome: a clear, precise female voice, chosen by ear over Kore, Sulafat and Vindemiatrix. Each sentence gets a style note from gemini_tts.py. Needs GEMINI_API_KEY.
 9c1a0582 | עכשיו: גילוי.
 412ab6d5 | עכשיו: מיומנות חדשה.
 c2541eeb | שליטה מלאה!

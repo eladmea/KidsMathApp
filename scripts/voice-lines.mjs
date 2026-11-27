@@ -19,7 +19,7 @@ const LANGUAGE_NAMES = { en: 'english', he: 'hebrew' };
 // Line 1 of a new sentence file: the voice settings (generate.py reads them).
 const HEADERS = {
   en: 'VOICE=af_heart SPEED=0.9 LANG=a',
-  he: 'ENGINE=kokoro-hebrew VOICE=he_shaul SPEED=0.9',
+  he: 'ENGINE=gemini VOICE=Erinome MODEL=gemini-3.8-flash-tts',
 };
 
 const server = await createServer({ server: { middlewareMode: true }, appType: 'custom', logLevel: 'error' });

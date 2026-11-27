@@ -1,6 +1,6 @@
 # Voice generator
 
-Records the game's sentences with **[Kokoro](https://huggingface.co/hexgrad/Kokoro-82M)**, a free AI voice that runs on your own computer, through [kokoro-onnx](https://github.com/thewh1teagle/kokoro-onnx). It's the same voices without PyTorch, so the install is about 100 MB instead of several GB. The game then plays these recordings instead of the device's robotic text-to-speech. Any sentence without a recording still uses the device voice, so recordings can be added a few at a time.
+Records the game's sentences with **[Kokoro](https://huggingface.co/hexgrad/Kokoro-82M)**, a free AI voice that runs on your own computer, through [kokoro-onnx](https://github.com/thewh1teagle/kokoro-onnx). It's the same voices without PyTorch, so the install is about 100 MB instead of several GB. The game then plays these recordings instead of the device's robotic text-to-speech. Any sentence without a recording still uses the device voice, so recordings can be added a few at a time. Hebrew is recorded with Google's Gemini instead (see "Hebrew").
 
 This folder is separate from the game: nothing in it is built into the app. Only the finished `.mp3` files are copied into the game, into `src/voice/en/`. The Python packages and the Kokoro model files stay on your computer. The model files are downloaded into `models/` on the first run: `kokoro-v1.0.onnx` (325 MB) and `voices-v1.0.bin` (28 MB).
 
@@ -78,22 +78,47 @@ A sentence already in the game's voice folder counts as recorded, even if `voice
 `sentences_hebrew.txt` holds the Hebrew sentences (made with `npm run voice:lines -- he --txt`). Its line 1 picks the Hebrew engine:
 
 ```
-ENGINE=kokoro-hebrew VOICE=he_shaul SPEED=0.9
+ENGINE=gemini VOICE=Erinome MODEL=gemini-3.8-flash-tts
 ```
 
+### Gemini (the Hebrew voice in the game)
+
+Hebrew is recorded with Google's [Gemini text-to-speech](https://ai.google.dev/gemini-api/docs/speech-generation), voice **Erinome**: a clear, precise female voice. It was chosen by ear over Kore, Sulafat and Vindemiatrix on the game's welcome line. Gemini is a paid service, and its recordings may be used in a game that is sold. The old free voice (Kokoro Hebrew, below) may not.
+
 ```bash
-python generate.py --file sentences_hebrew.txt --samples     # hear the voices first
-python generate.py --file sentences_hebrew.txt --install     # record them all, copy them into src/voice/he/
+# Windows: set GEMINI_API_KEY (Google AI Studio → Get API key, with billing on) and PYTHONIOENCODING=utf-8
+python generate.py --file sentences_hebrew.txt --samples              # the first sentence in 6 female voices
+python generate.py --file sentences_hebrew.txt --install              # new sentences only, then copy into src/voice/he/
+python generate.py --file sentences_hebrew.txt --fresh --install      # every sentence again (a new voice)
 ```
+
+- **How each sentence is said.** `gemini_tts.py` sends every sentence with a short style note, which shapes the voice and is never spoken. All of them start "A kind kindergarten teacher talking to a young child, clear and unhurried", then add one of:
+  - praise ("כל הכבוד", "הצלחתם!", all answers right): excited and proud;
+  - a miss ("לא כאן", "כמעט", fewer than half right): gentle and encouraging;
+  - a question: curious and playful;
+  - one or two words (letter names, words to read): slow and very clear;
+  - other lines ending in "!": cheerful; everything else: warm and friendly.
+  
+  `_styles.tsv` in `voices_export/he/` lists what each sentence got.
+- **Breaths and pauses.** A sentence of 14 words or more starts with `<breath>`, and one of 10 words or more with a colon gets `<short pause>` after it. These tags are Gemini's (in English, even in Hebrew text) and are not spoken. Each clip is one sentence, so short ones need none.
+- **Even loudness.** Gemini's loudness swings by about 8 dB between sentences, so every clip is leveled to −21 dB (close to the English recordings).
+- **Numbers** are turned into Hebrew words first, as for Kokoro (below).
+- **Many sentences in one request.** Google's first paid tier allows only **100 requests a day** for each model, so `--batch 80` (the default) sends 80 sentences of the same kind in one request, one per line with a long pause between them, and cuts the audio apart. The cuts are chosen by the silences and by how long each sentence should be from its letters. A piece whose length doesn't fit was probably cut in the wrong place: it is recorded again in a smaller batch, and at last on its own. The whole list needs about 80 requests. When the day's requests run out, the run stops and says so; run it again the next day and it carries on.
+- **Cost.** You pay for the length of the speech, pauses included: about $0.001 a sentence with `gemini-3.8-flash-tts` in 2026 (Google says prices double on 1 Jan 2027). All ~5,600 sentences cost about $5. `--budget` (default $10) stops the run before it spends more; the run prints its cost as it goes.
+- **Speed.** `--workers 4` sends 4 requests at once: 120 sentences took 24 seconds. A stopped run picks up where it left off. `--model` tries another model without changing line 1.
+
+### Kokoro Hebrew (the old voice, free, non-commercial)
+
+To use it again, set line 1 to `ENGINE=kokoro-hebrew VOICE=he_shaul SPEED=0.9`.
 
 - **The engine.** [Kokoro Hebrew](https://huggingface.co/thewh1teagle/kokoro-hebrew-nc) is a Kokoro model trained on Hebrew, so it runs through the same `kokoro-onnx` as English. Hebrew is written without vowels, so [renikud](https://huggingface.co/thewh1teagle/renikud) first works out the vowels (nikud) and the sounds. It was the best free Hebrew voice we found that runs on a laptop CPU.
 - **Downloads.** The first run downloads three files into `models/` from Hugging Face: `kokoro-hebrew.onnx`, `voices-hebrew.bin` and `renikud.onnx`, about 330 MB in all.
 - **Words renikud reads wrong.** `HEBREW_SOUNDS` in `generate.py` gives the sounds for a whole sentence instead, e.g. "יששש!" (a stretched "יש!" on screen) is said `jˈeʃ!`; renikud reads it as a word, "yishashesh".
 - **Sounds the voice says wrong.** `HEBREW_SOUND_FIXES` in `generate.py` changes sounds after renikud. "שש" (six) on its own came out as "sesh" (its first sh blurred into an s), so it is given a doubled sh, `ʃʃˈeʃ`. After adding a fix, record again every sentence it changes.
 - **Numbers.** Digits are turned into Hebrew words first, in the counting form used for sums ("3 ועוד 4" is read "שלוש ועוד ארבע"). Numbers that count something ("שלושה תפוחים") are already written as words by the game.
-- **Recorded.** All 3,399 Hebrew sentences are recorded and in the game: 31 MB in `src/voice/he/`. With 4 parts at once (`--part 1/4` … `4/4`), it took about 50 minutes on a 4-core CPU.
+- **Speed.** 3,399 sentences took about 50 minutes on a 4-core CPU with 4 parts at once (`--part 1/4` … `4/4`).
 - **The voice.** `he_shaul` is a calm, clear male voice, and the only voice the model has. It is trained on a public Hebrew speech corpus (SASPEECH).
-- **The licence.** The Hebrew model is free for **non-commercial** use only (see its model page). That's fine for a free game. If the game is ever sold, record Hebrew with another engine: the game only needs MP3 files named the same way.
+- **The licence.** The Hebrew model is free for **non-commercial** use only (see its model page). That is why the game now uses Gemini.
 - **Other engines we looked at:**
   - Chatterbox Multilingual: MIT licence and can copy a female voice from a sample, but it needs about 3 GB of PyTorch and is slow on CPU.
   - Meta's MMS-TTS: non-commercial, and its voice sounds like a Bible reading.

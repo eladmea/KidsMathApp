@@ -502,7 +502,7 @@ The device's robotic text-to-speech is replaced by recordings made with Kokoro, 
     - Kokoro was kept for now and can be swapped later.
 - **Later:**
   - mirror whole layouts if play-testers want it;
-  - a female Hebrew voice under a permissive licence (Chatterbox) if CPU time allows;
+  - ✅ a female Hebrew voice that may be used in a game that is sold: in November 2026 every Hebrew sentence was recorded again with Google's Gemini text-to-speech (voice Erinome), with a style for each kind of sentence (see `voice-generator/README.md`);
   - a Hebrew icon for the Word Woods island (it shows 🔤 "abc").
 
 ## Play-test fixes (Pizza Shop, Birthday Cake)
